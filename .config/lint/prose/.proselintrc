@@ -1,0 +1,56 @@
+{
+  "max_errors": 1000,
+  "checks": {
+    "annotations": true,
+
+    "dates_times": true,
+
+    "lexical_illusions": true,
+    "malapropisms": true,
+    "needless_variants": true,
+    "nonwords": true,
+    "uncomparables": true,
+
+    "misc.capitalization": true,
+    "misc.composition": true,
+    "misc.currency": true,
+    "misc.false_plurals": true,
+    "misc.illogic": true,
+    "misc.inferior_superior": true,
+    "misc.institution_name": true,
+    "misc.many_a": true,
+    "misc.phrasal_adjectives": true,
+    "misc.preferred_forms": true,
+    "misc.professions": true,
+    "misc.scare_quotes": true,
+    "misc.waxed": true,
+    "misc.whence": true,
+
+    "redundancy": true,
+    "typography": true,
+
+    "archaism": false,
+    "cliches": false,
+    "hedging": false,
+    "mixed_metaphors": false,
+    "mondegreens": false,
+    "oxymorons": false,
+    "psychology": false,
+    "restricted": false,
+    "skunked_terms": false,
+    "spelling": false,
+    "terms": false,
+    "weasel_words": false,
+
+    "misc.apologizing": false,
+    "misc.but": false,
+    "misc.debased": false,
+    "misc.latin": false,
+    "misc.metadiscourse": false,
+    "misc.narcissism": false,
+    "misc.not_guilty": false,
+    "misc.pretension": false,
+    "misc.suddenly": false,
+    "misc.tense_present": false
+  }
+}

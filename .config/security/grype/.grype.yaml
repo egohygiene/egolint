@@ -1,0 +1,95 @@
+---
+# ==============================================================================
+# Ego Hygiene - Universal Grype Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Detect known vulnerabilities in operating-system and language packages
+#   discovered from the repository filesystem and generated SBOM data.
+#
+# References:
+#   https://oss.anchore.com/docs/reference/grype/configuration/
+#   https://github.com/anchore/grype
+# ==============================================================================
+
+# Do not perform a separate application-version check during every lint run.
+check-for-app-update: false
+
+# Fail CI when a remaining High or Critical vulnerability is detected.
+fail-on-severity: "high"
+
+# Keep the standard human-readable output expected by MegaLinter.
+output:
+  - "table"
+
+# Keep ignored findings hidden during ordinary runs.
+show-suppressed: false
+
+# Scan all vulnerability matches, including vulnerabilities without a published
+# fix. Fix availability affects remediation priority but not whether the risk
+# should be visible.
+only-fixed: false
+only-notfixed: false
+
+# Do not synthesize CPE identifiers when package metadata does not provide one.
+# This reduces broad CPE-based matches and associated false positives.
+add-cpes-if-none: false
+
+# Prefer risk-prioritized output.
+sort-by: "risk"
+
+search:
+  # Analyze the effective merged filesystem rather than every image layer.
+  scope: "squashed"
+
+  # Search ordinary indexed archives such as Java ZIP/JAR packages.
+  indexed-archives: true
+
+  # Avoid recursively unpacking arbitrary tar archives during repository scans.
+  unindexed-archives: false
+
+db:
+  # Keep vulnerability information current.
+  auto-update: true
+
+  # Reuse the database between supported local/container runs.
+  cache-dir: ".cache/grype/db"
+
+  # Validate database integrity and freshness.
+  validate-by-hash-on-start: true
+  validate-age: true
+  max-allowed-built-age: "120h"
+
+  # Do not fail solely because the remote update check is temporarily
+  # unavailable when an existing valid database can still be used.
+  require-update-check: false
+
+  update-available-timeout: "30s"
+  update-download-timeout: "5m"
+  max-update-check-frequency: "2h"
+
+# Avoid scanning dependency stores, generated output, caches, and reports.
+exclude:
+  - "./.git/**"
+  - "./.cache/**"
+
+  - "./**/node_modules/**"
+  - "./**/vendor/**"
+
+  - "./**/.venv/**"
+  - "./**/venv/**"
+
+  - "./**/build/**"
+  - "./**/dist/**"
+  - "./**/out/**"
+  - "./**/target/**"
+  - "./**/coverage/**"
+  - "./**/generated/**"
+
+  - "./.engineering/reports/**"
+
+# Global vulnerability suppressions are intentionally empty.
+#
+# Any future exception should include enough package context to prevent the
+# suppression from hiding the same CVE in unrelated dependencies.
+ignore: []

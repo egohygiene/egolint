@@ -1,0 +1,51 @@
+---
+# ==============================================================================
+# Ego Hygiene — Universal actionlint Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Provide a strict, portable baseline for GitHub Actions workflow validation.
+#
+# Principles:
+#   - Keep actionlint configuration minimal.
+#   - Do not suppress findings globally.
+#   - Declare only repository-specific runner labels and configuration
+#     variables that actionlint cannot discover automatically.
+#   - Use path-specific ignores only for verified false positives.
+#
+# actionlint configuration:
+# https://github.com/rhysd/actionlint/blob/main/docs/config.md
+
+# ==============================================================================
+# Self-hosted runners
+# ==============================================================================
+
+# Additional labels assigned to self-hosted runners.
+#
+# GitHub-hosted runner labels and standard self-hosted labels are recognized
+# automatically. Add repository- or organization-specific labels here only when
+# workflows intentionally reference them.
+self-hosted-runner:
+  labels: []
+
+# ==============================================================================
+# GitHub configuration variables
+# ==============================================================================
+
+# Disable strict validation of the `vars` context in the universal baseline.
+#
+# actionlint cannot discover repository- and organization-level configuration
+# variables locally. Individual repositories may replace null with an explicit
+# allowlist once their variables are documented.
+config-variables: null
+
+# ==============================================================================
+# Path-specific exceptions
+# ==============================================================================
+
+# No findings are suppressed globally.
+#
+# Add an entry only for a confirmed actionlint false positive that cannot be
+# corrected in the workflow itself. Ignore patterns match actionlint error
+# messages using regular expressions.
+paths: {}

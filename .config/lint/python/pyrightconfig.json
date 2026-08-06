@@ -1,0 +1,58 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/pyright/main/packages/vscode-pyright/schemas/pyrightconfig.schema.json",
+
+  "pythonVersion": "3.12",
+  "pythonPlatform": "All",
+
+  "typeCheckingMode": "strict",
+
+  "include": [
+    "."
+  ],
+
+  "exclude": [
+    "**/.cache",
+    "**/.git",
+    "**/.mypy_cache",
+    "**/.pytest_cache",
+    "**/.ruff_cache",
+    "**/.tox",
+    "**/.venv",
+    "**/__pycache__",
+    "**/build",
+    "**/coverage",
+    "**/dist",
+    "**/generated",
+    "**/node_modules",
+    "**/out",
+    "**/target",
+    "**/vendor",
+    "**/venv",
+    ".engineering/reports", "**/.*"
+  ],
+
+  "ignore": [],
+
+  "useLibraryCodeForTypes": true,
+
+  "reportMissingImports": "warning",
+  "reportMissingTypeStubs": "none",
+  "reportMissingModuleSource": "none",
+
+  "reportUnusedImport": "warning",
+  "reportUnusedVariable": "warning",
+  "reportUnnecessaryIsInstance": "warning",
+  "reportUnnecessaryCast": "warning",
+  "reportUnnecessaryComparison": "warning",
+
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": [
+        ".",
+        "src",
+        "app"
+      ]
+    }
+  ]
+}

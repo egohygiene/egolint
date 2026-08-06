@@ -1,0 +1,153 @@
+---
+# ==============================================================================
+# Ego Hygiene - Universal Syft Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Generate deterministic repository SBOMs for dependency inventory,
+#   vulnerability analysis, compliance, and downstream automation.
+#
+# References:
+#   https://oss.anchore.com/docs/reference/syft/configuration/
+#   https://megalinter.io/latest/descriptors/repository_syft/
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Runtime behavior
+# ------------------------------------------------------------------------------
+
+check-for-app-update: false
+
+log:
+  quiet: true
+  verbosity: 0
+  level: "warn"
+
+cache:
+  dir: ".cache/syft"
+  ttl: "7d"
+
+# ------------------------------------------------------------------------------
+# SBOM output
+# ------------------------------------------------------------------------------
+
+# Generate both primary interoperability formats as separate report files.
+output:
+  - "spdx-json=.engineering/reports/megalinter/syft/sbom.spdx.json"
+  - "cyclonedx-json=.engineering/reports/megalinter/syft/sbom.cyclonedx.json"
+
+format:
+  pretty: true
+
+# ------------------------------------------------------------------------------
+# Cataloging strategy
+# ------------------------------------------------------------------------------
+
+# Let Syft select the correct directory-oriented catalogers automatically.
+#
+# Directory scans inspect both installed and declared dependencies, including
+# manifests and lockfiles from supported language ecosystems.
+default-catalogers:
+  - "directory"
+
+# Keep explicit selections empty so new supported ecosystems are discovered
+# without requiring continual config updates.
+select-catalogers: []
+
+package:
+  # Inspect indexed package archives such as JAR and ZIP files.
+  search-indexed-archives: true
+
+  # Avoid recursively unpacking arbitrary tar archives during broad repository
+  # scans because this can significantly increase runtime.
+  search-unindexed-archives: false
+
+  # Prefer packages backed by stronger ownership evidence over overlapping
+  # synthetic binary classifications.
+  exclude-binary-overlap-by-ownership: true
+
+# ------------------------------------------------------------------------------
+# License information
+# ------------------------------------------------------------------------------
+
+license:
+  # Record license identities without embedding full license-file contents in
+  # every generated SBOM.
+  content: "none"
+
+  coverage: 75
+
+# ------------------------------------------------------------------------------
+# File metadata
+# ------------------------------------------------------------------------------
+
+file:
+  metadata:
+    # Include files that Syft associates with discovered packages rather than
+    # cataloging every file in the repository.
+    selection: "owned-by-package"
+
+    digests:
+      - "sha256"
+
+  content:
+    # Do not search arbitrary file bodies unless a future file-content
+    # cataloger explicitly requests matching paths.
+    skip-files-above-size: 1000000
+    globs: []
+
+  executable:
+    globs: []
+
+# Preserve package-to-file relationships for downstream investigation.
+relationships:
+  package-file-ownership: true
+  package-file-ownership-overlap: true
+
+# ------------------------------------------------------------------------------
+# Source metadata
+# ------------------------------------------------------------------------------
+
+source:
+  name: "egohygiene"
+  supplier: "Organization: Ego Hygiene"
+  base-path: "."
+
+# ------------------------------------------------------------------------------
+# File selection
+# ------------------------------------------------------------------------------
+
+exclude:
+  - "./.git/**"
+  - "./.cache/**"
+  - "./.engineering/reports/**"
+
+  - "./**/node_modules/**"
+  - "./**/vendor/**"
+
+  - "./**/.venv/**"
+  - "./**/venv/**"
+  - "./**/__pycache__/**"
+
+  - "./**/.next/**"
+  - "./**/.nuxt/**"
+  - "./**/.turbo/**"
+  - "./**/.yarn/**"
+  - "./**/.pnpm-store/**"
+
+  - "./**/build/**"
+  - "./**/dist/**"
+  - "./**/out/**"
+  - "./**/target/**"
+  - "./**/coverage/**"
+  - "./**/generated/**"
+  - "./**/tmp/**"
+
+# ------------------------------------------------------------------------------
+# Unknown artifacts
+# ------------------------------------------------------------------------------
+
+unknowns:
+  remove-when-packages-defined: true
+  executables-without-packages: true
+  unexpanded-archives: true

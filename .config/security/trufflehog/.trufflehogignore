@@ -1,0 +1,37 @@
+# ==============================================================================
+# Ego Hygiene - TruffleHog Filesystem Exclusions
+# ==============================================================================
+#
+# Each non-comment line is a regular expression matched against scanned paths.
+# Keep this list narrow: exclusions can hide committed credentials.
+# ==============================================================================
+
+(^|/)\.git/
+(^|/)node_modules/
+(^|/)vendor/
+
+(^|/)\.venv/
+(^|/)venv/
+(^|/)__pycache__/
+
+(^|/)\.cache/
+(^|/)\.next/
+(^|/)\.nuxt/
+(^|/)\.turbo/
+(^|/)\.pnpm-store/
+(^|/)\.yarn/
+
+(^|/)build/
+(^|/)dist/
+(^|/)out/
+(^|/)target/
+(^|/)coverage/
+(^|/)generated/
+(^|/)tmp/
+
+^\.engineering/reports/
+
+\.map$
+\.min\.js$
+\.min\.css$
+\.snap$

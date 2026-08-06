@@ -1,0 +1,35 @@
+---
+# ==============================================================================
+# Ego Hygiene — Universal PHPLint Configuration
+# ==============================================================================
+#
+# PHPLint performs fast parallel PHP syntax validation.
+#
+# Reference:
+# https://github.com/overtrue/phplint
+# ==============================================================================
+
+path:
+  - "."
+
+jobs: 4
+
+extensions:
+  - "php"
+
+exclude:
+  - "vendor"
+  - "node_modules"
+  - "build"
+  - "dist"
+  - "coverage"
+  - ".cache"
+  - "storage/framework"
+  - "bootstrap/cache"
+
+warning: true
+
+memory-limit: -1
+
+no-cache: true
+cache-ttl: 0

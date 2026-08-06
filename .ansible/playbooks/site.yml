@@ -1,0 +1,9 @@
+---
+- name: Validate the local Ansible project scaffold
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Confirm the scaffold is operational
+      ansible.builtin.debug:
+        msg: "Ansible project scaffold is operational."

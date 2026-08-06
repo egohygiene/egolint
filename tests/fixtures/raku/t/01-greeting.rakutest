@@ -1,0 +1,14 @@
+use v6.d;
+
+use Test;
+use lib 'tests/fixtures/raku/lib';
+
+use EgoHygiene::Greeting;
+
+is(
+    format-greeting('Ego Hygiene'),
+    'Hello, Ego Hygiene.',
+    'formats a greeting',
+);
+
+done-testing;

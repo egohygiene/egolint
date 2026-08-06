@@ -1,0 +1,11 @@
+{
+  "mode": "json",
+  "comments": false,
+  "single-quoted-strings": false,
+  "trailing-commas": false,
+  "duplicate-keys": false,
+  "bom": false,
+  "quiet": true,
+  "continue": true,
+  "color": false
+}

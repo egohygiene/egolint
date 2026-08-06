@@ -1,0 +1,85 @@
+;; =============================================================================
+;; Ego Hygiene — Universal cljstyle Configuration
+;; =============================================================================
+;;
+;; Purpose:
+;;   Provide a deterministic formatting baseline for Clojure, ClojureScript,
+;;   cross-compiled Clojure, and EDN source files.
+;;
+;; Principles:
+;;   - Prefer cljstyle defaults unless the repository has a clear reason to
+;;     override them.
+;;   - Keep formatting deterministic and autofixable.
+;;   - Exclude only dependency, build, cache, and generated output.
+;;   - Avoid duplicating static-analysis policy owned by clj-kondo.
+;;
+;; Configuration:
+;; https://github.com/greglook/cljstyle/blob/main/doc/configuration.md
+
+{:files
+ {:extensions #{"clj" "cljs" "cljc" "edn"}
+
+  ;; String values match file or directory basenames exactly.
+  ;; Regular-expression values may be added later for path-specific ignores.
+  :ignore
+  #{".cache"
+    ".git"
+    ".history"
+    ".shadow-cljs"
+    ".terraform"
+    ".venv"
+    "build"
+    "checkouts"
+    "coverage"
+    "dist"
+    "node_modules"
+    "out"
+    "reports"
+    "target"
+    "venv"}}
+
+ :rules
+ {:indentation
+  {:enabled? true
+   :list-indent 2}
+
+  :whitespace
+  {:enabled? true
+   :remove-surrounding? true
+   :remove-trailing? true
+   :insert-missing? true}
+
+  :blank-lines
+  {:enabled? true
+   :trim-consecutive? true
+   :max-consecutive 2
+   :insert-padding? true
+   :padding-lines 1}
+
+  :eof-newline
+  {:enabled? true
+   :trailing-blanks? false}
+
+  :comments
+  {:enabled? true
+   :inline-prefix " "
+   :leading-prefix " "}
+
+  :vars
+  {:enabled? true}
+
+  :functions
+  {:enabled? true}
+
+  :types
+  {:enabled? true
+   :types? true
+   :protocols? true
+   :reifies? true
+   :proxies? true}
+
+  :namespaces
+  {:enabled? true
+   :indent-size 2
+   :break-libs? true
+   :import-break-width 80}}}

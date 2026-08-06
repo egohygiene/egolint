@@ -1,0 +1,68 @@
+---
+# ==============================================================================
+# Ego Hygiene - Universal tekton-lint Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Validate Tekton Tasks, Pipelines, Runs, Triggers, parameters, workspaces,
+#   results, dependencies, and common operational best practices.
+#
+# References:
+#   https://github.com/IBM/tekton-lint
+#   https://megalinter.io/latest/descriptors/tekton_tekton_lint/
+# ==============================================================================
+
+rules:
+  # ---------------------------------------------------------------------------
+  # Structural correctness
+  # ---------------------------------------------------------------------------
+
+  no-duplicate-param: error
+  no-invalid-name: error
+  no-invalid-param-type: error
+
+  no-pipeline-missing-parameters: error
+  no-pipeline-missing-task: error
+  no-pipeline-task-cycle: error
+
+  no-extra-param: error
+  no-missing-param: error
+  no-undefined-param: error
+
+  no-missing-workspace: error
+  no-undefined-result: error
+  no-undefined-volume: error
+
+  no-duplicate-resource: error
+  no-missing-resource: error
+  no-resourceversion: error
+
+  no-duplicate-env: error
+
+  # ---------------------------------------------------------------------------
+  # Security and reproducibility
+  # ---------------------------------------------------------------------------
+
+  # Require explicit container-image tags rather than an implicit latest tag.
+  no-latest-image: warning
+
+  # ---------------------------------------------------------------------------
+  # Naming and maintainability
+  # ---------------------------------------------------------------------------
+
+  prefer-kebab-case: warning
+  prefer-camel-kebab-case: off
+
+  no-unused-param: warning
+
+  # ---------------------------------------------------------------------------
+  # Modern Tekton practices
+  # ---------------------------------------------------------------------------
+
+  # This historical rule prefers beta APIs, which is no longer appropriate as
+  # universal policy for current Tekton v1 resources.
+  prefer-beta: off
+
+  prefer-when-expression: warning
+  no-deprecated-resource: warning
+  no-missing-hashbang: warning

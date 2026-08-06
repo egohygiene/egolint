@@ -1,0 +1,193 @@
+---
+# =============================================================================
+# Ego Hygiene — Universal latexindent Configuration
+# =============================================================================
+#
+# Purpose:
+#   Provide deterministic LaTeX formatting across first-party source files.
+#
+# References:
+#   https://latexindentpl.readthedocs.io/
+#   https://github.com/cmhughes/latexindent.pl
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# File handling
+# -----------------------------------------------------------------------------
+
+fileExtensionPreference:
+  .tex: 1
+  .sty: 2
+  .cls: 3
+  .bib: 4
+
+backupExtension: ".bak"
+
+# The formatting task writes through a temporary file rather than invoking
+# latexindent's in-place backup behavior, so these are defensive defaults.
+onlyOneBackUp: 1
+maxNumberOfBackUps: 1
+cycleThroughBackUps: 0
+
+# -----------------------------------------------------------------------------
+# Indentation
+# -----------------------------------------------------------------------------
+
+defaultIndent: "    "
+indentPreamble: 0
+maximumIndentation: -1
+
+lookForPreamble:
+  .tex: 1
+  .sty: 0
+  .cls: 0
+  .bib: 0
+  STDIN: 1
+
+removeTrailingWhitespace:
+  beforeProcessing: 1
+  afterProcessing: 1
+
+noAdditionalIndent:
+  document: 1
+
+# Do not add indentation around every command argument.
+noAdditionalIndentGlobal:
+  environments: 0
+  commands: 1
+  optionalArguments: 0
+  mandatoryArguments: 0
+  ifElseFi: 0
+  items: 0
+  keyEqualsValuesBracesBrackets: 0
+  namedGroupingBracesBrackets: 0
+  UnNamedGroupingBracesBrackets: 1
+  specialBeginEnd: 0
+  afterHeading: 0
+
+# -----------------------------------------------------------------------------
+# Verbatim and generated content
+# -----------------------------------------------------------------------------
+
+verbatimEnvironments:
+  verbatim: 1
+  lstlisting: 1
+  minted: 1
+  tikzpicture: 1
+
+verbatimCommands:
+  verb: 1
+  lstinline: 1
+
+fileContentsEnvironments:
+  filecontents: 1
+  filecontents*: 1
+
+# -----------------------------------------------------------------------------
+# Lists
+# -----------------------------------------------------------------------------
+
+indentAfterItems:
+  itemize: 1
+  itemize*: 1
+  enumerate: 1
+  enumerate*: 1
+  description: 1
+  description*: 1
+  list: 1
+
+# -----------------------------------------------------------------------------
+# Alignment
+# -----------------------------------------------------------------------------
+
+lookForAlignDelims:
+  tabular: 1
+  tabularx: 1
+  longtable: 1
+  array: 1
+
+  align: 1
+  align*: 1
+  alignat: 1
+  alignat*: 1
+  aligned: 1
+  alignedat: 1
+  flalign: 1
+  flalign*: 1
+  gather: 1
+  gather*: 1
+  split: 1
+
+  matrix: 1
+  bmatrix: 1
+  Bmatrix: 1
+  pmatrix: 1
+  vmatrix: 1
+  Vmatrix: 1
+  cases: 1
+
+  NiceTabular: 1
+  NiceMatrix: 1
+  NiceArray: 1
+
+  tblr: 1
+  longtblr: 1
+  talltblr: 1
+
+# -----------------------------------------------------------------------------
+# Line-break policy
+# -----------------------------------------------------------------------------
+
+# These settings are only active when latexindent runs with --modifylinebreaks.
+# The default formatting task intentionally does not enable that switch.
+modifyLineBreaks:
+  preserveBlankLines: 1
+  condenseMultipleBlankLinesInto: 1
+
+  oneSentencePerLine:
+    manipulateSentences: 0
+
+  textWrapOptions:
+    columns: 0
+    multipleSpacesToSingle: 1
+    removeBlockLineBreaks: 1
+    comments:
+      wrap: 0
+
+  environments:
+    BeginStartsOnOwnLine: 0
+    BodyStartsOnOwnLine: 0
+    EndStartsOnOwnLine: 0
+    EndFinishesWithLineBreak: 0
+
+  items:
+    ItemStartsOnOwnLine: 0
+    ItemFinishesWithLineBreak: 0
+
+# -----------------------------------------------------------------------------
+# Runtime switches
+# -----------------------------------------------------------------------------
+
+# Keep behavior controlled by Taskfile commands rather than hidden in YAML.
+switchesViaYaml:
+  kSwitch: 0
+  kvSwitch: 0
+  mSwitch: 0
+  rSwitch: 0
+  rrSwitch: 0
+  rvSwitch: 0
+  sSwitch: 0
+  slSwitch: 0
+  tSwitch: 0
+  ttSwitch: 0
+
+# -----------------------------------------------------------------------------
+# Logging
+# -----------------------------------------------------------------------------
+
+logFilePreferences:
+  showEveryYamlRead: 0
+  showAmalgamatedSettings: 0
+  showGitHubInfoFooter: 0
+
+dos2unixlinebreaks: 0

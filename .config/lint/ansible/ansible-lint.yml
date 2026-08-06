@@ -1,0 +1,146 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible-lint-config.json
+
+# ==============================================================================
+# Ego Hygiene — Universal Ansible Lint Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Provide a strict, portable baseline for first-party Ansible automation.
+#
+# Principles:
+#   - Prefer remediation over suppression.
+#   - Enable meaningful opt-in correctness and safety rules.
+#   - Keep lint findings visible and actionable.
+#   - Avoid repository-wide path assumptions in this native linter config.
+#   - Delegate target selection to MegaLinter.
+#
+# ansible-lint configuration:
+# https://docs.ansible.com/projects/lint/configuring/
+#
+# ansible-lint rules:
+# https://docs.ansible.com/projects/lint/rules/
+
+# ==============================================================================
+# Rule profile and failure behavior
+# ==============================================================================
+
+# Enforce the complete production-readiness profile.
+#
+# Profiles are cumulative, so this includes rules from the minimum, basic,
+# moderate, safety, and shared profiles.
+profile: production
+
+# Return a non-zero status for warnings as well as errors.
+#
+# Rules intentionally downgraded through warn_list remain visible but still
+# block validation under this strict repository policy.
+strict: true
+
+# Keep normal findings visible in local and CI output.
+quiet: false
+
+# Use normal verbosity. MegaLinter may override this through command arguments.
+verbosity: 0
+
+# Display findings relative to the detected Ansible project root.
+display_relative_path: true
+
+# ==============================================================================
+# Rule loading and activation
+# ==============================================================================
+
+# Load the rules bundled with ansible-lint.
+use_default_rules: true
+
+# Enable selected opt-in rules that strengthen correctness, safety, and
+# maintainability.
+enable_list:
+  # Validate task arguments when static analysis can resolve them.
+  - args
+
+  # Reject comparisons against empty string literals.
+  - empty-string-compare
+
+  # Detect loops that may expose secrets through task output.
+  - no-log-password
+
+  # Detect file-copy behavior that may unexpectedly preserve ownership.
+  - no-same-owner
+
+  # Enforce consistent task-name prefixes for reusable task files.
+  - name[prefix]
+
+  # Ensure YAML validation remains explicitly enabled.
+  - yaml
+
+# Do not globally hide any rules.
+#
+# File-specific exceptions should use an adjacent ansible-lint ignore file so
+# accepted violations remain visible and traceable.
+skip_list: []
+
+# Retain ansible-lint's standard advisory treatment for experimental findings.
+warn_list:
+  - experimental
+
+# ==============================================================================
+# Ansible conventions
+# ==============================================================================
+
+# Enforce lowercase snake_case variable names.
+var_naming_pattern: "^[a-z_][a-z0-9_]*$"
+
+# Prefix task names with the source file stem.
+task_name_prefix: "{stem} | "
+
+# Limit deeply nested block, rescue, and always structures.
+max_block_depth: 20
+
+# Keep action validation enabled.
+skip_action_validation: false
+
+# ==============================================================================
+# Dependency and execution behavior
+# ==============================================================================
+
+# Permit dependency resolution and schema updates when required.
+#
+# Repository workflows that require fully disconnected execution may override
+# this value or pass --offline explicitly.
+offline: false
+
+# Do not provide synthetic variables globally.
+#
+# Repository-specific syntax-check requirements should add only the minimum
+# variables needed by their automation.
+extra_vars: {}
+
+# Do not mock unavailable modules or roles globally.
+mock_modules: []
+mock_roles: []
+
+# ==============================================================================
+# Collection and module policy
+# ==============================================================================
+
+# Do not add universal exceptions to the only-builtins rule.
+#
+# Repositories that intentionally depend on approved external collections or
+# modules may extend these lists locally.
+only_builtins_allow_collections: []
+only_builtins_allow_modules: []
+
+# ==============================================================================
+# Autofix policy
+# ==============================================================================
+
+# Allow all supported rule transforms when autofix is explicitly requested.
+#
+# Normal MegaLinter validation uses APPLY_FIXES: none, so this setting does not
+# modify files during standard lint runs.
+write_list:
+  - all
+
+# Do not exclude any supported transforms globally.
+write_exclude_list: []

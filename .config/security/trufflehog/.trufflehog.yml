@@ -1,0 +1,24 @@
+---
+# ==============================================================================
+# Ego Hygiene - Universal TruffleHog Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Provide shared runtime and detector configuration for repository secret
+#   scanning. Scan policy and result enforcement are supplied through
+#   MegaLinter CLI arguments.
+#
+# References:
+#   https://github.com/trufflesecurity/trufflehog
+#   https://trufflesecurity.com/docs/configuration-file-reference
+# ==============================================================================
+
+# Limit concurrent scanning work to keep local and CI runs predictable.
+concurrency: 4
+
+# Use human-readable logs. MegaLinter owns report formatting.
+loglevel: "info"
+logjson: false
+
+# Add repository-specific custom detectors here later.
+detectors: []

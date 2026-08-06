@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "import": [
+    "./cspell.json"
+  ],
+  "reporters": [
+    "default",
+    [
+      "@cspell/cspell-json-reporter",
+      {
+        "outFile": "../../../../.engineering/reports/megalinter/cspell/cspell-report.json"
+      }
+    ]
+  ]
+}

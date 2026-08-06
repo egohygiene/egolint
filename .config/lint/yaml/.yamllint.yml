@@ -1,0 +1,112 @@
+---
+# ==============================================================================
+# Ego Hygiene - Universal yamllint Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Enforce deterministic, portable YAML syntax and style across repository
+#   configuration, automation, infrastructure, and documentation files.
+#
+# References:
+#   https://yamllint.readthedocs.io/en/stable/
+#   https://megalinter.io/latest/descriptors/yaml_yamllint/
+# ==============================================================================
+
+extends: default
+
+yaml-files:
+  - "*.yaml"
+  - "*.yml"
+
+rules:
+  # ---------------------------------------------------------------------------
+  # Flow collections
+  # ---------------------------------------------------------------------------
+
+  # Permit either compact or formatter-generated spacing inside non-empty
+  # inline mappings while requiring compact empty mappings.
+  braces:
+    forbid: false
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+    min-spaces-inside-empty: 0
+    max-spaces-inside-empty: 0
+
+  brackets:
+    forbid: false
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+    min-spaces-inside-empty: 0
+    max-spaces-inside-empty: 0
+
+  # ---------------------------------------------------------------------------
+  # Comments
+  # ---------------------------------------------------------------------------
+
+  comments:
+    require-starting-space: true
+    ignore-shebangs: true
+    min-spaces-from-content: 2
+
+  comments-indentation: enable
+
+  # ---------------------------------------------------------------------------
+  # Document structure
+  # ---------------------------------------------------------------------------
+
+  # YAML document markers are allowed but not required universally.
+  document-start: disable
+  document-end: disable
+
+  empty-lines:
+    max: 2
+    max-start: 0
+    max-end: 0
+
+  new-line-at-end-of-file: enable
+
+  new-lines:
+    type: unix
+
+  trailing-spaces: enable
+
+  # ---------------------------------------------------------------------------
+  # Indentation
+  # ---------------------------------------------------------------------------
+
+  indentation:
+    spaces: 2
+    indent-sequences: consistent
+    check-multi-line-strings: false
+
+  # ---------------------------------------------------------------------------
+  # Content correctness
+  # ---------------------------------------------------------------------------
+
+  key-duplicates: enable
+
+  # Prevent ambiguous values such as 010 from being interpreted as octal.
+  # Explicit octal syntax remains allowed when intentionally used.
+  octal-values:
+    forbid-implicit-octal: true
+    forbid-explicit-octal: false
+
+  # Accept only canonical lowercase booleans in values.
+  #
+  # Keys are excluded because GitHub Actions legitimately uses `on:` as a
+  # mapping key.
+  truthy:
+    allowed-values:
+      - "true"
+      - "false"
+    check-keys: false
+
+  # ---------------------------------------------------------------------------
+  # Readability
+  # ---------------------------------------------------------------------------
+
+  line-length:
+    max: 120
+    level: warning
+    allow-non-breakable-words: true
+    allow-non-breakable-inline-mappings: true

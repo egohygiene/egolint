@@ -1,0 +1,23 @@
+---
+name: "Ego Hygiene"
+
+enabled: true
+
+metadata:
+  owner: "platform-engineering"
+  labels:
+    - "automation"
+    - "quality"
+
+tasks:
+  lint:
+    command: "task lint"
+    environment:
+      CI: "true"
+
+workflow:
+  on:
+    push:
+      branches:
+        - "main"
+

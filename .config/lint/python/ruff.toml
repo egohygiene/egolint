@@ -1,0 +1,187 @@
+# ==============================================================================
+# Ego Hygiene - Universal Ruff Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Provide the primary Python linting, import-sorting, and formatting policy.
+#
+# References:
+#   https://docs.astral.sh/ruff/configuration/
+# ==============================================================================
+
+target-version = "py312"
+line-length = 100
+
+cache-dir = ".cache/ruff"
+
+respect-gitignore = true
+force-exclude = true
+
+show-fixes = true
+output-format = "full"
+
+src = [
+  ".",
+  "src",
+  "app",
+  "scripts",
+  "tests",
+]
+
+extend-exclude = [
+  ".cache",
+  ".git",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".ruff_cache",
+  ".tox",
+  ".venv",
+  "__pycache__",
+  "build",
+  "coverage",
+  "dist",
+  "generated",
+  "node_modules",
+  "out",
+  "site",
+  "target",
+  "vendor",
+  "venv",
+  ".engineering/reports",
+]
+
+[lint]
+
+# Explicit selection prevents new Ruff releases from silently enabling newly
+# introduced rules through `ALL`.
+select = [
+  "A",
+  "ARG",
+  "ASYNC",
+  "B",
+  "BLE",
+  "C4",
+  "DTZ",
+  "E",
+  "ERA",
+  "F",
+  "FAST",
+  "FLY",
+  "FURB",
+  "I",
+  "ICN",
+  "INP",
+  "ISC",
+  "LOG",
+  "N",
+  "PERF",
+  "PGH",
+  "PIE",
+  "PL",
+  "PTH",
+  "PT",
+  "Q",
+  "RET",
+  "RSE",
+  "RUF",
+  "S",
+  "SIM",
+  "SLOT",
+  "T10",
+  "T20",
+  "TCH",
+  "TID",
+  "TRY",
+  "UP",
+  "W",
+  "YTT",
+]
+
+ignore = [
+  # Ruff formatter owns physical line wrapping.
+  "E501",
+
+  # These conflict with formatter behavior.
+  "COM812",
+  "ISC001",
+
+  # Mypy and Pyright own comprehensive annotation policy.
+  "ANN",
+
+  # Vale, Proselint, and documentation profiles own prose policy.
+  "D",
+]
+
+fixable = ["ALL"]
+
+# Import removal can break re-exports, plugin registration, and package APIs.
+unfixable = ["F401"]
+
+task-tags = [
+  "TODO",
+  "FIXME",
+  "XXX",
+  "HACK",
+]
+
+[lint.per-file-ignores]
+
+"tests/**/*.py" = [
+  "S101",
+  "PLR2004",
+]
+
+"test_*.py" = [
+  "S101",
+  "PLR2004",
+]
+
+"**/__init__.py" = [
+  "F401",
+]
+
+"scripts/**/*.py" = [
+  "T201",
+]
+
+[lint.flake8-bandit]
+
+hardcoded-tmp-directory = [
+  "/tmp",
+  "/var/tmp",
+  "/dev/shm",
+]
+
+[lint.flake8-builtins]
+
+builtins-ignorelist = ["id"]
+
+[lint.flake8-comprehensions]
+
+allow-dict-calls-with-keyword-arguments = false
+
+[lint.flake8-pytest-style]
+
+fixture-parentheses = false
+mark-parentheses = false
+
+[lint.isort]
+
+combine-as-imports = true
+force-sort-within-sections = true
+
+known-first-party = [
+  "app",
+  "src",
+]
+
+[format]
+
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+skip-magic-trailing-comma = false
+
+docstring-code-format = true
+docstring-code-line-length = "dynamic"

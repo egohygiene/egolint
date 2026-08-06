@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<psalm
+    xmlns="https://getpsalm.org/schema/config"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://getpsalm.org/schema/config https://raw.githubusercontent.com/vimeo/psalm/6.x/config.xsd"
+    errorLevel="1"
+    resolveFromConfigFile="false"
+    reportMixedIssues="true"
+    findUnusedCode="false"
+    findUnusedBaselineEntry="false"
+    findUnusedIssueHandlerSuppression="true"
+    useDocblockTypes="true"
+>
+    <projectFiles>
+        <directory name="." />
+
+        <ignoreFiles allowMissingFiles="true">
+            <directory name="vendor" />
+            <directory name="node_modules" />
+            <directory name="build" />
+            <directory name="dist" />
+            <directory name="coverage" />
+            <directory name=".cache" />
+            <directory name="storage/framework" />
+            <directory name="bootstrap/cache" />
+        </ignoreFiles>
+    </projectFiles>
+</psalm>

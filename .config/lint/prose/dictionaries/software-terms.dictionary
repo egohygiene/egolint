@@ -1,0 +1,22 @@
+# Add words here to reduce false positives during spell checking.
+# Custom Dictionary: Software Terms
+# This dictionary contains a list of software-related terms to be used by CSpell.
+cfnlint
+dartfrog
+dotenvx
+endtemplate
+genhtml
+Linter
+omniverse
+package.json
+xcassets
+xcodeb
+xcodeproj
+xcplayground
+xcscheme
+xcshareddata
+xctemplate
+xctest
+xctool
+xctrunner
+xcworkspace

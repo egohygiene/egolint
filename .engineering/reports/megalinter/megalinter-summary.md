@@ -1,0 +1,1777 @@
+## ❌[MegaLinter](https://megalinter.io/9.6.0) analysis: Error
+
+
+
+|Descriptor|                            Linter                             |Files|Fixed|Errors|Warnings|Elapsed time|
+|----------|---------------------------------------------------------------|----:|----:|-----:|-------:|-----------:|
+|❌ PYTHON |[bandit](https://megalinter.io/9.6.0/descriptors/python_bandit)|  254|     |   154|       0|       7.57s|
+
+## Detailed Issues
+
+<details>
+<summary>❌ PYTHON / bandit - 154 errors</summary>
+
+```
+[_py_warnings]	WARNING	"\c" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\c"? A raw string is also an option.
+
+Run started:2026-07-28 03:14:10.170282+00:00
+
+Test results:
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:20:0
+19	import argparse
+20	import subprocess
+21	import json
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:315:16
+314	                                    todos.append(f"{rel_path}:{line_num}: {line.strip()}")
+315	                except Exception:
+316	                    pass
+317	    except Exception:
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:317:4
+316	                    pass
+317	    except Exception:
+318	        pass
+319	
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:326:17
+325	    try:
+326	        result = subprocess.run(
+327	            ["git", "log", "--oneline", "-n", str(RECENT_COMMITS_LIMIT)],
+328	            capture_output=True,
+329	            text=True,
+330	            cwd=Path.cwd()
+331	        )
+332	        if result.returncode == 0:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:326:17
+325	    try:
+326	        result = subprocess.run(
+327	            ["git", "log", "--oneline", "-n", str(RECENT_COMMITS_LIMIT)],
+328	            capture_output=True,
+329	            text=True,
+330	            cwd=Path.cwd()
+331	        )
+332	        if result.returncode == 0:
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:342:17
+341	    try:
+342	        result = subprocess.run(
+343	            ["git", "log", "--since=90 days ago", "--name-only", "--pretty=format:"],
+344	            capture_output=True,
+345	            text=True,
+346	            cwd=Path.cwd()
+347	        )
+348	        if result.returncode == 0:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:342:17
+341	    try:
+342	        result = subprocess.run(
+343	            ["git", "log", "--since=90 days ago", "--name-only", "--pretty=format:"],
+344	            capture_output=True,
+345	            text=True,
+346	            cwd=Path.cwd()
+347	        )
+348	        if result.returncode == 0:
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:363:8
+362	    try:
+363	        subprocess.run(
+364	            ["git", "rev-parse", "--git-dir"],
+365	            capture_output=True,
+366	            cwd=Path.cwd(),
+367	            timeout=2
+368	        )
+369	        return True
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:363:8
+362	    try:
+363	        subprocess.run(
+364	            ["git", "rev-parse", "--git-dir"],
+365	            capture_output=True,
+366	            cwd=Path.cwd(),
+367	            timeout=2
+368	        )
+369	        return True
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:393:8
+392	                    signals.append("package.json has 'workspaces' field (npm/yarn workspaces monorepo)")
+393	        except Exception:
+394	            pass
+395	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:412:12
+411	                    pipelines.append(f"CI/CD: {pipeline_name}")
+412	            except Exception:
+413	                pass
+414	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:437:12
+436	                    containers.append(f"Container/Orchestration: {config}/ directory found")
+437	            except Exception:
+438	                pass
+439	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:467:12
+466	                    performance.append(f"Performance: {marker}/ directory found")
+467	            except Exception:
+468	                pass
+469	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:522:24
+521	                                metrics["total_lines"] += len(f.readlines())
+522	                        except Exception:
+523	                            pass
+524	                except Exception:
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:524:16
+523	                            pass
+524	                except Exception:
+525	                    pass
+526	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/acquire-codebase-knowledge/scripts/scan.py:533:4
+532	
+533	    except Exception:
+534	        pass
+535	
+
+--------------------------------------------------
+>> Issue: [B405:blacklist] Using xml.etree.ElementTree to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree with the equivalent defusedxml package, or make sure defusedxml.defuse_stdlib() is called.
+   Severity: Low   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b405-import-xml-etree
+   Location: ./.agents/skills/draw-io-diagram-generator/scripts/add-shape.py:21:0
+20	import time
+21	import xml.etree.ElementTree as ET
+22	from pathlib import Path
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: ./.agents/skills/draw-io-diagram-generator/scripts/add-shape.py:51:21
+50	    seed = f"{label}:{x}:{y}:{time.time_ns()}"
+51	    return "auto_" + hashlib.sha1(seed.encode()).hexdigest()[:8]
+52	
+
+--------------------------------------------------
+>> Issue: [B314:blacklist] Using xml.etree.ElementTree.parse to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree.parse with its defusedxml equivalent function or make sure defusedxml.defuse_stdlib() is called
+   Severity: Medium   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b313-b320-xml-bad-elementtree
+   Location: ./.agents/skills/draw-io-diagram-generator/scripts/add-shape.py:76:15
+75	    try:
+76	        tree = ET.parse(path)
+77	    except ET.ParseError as exc:
+
+--------------------------------------------------
+>> Issue: [B405:blacklist] Using xml.etree.ElementTree to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree with the equivalent defusedxml package, or make sure defusedxml.defuse_stdlib() is called.
+   Severity: Low   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b405-import-xml-etree
+   Location: ./.agents/skills/draw-io-diagram-generator/scripts/validate-drawio.py:15:0
+14	import sys
+15	import xml.etree.ElementTree as ET
+16	from pathlib import Path
+
+--------------------------------------------------
+>> Issue: [B314:blacklist] Using xml.etree.ElementTree.parse to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree.parse with its defusedxml equivalent function or make sure defusedxml.defuse_stdlib() is called
+   Severity: Medium   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b313-b320-xml-bad-elementtree
+   Location: ./.agents/skills/draw-io-diagram-generator/scripts/validate-drawio.py:30:15
+29	    try:
+30	        tree = ET.parse(path)
+31	    except ET.ParseError as exc:
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./.agents/skills/publish-to-pages/scripts/convert-pdf.py:14:0
+13	import os
+14	import subprocess
+15	import sys
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.agents/skills/publish-to-pages/scripts/convert-pdf.py:23:17
+22	    try:
+23	        result = subprocess.run(["pdfinfo", pdf_path], capture_output=True, text=True)
+24	        for line in result.stdout.splitlines():
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.agents/skills/publish-to-pages/scripts/convert-pdf.py:23:17
+22	    try:
+23	        result = subprocess.run(["pdfinfo", pdf_path], capture_output=True, text=True)
+24	        for line in result.stdout.splitlines():
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/publish-to-pages/scripts/convert-pdf.py:27:4
+26	                return int(line.split(":")[1].strip())
+27	    except:
+28	        pass
+29	    return None
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.agents/skills/publish-to-pages/scripts/convert-pdf.py:38:7
+37	
+38	    if subprocess.run(["which", "pdftoppm"], capture_output=True).returncode != 0:
+39	        print("Error: pdftoppm not found. Install poppler-utils:")
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.agents/skills/publish-to-pages/scripts/convert-pdf.py:38:7
+37	
+38	    if subprocess.run(["which", "pdftoppm"], capture_output=True).returncode != 0:
+39	        print("Error: pdftoppm not found. Install poppler-utils:")
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.agents/skills/publish-to-pages/scripts/convert-pdf.py:66:17
+65	        prefix = os.path.join(tmpdir, "page")
+66	        result = subprocess.run(
+67	            ["pdftoppm", "-png", "-r", str(dpi), pdf_path, prefix],
+68	            capture_output=True, text=True
+69	        )
+70	        if result.returncode != 0:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.agents/skills/publish-to-pages/scripts/convert-pdf.py:66:17
+65	        prefix = os.path.join(tmpdir, "page")
+66	        result = subprocess.run(
+67	            ["pdftoppm", "-png", "-r", str(dpi), pdf_path, prefix],
+68	            capture_output=True, text=True
+69	        )
+70	        if result.returncode != 0:
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/publish-to-pages/scripts/convert-pptx.py:48:4
+47	            styles.append(f"font-family:'{run.font.name}',sans-serif")
+48	    except:
+49	        pass
+50	    return ";".join(styles)
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/publish-to-pages/scripts/convert-pptx.py:63:4
+62	            return "justify"
+63	    except:
+64	        pass
+65	    return "left"
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/publish-to-pages/scripts/convert-pptx.py:88:8
+87	                    return f"background-color:#{clr.get('val')}"
+88	        except:
+89	            pass
+90	    return "background-color:#ffffff"
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/publish-to-pages/scripts/convert-pptx.py:111:4
+110	                    return f"#{clr.get('val')}"
+111	    except:
+112	        pass
+113	    return None
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.agents/skills/publish-to-pages/scripts/convert-pptx.py:153:16
+152	                    count += 1
+153	                except:
+154	                    pass
+155	    return count
+
+--------------------------------------------------
+>> Issue: [B405:blacklist] Using xml.etree.ElementTree to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree with the equivalent defusedxml package, or make sure defusedxml.defuse_stdlib() is called.
+   Severity: Low   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b405-import-xml-etree
+   Location: ./.claude/skills/draw-io-diagram-generator/scripts/add-shape.py:21:0
+20	import time
+21	import xml.etree.ElementTree as ET
+22	from pathlib import Path
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: ./.claude/skills/draw-io-diagram-generator/scripts/add-shape.py:51:21
+50	    seed = f"{label}:{x}:{y}:{time.time_ns()}"
+51	    return "auto_" + hashlib.sha1(seed.encode()).hexdigest()[:8]
+52	
+
+--------------------------------------------------
+>> Issue: [B314:blacklist] Using xml.etree.ElementTree.parse to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree.parse with its defusedxml equivalent function or make sure defusedxml.defuse_stdlib() is called
+   Severity: Medium   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b313-b320-xml-bad-elementtree
+   Location: ./.claude/skills/draw-io-diagram-generator/scripts/add-shape.py:76:15
+75	    try:
+76	        tree = ET.parse(path)
+77	    except ET.ParseError as exc:
+
+--------------------------------------------------
+>> Issue: [B405:blacklist] Using xml.etree.ElementTree to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree with the equivalent defusedxml package, or make sure defusedxml.defuse_stdlib() is called.
+   Severity: Low   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b405-import-xml-etree
+   Location: ./.claude/skills/draw-io-diagram-generator/scripts/validate-drawio.py:15:0
+14	import sys
+15	import xml.etree.ElementTree as ET
+16	from pathlib import Path
+
+--------------------------------------------------
+>> Issue: [B314:blacklist] Using xml.etree.ElementTree.parse to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree.parse with its defusedxml equivalent function or make sure defusedxml.defuse_stdlib() is called
+   Severity: Medium   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b313-b320-xml-bad-elementtree
+   Location: ./.claude/skills/draw-io-diagram-generator/scripts/validate-drawio.py:30:15
+29	    try:
+30	        tree = ET.parse(path)
+31	    except ET.ParseError as exc:
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./.claude/skills/publish-to-pages/scripts/convert-pdf.py:14:0
+13	import os
+14	import subprocess
+15	import sys
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.claude/skills/publish-to-pages/scripts/convert-pdf.py:23:17
+22	    try:
+23	        result = subprocess.run(["pdfinfo", pdf_path], capture_output=True, text=True)
+24	        for line in result.stdout.splitlines():
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.claude/skills/publish-to-pages/scripts/convert-pdf.py:23:17
+22	    try:
+23	        result = subprocess.run(["pdfinfo", pdf_path], capture_output=True, text=True)
+24	        for line in result.stdout.splitlines():
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.claude/skills/publish-to-pages/scripts/convert-pdf.py:27:4
+26	                return int(line.split(":")[1].strip())
+27	    except:
+28	        pass
+29	    return None
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.claude/skills/publish-to-pages/scripts/convert-pdf.py:38:7
+37	
+38	    if subprocess.run(["which", "pdftoppm"], capture_output=True).returncode != 0:
+39	        print("Error: pdftoppm not found. Install poppler-utils:")
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.claude/skills/publish-to-pages/scripts/convert-pdf.py:38:7
+37	
+38	    if subprocess.run(["which", "pdftoppm"], capture_output=True).returncode != 0:
+39	        print("Error: pdftoppm not found. Install poppler-utils:")
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.claude/skills/publish-to-pages/scripts/convert-pdf.py:66:17
+65	        prefix = os.path.join(tmpdir, "page")
+66	        result = subprocess.run(
+67	            ["pdftoppm", "-png", "-r", str(dpi), pdf_path, prefix],
+68	            capture_output=True, text=True
+69	        )
+70	        if result.returncode != 0:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.claude/skills/publish-to-pages/scripts/convert-pdf.py:66:17
+65	        prefix = os.path.join(tmpdir, "page")
+66	        result = subprocess.run(
+67	            ["pdftoppm", "-png", "-r", str(dpi), pdf_path, prefix],
+68	            capture_output=True, text=True
+69	        )
+70	        if result.returncode != 0:
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.claude/skills/publish-to-pages/scripts/convert-pptx.py:48:4
+47	            styles.append(f"font-family:'{run.font.name}',sans-serif")
+48	    except:
+49	        pass
+50	    return ";".join(styles)
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.claude/skills/publish-to-pages/scripts/convert-pptx.py:63:4
+62	            return "justify"
+63	    except:
+64	        pass
+65	    return "left"
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.claude/skills/publish-to-pages/scripts/convert-pptx.py:88:8
+87	                    return f"background-color:#{clr.get('val')}"
+88	        except:
+89	            pass
+90	    return "background-color:#ffffff"
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.claude/skills/publish-to-pages/scripts/convert-pptx.py:111:4
+110	                    return f"#{clr.get('val')}"
+111	    except:
+112	        pass
+113	    return None
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.claude/skills/publish-to-pages/scripts/convert-pptx.py:153:16
+152	                    count += 1
+153	                except:
+154	                    pass
+155	    return count
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:20:0
+19	import argparse
+20	import subprocess
+21	import json
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:315:16
+314	                                    todos.append(f"{rel_path}:{line_num}: {line.strip()}")
+315	                except Exception:
+316	                    pass
+317	    except Exception:
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:317:4
+316	                    pass
+317	    except Exception:
+318	        pass
+319	
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:326:17
+325	    try:
+326	        result = subprocess.run(
+327	            ["git", "log", "--oneline", "-n", str(RECENT_COMMITS_LIMIT)],
+328	            capture_output=True,
+329	            text=True,
+330	            cwd=Path.cwd()
+331	        )
+332	        if result.returncode == 0:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:326:17
+325	    try:
+326	        result = subprocess.run(
+327	            ["git", "log", "--oneline", "-n", str(RECENT_COMMITS_LIMIT)],
+328	            capture_output=True,
+329	            text=True,
+330	            cwd=Path.cwd()
+331	        )
+332	        if result.returncode == 0:
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:342:17
+341	    try:
+342	        result = subprocess.run(
+343	            ["git", "log", "--since=90 days ago", "--name-only", "--pretty=format:"],
+344	            capture_output=True,
+345	            text=True,
+346	            cwd=Path.cwd()
+347	        )
+348	        if result.returncode == 0:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:342:17
+341	    try:
+342	        result = subprocess.run(
+343	            ["git", "log", "--since=90 days ago", "--name-only", "--pretty=format:"],
+344	            capture_output=True,
+345	            text=True,
+346	            cwd=Path.cwd()
+347	        )
+348	        if result.returncode == 0:
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:363:8
+362	    try:
+363	        subprocess.run(
+364	            ["git", "rev-parse", "--git-dir"],
+365	            capture_output=True,
+366	            cwd=Path.cwd(),
+367	            timeout=2
+368	        )
+369	        return True
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:363:8
+362	    try:
+363	        subprocess.run(
+364	            ["git", "rev-parse", "--git-dir"],
+365	            capture_output=True,
+366	            cwd=Path.cwd(),
+367	            timeout=2
+368	        )
+369	        return True
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:393:8
+392	                    signals.append("package.json has 'workspaces' field (npm/yarn workspaces monorepo)")
+393	        except Exception:
+394	            pass
+395	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:412:12
+411	                    pipelines.append(f"CI/CD: {pipeline_name}")
+412	            except Exception:
+413	                pass
+414	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:437:12
+436	                    containers.append(f"Container/Orchestration: {config}/ directory found")
+437	            except Exception:
+438	                pass
+439	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:467:12
+466	                    performance.append(f"Performance: {marker}/ directory found")
+467	            except Exception:
+468	                pass
+469	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:522:24
+521	                                metrics["total_lines"] += len(f.readlines())
+522	                        except Exception:
+523	                            pass
+524	                except Exception:
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:524:16
+523	                            pass
+524	                except Exception:
+525	                    pass
+526	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/acquire-codebase-knowledge/scripts/scan.py:533:4
+532	
+533	    except Exception:
+534	        pass
+535	
+
+--------------------------------------------------
+>> Issue: [B405:blacklist] Using xml.etree.ElementTree to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree with the equivalent defusedxml package, or make sure defusedxml.defuse_stdlib() is called.
+   Severity: Low   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b405-import-xml-etree
+   Location: ./.continue/skills/draw-io-diagram-generator/scripts/add-shape.py:21:0
+20	import time
+21	import xml.etree.ElementTree as ET
+22	from pathlib import Path
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: ./.continue/skills/draw-io-diagram-generator/scripts/add-shape.py:51:21
+50	    seed = f"{label}:{x}:{y}:{time.time_ns()}"
+51	    return "auto_" + hashlib.sha1(seed.encode()).hexdigest()[:8]
+52	
+
+--------------------------------------------------
+>> Issue: [B314:blacklist] Using xml.etree.ElementTree.parse to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree.parse with its defusedxml equivalent function or make sure defusedxml.defuse_stdlib() is called
+   Severity: Medium   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b313-b320-xml-bad-elementtree
+   Location: ./.continue/skills/draw-io-diagram-generator/scripts/add-shape.py:76:15
+75	    try:
+76	        tree = ET.parse(path)
+77	    except ET.ParseError as exc:
+
+--------------------------------------------------
+>> Issue: [B405:blacklist] Using xml.etree.ElementTree to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree with the equivalent defusedxml package, or make sure defusedxml.defuse_stdlib() is called.
+   Severity: Low   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b405-import-xml-etree
+   Location: ./.continue/skills/draw-io-diagram-generator/scripts/validate-drawio.py:15:0
+14	import sys
+15	import xml.etree.ElementTree as ET
+16	from pathlib import Path
+
+--------------------------------------------------
+>> Issue: [B314:blacklist] Using xml.etree.ElementTree.parse to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree.parse with its defusedxml equivalent function or make sure defusedxml.defuse_stdlib() is called
+   Severity: Medium   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b313-b320-xml-bad-elementtree
+   Location: ./.continue/skills/draw-io-diagram-generator/scripts/validate-drawio.py:30:15
+29	    try:
+30	        tree = ET.parse(path)
+31	    except ET.ParseError as exc:
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./.continue/skills/publish-to-pages/scripts/convert-pdf.py:14:0
+13	import os
+14	import subprocess
+15	import sys
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.continue/skills/publish-to-pages/scripts/convert-pdf.py:23:17
+22	    try:
+23	        result = subprocess.run(["pdfinfo", pdf_path], capture_output=True, text=True)
+24	        for line in result.stdout.splitlines():
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.continue/skills/publish-to-pages/scripts/convert-pdf.py:23:17
+22	    try:
+23	        result = subprocess.run(["pdfinfo", pdf_path], capture_output=True, text=True)
+24	        for line in result.stdout.splitlines():
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/publish-to-pages/scripts/convert-pdf.py:27:4
+26	                return int(line.split(":")[1].strip())
+27	    except:
+28	        pass
+29	    return None
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.continue/skills/publish-to-pages/scripts/convert-pdf.py:38:7
+37	
+38	    if subprocess.run(["which", "pdftoppm"], capture_output=True).returncode != 0:
+39	        print("Error: pdftoppm not found. Install poppler-utils:")
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.continue/skills/publish-to-pages/scripts/convert-pdf.py:38:7
+37	
+38	    if subprocess.run(["which", "pdftoppm"], capture_output=True).returncode != 0:
+39	        print("Error: pdftoppm not found. Install poppler-utils:")
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.continue/skills/publish-to-pages/scripts/convert-pdf.py:66:17
+65	        prefix = os.path.join(tmpdir, "page")
+66	        result = subprocess.run(
+67	            ["pdftoppm", "-png", "-r", str(dpi), pdf_path, prefix],
+68	            capture_output=True, text=True
+69	        )
+70	        if result.returncode != 0:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.continue/skills/publish-to-pages/scripts/convert-pdf.py:66:17
+65	        prefix = os.path.join(tmpdir, "page")
+66	        result = subprocess.run(
+67	            ["pdftoppm", "-png", "-r", str(dpi), pdf_path, prefix],
+68	            capture_output=True, text=True
+69	        )
+70	        if result.returncode != 0:
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/publish-to-pages/scripts/convert-pptx.py:48:4
+47	            styles.append(f"font-family:'{run.font.name}',sans-serif")
+48	    except:
+49	        pass
+50	    return ";".join(styles)
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/publish-to-pages/scripts/convert-pptx.py:63:4
+62	            return "justify"
+63	    except:
+64	        pass
+65	    return "left"
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/publish-to-pages/scripts/convert-pptx.py:88:8
+87	                    return f"background-color:#{clr.get('val')}"
+88	        except:
+89	            pass
+90	    return "background-color:#ffffff"
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/publish-to-pages/scripts/convert-pptx.py:111:4
+110	                    return f"#{clr.get('val')}"
+111	    except:
+112	        pass
+113	    return None
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.continue/skills/publish-to-pages/scripts/convert-pptx.py:153:16
+152	                    count += 1
+153	                except:
+154	                    pass
+155	    return count
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:20:0
+19	import argparse
+20	import subprocess
+21	import json
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:315:16
+314	                                    todos.append(f"{rel_path}:{line_num}: {line.strip()}")
+315	                except Exception:
+316	                    pass
+317	    except Exception:
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:317:4
+316	                    pass
+317	    except Exception:
+318	        pass
+319	
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:326:17
+325	    try:
+326	        result = subprocess.run(
+327	            ["git", "log", "--oneline", "-n", str(RECENT_COMMITS_LIMIT)],
+328	            capture_output=True,
+329	            text=True,
+330	            cwd=Path.cwd()
+331	        )
+332	        if result.returncode == 0:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:326:17
+325	    try:
+326	        result = subprocess.run(
+327	            ["git", "log", "--oneline", "-n", str(RECENT_COMMITS_LIMIT)],
+328	            capture_output=True,
+329	            text=True,
+330	            cwd=Path.cwd()
+331	        )
+332	        if result.returncode == 0:
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:342:17
+341	    try:
+342	        result = subprocess.run(
+343	            ["git", "log", "--since=90 days ago", "--name-only", "--pretty=format:"],
+344	            capture_output=True,
+345	            text=True,
+346	            cwd=Path.cwd()
+347	        )
+348	        if result.returncode == 0:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:342:17
+341	    try:
+342	        result = subprocess.run(
+343	            ["git", "log", "--since=90 days ago", "--name-only", "--pretty=format:"],
+344	            capture_output=True,
+345	            text=True,
+346	            cwd=Path.cwd()
+347	        )
+348	        if result.returncode == 0:
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:363:8
+362	    try:
+363	        subprocess.run(
+364	            ["git", "rev-parse", "--git-dir"],
+365	            capture_output=True,
+366	            cwd=Path.cwd(),
+367	            timeout=2
+368	        )
+369	        return True
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:363:8
+362	    try:
+363	        subprocess.run(
+364	            ["git", "rev-parse", "--git-dir"],
+365	            capture_output=True,
+366	            cwd=Path.cwd(),
+367	            timeout=2
+368	        )
+369	        return True
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:393:8
+392	                    signals.append("package.json has 'workspaces' field (npm/yarn workspaces monorepo)")
+393	        except Exception:
+394	            pass
+395	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:412:12
+411	                    pipelines.append(f"CI/CD: {pipeline_name}")
+412	            except Exception:
+413	                pass
+414	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:437:12
+436	                    containers.append(f"Container/Orchestration: {config}/ directory found")
+437	            except Exception:
+438	                pass
+439	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:467:12
+466	                    performance.append(f"Performance: {marker}/ directory found")
+467	            except Exception:
+468	                pass
+469	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:522:24
+521	                                metrics["total_lines"] += len(f.readlines())
+522	                        except Exception:
+523	                            pass
+524	                except Exception:
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:524:16
+523	                            pass
+524	                except Exception:
+525	                    pass
+526	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/acquire-codebase-knowledge/scripts/scan.py:533:4
+532	
+533	    except Exception:
+534	        pass
+535	
+
+--------------------------------------------------
+>> Issue: [B405:blacklist] Using xml.etree.ElementTree to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree with the equivalent defusedxml package, or make sure defusedxml.defuse_stdlib() is called.
+   Severity: Low   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b405-import-xml-etree
+   Location: ./.engineering/ai/skills/draw-io-diagram-generator/scripts/add-shape.py:21:0
+20	import time
+21	import xml.etree.ElementTree as ET
+22	from pathlib import Path
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: ./.engineering/ai/skills/draw-io-diagram-generator/scripts/add-shape.py:51:21
+50	    seed = f"{label}:{x}:{y}:{time.time_ns()}"
+51	    return "auto_" + hashlib.sha1(seed.encode()).hexdigest()[:8]
+52	
+
+--------------------------------------------------
+>> Issue: [B314:blacklist] Using xml.etree.ElementTree.parse to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree.parse with its defusedxml equivalent function or make sure defusedxml.defuse_stdlib() is called
+   Severity: Medium   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b313-b320-xml-bad-elementtree
+   Location: ./.engineering/ai/skills/draw-io-diagram-generator/scripts/add-shape.py:76:15
+75	    try:
+76	        tree = ET.parse(path)
+77	    except ET.ParseError as exc:
+
+--------------------------------------------------
+>> Issue: [B405:blacklist] Using xml.etree.ElementTree to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree with the equivalent defusedxml package, or make sure defusedxml.defuse_stdlib() is called.
+   Severity: Low   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b405-import-xml-etree
+   Location: ./.engineering/ai/skills/draw-io-diagram-generator/scripts/validate-drawio.py:15:0
+14	import sys
+15	import xml.etree.ElementTree as ET
+16	from pathlib import Path
+
+--------------------------------------------------
+>> Issue: [B314:blacklist] Using xml.etree.ElementTree.parse to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree.parse with its defusedxml equivalent function or make sure defusedxml.defuse_stdlib() is called
+   Severity: Medium   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b313-b320-xml-bad-elementtree
+   Location: ./.engineering/ai/skills/draw-io-diagram-generator/scripts/validate-drawio.py:30:15
+29	    try:
+30	        tree = ET.parse(path)
+31	    except ET.ParseError as exc:
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./.engineering/ai/skills/publish-to-pages/scripts/convert-pdf.py:14:0
+13	import os
+14	import subprocess
+15	import sys
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.engineering/ai/skills/publish-to-pages/scripts/convert-pdf.py:23:17
+22	    try:
+23	        result = subprocess.run(["pdfinfo", pdf_path], capture_output=True, text=True)
+24	        for line in result.stdout.splitlines():
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.engineering/ai/skills/publish-to-pages/scripts/convert-pdf.py:23:17
+22	    try:
+23	        result = subprocess.run(["pdfinfo", pdf_path], capture_output=True, text=True)
+24	        for line in result.stdout.splitlines():
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/publish-to-pages/scripts/convert-pdf.py:27:4
+26	                return int(line.split(":")[1].strip())
+27	    except:
+28	        pass
+29	    return None
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.engineering/ai/skills/publish-to-pages/scripts/convert-pdf.py:38:7
+37	
+38	    if subprocess.run(["which", "pdftoppm"], capture_output=True).returncode != 0:
+39	        print("Error: pdftoppm not found. Install poppler-utils:")
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.engineering/ai/skills/publish-to-pages/scripts/convert-pdf.py:38:7
+37	
+38	    if subprocess.run(["which", "pdftoppm"], capture_output=True).returncode != 0:
+39	        print("Error: pdftoppm not found. Install poppler-utils:")
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./.engineering/ai/skills/publish-to-pages/scripts/convert-pdf.py:66:17
+65	        prefix = os.path.join(tmpdir, "page")
+66	        result = subprocess.run(
+67	            ["pdftoppm", "-png", "-r", str(dpi), pdf_path, prefix],
+68	            capture_output=True, text=True
+69	        )
+70	        if result.returncode != 0:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./.engineering/ai/skills/publish-to-pages/scripts/convert-pdf.py:66:17
+65	        prefix = os.path.join(tmpdir, "page")
+66	        result = subprocess.run(
+67	            ["pdftoppm", "-png", "-r", str(dpi), pdf_path, prefix],
+68	            capture_output=True, text=True
+69	        )
+70	        if result.returncode != 0:
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/publish-to-pages/scripts/convert-pptx.py:48:4
+47	            styles.append(f"font-family:'{run.font.name}',sans-serif")
+48	    except:
+49	        pass
+50	    return ";".join(styles)
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/publish-to-pages/scripts/convert-pptx.py:63:4
+62	            return "justify"
+63	    except:
+64	        pass
+65	    return "left"
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/publish-to-pages/scripts/convert-pptx.py:88:8
+87	                    return f"background-color:#{clr.get('val')}"
+88	        except:
+89	            pass
+90	    return "background-color:#ffffff"
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/publish-to-pages/scripts/convert-pptx.py:111:4
+110	                    return f"#{clr.get('val')}"
+111	    except:
+112	        pass
+113	    return None
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./.engineering/ai/skills/publish-to-pages/scripts/convert-pptx.py:153:16
+152	                    count += 1
+153	                except:
+154	                    pass
+155	    return count
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./publishing/sources/magazine/magazine/ai/fountain.py:123:12
+122	                return current_hash != previous_hash
+123	            except Exception:  # noqa: BLE001
+124	                pass
+125	
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./publishing/sources/magazine/magazine/utils.py:5:0
+4	import shutil
+5	import subprocess
+6	import sys
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./publishing/sources/magazine/magazine/utils.py:130:15
+129	    try:
+130	        return subprocess.run(cmd, check=True, timeout=timeout, **kwargs)  # noqa: S603
+131	    except subprocess.TimeoutExpired as exc:
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: ./publishing/sources/magazine/tests/test_config.py:103:52
+102	    def test_sizes_config_path_override(self, monkeypatch: pytest.MonkeyPatch) -> None:
+103	        monkeypatch.setenv("MAGAZINE_SIZES_CONFIG", "/tmp/custom_sizes.json")
+104	        assert Config().SIZES_CONFIG_PATH == "/tmp/custom_sizes.json"
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: ./publishing/sources/magazine/tests/test_config.py:104:45
+103	        monkeypatch.setenv("MAGAZINE_SIZES_CONFIG", "/tmp/custom_sizes.json")
+104	        assert Config().SIZES_CONFIG_PATH == "/tmp/custom_sizes.json"
+105	
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: ./publishing/tools/bookmarks/tests/test_manifest.py:54:33
+53	    def test_writes_manifest_json(self, tmp_path: Path) -> None:
+54	        m = Manifest(source_path="/tmp/Bookmarks")
+55	        save_manifest(m, tmp_path)
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: ./publishing/tools/bookmarks/tests/test_models.py:118:33
+117	    def test_round_trip_empty(self) -> None:
+118	        m = Manifest(source_path="/tmp/bookmarks")
+119	        m2 = Manifest.from_dict(m.to_dict())
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: ./publishing/tools/bookmarks/tests/test_models.py:125:33
+124	        now = datetime.now(UTC)
+125	        m = Manifest(source_path="/tmp/bookmarks")
+126	        m.entries["bm-001"] = ManifestEntry(
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./publishing/tools/medium-rss/src/medium_rss/cli.py:395:8
+394	            return str(data.get("title", ""))
+395	        except Exception:
+396	            pass
+397	    return ""
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./publishing/tools/medium-rss/src/medium_rss/normalizer.py:191:8
+190	            return parsedate_to_datetime(str(value))
+191	        except Exception:
+192	            pass
+193	        try:
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./publishing/tools/medium-rss/src/medium_rss/normalizer.py:198:8
+197	            return dt
+198	        except Exception:
+199	            pass
+200	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./publishing/tools/medium-rss/src/medium_rss/normalizer.py:205:8
+204	            return datetime(*struct[:6], tzinfo=timezone.utc)
+205	        except Exception:
+206	            pass
+207	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./publishing/tools/pinterest-rss/src/pinterest_rss/cli.py:320:8
+319	            return generate_slug(title, description, stable_id)
+320	        except Exception:
+321	            pass
+322	    return generate_slug("", "", stable_id)
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./publishing/tools/pinterest-rss/src/pinterest_rss/cli.py:515:8
+514	                    return pin_directory_name(pid)
+515	        except Exception:
+516	            pass
+517	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./publishing/tools/pinterest-rss/src/pinterest_rss/normalizer.py:264:12
+263	                return datetime(*struct[:6], tzinfo=UTC)
+264	            except Exception:
+265	                pass
+266	        return None
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: ./publishing/tools/pinterest-rss/src/pinterest_rss/normalizer.py:269:4
+268	        return parsedate_to_datetime(published)
+269	    except Exception:
+270	        pass
+271	    try:
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./tools/mindcap/src/mindcap/cli.py:5:0
+4	import platform
+5	import subprocess
+6	from pathlib import Path
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b607_start_process_with_partial_path.html
+   Location: ./tools/mindcap/src/mindcap/cli.py:226:17
+225	    try:
+226	        result = subprocess.run(
+227	            ["git", "check-ignore", str(path)],
+228	            cwd=repo,
+229	            capture_output=True,
+230	            text=True,
+231	            check=False,
+232	        )
+233	    except OSError:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./tools/mindcap/src/mindcap/cli.py:226:17
+225	    try:
+226	        result = subprocess.run(
+227	            ["git", "check-ignore", str(path)],
+228	            cwd=repo,
+229	            capture_output=True,
+230	            text=True,
+231	            check=False,
+232	        )
+233	    except OSError:
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./tools/mindcap/src/mindcap/plugins/chatgpt/strategies/browser.py:7:0
+6	import socket
+7	import subprocess
+8	import sys
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./tools/mindcap/src/mindcap/plugins/chatgpt/strategies/browser.py:173:18
+172	        )
+173	        listing = subprocess.run(command, check=False, capture_output=True, text=True)
+174	    except OSError:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./tools/mindcap/src/mindcap/plugins/chatgpt/strategies/browser.py:358:14
+357	
+358	    process = subprocess.Popen(
+359	        _chrome_cdp_args(chrome, profile), **_chrome_popen_kwargs()
+360	    )
+361	    browser: Browser | None = None
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./tools/mindcap/src/mindcap/plugins/chatgpt/strategies/browser.py:462:18
+461	
+462	        process = subprocess.Popen(
+463	            _chrome_cdp_args(chrome, profile), **_chrome_popen_kwargs()
+464	        )
+465	        browser: Browser | None = None
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./tools/mindcap/src/mindcap/plugins/chatgpt/strategies/browser.py:702:4
+701	
+702	    subprocess.Popen(_chrome_auth_args(chrome, profile))
+703	
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./tools/mindcap/tests/test_browser_auth.py:5:0
+4	
+5	import subprocess
+6	from pathlib import Path
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: ./tools/mindcap/tests/test_browser_auth.py:468:27
+467	        strategy="browser",
+468	        artifact_root=Path("/tmp/mindcap-test"),
+469	    )
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: ./tools/mindcap/tests/test_browser_auth.py:478:30
+477	            "mindcap.plugins.chatgpt.strategies.browser._find_stable_chrome",
+478	            return_value=Path("/tmp/chrome"),
+479	        ),
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: ./tools/mindcap/tests/test_browser_auth.py:482:30
+481	            "mindcap.plugins.chatgpt.strategies.browser.chatgpt_profile_dir",
+482	            return_value=Path("/tmp/fake-profile"),
+483	        ),
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: ./tools/mindcap/tests/test_browser_auth.py:486:30
+485	            "mindcap.plugins.chatgpt.strategies.browser.ensure_private_directory",
+486	            return_value=Path("/tmp/fake-profile"),
+487	        ),
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: ./tools/mindcap/tests/test_browser_auth.py:508:42
+507	
+508	    expected_args = _chrome_cdp_args(Path("/tmp/chrome"), Path("/tmp/fake-profile"))
+509	    mock_popen.assert_called_once()
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: ./tools/mindcap/tests/test_browser_auth.py:508:63
+507	
+508	    expected_args = _chrome_cdp_args(Path("/tmp/chrome"), Path("/tmp/fake-profile"))
+509	    mock_popen.assert_called_once()
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./tools/mindcap/tests/test_cdp_lifecycle.py:18:0
+17	import socket
+18	import subprocess
+19	import threading
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: ./tools/mindcap/tests/test_cli_doctor.py:18:67
+17	    with (
+18	        patch("mindcap.cli._find_stable_chrome", return_value=Path("/tmp/chrome")),
+19	        patch("mindcap.cli.chatgpt_profile_dir", return_value=Path("/tmp/profile")),
+
+--------------------------------------------------
+>> Issue: [B108:hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-377 (https://cwe.mitre.org/data/definitions/377.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html
+   Location: ./tools/mindcap/tests/test_cli_doctor.py:19:67
+18	        patch("mindcap.cli._find_stable_chrome", return_value=Path("/tmp/chrome")),
+19	        patch("mindcap.cli.chatgpt_profile_dir", return_value=Path("/tmp/profile")),
+20	        patch("mindcap.cli._is_profile_locked", return_value=False),
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 43781
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 129
+		Medium: 21
+		High: 4
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 0
+		Medium: 13
+		High: 141
+Files skipped (2):
+	./.engineering/resources/latex/Academic Journals/american-geophysical-union/April 16 2019/trackchanges-0.7.0/PythonPackage/acceptchanges.py (syntax error while parsing AST from file)
+	./.engineering/resources/latex/Academic Journals/american-geophysical-union/April 16 2019/trackchanges-0.7.0/PythonPackage/trackchanges.py (syntax error while parsing AST from file)
+```
+
+</details>
+
+See detailed reports in MegaLinter artifacts
+
+[![MegaLinter is graciously provided by OX Security](https://raw.githubusercontent.com/oxsecurity/megalinter/main/docs/assets/images/ox-banner.png)](https://www.ox.security/?ref=megalinter)
+Show us your support by [**starring ⭐ the repository**](https://github.com/oxsecurity/megalinter)

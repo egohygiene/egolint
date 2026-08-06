@@ -1,0 +1,235 @@
+---
+# ==============================================================================
+# Ego Hygiene - Universal ls-lint Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Enforce predictable file naming while respecting language and framework
+#   conventions across a polyglot monorepo.
+#
+# References:
+#   https://ls-lint.org/
+#   https://github.com/loeffel-io/ls-lint
+# ==============================================================================
+
+ls:
+  # ---------------------------------------------------------------------------
+  # Global language conventions
+  # ---------------------------------------------------------------------------
+
+  # JavaScript and TypeScript:
+  # - kebab-case for modules and utilities
+  # - camelCase for ecosystem configuration and generated conventions
+  # - PascalCase for React components, classes, and framework-owned modules
+  .js: kebab-case | camelCase | PascalCase
+  .jsx: kebab-case | PascalCase
+  .mjs: kebab-case | camelCase
+  .cjs: kebab-case | camelCase
+
+  .ts: kebab-case | camelCase | PascalCase
+  .tsx: kebab-case | PascalCase
+
+  # Common TypeScript sub-extensions.
+  .d.ts: kebab-case | camelCase | PascalCase
+  .test.ts: kebab-case | camelCase | PascalCase
+  .spec.ts: kebab-case | camelCase | PascalCase
+  .test.tsx: kebab-case | PascalCase
+  .spec.tsx: kebab-case | PascalCase
+  .config.ts: kebab-case | camelCase
+  .config.js: kebab-case | camelCase
+  .config.mjs: kebab-case | camelCase
+  .config.cjs: kebab-case | camelCase
+
+  # Python follows module naming conventions.
+  .py: snake_case
+  .pyi: snake_case
+
+  # Go commonly uses lowercase snake_case filenames.
+  .go: snake_case
+  .test.go: snake_case
+
+  # Ruby commonly uses snake_case.
+  .rb: snake_case
+  .rake: snake_case
+
+  # Shell utilities follow CLI-oriented kebab-case naming.
+  .sh: kebab-case
+  .bash: kebab-case
+  .zsh: kebab-case
+  .fish: kebab-case
+
+  # JVM and Swift source files frequently mirror type names.
+  .java: PascalCase
+  .kt: PascalCase | camelCase
+  .kts: kebab-case | camelCase | PascalCase
+  .swift: PascalCase | camelCase
+
+  # Native source files vary between library and tool ecosystems.
+  .c: snake_case | kebab-case
+  .cc: snake_case | kebab-case
+  .cpp: snake_case | kebab-case
+  .cxx: snake_case | kebab-case
+
+  .h: snake_case | kebab-case | PascalCase
+  .hh: snake_case | kebab-case | PascalCase
+  .hpp: snake_case | kebab-case | PascalCase
+  .hxx: snake_case | kebab-case | PascalCase
+
+  # Configuration and data files.
+  .yaml: kebab-case | snake_case | camelCase
+  .yml: kebab-case | snake_case | camelCase
+  .json: kebab-case | snake_case | camelCase
+  .jsonc: kebab-case | snake_case | camelCase
+  .json5: kebab-case | snake_case | camelCase
+  .toml: kebab-case | snake_case
+  .ini: kebab-case | snake_case
+  .conf: kebab-case | snake_case
+  .xml: kebab-case | snake_case | camelCase
+  .neon: kebab-case | snake_case
+
+  # Infrastructure and schema files.
+  .tf: snake_case
+  .tfvars: snake_case
+  .proto: snake_case
+  .graphql: kebab-case | snake_case | camelCase
+  .gql: kebab-case | snake_case | camelCase
+
+  # Documentation permits conventional uppercase repository documents while
+  # keeping ordinary filenames predictable.
+  .md: kebab-case | snake_case | PascalCase | SCREAMING_SNAKE_CASE
+  .mdx: kebab-case | PascalCase
+  .rst: kebab-case | snake_case
+  .adoc: kebab-case | snake_case
+
+  # Images and media are not governed universally because names may originate
+  # from design tools, datasets, screenshots, or third-party sources.
+  .png: ignore
+  .jpg: ignore
+  .jpeg: ignore
+  .gif: ignore
+  .webp: ignore
+  .ico: ignore
+  .svg: ignore
+
+  # ---------------------------------------------------------------------------
+  # First-party source and package directories
+  # ---------------------------------------------------------------------------
+
+  # Apply kebab-case directory naming only inside controlled first-party trees.
+  # This avoids policing imported template collections and ecosystem-owned
+  # directory conventions globally.
+  "{apps,packages,src,scripts,tools,website}/**":
+    .dir: kebab-case
+
+  # Python packages should use snake_case directory names.
+  "**/{python,py}/**":
+    .dir: snake_case
+
+  # Java/Kotlin package trees conventionally use lowercase package segments.
+  "**/{java,kotlin}/**":
+    .dir: lowercase
+
+  # React component directories may use kebab-case or PascalCase.
+  "**/{components,widgets,views}/**":
+    .dir: kebab-case | PascalCase
+
+  # Test directories commonly contain conventional names such as fixtures,
+  # __tests__, snapshots, and language-specific layouts.
+  "**/{test,tests,spec,__tests__}/**":
+    .dir: kebab-case | snake_case | PascalCase | regex:__tests__
+
+  # ---------------------------------------------------------------------------
+  # Conventional filenames
+  # ---------------------------------------------------------------------------
+
+  # GitHub, package-manager, framework, and build-tool files are intentionally
+  # exempt because their filenames are externally defined.
+  "**":
+    "Dockerfile": ignore
+    "Containerfile": ignore
+    "Makefile": ignore
+    "GNUmakefile": ignore
+    "Taskfile.yml": ignore
+    "Taskfile.yaml": ignore
+    "Jenkinsfile": ignore
+    "Vagrantfile": ignore
+    "Gemfile": ignore
+    "Rakefile": ignore
+    "Procfile": ignore
+    "Brewfile": ignore
+    "Podfile": ignore
+    "Package.swift": ignore
+
+ignore:
+  # ---------------------------------------------------------------------------
+  # Dependencies and package-manager stores
+  # ---------------------------------------------------------------------------
+
+  - ".git"
+  - "**/.git/**"
+
+  - "node_modules"
+  - "**/node_modules/**"
+
+  - "vendor"
+  - "**/vendor/**"
+
+  - ".pnpm-store"
+  - "**/.pnpm-store/**"
+
+  - ".yarn"
+  - "**/.yarn/**"
+
+  # ---------------------------------------------------------------------------
+  # Virtual environments and caches
+  # ---------------------------------------------------------------------------
+
+  - ".venv"
+  - "**/.venv/**"
+
+  - "venv"
+  - "**/venv/**"
+
+  - "__pycache__"
+  - "**/__pycache__/**"
+
+  - ".pytest_cache"
+  - "**/.pytest_cache/**"
+
+  - ".mypy_cache"
+  - "**/.mypy_cache/**"
+
+  - ".ruff_cache"
+  - "**/.ruff_cache/**"
+
+  - ".cache"
+  - "**/.cache/**"
+
+  # ---------------------------------------------------------------------------
+  # Generated output
+  # ---------------------------------------------------------------------------
+
+  - "build"
+  - "**/build/**"
+
+  - "dist"
+  - "**/dist/**"
+
+  - "out"
+  - "**/out/**"
+
+  - "target"
+  - "**/target/**"
+
+  - "coverage"
+  - "**/coverage/**"
+
+  - ".engineering/reports"
+  - ".engineering/reports/**"
+
+  # ---------------------------------------------------------------------------
+  # Imported and archival resources
+  # ---------------------------------------------------------------------------
+
+  - ".engineering/resources"
+  - ".engineering/resources/**"

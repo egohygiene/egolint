@@ -1,0 +1,21 @@
+---
+# ==============================================================================
+# Ego Hygiene — Universal Spectral Ruleset
+# ==============================================================================
+#
+# Purpose:
+#   Validate first-party API descriptions across the major supported
+#   specification families.
+#
+# Supported specification families:
+#   - OpenAPI
+#   - AsyncAPI
+#   - Arazzo
+#
+# Spectral rulesets:
+# https://docs.stoplight.io/docs/spectral/e5b9616d6d50c-rulesets
+
+extends:
+  - spectral:oas
+  - spectral:asyncapi
+  - spectral:arazzo

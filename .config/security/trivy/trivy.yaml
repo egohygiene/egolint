@@ -1,0 +1,83 @@
+---
+# ==============================================================================
+# Ego Hygiene - Universal Trivy Security Configuration
+# ==============================================================================
+
+cache:
+  dir: ".cache/trivy"
+
+timeout: "10m"
+quiet: false
+
+format: "table"
+exit-code: 1
+
+severity:
+  - "HIGH"
+  - "CRITICAL"
+
+list-all-pkgs: false
+dependency-tree: false
+
+scan:
+  scanners:
+    - "vuln"
+    - "misconfig"
+    - "secret"
+    - "license"
+
+  detection-priority: "precise"
+  disable-telemetry: true
+  offline: false
+  parallel: 4
+
+  skip-dirs:
+    - ".git"
+    - ".cache"
+    - ".engineering/reports"
+
+    - "node_modules"
+    - "vendor"
+
+    - ".venv"
+    - "venv"
+
+    - ".next"
+    - ".nuxt"
+    - ".turbo"
+    - ".yarn"
+    - ".pnpm-store"
+
+    - "build"
+    - "dist"
+    - "out"
+    - "target"
+    - "coverage"
+    - "generated"
+
+  skip-files:
+    - "**/*.map"
+    - "**/*.min.css"
+    - "**/*.min.js"
+    - "**/*.snap"
+
+pkg:
+  types:
+    - "os"
+    - "library"
+
+  include-dev-deps: true
+
+vulnerability:
+  ignore-unfixed: false
+
+misconfiguration:
+  scanners:
+    - "azure-arm"
+    - "cloudformation"
+    - "dockerfile"
+    - "helm"
+    - "kubernetes"
+    - "terraform"
+    - "terraformplan-json"
+    - "terraformplan-snapshot"

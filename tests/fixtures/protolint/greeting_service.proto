@@ -1,0 +1,32 @@
+// Defines the greeting service API.
+syntax = "proto3";
+
+package egohygiene.greeting.v1;
+
+// GreetingRequest contains the name to greet.
+message GreetingRequest {
+  // Name is the display name used in the greeting.
+  string name = 1;
+}
+
+// GreetingResponse contains the rendered greeting.
+message GreetingResponse {
+  // Message is the completed greeting text.
+  string message = 1;
+}
+
+// GreetingStatus describes the outcome of a greeting request.
+enum GreetingStatus {
+  // GREETING_STATUS_UNSPECIFIED represents an unknown status.
+  GREETING_STATUS_UNSPECIFIED = 0;
+
+  // GREETING_STATUS_SUCCESS indicates successful processing.
+  GREETING_STATUS_SUCCESS = 1;
+}
+
+// GreetingService produces greetings.
+service GreetingService {
+  // CreateGreeting formats a greeting for a supplied name.
+  rpc CreateGreeting(GreetingRequest) returns (GreetingResponse);
+}
+

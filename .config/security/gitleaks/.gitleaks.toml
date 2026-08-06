@@ -1,0 +1,69 @@
+# ==============================================================================
+# Ego Hygiene - Universal Gitleaks Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Extend Gitleaks' maintained detector catalog with narrow repository policy
+#   while preventing generated security output from recursively triggering
+#   future scans.
+#
+# References:
+#   https://github.com/gitleaks/gitleaks
+# ==============================================================================
+
+title = "egohygiene gitleaks configuration"
+
+# Retain Gitleaks' complete built-in detector catalog.
+#
+# Repository rules declared below add to or intentionally override that catalog.
+[extend]
+useDefault = true
+
+# ==============================================================================
+# Global allowlists
+# ==============================================================================
+#
+# These exclusions are limited to generated runtime and report output.
+#
+# Do not globally exclude:
+#   - source fixtures;
+#   - documentation;
+#   - lockfiles;
+#   - .env files;
+#   - examples;
+#   - test directories.
+#
+# Those locations can contain real credentials and should remain scanned.
+
+[[allowlists]]
+description = "generated lint caches and security reports"
+
+paths = [
+  '''(?:^|/)\.cache(?:/.*)?$''',
+  '''(?:^|/)\.engineering/reports(?:/.*)?$''',
+  '''(?:^|/)megalinter-reports(?:/.*)?$''',
+]
+
+# ==============================================================================
+# Repository-specific rules
+# ==============================================================================
+#
+# Add rules here only for credential formats unique to Ego Hygiene or Incompris.
+#
+# Do not recreate common GitHub, Slack, Stripe, JWT, cloud-provider, database,
+# private-key, or generic API-key rules. Those are already maintained by the
+# inherited Gitleaks configuration.
+#
+# Example shape:
+#
+# [[rules]]
+# id = "egohygiene-service-token"
+# description = "Detect an Ego Hygiene internal service token."
+# regex = '''\begoh_[A-Za-z0-9_-]{40}\b'''
+# keywords = ["egoh_"]
+# tags = ["egohygiene", "token"]
+#
+# [[rules.allowlists]]
+# description = "Allow the documented placeholder token."
+# regexTarget = "secret"
+# regexes = ['''egoh_REPLACE_WITH_RUNTIME_CREDENTIAL''']

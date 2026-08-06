@@ -1,0 +1,130 @@
+# ==============================================================================
+# Ego Hygiene - Universal Pylint Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Provide deeper Python inference, correctness, and maintainability analysis
+#   without duplicating Ruff's formatting and naming responsibilities.
+#
+# References:
+#   https://pylint.readthedocs.io/en/stable/
+# ==============================================================================
+
+[MAIN]
+
+py-version = 3.12
+
+jobs = 0
+persistent = yes
+suggestion-mode = yes
+
+recursive = yes
+
+reports = no
+score = yes
+
+source-roots =
+    .
+    src
+    app
+
+ignore =
+    .cache,
+    .git,
+    .mypy_cache,
+    .pytest_cache,
+    .ruff_cache,
+    .tox,
+    .venv,
+    __pycache__,
+    build,
+    coverage,
+    dist,
+    generated,
+    node_modules,
+    out,
+    target,
+    vendor,
+    venv
+
+ignore-paths =
+    ^\.engineering/reports/,
+    (^|/)site-packages/,
+    (^|/).*\.generated\.py$,
+    (^|/).*_pb2\.py$,
+    (^|/).*_pb2_grpc\.py$
+
+unsafe-load-any-extension = no
+
+[MESSAGES CONTROL]
+
+# Ruff owns formatting, naming, import ordering, simple modernization, and many
+# convention checks. Prose tools own comprehensive documentation style.
+disable =
+    duplicate-code,
+    fixme,
+    invalid-name,
+    line-too-long,
+    missing-class-docstring,
+    missing-function-docstring,
+    missing-module-docstring,
+    too-few-public-methods
+
+[FORMAT]
+
+max-line-length = 100
+indent-string = "    "
+
+[DESIGN]
+
+max-args = 7
+max-attributes = 12
+max-bool-expr = 5
+max-branches = 12
+max-locals = 20
+max-parents = 7
+max-public-methods = 25
+max-returns = 6
+max-statements = 60
+
+[BASIC]
+
+good-names =
+    _,
+    i,
+    j,
+    k,
+    x,
+    y,
+    z,
+    id
+
+[SIMILARITIES]
+
+min-similarity-lines = 8
+ignore-comments = yes
+ignore-docstrings = yes
+ignore-imports = yes
+ignore-signatures = yes
+
+[REFACTORING]
+
+max-nested-blocks = 5
+never-returning-functions =
+    sys.exit,
+    argparse.parse_error
+
+[TYPECHECK]
+
+ignore-none = yes
+ignore-on-opaque-inference = yes
+
+[VARIABLES]
+
+allow-global-unused-variables = yes
+init-import = no
+
+[REPORTS]
+
+reports = no
+score = yes

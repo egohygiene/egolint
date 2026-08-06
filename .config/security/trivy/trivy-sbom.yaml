@@ -1,0 +1,84 @@
+---
+# ==============================================================================
+# Ego Hygiene - Universal Trivy SBOM Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Generate a complete CycloneDX software inventory for the repository without
+#   turning inventory generation into a vulnerability enforcement gate.
+#
+# MegaLinter supplies:
+#   trivy fs --format cyclonedx .
+#
+# References:
+#   https://trivy.dev/docs/latest/supply-chain/sbom/
+#   https://megalinter.io/latest/descriptors/repository_trivy_sbom/
+# ==============================================================================
+
+cache:
+  dir: ".cache/trivy"
+
+timeout: "10m"
+quiet: false
+
+# MegaLinter supplies `--format cyclonedx`. Keeping this here would be
+# redundant, so format is intentionally omitted.
+
+# SBOM creation is an inventory operation. Security enforcement belongs to the
+# separate REPOSITORY_TRIVY descriptor.
+exit-code: 0
+
+# Include all detected components in the generated inventory.
+list-all-pkgs: true
+
+scan:
+  # Vulnerability scanning allows vulnerability information to be represented
+  # in the CycloneDX document where supported.
+  scanners:
+    - "vuln"
+    - "license"
+
+  detection-priority: "precise"
+  disable-telemetry: true
+  offline: false
+  parallel: 4
+
+  skip-dirs:
+    - ".git"
+    - ".cache"
+    - ".engineering/reports"
+
+    - "node_modules"
+    - "vendor"
+
+    - ".venv"
+    - "venv"
+
+    - ".next"
+    - ".nuxt"
+    - ".turbo"
+    - ".yarn"
+    - ".pnpm-store"
+
+    - "build"
+    - "dist"
+    - "out"
+    - "target"
+    - "coverage"
+    - "generated"
+
+  skip-files:
+    - "**/*.map"
+    - "**/*.min.css"
+    - "**/*.min.js"
+    - "**/*.snap"
+
+pkg:
+  types:
+    - "os"
+    - "library"
+
+  include-dev-deps: true
+
+vulnerability:
+  ignore-unfixed: false

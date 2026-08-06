@@ -1,0 +1,73 @@
+# ==============================================================================
+# Ego Hygiene - Universal Clippy Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Configure thresholds and contextual behavior for Clippy lints.
+#
+# Important:
+#   Lint levels such as allow, warn, deny, and forbid do not belong here.
+#   MegaLinter CLI arguments or Cargo.toml own lint-level policy.
+#
+# References:
+#   https://doc.rust-lang.org/clippy/configuration.html
+#   https://doc.rust-lang.org/clippy/lint_configuration.html
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Test behavior
+# ------------------------------------------------------------------------------
+
+# Production code should avoid panic-oriented extraction, but tests may use
+# unwrap(), expect(), and panic!() where they improve assertion readability.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+allow-panic-in-tests = true
+
+# Keep debugging output prohibited even in tests so temporary dbg! calls do not
+# accidentally remain committed.
+allow-dbg-in-tests = false
+
+# ------------------------------------------------------------------------------
+# Complexity thresholds
+# ------------------------------------------------------------------------------
+
+cognitive-complexity-threshold = 25
+too-many-arguments-threshold = 7
+type-complexity-threshold = 250
+max-fn-params-bools = 3
+max-struct-bools = 3
+excessive-nesting-threshold = 0
+
+# ------------------------------------------------------------------------------
+# Memory and type-size thresholds
+# ------------------------------------------------------------------------------
+
+array-size-threshold = 16384
+enum-variant-size-threshold = 200
+large-error-threshold = 128
+too-large-for-stack = 200
+
+# ------------------------------------------------------------------------------
+# API and documentation behavior
+# ------------------------------------------------------------------------------
+
+# Avoid suggestions that could unintentionally break public APIs.
+avoid-breaking-exported-api = true
+
+# Documentation-oriented lints should primarily evaluate externally visible
+# APIs rather than every private implementation detail.
+check-private-items = false
+
+# ------------------------------------------------------------------------------
+# Naming
+# ------------------------------------------------------------------------------
+
+# Extend Clippy's default placeholder-name list rather than replacing it.
+disallowed-names = [
+  "foo",
+  "baz",
+  "quux",
+  "tmp",
+  "temp",
+]

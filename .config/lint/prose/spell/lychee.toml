@@ -1,0 +1,149 @@
+# ==============================================================================
+# Ego Hygiene - Universal Lychee Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Validate external, local, fragment, and mail links across documentation and
+#   textual repository configuration.
+#
+# References:
+#   https://lychee.cli.rs/guides/config/
+#   https://megalinter.io/latest/descriptors/spell_lychee/
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Display
+# ------------------------------------------------------------------------------
+
+# Let MegaLinter own the primary output stream and report parsing.
+verbose = "info"
+format = "detailed"
+mode = "plain"
+no_progress = true
+
+# Show aggregated host information after the scan.
+host_stats = true
+
+# ------------------------------------------------------------------------------
+# Cache
+# ------------------------------------------------------------------------------
+
+# Avoid repeatedly requesting unchanged links.
+cache = true
+max_cache_age = "1d"
+
+# Do not retain transient server and rate-limit failures.
+cache_exclude_status = "429, 500.."
+
+# ------------------------------------------------------------------------------
+# Runtime
+# ------------------------------------------------------------------------------
+
+threads = 4
+
+max_redirects = 10
+max_retries = 3
+max_concurrency = 20
+
+# Limit simultaneous pressure on an individual host.
+host_concurrency = 4
+host_request_interval = "100ms"
+
+# ------------------------------------------------------------------------------
+# Requests
+# ------------------------------------------------------------------------------
+
+user_agent = "egolint-lychee/1.0"
+
+timeout = 20
+retry_wait_time = 2
+
+# Successful HTTP responses only.
+#
+# Redirects are followed before the final status is evaluated.
+accept = ["200..=299"]
+
+insecure = false
+min_tls = "TLSv1_2"
+
+scheme = [
+  "file",
+  "http",
+  "https",
+  "mailto",
+]
+
+require_https = false
+
+# Resolve common extensionless documentation links.
+fallback_extensions = [
+  "md",
+  "html",
+]
+
+# Validate heading and text fragments.
+include_fragments = "full"
+
+# Validate mail links when the bundled build supports email checking.
+include_mail = true
+
+# Validate Markdown wikilinks.
+include_wikilinks = true
+
+# ------------------------------------------------------------------------------
+# Local links
+# ------------------------------------------------------------------------------
+
+# Resolve relative local links from the repository root.
+root_dir = "."
+
+skip_missing = false
+
+# Respect .gitignore, .ignore, and .lycheeignore.
+no_ignore = false
+
+# Hidden files selected by MegaLinter remain eligible.
+hidden = true
+
+# Do not extract links from code fences and verbatim content by default.
+include_verbatim = false
+
+glob_ignore_case = false
+
+# ------------------------------------------------------------------------------
+# Network boundaries
+# ------------------------------------------------------------------------------
+
+# Local development services are not expected to be online during CI.
+exclude_all_private = true
+
+# Do not treat network timeouts as successful checks.
+accept_timeouts = false
+
+# ------------------------------------------------------------------------------
+# Path exclusions
+# ------------------------------------------------------------------------------
+
+exclude_path = [
+  "(^|/)\\.git/",
+  "(^|/)\\.cache/",
+  "(^|/)\\.engineering/reports/",
+  "(^|/)node_modules/",
+  "(^|/)vendor/",
+  "(^|/)\\.venv/",
+  "(^|/)venv/",
+  "(^|/)build/",
+  "(^|/)dist/",
+  "(^|/)out/",
+  "(^|/)target/",
+  "(^|/)coverage/",
+  "(^|/)generated/",
+]
+
+# ------------------------------------------------------------------------------
+# URL exclusions
+# ------------------------------------------------------------------------------
+
+# Keep this small. Add unstable or bot-blocking destinations to the root
+# .lycheeignore with an explanation.
+exclude = []

@@ -1,0 +1,30 @@
+---
+# ==============================================================================
+# Ego Hygiene - Salesforce Code Analyzer Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Configure Salesforce Code Analyzer v5 and register the repository-owned
+#   Apex PMD ruleset.
+#
+# References:
+#   https://developer.salesforce.com/docs/platform/salesforce-code-analyzer/
+# ==============================================================================
+
+log_level: 3
+
+engines:
+  pmd:
+    disable_engine: false
+
+    file_extensions:
+      apex:
+        - ".cls"
+        - ".trigger"
+
+      visualforce:
+        - ".page"
+        - ".component"
+
+    custom_rulesets:
+      - "./apex-pmd-ruleset.xml"

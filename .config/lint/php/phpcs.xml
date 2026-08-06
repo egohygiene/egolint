@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ruleset
+    name="EgoHygiene"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd"
+>
+    <description>
+        Universal PHP coding standard for Ego Hygiene repositories.
+        Enforces PSR-12 with deterministic UTF-8 and file-extension policy.
+    </description>
+
+    <!--
+        MegaLinter passes matching PHP files explicitly, so this ruleset does
+        not declare project-specific <file> entries.
+    -->
+
+    <arg name="basepath" value="." />
+    <arg name="colors" />
+    <arg name="extensions" value="php" />
+    <arg name="parallel" value="4" />
+
+    <config name="encoding" value="utf-8" />
+
+    <!-- Canonical PHP coding style. -->
+    <rule ref="PSR12" />
+
+    <!-- Prevent mixed or malformed line endings. -->
+    <rule ref="Generic.Files.LineEndings">
+        <properties>
+            <property name="eolChar" value="\n" />
+        </properties>
+    </rule>
+
+    <!-- Keep the formatter boundary at 120 characters without a hard cutoff. -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120" />
+            <property name="absoluteLineLimit" value="0" />
+            <property name="ignoreComments" value="false" />
+        </properties>
+    </rule>
+
+    <!-- Generated, vendored, cached, and dependency-owned paths. -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/build/*</exclude-pattern>
+    <exclude-pattern>*/dist/*</exclude-pattern>
+    <exclude-pattern>*/coverage/*</exclude-pattern>
+    <exclude-pattern>*/.cache/*</exclude-pattern>
+    <exclude-pattern>*/storage/framework/*</exclude-pattern>
+    <exclude-pattern>*/bootstrap/cache/*</exclude-pattern>
+</ruleset>
