@@ -1,0 +1,20 @@
+configfile: "config.yml"
+
+
+rule all:
+    input:
+        "results/greeting.txt",
+
+
+rule format_greeting:
+    input:
+        name="data/name.txt",
+    output:
+        greeting="results/greeting.txt",
+    threads: 1
+    shell:
+        """
+        mkdir -p "$(dirname {output.greeting})"
+        name="$(cat {input.name})"
+        printf 'Hello, %s.\n' "${{name}}" >{output.greeting}
+        """

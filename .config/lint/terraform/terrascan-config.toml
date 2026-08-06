@@ -1,0 +1,45 @@
+# ==============================================================================
+# Ego Hygiene - Terrascan Compatibility Configuration
+# ==============================================================================
+#
+# Status:
+#   Terrascan is archived and deprecated. This configuration is retained only
+#   for compatibility and historical comparison with Checkov, KICS, and Trivy.
+#
+# References:
+#   https://github.com/tenable/terrascan
+#   https://megalinter.io/latest/descriptors/terraform_terrascan/
+# ==============================================================================
+
+[config]
+
+# Scan from the repository root.
+iac_dir = "."
+
+# This descriptor is specifically associated with Terraform source.
+iac_type = "terraform"
+
+# Allow Terrascan to detect the applicable Terraform parser version.
+iac_version = ""
+
+# Apply all available provider policies rather than limiting the universal
+# baseline to AWS.
+policy_type = "all"
+
+# Use Terrascan's bundled policies.
+policy_path = ""
+
+# Keep human-readable output for MegaLinter.
+output = "human"
+
+# Do not suppress policies globally.
+skip_rules = []
+
+# Scan nested Terraform modules.
+non_recursive = false
+
+# Keep normal runs concise.
+verbose = false
+
+# Match the repository's general parallelism policy.
+scanner_worker_count = 4

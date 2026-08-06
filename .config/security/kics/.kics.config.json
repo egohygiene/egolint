@@ -1,0 +1,57 @@
+{
+  "path": ".",
+
+  "verbose": false,
+  "silent": false,
+  "minimal-ui": true,
+  "no-color": true,
+  "no-progress": true,
+
+  "log-file": true,
+  "log-level": "INFO",
+  "log-path": ".cache/kics/kics.log",
+
+  "output-path": ".engineering/reports/megalinter/kics",
+  "output-name": "kics-results",
+  "report-formats": [
+    "json",
+    "sarif"
+  ],
+
+  "fail-on": [
+    "critical",
+    "high"
+  ],
+  "ignore-on-exit": "none",
+
+  "disable-secrets": true,
+  "disable-full-descriptions": false,
+
+  "max-file-size": 5,
+  "max-resolver-depth": 15,
+  "parallel": 4,
+  "preview-lines": 3,
+  "timeout": 120,
+
+  "exclude-paths": [
+    "./.git/**",
+    "./.cache/**",
+    "./.engineering/reports/**",
+
+    "./**/node_modules/**",
+    "./**/vendor/**",
+
+    "./**/.venv/**",
+    "./**/venv/**",
+
+    "./**/build/**",
+    "./**/dist/**",
+    "./**/out/**",
+    "./**/target/**",
+    "./**/coverage/**",
+    "./**/generated/**",
+
+    "./**/.terraform/**",
+    "./**/.serverless/**"
+  ]
+}

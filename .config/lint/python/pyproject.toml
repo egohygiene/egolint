@@ -1,0 +1,63 @@
+# ==============================================================================
+# Ego Hygiene - Universal Black Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Preserve a Black-compatible formatter profile for repositories that choose
+#   the optional Python compatibility toolchain.
+#
+# Ruff remains the default Python formatter in the universal profile.
+#
+# References:
+#   https://black.readthedocs.io/en/stable/
+# ==============================================================================
+
+[tool.black]
+
+line-length = 100
+
+target-version = [
+  "py312",
+]
+
+include = '\.pyi?$'
+
+# Preserve Black's stable formatting behavior.
+skip-string-normalization = false
+skip-magic-trailing-comma = false
+preview = false
+unstable = false
+
+# Add repository exclusions without replacing Black's built-in exclusions.
+extend-exclude = '''
+/(
+    \.cache
+  | \.git
+  | \.mypy_cache
+  | \.pytest_cache
+  | \.ruff_cache
+  | \.tox
+  | \.venv
+  | __pycache__
+  | build
+  | coverage
+  | dist
+  | generated
+  | node_modules
+  | out
+  | target
+  | vendor
+  | venv
+  | \.engineering/reports
+)/
+'''
+
+# Exclude generated Python even when a caller passes the file explicitly.
+force-exclude = '''
+(
+    (^|/)generated/
+  | .*_pb2\.py$
+  | .*_pb2_grpc\.py$
+  | .*\.generated\.py$
+)
+'''

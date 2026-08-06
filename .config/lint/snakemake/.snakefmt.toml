@@ -1,0 +1,54 @@
+# ==============================================================================
+# Ego Hygiene - Universal Snakefmt Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Provide deterministic formatting for Snakefiles and Snakemake rule files.
+#
+# References:
+#   https://github.com/snakemake/snakefmt
+# ==============================================================================
+
+[tool.snakefmt]
+
+# Match the broader repository formatting policy.
+line_length = 100
+
+# Format only canonical Snakemake workflow files.
+include = '\.smk$|(^|/)Snakefile$'
+
+# Avoid dependency, generated, cached, and report directories during recursive
+# native Snakefmt runs.
+exclude = '''
+(
+    (^|/)\.git/
+  | (^|/)\.cache/
+  | (^|/)\.engineering/reports/
+  | (^|/)node_modules/
+  | (^|/)vendor/
+  | (^|/)\.venv/
+  | (^|/)venv/
+  | (^|/)build/
+  | (^|/)dist/
+  | (^|/)out/
+  | (^|/)target/
+  | (^|/)coverage/
+  | (^|/)generated/
+  | (^|/)\.snakemake/
+)
+'''
+
+# Keep rule and module directives in the canonical Snakefmt order.
+sort_directives = true
+
+# Format shell directive bodies using Snakefmt's integrated shfmt support.
+format_shell = true
+
+[tool.black]
+
+# Snakefmt delegates embedded Python formatting to Black.
+line-length = 100
+target-version = ["py311"]
+
+# Preserve deliberate string quoting where Black allows it.
+skip-string-normalization = true

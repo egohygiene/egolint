@@ -1,0 +1,31 @@
+{
+  "Globs": [
+    "**/.git/**",
+
+    "**/node_modules/**",
+    "**/vendor/**",
+
+    "**/.venv/**",
+    "**/venv/**",
+    "**/__pycache__/**",
+
+    "**/.cache/**",
+    "**/.next/**",
+    "**/.nuxt/**",
+    "**/.turbo/**",
+    "**/.yarn/**",
+    "**/.pnpm-store/**",
+
+    "**/build/**",
+    "**/dist/**",
+    "**/out/**",
+    "**/target/**",
+    "**/coverage/**",
+    "**/generated/**",
+
+    "**/.terraform/**",
+    "**/.serverless/**",
+
+    ".engineering/reports/**"
+  ]
+}

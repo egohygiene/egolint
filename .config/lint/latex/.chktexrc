@@ -1,0 +1,247 @@
+###############################################################################
+# Ego Hygiene — Universal ChkTeX Configuration
+###############################################################################
+#
+# Purpose:
+#   Provide deterministic semantic and syntactic checks for first-party LaTeX.
+#
+# Principles:
+#   - Preserve ChkTeX's built-in command and environment knowledge.
+#   - Keep high-value semantic warnings enabled.
+#   - Suppress a small set of noisy or formatter-owned warnings.
+#   - Ignore verbatim, code-listing, and diagram environments.
+#   - Prefer booktabs-style tables over vertical and repeated horizontal rules.
+#
+# Configuration reference:
+# https://github.com/overleaf/chktex/blob/master/chktexrc
+#
+# ChkTeX manual:
+# https://www.nongnu.org/chktex/ChkTeX.pdf
+###############################################################################
+
+QuoteStyle = Logical
+TabSize = 4
+
+# MegaLinter owns quiet mode and diagnostic output formatting.
+#
+# Only repository warning suppressions belong here.
+CmdLine
+{
+    -n1
+    -n8
+    -n13
+    -n24
+    -n25
+    -n36
+    -n46
+    -n47
+}
+
+###############################################################################
+# References and citations
+###############################################################################
+
+# These commands should normally be preceded by a non-breaking space when used
+# after prose such as "Section", "Figure", or "Equation".
+Linker
+{
+    \ref
+    \vref
+    \pageref
+    \eqref
+    \cite
+    \cref
+    \Cref
+}
+
+###############################################################################
+# Arguments excluded from semantic inspection
+###############################################################################
+
+# Ignore identifiers, URLs, file paths, citations, and other arguments whose
+# contents are not ordinary prose or LaTeX structure.
+WipeArg
+{
+    \label:{}
+    \ref:{}
+    \eqref:{}
+    \vref:{}
+    \pageref:{}
+
+    \cite:[][]{}
+    \nocite:{}
+    \bibitem:[]{}
+
+    \input:{}
+    \include:{}
+    \includeonly:{}
+
+    \url:{}
+    \href:{}{}
+
+    \cref:*{}
+    \cpageref:*{}
+    \crefrange:*{}{}
+    \cpagerefrange:*{}{}
+
+    \Cref:*{}
+    \Cpageref:*{}
+    \Crefrange:*{}{}
+    \Cpagerefrange:*{}{}
+
+    \citet:*[][]{}
+    \citep:*[][]{}
+    \citealt:*{}
+    \citealp:*[]{}
+    \citeauthor:*{}
+    \citeyear:*{}
+    \citeyearpar:{}
+}
+
+###############################################################################
+# Math-aware environments and commands
+###############################################################################
+
+MathEnvir
+{
+    math
+    displaymath
+    equation
+    align
+    alignat
+    flalign
+    gather
+    multline
+    array
+    eqnarray
+}
+
+MathCmd
+{
+    \ensuremath
+}
+
+TextCmd
+{
+    \text
+    \intertext
+    \shortintertext
+    \mbox
+}
+
+###############################################################################
+# Verbatim and generated-content environments
+###############################################################################
+
+VerbEnvir
+{
+    verbatim
+    comment
+    listing
+    verbatimtab
+    rawhtml
+    filecontents
+    pgfpicture
+    tikzpicture
+    minted
+    lstlisting
+    IPA
+}
+
+###############################################################################
+# Silent commands
+###############################################################################
+
+# These commands may legally terminate with whitespace without producing
+# ordinary prose output at the command boundary.
+Silent
+{
+    \rm
+    \em
+    \bf
+    \it
+    \sl
+    \sf
+    \sc
+    \tt
+
+    \rmfamily
+    \sffamily
+    \ttfamily
+    \mdseries
+    \bfseries
+    \itshape
+    \slshape
+    \scshape
+    \upshape
+
+    \clearpage
+    \newpage
+    \pagebreak
+    \nopagebreak
+    \linebreak
+    \newline
+
+    \centering
+    \raggedleft
+    \raggedright
+    \noindent
+
+    \small
+    \normalsize
+    \large
+    \Large
+    \LARGE
+    \huge
+    \Huge
+
+    \tableofcontents
+    \listoffigures
+    \listoftables
+    \maketitle
+
+    \toprule
+    \midrule
+    \bottomrule
+
+    \left
+    \right
+    \qedhere
+    \xspace
+}
+
+###############################################################################
+# Dash conventions
+###############################################################################
+
+HyphDash
+{
+    1
+    3
+}
+
+NumDash
+{
+    2
+}
+
+WordDash
+{
+    3
+}
+
+###############################################################################
+# Project-specific semantic warnings
+###############################################################################
+
+UserWarnRegex
+{
+    # Prefer the semantic \nmid command over manually negating a relation.
+    (?!#Always! use! \nmid)\\not! *(\||\\mid)
+
+    # Prefer booktabs commands over ordinary horizontal rules.
+    (?!#-2:Use! \toprule,! \midrule,! or! \bottomrule! from! booktabs)\\hline
+
+    # Discourage vertical table rules.
+    (?!#-2:Avoid! vertical! rules! in! tables)\\begin\{(array|tabularx?\*?)\}(\[.*\])?\{.*\|.*\}
+}

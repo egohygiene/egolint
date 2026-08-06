@@ -1,0 +1,28 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: format-greeting
+spec:
+  description: Formats a greeting for a supplied name.
+
+  params:
+    - name: name
+      description: Name included in the greeting.
+      type: string
+      default: Ego Hygiene
+
+  results:
+    - name: greeting
+      description: Rendered greeting text.
+
+  steps:
+    - name: format
+      image: docker.io/library/alpine:3.22
+      script: |
+        #!/bin/sh
+
+        set -eu
+
+        greeting="Hello, $(params.name)."
+        printf "%s" "${greeting}" > "$(results.greeting.path)"

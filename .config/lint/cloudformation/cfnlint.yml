@@ -1,0 +1,34 @@
+---
+# ==============================================================================
+# Ego Hygiene — Universal cfn-lint Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Validate first-party AWS CloudFormation and AWS SAM templates against AWS
+#   resource-provider schemas and cfn-lint best-practice rules.
+#
+# Principles:
+#   - Preserve all default error and warning checks.
+#   - Avoid universal rule suppressions.
+#   - Validate against representative AWS regions.
+#   - Delegate template discovery and repository exclusions to MegaLinter.
+#   - Add custom rules only when their implementation is committed and tested.
+#
+# Configuration:
+# https://github.com/aws-cloudformation/cfn-lint#configuration
+
+# Validate region-dependent resources and properties against representative
+# deployment regions used across the United States and Europe.
+#
+# Individual repositories may replace this list with their actual deployment
+# regions for faster and more precise validation.
+regions:
+  - us-east-1
+  - us-west-2
+  - eu-west-1
+
+# Do not globally suppress built-in rules.
+#
+# Template-specific exceptions should be narrowly documented through cfn-lint
+# metadata in the affected template.
+ignore_checks: []

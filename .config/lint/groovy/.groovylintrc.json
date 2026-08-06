@@ -1,0 +1,61 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nvuillam/npm-groovy-lint/refs/heads/main/docs/groovy-lint.jsonschema.json",
+  "extends": "recommended",
+  "rules": {
+    "Indentation": {
+      "spacesPerIndentLevel": 4,
+      "severity": "error"
+    },
+    "LineLength": {
+      "length": 120,
+      "severity": "warning"
+    },
+
+    "UnusedImport": "error",
+    "UnusedPrivateField": "error",
+    "UnusedPrivateMethod": "error",
+    "UnusedVariable": "error",
+
+    "ClassName": {
+      "regex": "^[A-Z][A-Za-z0-9]*$",
+      "severity": "error"
+    },
+    "MethodName": {
+      "regex": "^[a-z][A-Za-z0-9]*$",
+      "severity": "error"
+    },
+    "ParameterName": {
+      "regex": "^[a-z][A-Za-z0-9]*$",
+      "severity": "warning"
+    },
+    "VariableName": {
+      "regex": "^[a-z][A-Za-z0-9]*$",
+      "severity": "warning"
+    },
+
+    "BracesForIfElse": "error",
+    "BracesForForLoop": "error",
+    "BracesForTryCatchFinally": "error",
+    "WhileStatementBraces": "error",
+
+    "SpaceAfterComma": "error",
+    "SpaceAfterFor": "error",
+    "SpaceAfterIf": "error",
+    "SpaceAfterWhile": "error",
+    "SpaceAroundOperator": "error",
+    "SpaceBeforeOpeningBrace": "error",
+
+    "NoTabCharacter": "error",
+    "TrailingWhitespace": "error",
+    "FileEndsWithoutNewline": "error",
+    "ConsecutiveBlankLines": "warning",
+
+    "DuplicateImport": "error",
+    "UnnecessaryGroovyImport": "warning",
+    "UnnecessarySemicolon": "warning",
+
+    "NoDef": "off",
+    "ClassJavadoc": "off",
+    "VariableTypeRequired": "off"
+  }
+}

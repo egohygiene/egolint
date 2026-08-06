@@ -1,0 +1,16 @@
+{
+  "name": "@egohygiene/npm-package-json-lint-fixture",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fixture package used to validate package.json policy.",
+  "license": "MIT",
+  "packageManager": "pnpm@10.0.0",
+  "type": "module",
+  "scripts": {
+    "lint": "printf '%s\\n' 'Fixture passed.'",
+    "test": "printf '%s\\n' 'Fixture passed.'"
+  },
+  "devDependencies": {
+    "npm-package-json-lint": "^10.0.0"
+  }
+}

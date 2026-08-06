@@ -1,0 +1,197 @@
+---
+# yaml-language-server: $schema=https://www.rubyschema.org/rubocop.json
+
+# ==============================================================================
+# Ego Hygiene - Universal RuboCop Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Enforce portable Ruby correctness, maintainability, and deterministic style
+#   without requiring framework-specific RuboCop extension gems.
+#
+# References:
+#   https://docs.rubocop.org/rubocop/latest/configuration.html
+#   https://rubystyle.guide/
+# ==============================================================================
+
+AllCops:
+  NewCops: enable
+
+  # Allow RuboCop to determine the target from .ruby-version, Gemfile.lock,
+  # gemspec metadata, mise.toml, or .tool-versions where available.
+  SuggestExtensions: false
+
+  UseCache: true
+  CacheRootDirectory: "../../../.cache/rubocop"
+  MaxFilesInCache: 20000
+
+  DisplayCopNames: true
+  DisplayStyleGuide: true
+
+  Exclude:
+    - "../../../.git/**/*"
+    - "../../../.cache/**/*"
+    - "../../../.engineering/reports/**/*"
+
+    - "../../../**/node_modules/**/*"
+    - "../../../**/vendor/**/*"
+
+    - "../../../**/.bundle/**/*"
+    - "../../../**/.ruby-lsp/**/*"
+
+    - "../../../**/build/**/*"
+    - "../../../**/dist/**/*"
+    - "../../../**/out/**/*"
+    - "../../../**/target/**/*"
+    - "../../../**/coverage/**/*"
+    - "../../../**/generated/**/*"
+
+    - "../../../**/tmp/**/*"
+    - "../../../**/log/**/*"
+
+# ------------------------------------------------------------------------------
+# Layout
+# ------------------------------------------------------------------------------
+
+Layout/LineLength:
+  Max: 120
+  AllowedPatterns:
+    - '\A\s*#\s*https?://'
+    - '\A\s*source\s+["'']https?://'
+
+Layout/EndOfLine:
+  EnforcedStyle: lf
+
+Layout/IndentationWidth:
+  Width: 2
+
+Layout/ParameterAlignment:
+  EnforcedStyle: with_first_parameter
+
+Layout/FirstArgumentIndentation:
+  EnforcedStyle: special_for_inner_method_call
+
+Layout/FirstArrayElementIndentation:
+  EnforcedStyle: special_inside_parentheses
+
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: special_inside_parentheses
+
+# ------------------------------------------------------------------------------
+# Style
+# ------------------------------------------------------------------------------
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+  ConsistentQuotesInMultiline: true
+
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: single_quotes
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  EnforcedStyle: always
+
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: comma
+
+Style/Documentation:
+  Enabled: false
+
+Style/GuardClause:
+  MinBodyLength: 3
+
+Style/NumericLiterals:
+  MinDigits: 5
+
+Style/SymbolArray:
+  EnforcedStyle: percent
+  MinSize: 3
+
+Style/WordArray:
+  EnforcedStyle: percent
+  MinSize: 3
+
+# ------------------------------------------------------------------------------
+# Metrics
+# ------------------------------------------------------------------------------
+
+Metrics/BlockLength:
+  Exclude:
+    - "../../../**/*_spec.rb"
+    - "../../../**/spec/**/*"
+    - "../../../**/test/**/*"
+    - "../../../**/Rakefile"
+    - "../../../**/*.rake"
+    - "../../../**/*.gemspec"
+
+Metrics/ClassLength:
+  Max: 200
+
+Metrics/MethodLength:
+  Max: 30
+
+Metrics/ModuleLength:
+  Max: 200
+
+Metrics/AbcSize:
+  Max: 25
+
+Metrics/CyclomaticComplexity:
+  Max: 10
+
+Metrics/PerceivedComplexity:
+  Max: 10
+
+Metrics/ParameterLists:
+  Max: 6
+  CountKeywordArgs: false
+
+# ------------------------------------------------------------------------------
+# Naming
+# ------------------------------------------------------------------------------
+
+Naming/FileName:
+  Exclude:
+    - "../../../**/Gemfile"
+    - "../../../**/Rakefile"
+    - "../../../**/Guardfile"
+    - "../../../**/Vagrantfile"
+    - "../../../**/Podfile"
+    - "../../../**/*.gemspec"
+
+Naming/PredicatePrefix:
+  ForbiddenPrefixes:
+    - "is_"
+    - "has_"
+  AllowedMethods:
+    - "is_a?"
+
+# ------------------------------------------------------------------------------
+# Lint and security
+# ------------------------------------------------------------------------------
+
+Lint/AmbiguousBlockAssociation:
+  Exclude:
+    - "../../../**/*_spec.rb"
+
+Security/Eval:
+  Enabled: true
+
+Security/JSONLoad:
+  Enabled: true
+
+Security/MarshalLoad:
+  Enabled: true
+
+Security/Open:
+  Enabled: true
+
+Security/YAMLLoad:
+  Enabled: true

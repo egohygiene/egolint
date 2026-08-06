@@ -1,0 +1,5 @@
+##### Shellcheck Configuration #####
+### https://github.com/koalaman/shellcheck ###
+
+## Enable All Checks ##
+enable=all

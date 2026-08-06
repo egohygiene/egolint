@@ -1,0 +1,195 @@
+;; =============================================================================
+;; Ego Hygiene — Universal clj-kondo Configuration
+;; =============================================================================
+;;
+;; Purpose:
+;;   Provide deterministic static analysis for first-party Clojure,
+;;   ClojureScript, and cross-platform Clojure source.
+;;
+;; Principles:
+;;   - Preserve clj-kondo's comprehensive built-in defaults.
+;;   - Treat correctness failures as errors.
+;;   - Keep maintainability findings visible as warnings.
+;;   - Avoid framework-specific macro assumptions in the universal baseline.
+;;   - Prevent developer home configuration from changing repository results.
+;;
+;; Configuration:
+;; https://github.com/clj-kondo/clj-kondo/blob/master/doc/config.md
+;;
+;; Linter index:
+;; https://github.com/clj-kondo/clj-kondo/blob/master/doc/linters.md
+
+{
+ ;; ============================================================================
+ ;; Configuration composition
+ ;; ============================================================================
+
+ ;; Do not merge ~/.config/clj-kondo into repository lint behavior.
+ ;;
+ ;; Repository- or dependency-specific exported configurations may be added
+ ;; deliberately in a local override.
+ :config-paths ^:replace []
+
+ ;; Automatically load valid clj-kondo configuration exported or copied beneath
+ ;; the active project configuration hierarchy.
+ :auto-load-configs true
+
+ ;; ============================================================================
+ ;; Core correctness and maintainability policy
+ ;; ============================================================================
+
+ :linters
+ {
+  ;; Unresolved code generally indicates a missing dependency, typo, invalid
+  ;; namespace, or unsupported macro configuration.
+  :unresolved-symbol
+  {:level :error}
+
+  :unresolved-namespace
+  {:level :error}
+
+  ;; Invalid function or macro arity is a correctness failure.
+  :invalid-arity
+  {:level :error}
+
+  ;; Deprecated API usage should remain visible during migration.
+  :deprecated-var
+  {:level :warning}
+
+  ;; Dead imports, bindings, and namespace declarations reduce clarity.
+  :unused-binding
+  {:level :warning}
+
+  :unused-import
+  {:level :warning}
+
+  :unused-namespace
+  {:level :warning}
+
+  :unused-referred-var
+  {:level :warning}
+
+  :unused-private-var
+  {:level :warning}
+
+  ;; Highlight unnecessary intermediate structures.
+  :redundant-let
+  {:level :warning}
+
+  :redundant-do
+  {:level :warning}
+
+  ;; Discourage broad namespace imports while permitting intentional use.
+  :refer-all
+  {:level :warning}
+
+  ;; Public documentation is valuable, but not universally mandatory for every
+  ;; repository or development phase.
+  :missing-docstring
+  {:level :off}
+
+  ;; ==========================================================================
+  ;; Optional quality rules
+  ;; ==========================================================================
+
+  ;; Require sorted namespace dependencies and imports for stable diffs.
+  :unsorted-required-namespaces
+  {:level :warning}
+
+  :unsorted-imports
+  {:level :warning}
+
+  ;; Detect bindings that shadow globally defined vars.
+  :shadowed-var
+  {:level :warning}
+
+  ;; Detect use of bindings explicitly marked as unused.
+  :used-underscored-binding
+  {:level :warning}
+
+  ;; Detect unused aliases independently from unused namespaces.
+  :unused-alias
+  {:level :warning}
+
+  ;; Prefer idiomatic boolean and nil predicates.
+  :equals-true
+  {:level :warning}
+
+  :equals-false
+  {:level :warning}
+
+  :equals-nil
+  {:level :warning}
+
+  ;; Flag floating-point equality checks that may be numerically unsafe.
+  :equals-float
+  {:level :warning}
+
+  ;; Detect common simplification opportunities.
+  :redundant-fn-wrapper
+  {:level :warning}
+
+  :redundant-let-binding
+  {:level :warning}
+
+  :redundant-str-call
+  {:level :warning}
+
+  :not-nil?
+  {:level :warning}
+
+  :def-fn
+  {:level :warning}
+
+  ;; Require explicit initial values for reduce where omission can obscure
+  ;; behavior on empty collections.
+  :reduce-without-init
+  {:level :warning}}
+
+ ;; ============================================================================
+ ;; Macro interpretation
+ ;; ============================================================================
+
+ ;; Do not assume framework-specific macro semantics universally.
+ ;;
+ ;; Repository-specific configurations may extend this map for custom macros or
+ ;; libraries that do not provide their own clj-kondo exports.
+ :lint-as {}
+
+ ;; ============================================================================
+ ;; Comment forms
+ ;; ============================================================================
+
+ ;; Lint expressions inside (comment ...) forms.
+ ;;
+ ;; Comment forms commonly contain executable development and debugging code;
+ ;; keeping them checked avoids allowing stale or invalid code to accumulate.
+ :skip-comments false
+
+ ;; ============================================================================
+ ;; File scope
+ ;; ============================================================================
+
+ ;; Exclude only generated, dependency, cache, and centralized configuration
+ ;; content. Paths are matched with re-find and must use forward slashes.
+ :exclude-files
+ "(^|/)(\\.cache|\\.git|\\.history|\\.shadow-cljs|build|coverage|dist|node_modules|out|reports|target)/|(^|/)\\.config/lint/clojure/"
+
+ ;; ============================================================================
+ ;; Output
+ ;; ============================================================================
+
+ :output
+ {
+  ;; Keep human-readable output compatible with local use and MegaLinter.
+  :format :text
+
+  ;; Include the linter identifier in every finding so remediation and
+  ;; suppressions remain precise.
+  :linter-name true
+
+  ;; Display repository-relative paths rather than canonical host paths.
+  :canonical-paths false
+
+  ;; Avoid progress animation in captured CI logs.
+  :progress false}}

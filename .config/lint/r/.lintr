@@ -1,0 +1,17 @@
+# ==============================================================================
+# Ego Hygiene - Universal lintr Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Enforce readable, idiomatic, and maintainable R source using lintr's
+#   default tidyverse-oriented baseline with a repository-wide line length.
+#
+# References:
+#   https://lintr.r-lib.org/articles/lintr.html
+#   https://lintr.r-lib.org/reference/linters_with_defaults.html
+# ==============================================================================
+linters: linters_with_defaults(
+    line_length_linter = line_length_linter(120L)
+  )
+encoding: "UTF-8"
+error_on_lint: FALSE

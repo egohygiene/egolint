@@ -1,0 +1,69 @@
+{
+  "allowed-tags": "off",
+  "file-name": [
+    "on",
+    {
+      "style": "kebab-case"
+    }
+  ],
+  "indentation": [
+    "on",
+    {
+      "Feature": 0,
+      "Background": 2,
+      "Scenario": 2,
+      "Step": 4,
+      "Examples": 4,
+      "example": 6,
+      "feature tag": 0,
+      "scenario tag": 2
+    }
+  ],
+  "keywords-in-logical-order": "on",
+  "max-scenarios-per-file": [
+    "on",
+    {
+      "maxScenarios": 10,
+      "countOutlineExamples": false
+    }
+  ],
+  "name-length": [
+    "on",
+    {
+      "Feature": 100,
+      "Scenario": 100,
+      "Step": 120
+    }
+  ],
+  "new-line-at-eof": ["on", "yes"],
+  "no-background-only-scenario": "on",
+  "no-dupe-feature-names": "on",
+  "no-dupe-scenario-names": ["on", "in-feature"],
+  "no-duplicate-tags": "on",
+  "no-empty-background": "on",
+  "no-empty-file": "on",
+  "no-examples-in-scenarios": "on",
+  "no-files-without-scenarios": "on",
+  "no-homogenous-tags": "on",
+  "no-multiple-empty-lines": "on",
+  "no-partially-commented-tag-lines": "on",
+  "no-scenario-outlines-without-examples": "on",
+  "no-superfluous-tags": "on",
+  "no-trailing-spaces": "on",
+  "no-unnamed-features": "on",
+  "no-unnamed-scenarios": "on",
+  "no-unused-variables": "on",
+  "one-space-between-tags": "on",
+  "only-one-when": "off",
+  "required-tags": "off",
+  "scenario-size": [
+    "on",
+    {
+      "steps-length": {
+        "Background": 10,
+        "Scenario": 15
+      }
+    }
+  ],
+  "use-and": "on"
+}

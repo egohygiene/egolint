@@ -1,0 +1,21 @@
+# ==============================================================================
+# Ego Hygiene - Universal puppet-lint Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Enforce Puppet's recommended language style across first-party manifests.
+#
+# Notes:
+#   - puppet-lint checks style, not Puppet syntax.
+#   - Syntax validation should separately use `puppet parser validate`.
+#   - Autoloader layout is disabled because this repository can contain Puppet
+#     fixtures and examples outside a conventional Puppet module tree.
+#
+# References:
+#   https://github.com/puppetlabs/puppet-lint
+#   https://www.puppet.com/docs/puppet/latest/style_guide.html
+# ==============================================================================
+
+--fail-on-warnings
+--with-filename
+--no-autoloader_layout-check

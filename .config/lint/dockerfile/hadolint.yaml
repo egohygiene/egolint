@@ -1,0 +1,114 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/hadolint/hadolint/master/contrib/hadolint.json
+
+# ==============================================================================
+# Ego Hygiene — Universal Hadolint Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Validate first-party Dockerfiles and Containerfiles for correctness,
+#   reproducibility, security, and maintainability.
+#
+# Principles:
+#   - Preserve Hadolint and ShellCheck defaults.
+#   - Fail on warnings and errors.
+#   - Allow narrowly documented inline suppressions.
+#   - Avoid universal OCI-label requirements for development images.
+#   - Restrict public base images to recognized registries.
+#   - Keep output deterministic and suitable for captured CI reports.
+#
+# Configuration:
+# https://github.com/hadolint/hadolint#configure
+#
+# Rule index:
+# https://github.com/hadolint/hadolint#rules
+
+# ------------------------------------------------------------------------------
+# Core behavior
+# ------------------------------------------------------------------------------
+
+# Permit narrowly scoped suppressions such as:
+#
+#   # hadolint ignore=DL3008
+#
+# Suppressions should include an adjacent explanation.
+disable-ignore-pragma: false
+
+# Fail when a warning or error is reported.
+failure-threshold: warning
+
+# MegaLinter captures the text output and owns report generation.
+format: tty
+
+# Prevent ANSI escape sequences from appearing in report artifacts.
+no-color: true
+
+# Never convert a failed lint run into a successful one.
+no-fail: false
+
+# ------------------------------------------------------------------------------
+# Rule policy
+# ------------------------------------------------------------------------------
+
+# Preserve all built-in Hadolint and ShellCheck rules.
+ignored: []
+
+# Do not globally change built-in severities without a demonstrated repository
+# need. Narrow exceptions should remain close to the affected Dockerfile.
+override:
+  error: []
+  warning: []
+  info: []
+  style: []
+
+# ------------------------------------------------------------------------------
+# OCI labels
+# ------------------------------------------------------------------------------
+
+# Do not prohibit repository- or vendor-specific labels.
+strict-labels: false
+
+# OCI label requirements belong to image-release policy rather than every
+# Dockerfile in the universal repository.
+label-schema: {}
+
+# ------------------------------------------------------------------------------
+# Trusted public registries
+# ------------------------------------------------------------------------------
+
+# Warn when public base images originate outside recognized registries.
+#
+# Repositories using a private registry should extend this list locally.
+trustedRegistries:
+  # Docker Hub.
+  - docker.io
+  - registry.hub.docker.com
+
+  # GitHub and Quay.
+  - ghcr.io
+  - quay.io
+
+  # Google container registries.
+  - gcr.io
+  - "*.gcr.io"
+  - "*.pkg.dev"
+
+  # Amazon Elastic Container Registry.
+  - public.ecr.aws
+  - "*.dkr.ecr.*.amazonaws.com"
+
+  # Microsoft Container Registry.
+  - mcr.microsoft.com
+
+  # Kubernetes registries.
+  - registry.k8s.io
+  - k8s.gcr.io
+
+  # Chainguard.
+  - cgr.dev
+
+  # NVIDIA.
+  - nvcr.io
+
+  # Elastic.
+  - docker.elastic.co

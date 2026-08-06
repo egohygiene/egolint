@@ -1,0 +1,146 @@
+---
+# ==============================================================================
+# Ego Hygiene — Universal clang-format Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Provide deterministic formatting for first-party C, C++, Objective-C,
+#   CUDA, and related header files.
+#
+# Principles:
+#   - Derive from the familiar Google style.
+#   - Use Allman braces consistently.
+#   - Prefer readable multiline structures over dense one-line constructs.
+#   - Avoid alignment rules that produce wide, unstable diffs.
+#   - Keep formatting reproducible across editors, local tooling, and CI.
+#
+# Style options:
+# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+
+Language: Cpp
+BasedOnStyle: Google
+
+# ------------------------------------------------------------------------------
+# Language and line width
+# ------------------------------------------------------------------------------
+
+Standard: Latest
+ColumnLimit: 100
+
+# ------------------------------------------------------------------------------
+# Indentation
+# ------------------------------------------------------------------------------
+
+IndentWidth: 2
+ContinuationIndentWidth: 4
+ConstructorInitializerIndentWidth: 4
+TabWidth: 2
+UseTab: Never
+
+AccessModifierOffset: -2
+NamespaceIndentation: None
+IndentCaseLabels: true
+IndentCaseBlocks: false
+IndentPPDirectives: None
+
+# ------------------------------------------------------------------------------
+# Braces and compact constructs
+# ------------------------------------------------------------------------------
+
+BreakBeforeBraces: Allman
+
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: Empty
+AllowShortLoopsOnASingleLine: false
+
+# ------------------------------------------------------------------------------
+# Function calls and declarations
+# ------------------------------------------------------------------------------
+
+BinPackArguments: false
+BinPackParameters: false
+
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+
+BreakAfterReturnType: None
+BreakConstructorInitializers: BeforeColon
+BreakInheritanceList: BeforeColon
+
+# ------------------------------------------------------------------------------
+# Expressions
+# ------------------------------------------------------------------------------
+
+AlignAfterOpenBracket: Align
+AlignOperands: Align
+
+BreakBeforeBinaryOperators: None
+BreakBeforeTernaryOperators: true
+
+# ------------------------------------------------------------------------------
+# Alignment
+# ------------------------------------------------------------------------------
+
+# Avoid whitespace churn when identifiers or declarations are renamed.
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignConsecutiveMacros: None
+
+AlignEscapedNewlines: Left
+AlignTrailingComments:
+  Kind: Never
+
+# ------------------------------------------------------------------------------
+# Includes and declarations
+# ------------------------------------------------------------------------------
+
+SortIncludes: CaseSensitive
+IncludeBlocks: Preserve
+SortUsingDeclarations: LexicographicNumeric
+
+# ------------------------------------------------------------------------------
+# Pointer and reference style
+# ------------------------------------------------------------------------------
+
+DerivePointerAlignment: false
+PointerAlignment: Left
+ReferenceAlignment: Pointer
+
+# ------------------------------------------------------------------------------
+# Spacing
+# ------------------------------------------------------------------------------
+
+SpaceBeforeParens: ControlStatements
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeRangeBasedForLoopColon: true
+
+SpacesInAngles: Never
+SpacesInParens: Never
+SpacesInSquareBrackets: false
+
+# ------------------------------------------------------------------------------
+# Lists and wrapping
+# ------------------------------------------------------------------------------
+
+Cpp11BracedListStyle: true
+BreakStringLiterals: true
+PackConstructorInitializers: NextLine
+
+# ------------------------------------------------------------------------------
+# Comments and whitespace
+# ------------------------------------------------------------------------------
+
+ReflowComments: true
+SpacesBeforeTrailingComments: 2
+MaxEmptyLinesToKeep: 1
+
+KeepEmptyLines:
+  AtEndOfFile: false
+  AtStartOfBlock: false
+  AtStartOfFile: false

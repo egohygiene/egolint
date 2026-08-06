@@ -1,0 +1,1475 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/oxsecurity/megalinter/main/megalinter/descriptors/schemas/megalinter-configuration.jsonschema.json
+
+# MegaLinter repository-wide code-quality configuration.
+#
+# Configuration reference:
+# https://megalinter.io/latest/configuration/
+#
+# Common variables:
+# https://megalinter.io/latest/config-variables/
+
+# ==============================================================================
+# Core execution behavior
+# ==============================================================================
+
+# Do not apply formatter or linter fixes automatically.
+#
+# Fixes should be reviewed and applied deliberately through the dedicated local
+# helper, autofix workflow, or a Copilot remediation task.
+APPLY_FIXES: none
+
+# Remove stale output from the report directory before each run.
+#
+# This ensures that published and uploaded reports represent only the current
+# MegaLinter execution.
+CLEAR_REPORT_FOLDER: true
+
+# Preserve MegaLinter's blocking behavior. Any enabled blocking linter that
+# reports an error causes the overall run to fail.
+DISABLE_ERRORS: false
+
+# Treat shell scripts without the executable permission bit as errors.
+ERROR_ON_MISSING_EXEC_BIT: true
+
+# ==============================================================================
+# Linter activation
+# ==============================================================================
+
+# Keep all descriptor families enabled unless they are explicitly disabled
+# elsewhere in this configuration.
+DISABLE: []
+
+# Disable individual linters that conflict with the canonical toolchain or are
+# intentionally handled through another quality-control mechanism.
+DISABLE_LINTERS:
+  # DevSkim is currently excluded while its configuration and responsibility
+  # within the wider security pipeline are reviewed.
+  - REPOSITORY_DEVSKIM
+
+  # JSON is validated through the selected JSON-specific toolchain rather than
+  # eslint-plugin-jsonc.
+  - JSON_ESLINT_PLUGIN_JSONC
+
+  # Checkmake is disabled until the universal Makefile policy is finalized.
+  - MAKEFILE_CHECKMAKE
+
+  # MegaLinter v9.6.0 currently disables API_SPECTRAL internally because the
+  # integration is marked as crashing. Preserve the native ruleset and wiring
+  # so the linter can be re-enabled when upstream support is restored.
+  - API_SPECTRAL
+
+  # TERRAFORM_TERRASCAN is deprecated and will be removed in a future major release. Repo archived.
+  - TERRAFORM_TERRASCAN
+
+  # Disable the JSX linter in favor of the local repository pinned ESLint v9.
+  - JSX_ESLINT
+  - PYTHON_BLACK
+  - PYTHON_FLAKE8
+  - PYTHON_ISORT
+
+# All enabled linters are blocking unless explicitly added here.
+DISABLE_ERRORS_LINTERS: []
+
+# ==============================================================================
+# Repository scope
+# ==============================================================================
+
+# Extend MegaLinter's built-in exclusions with repository-specific generated,
+# cached, virtual-environment, and deployment directories.
+#
+# Values are directory basenames and therefore match at any nesting level.
+ADDITIONAL_EXCLUDED_DIRECTORIES:
+  - __pycache__
+  - .aws-sam
+  - .cache
+  - .dynamodb
+  - .eslintcache
+  - .gradle
+  - .history
+  - .mypy_cache
+  - .next
+  - .nuxt
+  - .nyc_output
+  - .output
+  - .parcel-cache
+  - .pnpm
+  - .pytest_cache
+  - .ruff_cache
+  - .sbom
+  - .scannerwork
+  - .serverless
+  - .terraform
+  - .trivycache
+  - .turbo
+  - .venv
+  - .vercel
+  - .yarn
+  - build
+  - cmake-build
+  - coverage
+  - dist
+  - logs
+  - node_modules
+  - out
+  - reports
+  - target
+  - tmp
+  - venv
+
+# Ignore files explicitly marked as generated unless they also contain an
+# @not-generated marker.
+IGNORE_GENERATED_FILES: true
+
+# Respect repository .gitignore rules when selecting files to lint.
+IGNORE_GITIGNORED_FILES: true
+
+# ==============================================================================
+# Runtime and flavor behavior
+# ==============================================================================
+
+# Fail immediately when the selected MegaLinter image flavor does not contain
+# a configured linter. This prevents silently incomplete quality checks.
+FAIL_IF_MISSING_LINTER_IN_FLAVOR: true
+
+# Do not fail merely because a formatter updated files.
+#
+# Automatic source modification is disabled globally, but this remains explicit
+# so the behavior is stable if fixes are enabled for a dedicated workflow.
+FAIL_IF_UPDATED_SOURCES: false
+
+# Suppress recommendations to switch MegaLinter image flavors. Flavor selection
+# is managed deliberately by the repository workflow.
+FLAVOR_SUGGESTIONS: false
+
+# Treat formatter findings as blocking errors rather than advisory warnings.
+FORMATTERS_DISABLE_ERRORS: false
+
+# Do not display security-related suggestions in the console output.
+SECURITY_SUGGESTIONS: false
+
+# ==============================================================================
+# Default formatting policy
+# ==============================================================================
+
+# Prefer Prettier whenever MegaLinter must choose between its JavaScript
+# Standard Style and Prettier implementations.
+JAVASCRIPT_DEFAULT_STYLE: prettier
+
+# ==============================================================================
+# Linter configuration discovery
+# ==============================================================================
+
+# Use the repository's centralized lint-configuration directory as the default
+# location for linter rules.
+#
+# Linters whose configurations live in nested domain directories will receive
+# explicit *_RULES_PATH and *_CONFIG_FILE values later in this file.
+LINTER_RULES_PATH: .config/lint
+
+# ==============================================================================
+# Logging
+# ==============================================================================
+
+# Write the complete MegaLinter execution log into the report output directory.
+LOG_FILE: mega-linter.log
+
+# Emit normal operational information without verbose debug output.
+LOG_LEVEL: INFO
+
+# ==============================================================================
+# Default tool selection
+# ==============================================================================
+
+# Use markdownlint as the canonical Markdown style implementation.
+MARKDOWN_DEFAULT_STYLE: markdownlint
+
+# Use Ruff as the canonical Python linting implementation.
+PYTHON_DEFAULT_STYLE: ruff
+
+# Use Prettier as the canonical TypeScript formatting implementation.
+TYPESCRIPT_DEFAULT_STYLE: prettier
+
+# ==============================================================================
+# Performance
+# ==============================================================================
+
+# Run independent linter groups concurrently.
+#
+# MegaLinter groups linters that may operate on the same files to reduce
+# conflicts when source-fixing behavior is enabled.
+PARALLEL: true
+
+# Cap concurrent MegaLinter worker processes to avoid unbounded resource usage
+# in local development, containers, and shared CI runners.
+PARALLEL_PROCESS_NUMBER: 4
+
+# ==============================================================================
+# Reporting
+# ==============================================================================
+
+# Store all generated lint reports beneath the repository's engineering-output
+# namespace.
+REPORT_OUTPUT_FOLDER: .engineering/reports/megalinter
+
+# Include total and per-linter execution timing in the console output.
+SHOW_ELAPSED_TIME: true
+
+# Keep skipped-linter noise out of normal output. The generated configuration
+# report remains available when deeper activation debugging is necessary.
+SHOW_SKIPPED_LINTERS: false
+
+# ==============================================================================
+# Console output
+# ==============================================================================
+
+# Disable MegaLinter's decorative alpaca output for cleaner CI logs.
+PRINT_ALPACA: false
+
+# Do not print every selected file before linting.
+PRINT_ALL_FILES: false
+
+# ==============================================================================
+# Validation scope
+# ==============================================================================
+
+# Validate the entire repository by default.
+#
+# Pull-request workflows may override this to false so routine PR checks inspect
+# only changed files, while scheduled and manual audits retain full-codebase
+# validation.
+VALIDATE_ALL_CODEBASE: true
+
+# ==============================================================================
+# File filtering
+# ==============================================================================
+
+# Exclude binary archives, packaged application artifacts, local database
+# files, and minified assets from file-oriented linter execution.
+#
+# Directory exclusions are maintained separately through
+# ADDITIONAL_EXCLUDED_DIRECTORIES to avoid duplicating scope policy.
+#
+# The inline (?x) flag enables verbose regular-expression mode so this pattern
+# can remain readable across multiple lines. Whitespace and comments are ignored.
+FILTER_REGEX_EXCLUDE: |-
+  (?x)
+  (
+    # Repository-specific vendored, experimental, and generated trees.
+    ^\.github/agents/copilot/awesome-copilot/
+    |
+    ^\.engineering/reports/megalinter/
+    |
+    ^\.staging/
+    |
+    ^docs/generated/
+    |
+    # Local databases.
+    \.(?:db|sqlite|sqlite3)$
+    |
+    # Archives and packaged artifacts.
+    \.(?:7z|gz|jar|rar|tar|tgz|war|zip)$
+    |
+    # Minified web assets.
+    \.min\.[^/]+$
+  )
+
+# ==============================================================================
+# GitHub Actions
+# ==============================================================================
+
+# actionlint
+# https://github.com/rhysd/actionlint
+# https://megalinter.io/latest/descriptors/action_actionlint/
+ACTION_ACTIONLINT_RULES_PATH: .config/lint/actions
+ACTION_ACTIONLINT_CONFIG_FILE: actionlint.yml
+
+# ==============================================================================
+# Ansible
+# ==============================================================================
+
+# ansible-lint
+# https://ansible.readthedocs.io/projects/lint/
+# https://megalinter.io/latest/descriptors/ansible_ansible_lint/
+
+# ==============================================================================
+# Ansible
+# ==============================================================================
+
+# ansible-lint
+# https://ansible.readthedocs.io/projects/lint/
+# https://megalinter.io/latest/descriptors/ansible_ansible_lint/
+
+# Activate Ansible linting for repositories containing this conventional
+# top-level workspace.
+ANSIBLE_DIRECTORY: ansible
+
+# Load the canonical repository-wide Ansible Lint configuration.
+ANSIBLE_ANSIBLE_LINT_RULES_PATH: .config/lint/ansible
+ANSIBLE_ANSIBLE_LINT_CONFIG_FILE: ansible-lint.yml
+
+# Run once from the repository root so Ansible can resolve project context,
+# roles, collections, requirements, and configuration correctly.
+ANSIBLE_ANSIBLE_LINT_CLI_LINT_MODE: project
+
+# Restrict Ansible Lint auto-discovery to the repository's Ansible workspace.
+ANSIBLE_ANSIBLE_LINT_ARGUMENTS:
+  - .ansible
+
+# ==============================================================================
+# API specifications
+# ==============================================================================
+
+# Spectral
+# https://github.com/stoplightio/spectral
+# https://megalinter.io/latest/descriptors/api_spectral/
+#
+# NOTE:
+# MegaLinter v9.6.0 currently disables API_SPECTRAL internally because the
+# integration is marked as crashing. Preserve the native ruleset and wiring
+# so the linter can be re-enabled when upstream support is restored.
+API_SPECTRAL_RULES_PATH: .config/lint/api
+API_SPECTRAL_CONFIG_FILE: spectral.yaml
+
+# ==============================================================================
+# Azure Resource Manager templates
+# ==============================================================================
+
+# ARM Template Test Toolkit
+# https://github.com/Azure/arm-ttk
+# https://megalinter.io/latest/descriptors/arm_arm_ttk/
+ARM_ARM_TTK_RULES_PATH: .config/lint/arm
+ARM_ARM_TTK_CONFIG_FILE: arm-ttk.psd1
+
+# ==============================================================================
+# Clojure formatting
+# ==============================================================================
+
+# cljstyle
+# https://github.com/greglook/cljstyle
+# https://megalinter.io/latest/descriptors/clojure_cljstyle/
+CLOJURE_CLJSTYLE_RULES_PATH: .config/lint/clojure
+CLOJURE_CLJSTYLE_CONFIG_FILE: cljstyle.edn
+
+# Do not format the formatter configuration or the clj-kondo configuration.
+CLOJURE_CLJSTYLE_FILTER_REGEX_EXCLUDE: >-
+  (^|/)\.config/lint/clojure/
+
+# ==============================================================================
+# Clojure static analysis
+# ==============================================================================
+
+# clj-kondo
+# https://github.com/clj-kondo/clj-kondo
+# https://megalinter.io/latest/descriptors/clojure_clj_kondo/
+CLOJURE_CLJ_KONDO_RULES_PATH: .config/lint/clojure/.clj-kondo
+CLOJURE_CLJ_KONDO_CONFIG_FILE: config.edn
+
+# Do not lint centralized Clojure linter and formatter configurations as
+# application source.
+CLOJURE_CLJ_KONDO_FILTER_REGEX_EXCLUDE: >-
+  (^|/)\.config/lint/clojure/
+
+# ==============================================================================
+# AWS CloudFormation
+# ==============================================================================
+
+# cfn-lint
+# https://github.com/aws-cloudformation/cfn-lint
+# https://megalinter.io/latest/descriptors/cloudformation_cfn_lint/
+CLOUDFORMATION_CFN_LINT_RULES_PATH: .config/lint/cloudformation
+CLOUDFORMATION_CFN_LINT_CONFIG_FILE: cfnlint.yml
+
+# ==============================================================================
+# CoffeeScript
+# ==============================================================================
+
+# CoffeeLint
+# https://github.com/coffeelint/coffeelint
+# https://megalinter.io/latest/descriptors/coffee_coffee_lint/
+COFFEE_COFFEELINT_RULES_PATH: .config/lint/coffee
+COFFEE_COFFEELINT_CONFIG_FILE: coffeelint.json
+
+# ==============================================================================
+# Copy/paste detection
+# ==============================================================================
+
+# jscpd
+# https://github.com/kucherenko/jscpd
+# https://megalinter.io/latest/descriptors/copypaste_jscpd/
+COPYPASTE_JSCPD_RULES_PATH: .config/lint/copypaste
+COPYPASTE_JSCPD_CONFIG_FILE: jscpd.json
+
+# ==============================================================================
+# C and C++ formatting
+# ==============================================================================
+
+# clang-format
+# https://clang.llvm.org/docs/ClangFormat.html
+# https://megalinter.io/latest/descriptors/cpp_clang_format/
+CPP_CLANG_FORMAT_RULES_PATH: .config/lint/cpp
+CPP_CLANG_FORMAT_CONFIG_FILE: .clang-format
+
+# ==============================================================================
+# C formatting
+# ==============================================================================
+
+# clang-format
+# https://clang.llvm.org/docs/ClangFormat.html
+# https://megalinter.io/latest/descriptors/c_clang_format/
+C_CLANG_FORMAT_RULES_PATH: .config/lint/cpp
+C_CLANG_FORMAT_CONFIG_FILE: .clang-format
+
+# ==============================================================================
+# CSS static analysis
+# ==============================================================================
+
+# Stylelint
+# https://stylelint.io/
+# https://megalinter.io/latest/descriptors/css_stylelint/
+CSS_STYLELINT_RULES_PATH: .config/lint/css
+CSS_STYLELINT_CONFIG_FILE: stylelint.json
+
+# ==============================================================================
+# Dart static analysis
+# ==============================================================================
+
+# Dart analyzer
+# https://dart.dev/tools/dart-analyze
+# https://megalinter.io/latest/descriptors/dart_dartanalyzer/
+DART_DARTANALYZER_RULES_PATH: .config/lint/dart
+DART_DARTANALYZER_CONFIG_FILE: analysis_options.yaml
+
+# ==============================================================================
+# Dockerfile static analysis
+# ==============================================================================
+
+# Hadolint
+# https://github.com/hadolint/hadolint
+# https://megalinter.io/latest/descriptors/dockerfile_hadolint/
+DOCKERFILE_HADOLINT_RULES_PATH: .config/lint/dockerfile
+DOCKERFILE_HADOLINT_CONFIG_FILE: hadolint.yaml
+
+# ==============================================================================
+# EditorConfig compliance
+# ==============================================================================
+
+# editorconfig-checker
+# https://github.com/editorconfig-checker/editorconfig-checker
+# https://megalinter.io/latest/descriptors/editorconfig_editorconfig_checker/
+EDITORCONFIG_EDITORCONFIG_CHECKER_RULES_PATH: .config/lint/editorconfig
+EDITORCONFIG_EDITORCONFIG_CHECKER_CONFIG_FILE: editorconfig-checker.json
+
+# ==============================================================================
+# Gherkin feature-file linting
+# ==============================================================================
+
+# gherkin-lint
+# https://github.com/gherkin-lint/gherkin-lint
+# https://megalinter.io/latest/descriptors/gherkin_gherkin_lint/
+GHERKIN_GHERKIN_LINT_RULES_PATH: .config/lint/gherkin
+GHERKIN_GHERKIN_LINT_CONFIG_FILE: gherkin-lint.json
+
+# ==============================================================================
+# Go static analysis
+# ==============================================================================
+
+# Revive
+# https://github.com/mgechev/revive
+# https://megalinter.io/latest/descriptors/go_revive/
+GO_REVIVE_RULES_PATH: .config/lint/go
+GO_REVIVE_CONFIG_FILE: revive.toml
+
+# ==============================================================================
+# GraphQL schema linting
+# ==============================================================================
+
+# graphql-schema-linter
+# https://github.com/cjoudrey/graphql-schema-linter
+# https://megalinter.io/latest/descriptors/graphql_graphql_schema_linter/
+GRAPHQL_GRAPHQL_SCHEMA_LINTER_RULES_PATH: .config/lint/graphql
+GRAPHQL_GRAPHQL_SCHEMA_LINTER_CONFIG_FILE: .graphql-schema-linterrc
+
+GRAPHQL_GRAPHQL_SCHEMA_LINTER_ARGUMENTS: >-
+  --config-directory
+  .config/lint/graphql
+
+# ==============================================================================
+# Groovy and Jenkinsfile static analysis
+# ==============================================================================
+
+# npm-groovy-lint
+# https://github.com/nvuillam/npm-groovy-lint
+# https://megalinter.io/latest/descriptors/groovy_npm_groovy_lint/
+GROOVY_NPM_GROOVY_LINT_RULES_PATH: .config/lint/groovy
+GROOVY_NPM_GROOVY_LINT_CONFIG_FILE: .groovylintrc.json
+
+# ==============================================================================
+# HTML static analysis
+# ==============================================================================
+
+# HTMLHint
+# https://htmlhint.com/
+# https://megalinter.io/latest/descriptors/html_htmlhint/
+HTML_HTMLHINT_RULES_PATH: .config/lint/html
+HTML_HTMLHINT_CONFIG_FILE: htmlhint.json
+
+# ==============================================================================
+# JavaScript and TypeScript static analysis
+# ==============================================================================
+
+# ESLint
+# https://eslint.org/
+# https://megalinter.io/latest/descriptors/javascript_eslint/
+JAVASCRIPT_ES_RULES_PATH: .config/lint/javascript
+JAVASCRIPT_ES_CONFIG_FILE: eslint.config.mjs
+JAVASCRIPT_ES_ARGUMENTS: >-
+  --cache
+  --cache-location .cache/eslint/javascript
+  --cache-strategy content
+
+JAVASCRIPT_ES_PRE_COMMANDS:
+  - command: >-
+      mkdir -p
+      ".cache/eslint/javascript"
+    cwd: workspace
+
+# ==============================================================================
+# Prettier formatting
+# ==============================================================================
+
+# Prettier
+# https://prettier.io/
+# https://megalinter.io/latest/descriptors/javascript_prettier/
+JAVASCRIPT_PRETTIER_RULES_PATH: .config/lint/javascript
+JAVASCRIPT_PRETTIER_CONFIG_FILE: prettier.config.mjs
+
+# ==============================================================================
+# Java static analysis
+# ==============================================================================
+
+# Checkstyle
+# https://checkstyle.org/
+# https://megalinter.io/latest/descriptors/java_checkstyle/
+JAVA_CHECKSTYLE_RULES_PATH: .config/lint/java/checkstyle
+JAVA_CHECKSTYLE_CONFIG_FILE: checkstyle.xml
+
+# ==============================================================================
+# Java code-quality analysis
+# ==============================================================================
+
+# PMD
+# https://pmd.github.io/
+# https://megalinter.io/latest/descriptors/java_pmd/
+JAVA_PMD_RULES_PATH: .config/lint/java/pmd
+JAVA_PMD_CONFIG_FILE: java-pmd-ruleset.xml
+
+# ==============================================================================
+# JSON syntax validation
+# ==============================================================================
+
+# jsonlint
+# https://github.com/prantlf/jsonlint
+# https://megalinter.io/latest/descriptors/json_jsonlint/
+JSON_JSONLINT_RULES_PATH: .config/lint/json
+JSON_JSONLINT_CONFIG_FILE: jsonlint.json
+
+# ==============================================================================
+# JSON formatting
+# ==============================================================================
+
+# Prettier
+# https://prettier.io/
+# https://megalinter.io/latest/descriptors/json_prettier/
+JSON_PRETTIER_RULES_PATH: .config/lint/javascript
+JSON_PRETTIER_CONFIG_FILE: prettier.config.mjs
+
+# ==============================================================================
+# JSX static analysis
+# ==============================================================================
+
+# ESLint
+# https://eslint.org/
+# https://megalinter.io/latest/descriptors/jsx_eslint/
+JSX_ESLINT_RULES_PATH: .config/lint/javascript
+JSX_ESLINT_CONFIG_FILE: eslint.config.mjs
+JSX_ESLINT_ARGUMENTS: >-
+  --cache
+  --cache-location .cache/eslint/jsx
+  --cache-strategy content
+
+JSX_ESLINT_PRE_COMMANDS:
+  - command: >-
+      mkdir -p
+      ".cache/eslint/jsx"
+    cwd: workspace
+
+# ==============================================================================
+# LaTeX semantic analysis
+# ==============================================================================
+
+# ChkTeX
+# https://www.nongnu.org/chktex/
+# https://megalinter.io/latest/descriptors/latex_chktex/
+LATEX_CHKTEX_RULES_PATH: .config/lint/latex
+LATEX_CHKTEX_CONFIG_FILE: .chktexrc
+
+# ==============================================================================
+# Lua static analysis
+# ==============================================================================
+
+# Luacheck
+# https://github.com/lunarmodules/luacheck
+# https://megalinter.io/latest/descriptors/lua_luacheck/
+LUA_LUACHECK_RULES_PATH: .config/lint/lua
+LUA_LUACHECK_CONFIG_FILE: .luacheckrc
+
+# ==============================================================================
+# Makefile static analysis
+# ==============================================================================
+
+# checkmake
+# https://github.com/checkmake/checkmake
+# https://megalinter.io/latest/descriptors/makefile_checkmake/
+#
+# NOTE:
+# MegaLinter currently disables this descriptor because of upstream security
+# concerns. Keep the configuration ready, but retain MAKEFILE_CHECKMAKE in
+# DISABLE_LINTERS until MegaLinter re-enables it.
+MAKEFILE_CHECKMAKE_RULES_PATH: .config/lint/makefile
+MAKEFILE_CHECKMAKE_CONFIG_FILE: .checkmake.ini
+
+# ==============================================================================
+# Markdown static analysis
+# ==============================================================================
+
+# markdownlint
+# https://github.com/DavidAnson/markdownlint
+# https://megalinter.io/latest/descriptors/markdown_markdownlint/
+MARKDOWN_MARKDOWNLINT_RULES_PATH: .config/lint/markdown
+MARKDOWN_MARKDOWNLINT_CONFIG_FILE: .markdownlint.json
+
+# ==============================================================================
+# Markdown link validation
+# ==============================================================================
+
+# markdown-link-check
+# https://github.com/tcort/markdown-link-check
+# https://megalinter.io/latest/descriptors/markdown_markdown_link_check/
+MARKDOWN_MARKDOWN_LINK_CHECK_RULES_PATH: .config/lint/markdown
+MARKDOWN_MARKDOWN_LINK_CHECK_CONFIG_FILE: .markdown-link-check.json
+MARKDOWN_MARKDOWN_LINK_CHECK_FILTER_REGEX_EXCLUDE: '(^|/)(node_modules|vendor|dist|build|coverage|\.cache|\.engineering/reports)/'
+
+# ==============================================================================
+# Markdown AST analysis
+# ==============================================================================
+
+# remark-lint
+# https://github.com/remarkjs/remark-lint
+# https://megalinter.io/latest/descriptors/markdown_remark_lint/
+MARKDOWN_REMARK_LINT_RULES_PATH: .config/lint/markdown
+MARKDOWN_REMARK_LINT_CONFIG_FILE: .remarkrc.json
+MARKDOWN_REMARK_LINT_FILTER_REGEX_EXCLUDE: '(^|/)(node_modules|vendor|dist|build|coverage|\.cache|\.engineering/reports)/'
+
+# ==============================================================================
+# PHP analysis
+# ==============================================================================
+
+# PHP_CodeSniffer
+# https://github.com/PHPCSStandards/PHP_CodeSniffer/
+# https://megalinter.io/latest/descriptors/php_phpcs/
+PHP_PHPCS_RULES_PATH: .config/lint/php
+PHP_PHPCS_CONFIG_FILE: phpcs.xml
+PHP_PHPCS_FILTER_REGEX_EXCLUDE: '(^|/)(vendor|node_modules|build|dist|coverage|\.cache|storage/framework|bootstrap/cache)/'
+
+# PHPLint
+# https://github.com/overtrue/phplint
+# https://megalinter.io/latest/descriptors/php_phplint/
+PHP_PHPLINT_RULES_PATH: .config/lint/php
+PHP_PHPLINT_CONFIG_FILE: .phplint.yml
+PHP_PHPLINT_FILTER_REGEX_EXCLUDE: '(^|/)(vendor|node_modules|build|dist|coverage|\.cache|storage/framework|bootstrap/cache)/'
+
+# PHPStan
+# https://phpstan.org/
+# https://megalinter.io/latest/descriptors/php_phpstan/
+PHP_PHPSTAN_RULES_PATH: .config/lint/php
+PHP_PHPSTAN_CONFIG_FILE: phpstan.neon.dist
+PHP_PHPSTAN_FILTER_REGEX_EXCLUDE: '(^|/)(vendor|node_modules|build|dist|coverage|\.cache|storage/framework|bootstrap/cache)/'
+
+# Psalm
+# https://psalm.dev/
+# https://megalinter.io/latest/descriptors/php_psalm/
+PHP_PSALM_RULES_PATH: .config/lint/php
+PHP_PSALM_CONFIG_FILE: psalm.xml
+PHP_PSALM_FILTER_REGEX_EXCLUDE: '(^|/)(vendor|node_modules|build|dist|coverage|\.cache|storage/framework|bootstrap/cache)/'
+
+# ==============================================================================
+# PowerShell analysis and formatting
+# ==============================================================================
+
+# PSScriptAnalyzer
+# https://github.com/PowerShell/PSScriptAnalyzer
+# https://megalinter.io/latest/descriptors/powershell_powershell/
+POWERSHELL_POWERSHELL_RULES_PATH: .config/lint/powershell
+POWERSHELL_POWERSHELL_CONFIG_FILE: powershell-psscriptanalyzer.psd1
+POWERSHELL_POWERSHELL_FILTER_REGEX_EXCLUDE: '(^|/)(node_modules|vendor|dist|build|coverage|\.cache|\.engineering/reports)/'
+
+# PowerShell formatter
+# https://github.com/PowerShell/PSScriptAnalyzer
+# https://megalinter.io/latest/descriptors/powershell_powershell_formatter/
+POWERSHELL_POWERSHELL_FORMATTER_RULES_PATH: .config/lint/powershell
+POWERSHELL_POWERSHELL_FORMATTER_CONFIG_FILE: powershell-formatter.psd1
+POWERSHELL_POWERSHELL_FORMATTER_FILTER_REGEX_EXCLUDE: '(^|/)(node_modules|vendor|dist|build|coverage|\.cache|\.engineering/reports)/'
+
+# ==============================================================================
+# Protocol Buffer static analysis
+# ==============================================================================
+
+# protolint
+# https://github.com/yoheimuta/protolint
+# https://megalinter.io/latest/descriptors/protobuf_protolint/
+PROTOBUF_PROTOLINT_RULES_PATH: .config/lint/protobuf
+PROTOBUF_PROTOLINT_CONFIG_FILE: .protolintrc.yml
+PROTOBUF_PROTOLINT_FILTER_REGEX_EXCLUDE: '(^|/)(vendor|node_modules|generated|build|dist|coverage|\.cache|\.engineering/reports)/'
+
+# ==============================================================================
+# Puppet static analysis
+# ==============================================================================
+
+# puppet-lint
+# https://github.com/puppetlabs/puppet-lint
+# https://megalinter.io/latest/descriptors/puppet_puppet_lint/
+#
+# NOTE:
+# The MegaLinter descriptor is currently disabled upstream. Keep this
+# configuration prepared, but retain PUPPET_PUPPET_LINT in DISABLE_LINTERS
+# until MegaLinter restores support.
+PUPPET_PUPPET_LINT_RULES_PATH: .config/lint/puppet
+PUPPET_PUPPET_LINT_CONFIG_FILE: .puppet-lint.rc
+PUPPET_PUPPET_LINT_FILTER_REGEX_EXCLUDE: '(^|/)(vendor|node_modules|generated|build|dist|coverage|\.cache|\.engineering/reports)/'
+
+# ==============================================================================
+# Raku syntax and compilation validation
+# ==============================================================================
+
+# Raku
+# https://raku.org/
+# https://megalinter.io/latest/descriptors/raku_raku/
+RAKU_RAKU_CONFIG_FILE: LINTER_DEFAULT
+
+# ==============================================================================
+# Repository file and directory naming
+# ==============================================================================
+
+# ls-lint
+# https://github.com/loeffel-io/ls-lint
+# https://megalinter.io/latest/descriptors/repository_ls_lint/
+REPOSITORY_LS_LINT_RULES_PATH: .config/lint/repo
+REPOSITORY_LS_LINT_CONFIG_FILE: .ls-lint.yml
+
+# ==============================================================================
+# Repository spell checking
+# ==============================================================================
+
+# CSpell
+# https://github.com/streetsidesoftware/cspell
+# https://megalinter.io/latest/descriptors/spell_cspell/
+SPELL_CSPELL_RULES_PATH: .config/lint/prose/spell
+SPELL_CSPELL_CONFIG_FILE: cspell.megalinter.json
+
+# CSpell is a repository-wide scanner, but MegaLinter still needs at least one
+# applicable file type to activate the descriptor.
+# SPELL_CSPELL_CLI_LINT_MODE: project
+# SPELL_CSPELL_FILE_EXTENSIONS:
+#   - "*"
+
+SPELL_CSPELL_CLI_LINT_MODE: list_of_files
+SPELL_CSPELL_FILE_EXTENSIONS:
+  - ".txt"
+SPELL_CSPELL_FILTER_REGEX_INCLUDE: '^tests/fixtures/cspell/valid\.txt$'
+
+# File-name spelling creates substantial noise in a large polyglot repository.
+# ls-lint owns repository naming conventions separately.
+SPELL_CSPELL_ANALYZE_FILE_NAMES: false
+
+SPELL_CSPELL_PRE_COMMANDS:
+  - command: >-
+      mkdir -p ".cache/cspell" ".engineering/reports/megalinter/cspell"
+      && test -f "node_modules/@cspell/dict-clojure/cspell-ext.json"
+      && test -f "node_modules/@cspell/dict-elisp/cspell-ext.json"
+      && test -f "node_modules/@cspell/dict-gdscript/cspell-ext.json"
+      && test -f "node_modules/@cspell/dict-gis/cspell-ext.json"
+      && test -f "node_modules/@cspell/dict-medicalterms/cspell-ext.json"
+      && test -f "node_modules/@cspell/dict-mime-types/cspell-ext.json"
+      && test -f "node_modules/@cspell/dict-mnemonics/cspell-ext.json"
+      && test -f "node_modules/@cspell/dict-people-names/cspell-ext.json"
+      && test -f "node_modules/@cspell/dict-pokemon/cspell-ext.json"
+      && test -f "node_modules/@cspell/dict-redis/cspell-ext.json"
+      && test -f "node_modules/@cspell/dict-scientific-terms-us/cspell-ext.json"
+      && test -f "node_modules/@cspell/dict-vim/cspell-ext.json"
+      && test -f "node_modules/@cspell/dict-win32/cspell-ext.json"
+      && test -d "node_modules/@cspell/cspell-json-reporter"
+    cwd: workspace
+
+# ==============================================================================
+# Infrastructure-as-code security analysis
+# ==============================================================================
+
+# Checkov
+# https://www.checkov.io/
+# https://megalinter.io/latest/descriptors/repository_checkov/
+REPOSITORY_CHECKOV_RULES_PATH: .config/security/checkov
+REPOSITORY_CHECKOV_CONFIG_FILE: .checkov.yml
+
+# ==============================================================================
+# Repository security analysis
+# ==============================================================================
+
+# DevSkim
+# https://github.com/microsoft/DevSkim
+# https://megalinter.io/latest/descriptors/repository_devskim/
+REPOSITORY_DEVSKIM_RULES_PATH: .config/security/devskim
+REPOSITORY_DEVSKIM_CONFIG_FILE: .devskim.json
+
+# ==============================================================================
+# Repository vulnerability scanning
+# ==============================================================================
+
+# Grype
+# https://github.com/anchore/grype
+# https://megalinter.io/latest/descriptors/repository_grype/
+REPOSITORY_GRYPE_RULES_PATH: .config/security/grype
+REPOSITORY_GRYPE_CONFIG_FILE: .grype.yaml
+
+REPOSITORY_GRYPE_PRE_COMMANDS:
+  - command: >-
+      mkdir -p
+      ".cache/grype/db"
+      ".engineering/reports/megalinter/grype"
+    cwd: workspace
+
+# ==============================================================================
+# Trivy repository security scanning
+# ==============================================================================
+
+# Trivy
+# https://github.com/aquasecurity/trivy
+# https://megalinter.io/latest/descriptors/repository_trivy/
+REPOSITORY_TRIVY_RULES_PATH: .config/security/trivy
+REPOSITORY_TRIVY_CONFIG_FILE: trivy.yaml
+
+REPOSITORY_TRIVY_PRE_COMMANDS:
+  - command: >-
+      mkdir -p
+      ".cache/trivy"
+      ".engineering/reports/megalinter/trivy"
+    cwd: workspace
+
+# Trivy SBOM
+# https://github.com/aquasecurity/trivy
+# https://megalinter.io/latest/descriptors/repository_trivy_sbom/
+REPOSITORY_TRIVY_SBOM_RULES_PATH: .config/security/trivy
+REPOSITORY_TRIVY_SBOM_CONFIG_FILE: trivy-sbom.yaml
+
+REPOSITORY_TRIVY_SBOM_PRE_COMMANDS:
+  - command: >-
+      mkdir -p
+      ".cache/trivy"
+      ".engineering/reports/megalinter/trivy-sbom"
+    cwd: workspace
+
+# ==============================================================================
+# Repository secret scanning
+# ==============================================================================
+
+# TruffleHog
+# https://github.com/trufflesecurity/trufflehog
+# https://megalinter.io/latest/descriptors/repository_trufflehog/
+REPOSITORY_TRUFFLEHOG_RULES_PATH: .config/security/trufflehog
+REPOSITORY_TRUFFLEHOG_CONFIG_FILE: .trufflehog.yml
+
+REPOSITORY_TRUFFLEHOG_ARGUMENTS: >-
+  --exclude-paths=.config/security/trufflehog/.trufflehogignore
+  --results=verified,unknown
+  --fail
+  --fail-on-scan-errors
+  --no-update
+  --no-color
+  --force-skip-binaries
+  --archive-max-depth=1
+  --archive-max-size=100MB
+  --archive-timeout=30s
+
+# ==============================================================================
+# Infrastructure-as-code security analysis
+# ==============================================================================
+
+# KICS
+# https://github.com/Checkmarx/kics
+# https://megalinter.io/latest/descriptors/repository_kics/
+#
+# NOTE:
+# MegaLinter currently disables this descriptor because of an upstream
+# supply-chain security incident. Keep the configuration ready, but retain
+# REPOSITORY_KICS in DISABLE_LINTERS until the integration is restored.
+REPOSITORY_KICS_RULES_PATH: .config/security/kics
+REPOSITORY_KICS_CONFIG_FILE: .kics.config.json
+
+REPOSITORY_KICS_PRE_COMMANDS:
+  - command: >-
+      mkdir -p
+      ".cache/kics"
+      ".engineering/reports/megalinter/kics"
+    cwd: workspace
+
+# ==============================================================================
+# Software Bill of Materials generation
+# ==============================================================================
+
+# Syft
+# https://github.com/anchore/syft
+# https://megalinter.io/latest/descriptors/repository_syft/
+REPOSITORY_SYFT_RULES_PATH: .config/security/syft
+REPOSITORY_SYFT_CONFIG_FILE: .syft.yaml
+
+REPOSITORY_SYFT_PRE_COMMANDS:
+  - command: >-
+      mkdir -p
+      ".cache/syft"
+      ".engineering/reports/megalinter/syft"
+    cwd: workspace
+
+# ==============================================================================
+# reStructuredText validation
+# ==============================================================================
+
+# rstcheck
+# https://github.com/rstcheck/rstcheck
+# https://megalinter.io/latest/descriptors/rst_rstcheck/
+RST_RSTCHECK_RULES_PATH: .config/lint/rst
+RST_RSTCHECK_CONFIG_FILE: .rstcheck.cfg
+RST_RSTCHECK_FILTER_REGEX_EXCLUDE: '(^|/)(node_modules|vendor|build|dist|coverage|generated|\.cache|\.engineering/reports)/'
+
+# ==============================================================================
+# Ruby static analysis and formatting
+# ==============================================================================
+
+# RuboCop
+# https://rubocop.org/
+# https://megalinter.io/latest/descriptors/ruby_rubocop/
+RUBY_RUBOCOP_RULES_PATH: .config/lint/ruby
+RUBY_RUBOCOP_CONFIG_FILE: .rubocop.yml
+RUBY_RUBOCOP_ARGUMENTS: "--force-exclusion"
+
+RUBY_RUBOCOP_PRE_COMMANDS:
+  - command: >-
+      mkdir -p
+      ".cache/rubocop"
+    cwd: workspace
+
+# ==============================================================================
+# Rust static analysis
+# ==============================================================================
+
+# Clippy
+# https://github.com/rust-lang/rust-clippy
+# https://megalinter.io/latest/descriptors/rust_clippy/
+RUST_CLIPPY_RULES_PATH: .config/lint/rust
+RUST_CLIPPY_CONFIG_FILE: .clippy.toml
+
+RUST_CLIPPY_ARGUMENTS: >-
+  --workspace
+  --all-targets
+  --all-features
+  --
+  -D warnings
+  -W clippy::pedantic
+  -D clippy::unwrap_used
+  -D clippy::expect_used
+  -A clippy::module_name_repetitions
+  -A clippy::missing_errors_doc
+  -A clippy::missing_panics_doc
+
+# ==============================================================================
+# R static analysis
+# ==============================================================================
+
+# lintr
+# https://github.com/r-lib/lintr
+# https://megalinter.io/latest/descriptors/r_lintr/
+R_LINTR_RULES_PATH: .config/lint/r
+R_LINTR_CONFIG_FILE: .lintr
+R_LINTR_FILTER_REGEX_EXCLUDE: '(^|/)(node_modules|vendor|renv/library|packrat/lib|build|dist|coverage|generated|\.cache|\.engineering/reports)/'
+
+# ==============================================================================
+# TypeScript and TSX analysis
+# ==============================================================================
+
+# Shared ESLint flat configuration
+TSX_ESLINT_RULES_PATH: .config/lint/javascript
+TSX_ESLINT_CONFIG_FILE: eslint.config.mjs
+TSX_ESLINT_ARGUMENTS: >-
+  --cache
+  --cache-location .cache/eslint/tsx
+  --cache-strategy content
+
+TSX_ESLINT_PRE_COMMANDS:
+  - command: >-
+      mkdir -p
+      ".cache/eslint/tsx"
+    cwd: workspace
+
+TYPESCRIPT_ES_RULES_PATH: .config/lint/javascript
+TYPESCRIPT_ES_CONFIG_FILE: eslint.config.mjs
+TYPESCRIPT_ES_ARGUMENTS: >-
+  --cache
+  --cache-location .cache/eslint/typescript
+  --cache-strategy content
+
+TYPESCRIPT_ES_PRE_COMMANDS:
+  - command: >-
+      mkdir -p
+      ".cache/eslint/typescript"
+    cwd: workspace
+
+# Shared Prettier configuration
+TYPESCRIPT_PRETTIER_RULES_PATH: .config/lint/javascript
+TYPESCRIPT_PRETTIER_CONFIG_FILE: prettier.config.mjs
+
+YAML_PRETTIER_RULES_PATH: .config/lint/javascript
+YAML_PRETTIER_CONFIG_FILE: prettier.config.mjs
+
+# ==============================================================================
+# YAML schema validation
+# ==============================================================================
+
+# v8r
+# https://github.com/chris48s/v8r
+# https://megalinter.io/latest/descriptors/yaml_v8r/
+YAML_V8R_RULES_PATH: .config/lint/yaml
+YAML_V8R_CONFIG_FILE: .v8rrc.yml
+YAML_V8R_FILTER_REGEX_EXCLUDE: '(^|/)(node_modules|vendor|build|dist|coverage|generated|\.cache|\.engineering/reports)/'
+
+# ==============================================================================
+# YAML static analysis
+# ==============================================================================
+
+# yamllint
+# https://yamllint.readthedocs.io/en/stable/
+# https://megalinter.io/latest/descriptors/yaml_yamllint/
+YAML_YAMLLINT_RULES_PATH: .config/lint/yaml
+YAML_YAMLLINT_CONFIG_FILE: .yamllint.yml
+
+# ==============================================================================
+# Terraform and Terragrunt analysis
+# ==============================================================================
+
+# Terrascan
+# https://github.com/tenable/terrascan
+# https://megalinter.io/latest/descriptors/terraform_terrascan/
+#
+# NOTE:
+# Terrascan is archived and deprecated by MegaLinter. Keep this configuration
+# available for compatibility, but retain TERRAFORM_TERRASCAN in
+# DISABLE_LINTERS.
+TERRAFORM_TERRASCAN_RULES_PATH: .config/lint/terraform
+TERRAFORM_TERRASCAN_CONFIG_FILE: terrascan-config.toml
+
+# TFLint
+# https://github.com/terraform-linters/tflint
+# https://megalinter.io/latest/descriptors/terraform_tflint/
+TERRAFORM_TFLINT_RULES_PATH: /tmp/lint/.config/lint/terraform
+TERRAFORM_TFLINT_CONFIG_FILE: .tflint.hcl
+
+# Terragrunt
+# https://github.com/gruntwork-io/terragrunt
+# https://megalinter.io/latest/descriptors/terraform_terragrunt/
+#
+# Terragrunt files are operational infrastructure configuration, not generic
+# linter policy. Let Terragrunt format each actual .hcl file directly.
+TERRAFORM_TERRAGRUNT_CONFIG_FILE: LINTER_DEFAULT
+
+# ==============================================================================
+# Tekton pipeline analysis
+# ==============================================================================
+
+# tekton-lint
+# https://github.com/IBM/tekton-lint
+# https://megalinter.io/latest/descriptors/tekton_tekton_lint/
+TEKTON_TEKTON_LINT_RULES_PATH: .config/lint/tekton
+TEKTON_TEKTON_LINT_CONFIG_FILE: .tektonlintrc.yaml
+
+# Fail when any warning is reported in addition to ordinary errors.
+TEKTON_TEKTON_LINT_ARGUMENTS: >-
+  --max-warnings 0
+  --color false
+
+TEKTON_TEKTON_LINT_FILTER_REGEX_EXCLUDE: '(^|/)(node_modules|vendor|build|dist|coverage|generated|\.cache|\.engineering/reports)/'
+
+# ==============================================================================
+# Swift static analysis and formatting
+# ==============================================================================
+
+# SwiftLint
+# https://github.com/realm/SwiftLint
+# https://megalinter.io/latest/descriptors/swift_swiftlint/
+SWIFT_SWIFTLINT_RULES_PATH: .config/lint/swift
+SWIFT_SWIFTLINT_CONFIG_FILE: .swiftlint.yml
+
+# ==============================================================================
+# Scala syntax rewrites and linting
+# ==============================================================================
+
+# Scalafix
+# https://github.com/scalacenter/scalafix
+# https://megalinter.io/latest/descriptors/scala_scalafix/
+SCALA_SCALAFIX_RULES_PATH: .config/lint/scala
+SCALA_SCALAFIX_CONFIG_FILE: .scalafix.conf
+
+# ==============================================================================
+# Salesforce Apex static analysis
+# ==============================================================================
+
+# Salesforce Code Analyzer v5
+# https://developer.salesforce.com/docs/platform/salesforce-code-analyzer/
+# https://megalinter.io/latest/descriptors/salesforce_code_analyzer_apex/
+SALESFORCE_CODE_ANALYZER_APEX_RULES_PATH: .config/lint/salesforce
+SALESFORCE_CODE_ANALYZER_APEX_CONFIG_FILE: code-analyzer.yml
+
+# Run Salesforce's recommended PMD rules plus every rule referenced by the
+# repository-owned Apex ruleset.
+SALESFORCE_CODE_ANALYZER_APEX_ARGUMENTS: >-
+  --rule-selector pmd:Recommended
+  --rule-selector pmd:EgoHygieneApex
+  --severity-threshold 3
+
+# ==============================================================================
+# Snakemake formatting
+# ==============================================================================
+
+# snakefmt
+# https://github.com/snakemake/snakefmt
+# https://megalinter.io/latest/descriptors/snakemake_snakefmt/
+SNAKEMAKE_SNAKEFMT_RULES_PATH: .config/lint/snakemake
+SNAKEMAKE_SNAKEFMT_CONFIG_FILE: .snakefmt.toml
+
+# ==============================================================================
+# Repository secret scanning
+# ==============================================================================
+
+# Gitleaks
+# https://github.com/gitleaks/gitleaks
+# https://megalinter.io/latest/descriptors/repository_gitleaks/
+REPOSITORY_GITLEAKS_RULES_PATH: .config/security/gitleaks
+REPOSITORY_GITLEAKS_CONFIG_FILE: .gitleaks.toml
+
+REPOSITORY_GITLEAKS_ARGUMENTS: >-
+  --redact
+
+# ==============================================================================
+# T-SQL static analysis
+# ==============================================================================
+
+# TSQLLint
+# https://github.com/tsqllint/tsqllint
+# https://megalinter.io/latest/descriptors/sql_tsqllint/
+SQL_TSQLLINT_RULES_PATH: .config/lint/sql
+SQL_TSQLLINT_CONFIG_FILE: .tsqllintrc.json
+
+SQL_TSQLLINT_ARGUMENTS: >-
+  --ignorelist
+  .config/lint/sql/.tsqllintignore
+
+SQL_TSQLLINT_FILTER_REGEX_EXCLUDE: '(^|/)(node_modules|vendor|build|dist|coverage|generated|\.cache|\.engineering/reports|tests/fixtures/sqlfluff)/'
+
+# ==============================================================================
+# SQL static analysis and formatting
+# ==============================================================================
+
+# SQLFluff
+# https://github.com/sqlfluff/sqlfluff
+# https://megalinter.io/latest/descriptors/sql_sqlfluff/
+SQL_SQLFLUFF_RULES_PATH: .config/lint/sql
+SQL_SQLFLUFF_CONFIG_FILE: .sqlfluff.ini
+
+SQL_SQLFLUFF_FILTER_REGEX_EXCLUDE: '(^|/)(node_modules|vendor|build|dist|coverage|generated|\.cache|\.engineering/reports|tests/fixtures/tsqllint)/'
+
+# ==============================================================================
+# Prose quality
+# ==============================================================================
+
+# Proselint
+# https://github.com/amperser/proselint
+# https://megalinter.io/latest/descriptors/spell_proselint/
+SPELL_PROSELINT_RULES_PATH: .config/lint/prose
+SPELL_PROSELINT_CONFIG_FILE: .proselintrc
+
+SPELL_PROSELINT_FILTER_REGEX_EXCLUDE: >-
+  (^|/)
+  (
+    node_modules
+    |vendor
+    |build
+    |dist
+    |coverage
+    |generated
+    |\.cache
+    |\.engineering/reports
+    |\.config/lint/prose/styles
+  )/
+
+# Vale
+# https://github.com/errata-ai/vale
+# https://megalinter.io/latest/descriptors/spell_vale/
+SPELL_VALE_RULES_PATH: .config/lint/prose
+SPELL_VALE_CONFIG_FILE: .vale.ini
+
+SPELL_VALE_FILE_EXTENSIONS:
+  - ".md"
+  - ".rst"
+  - ".txt"
+
+SPELL_VALE_ARGUMENTS: >-
+  --no-global
+  --no-wrap
+
+SPELL_VALE_FILTER_REGEX_EXCLUDE: >-
+  (^|/)
+  (
+    node_modules
+    |vendor
+    |build
+    |dist
+    |coverage
+    |generated
+    |\.cache
+    |\.engineering/reports
+    |\.config/lint/prose/styles
+  )/
+
+# ==============================================================================
+# Repository link validation
+# ==============================================================================
+
+# Lychee
+# https://github.com/lycheeverse/lychee
+# https://megalinter.io/latest/descriptors/spell_lychee/
+SPELL_LYCHEE_RULES_PATH: .config/lint/prose/spell
+SPELL_LYCHEE_CONFIG_FILE: lychee.toml
+
+SPELL_LYCHEE_FILTER_REGEX_EXCLUDE: >-
+  (^|/)
+  (
+    node_modules
+    |vendor
+    |build
+    |dist
+    |coverage
+    |generated
+    |\.cache
+    |\.engineering/reports
+  )/
+
+SPELL_LYCHEE_UNSECURED_ENV_VARIABLES:
+  - GITHUB_TOKEN
+
+# ==============================================================================
+# Python analysis and formatting
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Bandit
+# ------------------------------------------------------------------------------
+PYTHON_BANDIT_RULES_PATH: .config/lint/python
+PYTHON_BANDIT_CONFIG_FILE: .bandit.yml
+
+# ------------------------------------------------------------------------------
+# Black compatibility formatter
+# ------------------------------------------------------------------------------
+#
+# Ruff remains the default Python formatter. Black is retained for optional
+# compatibility profiles and migration comparison.
+PYTHON_BLACK_RULES_PATH: .config/lint/python
+PYTHON_BLACK_CONFIG_FILE: pyproject.toml
+
+# ------------------------------------------------------------------------------
+# Flake8 compatibility linter
+# ------------------------------------------------------------------------------
+#
+# Ruff owns the universal fast-lint profile. Flake8 remains available for
+# projects requiring plugins that Ruff has not implemented.
+PYTHON_FLAKE8_RULES_PATH: .config/lint/python
+PYTHON_FLAKE8_CONFIG_FILE: .flake8
+
+# ------------------------------------------------------------------------------
+# isort compatibility formatter
+# ------------------------------------------------------------------------------
+#
+# Ruff's I rules own import sorting by default.
+PYTHON_ISORT_RULES_PATH: .config/lint/python
+PYTHON_ISORT_CONFIG_FILE: .isort.cfg
+
+# Explicit command-line files must still respect configured exclusions.
+PYTHON_ISORT_ARGUMENTS: >-
+  --filter-files
+
+# ------------------------------------------------------------------------------
+# Mypy
+# ------------------------------------------------------------------------------
+PYTHON_MYPY_RULES_PATH: .config/lint/python
+PYTHON_MYPY_CONFIG_FILE: .mypy.ini
+
+# Mypy is a project type checker rather than an isolated-file checker.
+PYTHON_MYPY_CLI_LINT_MODE: project
+
+PYTHON_MYPY_PRE_COMMANDS:
+  - command: >-
+      mkdir -p
+      ".cache/mypy"
+    cwd: workspace
+
+# ------------------------------------------------------------------------------
+# Pylint
+# ------------------------------------------------------------------------------
+PYTHON_PYLINT_RULES_PATH: .config/lint/python
+PYTHON_PYLINT_CONFIG_FILE: .pylintrc
+
+# ------------------------------------------------------------------------------
+# Pyright
+# ------------------------------------------------------------------------------
+PYTHON_PYRIGHT_RULES_PATH: .config/lint/python
+PYTHON_PYRIGHT_CONFIG_FILE: pyrightconfig.json
+
+# Resolve imports and execution environments as one Python project.
+PYTHON_PYRIGHT_CLI_LINT_MODE: project
+
+# ------------------------------------------------------------------------------
+# Ruff
+# ------------------------------------------------------------------------------
+PYTHON_RUFF_RULES_PATH: .config/lint/python
+PYTHON_RUFF_CONFIG_FILE: ruff.toml
+
+PYTHON_RUFF_PRE_COMMANDS:
+  - command: >-
+      mkdir -p
+      ".cache/ruff"
+    cwd: workspace
+
+# ==============================================================================
+# Secret detection
+# ==============================================================================
+
+# Secretlint
+# https://github.com/secretlint/secretlint
+# https://megalinter.io/latest/descriptors/repository_secretlint/
+REPOSITORY_SECRETLINT_RULES_PATH: .config/security/secretlint
+REPOSITORY_SECRETLINT_CONFIG_FILE: .secretlintrc.json
+
+REPOSITORY_SECRETLINT_ARGUMENTS: >-
+  --secretlintignore
+  .config/security/secretlint/.secretlintignore
+
+# ==============================================================================
+# Reporters
+# ==============================================================================
+#
+# Reporter strategy:
+#   - Console output for local and CI diagnostics.
+#   - Text logs for detailed per-linter artifacts.
+#   - Markdown summary for readable CI and GitHub summaries.
+#   - JSON for downstream automation and report processing.
+#   - SARIF for GitHub code-scanning integration where supported.
+#   - GitHub PR comments and statuses for pull-request feedback.
+#
+# External delivery reporters remain disabled to avoid unnecessary data transfer.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Platform-specific pull-request comments
+# ------------------------------------------------------------------------------
+AZURE_COMMENT_REPORTER: false
+BITBUCKET_COMMENT_REPORTER: false
+GITLAB_COMMENT_REPORTER: false
+
+# Only relevant if the GitLab reporter is later enabled.
+GITLAB_COMMENT_REPORTER_OVERWRITE_COMMENT: true
+
+# GitHub is the canonical hosting platform.
+GITHUB_COMMENT_REPORTER: true
+GITHUB_STATUS_REPORTER: true
+
+# Generate the full Markdown report with detailed linter sections.
+REPORTERS_MARKDOWN_TYPE: advanced
+REPORTERS_MARKDOWN_SUMMARY_TYPE: table-sections
+
+# ------------------------------------------------------------------------------
+# Console output
+# ------------------------------------------------------------------------------
+CONSOLE_REPORTER: true
+CONSOLE_REPORTER_SECTIONS: true
+
+# Show only files with findings in routine console output.
+OUTPUT_DETAIL: simple
+
+# ------------------------------------------------------------------------------
+# Text artifacts
+# ------------------------------------------------------------------------------
+TEXT_REPORTER: true
+TEXT_REPORTER_SUB_FOLDER: linters_logs
+
+# ------------------------------------------------------------------------------
+# Markdown summary
+# ------------------------------------------------------------------------------
+MARKDOWN_SUMMARY_REPORTER: true
+MARKDOWN_SUMMARY_REPORTER_FILE_NAME: megalinter-summary.md
+
+# ------------------------------------------------------------------------------
+# Machine-readable artifacts
+# ------------------------------------------------------------------------------
+JSON_REPORTER: true
+JSON_REPORTER_OUTPUT_DETAIL: detailed
+
+SARIF_REPORTER: true
+SARIF_REPORTER_FILE_NAME: megalinter-report.sarif
+
+# Empty means all SARIF-capable linters may contribute.
+SARIF_REPORTER_LINTERS: []
+
+# ------------------------------------------------------------------------------
+# IDE configuration artifact
+# ------------------------------------------------------------------------------
+CONFIG_REPORTER: true
+CONFIG_REPORTER_SUB_FOLDER: IDE-config
+
+# ------------------------------------------------------------------------------
+# Updated-source artifacts
+# ------------------------------------------------------------------------------
+
+# Do not collect modified source files during normal validation runs.
+#
+# Autofixes are disabled by default, and local runs may begin with an
+# intentionally dirty worktree. Enabling this reporter would therefore copy
+# unrelated pre-existing changes and can recursively inspect report output.
+UPDATED_SOURCES_REPORTER: false
+UPDATED_SOURCES_REPORTER_DIR: updated_sources
+
+# ------------------------------------------------------------------------------
+# External delivery
+# ------------------------------------------------------------------------------
+EMAIL_REPORTER: false
+FILEIO_REPORTER: false
+FILEIO_REPORTER_SEND_SUCCESS: false
+
+# ------------------------------------------------------------------------------
+# Test Anything Protocol
+# ------------------------------------------------------------------------------
+
+# TAP changes execution behavior, forces list-of-files linters into file mode,
+# and disables project-mode linters. Keep it disabled.
+TAP_REPORTER: false
+TAP_REPORTER_SUB_FOLDER: tap
+
+POST_COMMANDS:
+  - command: echo "Megalinter completed successfully."
+    cwd: "workspace"
+    continue_if_failed: true

@@ -1,0 +1,40 @@
+# ==============================================================================
+# Ego Hygiene — Universal PHPStan Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Provide strict, deterministic static analysis for first-party PHP.
+#
+# Reference:
+#   https://phpstan.org/config-reference
+# ==============================================================================
+
+parameters:
+    level: max
+
+    paths:
+        - .
+
+    fileExtensions:
+        - php
+
+    excludePaths:
+        analyseAndScan:
+            - */vendor/*
+            - */node_modules/*
+            - */build/*
+            - */dist/*
+            - */coverage/*
+            - */.cache/*
+            - */storage/framework/*
+            - */bootstrap/cache/*
+
+    reportUnmatchedIgnoredErrors: true
+
+    treatPhpDocTypesAsCertain: false
+
+    rememberPossiblyImpureFunctionValues: false
+
+    checkBenevolentUnionTypes: true
+    checkExplicitMixed: true
+    checkImplicitMixed: true

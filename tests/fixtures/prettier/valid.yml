@@ -1,0 +1,14 @@
+---
+name: "egolint"
+
+enabled: true
+
+profiles:
+  - "universal"
+  - "documentation"
+
+reporting:
+  formats:
+    - "json"
+    - "sarif"
+  output-directory: ".engineering/reports/megalinter"

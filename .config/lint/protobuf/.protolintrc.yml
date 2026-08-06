@@ -1,0 +1,102 @@
+---
+# ==============================================================================
+# Ego Hygiene - Universal protolint Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Enforce consistent, idiomatic Protocol Buffer definitions using the
+#   official protobuf style guide plus selected documentation rules.
+#
+# References:
+#   https://github.com/yoheimuta/protolint
+#   https://protobuf.dev/programming-guides/style/
+# ==============================================================================
+
+lint:
+  # ---------------------------------------------------------------------------
+  # File discovery
+  # ---------------------------------------------------------------------------
+
+  files:
+    exclude:
+      - "vendor"
+      - "node_modules"
+      - "generated"
+      - "build"
+      - "dist"
+      - "coverage"
+      - ".cache"
+
+  directories:
+    exclude:
+      - "vendor"
+      - "node_modules"
+      - "generated"
+      - "build"
+      - "dist"
+      - "coverage"
+      - ".cache"
+
+  # ---------------------------------------------------------------------------
+  # Rules
+  # ---------------------------------------------------------------------------
+
+  rules:
+    # Enable the complete current default rule set.
+    all_default: true
+
+    # Add useful non-default documentation and consistency rules.
+    add:
+      - "FILE_HAS_COMMENT"
+      - "MESSAGES_HAVE_COMMENT"
+      - "ENUMS_HAVE_COMMENT"
+      - "ENUM_FIELDS_HAVE_COMMENT"
+      - "SERVICES_HAVE_COMMENT"
+      - "RPCS_HAVE_COMMENT"
+      - "FIELDS_HAVE_COMMENT"
+      - "FIELD_NUMBERS_ORDER_ASCENDING"
+      - "QUOTE_CONSISTENT"
+      - "REPEATED_FIELD_NAMES_PLURALIZED"
+      - "MAX_LINE_LENGTH"
+
+    remove: []
+
+  # ---------------------------------------------------------------------------
+  # Rule configuration
+  # ---------------------------------------------------------------------------
+
+  rules_option:
+    max_line_length:
+      max_chars: 120
+      tab_chars: 2
+
+    indent:
+      style: 2
+      not_insert_newline: false
+
+    quote_consistent:
+      quote: "double"
+
+    syntax_consistent:
+      version: "proto3"
+
+    enum_field_names_zero_value_end_with:
+      suffix: "UNSPECIFIED"
+
+    messages_have_comment:
+      should_follow_golang_style: false
+
+    enums_have_comment:
+      should_follow_golang_style: false
+
+    enum_fields_have_comment:
+      should_follow_golang_style: false
+
+    services_have_comment:
+      should_follow_golang_style: false
+
+    rpcs_have_comment:
+      should_follow_golang_style: false
+
+    fields_have_comment:
+      should_follow_golang_style: false

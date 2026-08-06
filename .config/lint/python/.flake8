@@ -1,0 +1,44 @@
+[flake8]
+
+max-line-length = 100
+max-complexity = 15
+
+select =
+    B
+    B9
+    C
+    E
+    F
+    W
+
+extend-ignore =
+    E203
+    E501
+    W503
+
+exclude =
+    .cache
+    .git
+    .mypy_cache
+    .pytest_cache
+    .ruff_cache
+    .tox
+    .venv
+    __pycache__
+    build
+    coverage
+    dist
+    generated
+    node_modules
+    out
+    target
+    vendor
+    venv
+    .engineering/reports
+
+count = true
+statistics = true
+show-source = true
+
+doctests = true
+jobs = auto

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://www.schemastore.org/markdown-link-check.json",
+  "timeout": "20s",
+  "retryOn429": true,
+  "retryCount": 3,
+  "fallbackRetryDelay": "30s",
+  "aliveStatusCodes": [
+    200,
+    206
+  ],
+  "ignorePatterns": [
+    {
+      "pattern": "^tel:"
+    },
+    {
+      "pattern": "^#"
+    },
+    {
+      "pattern": "^https?://localhost(?::[0-9]+)?(?:/|$)"
+    },
+    {
+      "pattern": "^https?://127\\.0\\.0\\.1(?::[0-9]+)?(?:/|$)"
+    },
+    {
+      "pattern": "^https?://0\\.0\\.0\\.0(?::[0-9]+)?(?:/|$)"
+    },
+    {
+      "pattern": "^https?://\\[::1\\](?::[0-9]+)?(?:/|$)"
+    }
+  ],
+  "httpHeaders": [
+    {
+      "urls": [
+        "https://github.com/",
+        "https://api.github.com/",
+        "https://raw.githubusercontent.com/"
+      ],
+      "headers": {
+        "Accept": "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8",
+        "User-Agent": "egohygiene-markdown-link-check"
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+"""
+A personalized greeting returned by the example API.
+"""
+type Greeting {
+  """
+  The complete human-readable greeting.
+  """
+  message: String!
+}
+
+"""
+Input used to create a personalized greeting.
+"""
+input GreetingInput {
+  """
+  The name of the person receiving the greeting.
+  """
+  name: String!
+}
+
+"""
+The root GraphQL query type.
+"""
+type Query {
+  """
+  Creates a personalized greeting for the supplied name.
+  """
+  greeting(
+    """
+    Input containing the greeting recipient.
+    """
+    input: GreetingInput!
+  ): Greeting!
+}
+

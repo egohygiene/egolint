@@ -1,0 +1,48 @@
+---
+# ==============================================================================
+# Ego Hygiene - Universal Checkov Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Scan infrastructure-as-code, container definitions, CI workflows, and
+#   deployment configuration for security and compliance misconfigurations.
+#
+# References:
+#   https://www.checkov.io/
+#   https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html
+# ==============================================================================
+
+# Show only failed checks in normal output.
+quiet: true
+
+# Keep diagnostics concise in MegaLinter logs.
+compact: true
+
+# Scan the repository root.
+directory:
+  - "."
+
+# Do not silently succeed when policies fail.
+soft-fail: false
+
+# Do not upload local scan results to Prisma Cloud.
+skip-results-upload: true
+
+# Avoid scanning generated, dependency-owned, cached, and report directories.
+skip-path:
+  - "(^|/)\\.git(/|$)"
+  - "(^|/)node_modules(/|$)"
+  - "(^|/)vendor(/|$)"
+  - "(^|/)\\.venv(/|$)"
+  - "(^|/)venv(/|$)"
+  - "(^|/)\\.cache(/|$)"
+  - "(^|/)build(/|$)"
+  - "(^|/)dist(/|$)"
+  - "(^|/)coverage(/|$)"
+  - "(^|/)generated(/|$)"
+  - "(^|/)\\.engineering/reports(/|$)"
+
+# Keep global suppressions empty.
+#
+# Prefer resource-level suppressions with a reason when a policy does not apply.
+skip-check: []

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ruleset
+    name="Ego Hygiene Apex"
+    xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://pmd.sourceforge.net/ruleset/2.0.0
+        https://pmd.sourceforge.io/ruleset_2_0_0.xsd"
+>
+    <description>
+        Universal Apex correctness, security, performance, maintainability,
+        and code-style policy for Ego Hygiene repositories.
+    </description>
+
+    <!--
+        Generated and third-party frameworks should normally be excluded through
+        Code Analyzer workspace policy or repository structure rather than
+        weakening the rule catalog globally.
+    -->
+
+    <!-- Correctness and likely programming mistakes. -->
+    <rule ref="category/apex/errorprone.xml" />
+
+    <!-- Apex and Salesforce platform best practices. -->
+    <rule ref="category/apex/bestpractices.xml">
+        <!--
+            Assertion messages are valuable but may create a large migration
+            backlog in existing test suites.
+        -->
+        <exclude name="ApexAssertionsShouldIncludeMessage" />
+    </rule>
+
+    <!-- Performance and governor-limit risks. -->
+    <rule ref="category/apex/performance.xml" />
+
+    <!-- Security checks remain fully enabled. -->
+    <rule ref="category/apex/security.xml">
+        <priority>1</priority>
+    </rule>
+
+    <!-- Maintainability and complexity. -->
+    <rule ref="category/apex/design.xml">
+        <!-- Large constructors and integration services may legitimately need
+             broader parameter boundaries; revisit through project profiles. -->
+        <exclude name="ExcessiveParameterList" />
+
+        <!-- Public API surface and field-count thresholds are often framework-
+             dependent and are better handled by Salesforce-specific profiles. -->
+        <exclude name="ExcessivePublicCount" />
+        <exclude name="TooManyFields" />
+    </rule>
+
+    <!-- Naming and source-code conventions. -->
+    <rule ref="category/apex/codestyle.xml" />
+
+    <!--
+        Require valid documentation structure where applicable without imposing
+        comprehensive ApexDoc coverage on every internal declaration.
+    -->
+    <rule ref="category/apex/documentation.xml">
+        <exclude name="ApexDoc" />
+    </rule>
+</ruleset>

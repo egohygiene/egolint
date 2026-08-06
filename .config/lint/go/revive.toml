@@ -1,0 +1,239 @@
+# ==============================================================================
+# Ego Hygiene — Universal Revive Configuration
+# ==============================================================================
+#
+# Purpose:
+#   Provide deterministic static analysis for first-party Go source.
+#
+# Principles:
+#   - Preserve Revive's established default rule baseline.
+#   - Add high-value correctness and maintainability checks.
+#   - Keep complexity limits strict but achievable.
+#   - Require reasons and rule names for local suppressions.
+#   - Avoid project-specific file headers and naming taxonomies.
+#
+# Configuration:
+# https://github.com/mgechev/revive#configuration
+#
+# Rule reference:
+# https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md
+
+severity = "warning"
+confidence = 0.8
+
+error-code = 1
+warning-code = 1
+
+ignore-generated-header = true
+enable-default-rules = true
+
+# ==============================================================================
+# Suppression governance
+# ==============================================================================
+
+[directive.specify-disable-reason]
+severity = "warning"
+
+[directive.specify-disable-rule]
+severity = "warning"
+
+# ==============================================================================
+# Correctness
+# ==============================================================================
+
+[rule.atomic]
+
+[rule.constant-logical-expr]
+
+[rule.datarace]
+
+[rule.defer]
+
+[rule.duplicated-imports]
+
+[rule.empty-block]
+
+[rule.error-return]
+
+[rule.identical-branches]
+
+[rule.identical-ifelseif-branches]
+
+[rule.identical-ifelseif-conditions]
+
+[rule.identical-switch-branches]
+
+[rule.identical-switch-conditions]
+
+[rule.import-shadowing]
+
+[rule.inefficient-map-lookup]
+
+[rule.range-val-address]
+
+[rule.range-val-in-closure]
+
+[rule.redundant-build-tag]
+
+[rule.redundant-import-alias]
+
+[rule.struct-tag]
+
+[rule.time-equal]
+
+[rule.unchecked-type-assertion]
+
+[rule.unconditional-recursion]
+
+[rule.unhandled-error]
+arguments = [
+  "fmt.Printf",
+  "fmt.Fprintf",
+  "fmt.Fprint",
+  "fmt.Println",
+]
+
+[rule.unnecessary-if]
+
+[rule.unnecessary-stmt]
+
+[rule.unreachable-code]
+
+[rule.unsecure-url-scheme]
+
+[rule.waitgroup-by-value]
+
+# ==============================================================================
+# API and type design
+# ==============================================================================
+
+[rule.context-as-argument]
+
+[rule.errorf]
+
+[rule.function-result-limit]
+arguments = [3]
+
+[rule.get-return]
+
+[rule.modifies-value-receiver]
+
+[rule.receiver-naming]
+
+[rule.redefines-builtin-id]
+
+[rule.unexported-return]
+
+[rule.use-any]
+
+# ==============================================================================
+# Control flow and readability
+# ==============================================================================
+
+[rule.bare-return]
+
+[rule.bool-literal-in-expr]
+
+[rule.cognitive-complexity]
+arguments = [15]
+
+[rule.early-return]
+
+[rule.if-return]
+
+[rule.increment-decrement]
+
+[rule.indent-error-flow]
+
+[rule.max-control-nesting]
+arguments = [5]
+
+[rule.optimize-operands-order]
+
+[rule.superfluous-else]
+
+[rule.useless-break]
+
+[rule.useless-fallthrough]
+
+# ==============================================================================
+# Naming and declarations
+# ==============================================================================
+
+[rule.confusing-naming]
+
+[rule.filename-format]
+arguments = ["^[_a-z][_a-z0-9]*\\.go$"]
+
+[rule.package-directory-mismatch]
+
+[rule.package-naming]
+
+[rule.time-naming]
+
+[rule.unexported-naming]
+
+[rule.var-declaration]
+
+# ==============================================================================
+# Imports and package boundaries
+# ==============================================================================
+
+[rule.blank-imports]
+
+[rule.dot-imports]
+
+# ==============================================================================
+# Comments and documentation
+# ==============================================================================
+
+[rule.comment-spacings]
+arguments = [
+  "+build",
+  "+kubebuilder:",
+  "+optional",
+  "+patchMergeKey=",
+  "+patchStrategy=",
+]
+
+[rule.comments-density]
+disabled = true
+
+# ==============================================================================
+# Size and maintainability limits
+# ==============================================================================
+
+[rule.argument-limit]
+arguments = [8]
+
+[rule.file-length-limit]
+arguments = [{ max = 1000, skip-comments = true, skip-blank-lines = true }]
+
+[rule.function-length]
+arguments = [75, 100]
+
+[rule.line-length-limit]
+arguments = [120]
+
+[rule.max-public-structs]
+arguments = [10]
+
+# ==============================================================================
+# Collection and syntax conventions
+# ==============================================================================
+
+[rule.enforce-map-style]
+arguments = ["literal"]
+
+[rule.enforce-repeated-arg-type-style]
+arguments = ["short"]
+
+[rule.enforce-slice-style]
+arguments = ["literal"]
+
+[rule.enforce-switch-style]
+arguments = ["allow-no-default"]
+
+[rule.use-errors-new]
+
+[rule.use-slices-sort]
