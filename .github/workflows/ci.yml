@@ -84,6 +84,9 @@ jobs:
       - name: Run commit-policy tests
         run: pnpm run commitlint:test
 
+      - name: Load the native ESLint policy
+        run: pnpm run eslint-config:test
+
   schemas:
     name: Generated schemas
     runs-on: ubuntu-24.04

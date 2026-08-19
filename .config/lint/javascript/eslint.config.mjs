@@ -9,12 +9,11 @@ const require = createRequire(import.meta.url);
 const js = require("@eslint/js");
 const jsonPlugin = (() => {
     try {
-        return require("@eslint/json");
+        const jsonModule = require("@eslint/json");
+        const plugin = jsonModule.default ?? jsonModule;
+        return plugin?.configs?.recommended?.rules ? plugin : null;
     } catch (error) {
-        if (
-            error?.code === "MODULE_NOT_FOUND" &&
-            String(error.message).includes("@eslint/json")
-        ) {
+        if (error?.code === "MODULE_NOT_FOUND" && String(error.message).includes("@eslint/json")) {
             return null;
         }
         throw error;

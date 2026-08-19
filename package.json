@@ -33,6 +33,7 @@
   "scripts": {
     "commitlint": "commitlint --config .config/lint/commits/commitlint.emoji.config.cjs",
     "commitlint:test": "node --test tests/commit-policy.test.cjs",
+    "eslint-config:test": "node --test tests/eslint-config.test.mjs",
     "hooks:install": "husky .husky",
     "lint-staged": "lint-staged --cwd . --config .config/lint/commits/lint-staged.config.mjs",
     "prepare": "pnpm run hooks:install"
