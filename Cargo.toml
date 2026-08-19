@@ -1,7 +1,46 @@
-# Cargo.toml
+[package]
+name = "egolint"
+version = "0.1.0-alpha.1"
+edition = "2024"
+rust-version = "1.85"
+description = "A portable, policy-driven lint orchestrator for repositories and CI"
+license = "MIT"
+repository = "https://github.com/egohygiene/egolint"
+homepage = "https://egolint.egohygiene.io"
+documentation = "https://egolint.egohygiene.io/docs"
+readme = "README.md"
+keywords = ["lint", "megalinter", "devex", "ci", "policy"]
+categories = ["command-line-utilities", "development-tools"]
+include = [
+  "/src/**",
+  "/schemas/**",
+  "/examples/**",
+  "/README.md",
+  "/LICENSE",
+  "/Cargo.toml",
+]
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+schemars = { version = "1.0", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+tempfile = "3.20"
+thiserror = "2.0"
+toml = "0.9"
 
 [workspace]
-members = [
-  "tests/fixtures/clippy",
-]
 resolver = "3"
+
+[profile.release]
+codegen-units = 1
+lto = "thin"
+strip = "symbols"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }

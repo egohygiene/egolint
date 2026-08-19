@@ -147,8 +147,6 @@
   "MD052": true,
 
   "MD053": {
-    "ignored_definitions": [
-      "//"
-    ]
+    "ignored_definitions": ["//"]
   }
 }

@@ -22,7 +22,7 @@ AllCops:
   SuggestExtensions: false
 
   UseCache: true
-  CacheRootDirectory: "../../../.cache/rubocop"
+  CacheRootDirectory: "../../../.reports/egolint/cache/rubocop"
   MaxFilesInCache: 20000
 
   DisplayCopNames: true
@@ -31,7 +31,7 @@ AllCops:
   Exclude:
     - "../../../.git/**/*"
     - "../../../.cache/**/*"
-    - "../../../.engineering/reports/**/*"
+    - "../../../.reports/**/*"
 
     - "../../../**/node_modules/**/*"
     - "../../../**/vendor/**/*"

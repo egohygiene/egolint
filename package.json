@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "@egohygiene/egolint-toolchain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Private Node.js toolchain for developing and validating Egolint policies.",
+  "keywords": [
+    "egolint",
+    "linting",
+    "developer-tools",
+    "quality"
+  ],
+  "homepage": "https://github.com/egohygiene/egolint#readme",
+  "bugs": {
+    "url": "https://github.com/egohygiene/egolint/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/egohygiene/egolint.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Alan Szmyt",
+    "url": "https://egohygiene.io"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=11.0.0"
+  },
+  "packageManager": "pnpm@11.21.0",
+  "scripts": {
+    "commitlint": "commitlint --config .config/lint/commits/commitlint.emoji.config.cjs",
+    "commitlint:test": "node --test tests/commit-policy.test.cjs",
+    "eslint-config:test": "node --test tests/eslint-config.test.mjs",
+    "hooks:install": "husky .husky",
+    "lint-staged": "lint-staged --cwd . --config .config/lint/commits/lint-staged.config.mjs",
+    "prepare": "pnpm run hooks:install"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@commitlint/types": "^21.2.0",
+    "@cspell/cspell-json-reporter": "^10.0.1",
+    "@cspell/dict-clojure": "^2.0.9",
+    "@cspell/dict-elisp": "^1.1.2",
+    "@cspell/dict-gdscript": "^1.2.0",
+    "@cspell/dict-gis": "^1.0.3",
+    "@cspell/dict-medicalterms": "^4.1.8",
+    "@cspell/dict-mime-types": "^1.0.1",
+    "@cspell/dict-mnemonics": "^3.0.6",
+    "@cspell/dict-people-names": "^1.1.16",
+    "@cspell/dict-pokemon": "^1.0.3",
+    "@cspell/dict-redis": "^1.0.7",
+    "@cspell/dict-scientific-terms-us": "^3.1.0",
+    "@cspell/dict-vim": "^1.0.10",
+    "@cspell/dict-win32": "^2.0.10",
+    "@eslint/js": "^10.0.1",
+    "@eslint/json": "^2.0.1",
+    "@secretlint/secretlint-rule-preset-recommend": "^13.0.4",
+    "@typescript-eslint/eslint-plugin": "^8.66.0",
+    "@typescript-eslint/parser": "^8.66.0",
+    "cspell": "^10.0.1",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^17.9.0",
+    "husky": "^9.1.7",
+    "knip": "^6.32.1",
+    "lint-staged": "^17.3.0",
+    "prettier": "^3.9.6",
+    "secretlint": "^13.0.4",
+    "stylelint": "^17.14.1",
+    "stylelint-config-standard": "^40.0.0",
+    "typescript": "^6.0.3"
+  }
+}

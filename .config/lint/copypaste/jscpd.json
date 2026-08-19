@@ -6,16 +6,9 @@
   "mode": "strict",
   "reporters": ["consoleFull", "json", "markdown", "html"],
   "ignore": [
-    "**/.engineering/resources/**",
-    "**/.claude/skills/**",
-    "**/.github/agents/copilot/awesome-copilot/**",
-    "**/.engineering/ai/skills/**",
     "**/.config/lint/prose/styles/**",
     "**/meta.json",
-    "**/mindgarden/.obsidian/themes/**",
     "**/notebooks/jupyter/themes/**",
-    "**/publishing/channels/**",
-    "**/.github/specs/**",
     "**/.cache/**",
     "**/.git/**",
     "**/.history/**",
@@ -39,7 +32,7 @@
     "**/logs/**",
     "**/node_modules/**",
     "**/out/**",
-    "**/reports/**",
+    "**/.reports/**",
     "**/target/**",
     "**/tmp/**",
     "**/venv/**",
@@ -60,5 +53,5 @@
   ],
   "absolute": false,
   "gitignore": true,
-  "output": ".engineering/reports/megalinter/jscpd"
+  "output": ".reports/egolint/jscpd"
 }

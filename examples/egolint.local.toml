@@ -1,0 +1,5 @@
+# Developer-only override. Egolint ignores this layer when CI is truthy.
+config-version = 1
+
+image = "egolint-full:local"
+pull-policy = "never"

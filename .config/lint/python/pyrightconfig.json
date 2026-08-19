@@ -1,14 +1,10 @@
 {
-  "$schema": "https://raw.githubusercontent.com/microsoft/pyright/main/packages/vscode-pyright/schemas/pyrightconfig.schema.json",
-
   "pythonVersion": "3.12",
   "pythonPlatform": "All",
 
   "typeCheckingMode": "strict",
 
-  "include": [
-    "."
-  ],
+  "include": ["."],
 
   "exclude": [
     "**/.cache",
@@ -28,7 +24,8 @@
     "**/target",
     "**/vendor",
     "**/venv",
-    ".engineering/reports", "**/.*"
+    ".reports",
+    "**/.*"
   ],
 
   "ignore": [],
@@ -48,11 +45,7 @@
   "executionEnvironments": [
     {
       "root": ".",
-      "extraPaths": [
-        ".",
-        "src",
-        "app"
-      ]
+      "extraPaths": [".", "src", "app"]
     }
   ]
 }

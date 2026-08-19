@@ -1,0 +1,4 @@
+policy = ["policy"]
+namespace = "main"
+output = "standard"
+trace = false

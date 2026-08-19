@@ -103,13 +103,13 @@ ls:
 
   # Images and media are not governed universally because names may originate
   # from design tools, datasets, screenshots, or third-party sources.
-  .png: ignore
-  .jpg: ignore
-  .jpeg: ignore
-  .gif: ignore
-  .webp: ignore
-  .ico: ignore
-  .svg: ignore
+  .png: exists:0
+  .jpg: exists:0
+  .jpeg: exists:0
+  .gif: exists:0
+  .webp: exists:0
+  .ico: exists:0
+  .svg: exists:0
 
   # ---------------------------------------------------------------------------
   # First-party source and package directories
@@ -145,20 +145,20 @@ ls:
   # GitHub, package-manager, framework, and build-tool files are intentionally
   # exempt because their filenames are externally defined.
   "**":
-    "Dockerfile": ignore
-    "Containerfile": ignore
-    "Makefile": ignore
-    "GNUmakefile": ignore
-    "Taskfile.yml": ignore
-    "Taskfile.yaml": ignore
-    "Jenkinsfile": ignore
-    "Vagrantfile": ignore
-    "Gemfile": ignore
-    "Rakefile": ignore
-    "Procfile": ignore
-    "Brewfile": ignore
-    "Podfile": ignore
-    "Package.swift": ignore
+    "Dockerfile": exists:0
+    "Containerfile": exists:0
+    "Makefile": exists:0
+    "GNUmakefile": exists:0
+    "Taskfile.yml": exists:0
+    "Taskfile.yaml": exists:0
+    "Jenkinsfile": exists:0
+    "Vagrantfile": exists:0
+    "Gemfile": exists:0
+    "Rakefile": exists:0
+    "Procfile": exists:0
+    "Brewfile": exists:0
+    "Podfile": exists:0
+    "Package.swift": exists:0
 
 ignore:
   # ---------------------------------------------------------------------------
@@ -224,12 +224,14 @@ ignore:
   - "coverage"
   - "**/coverage/**"
 
-  - ".engineering/reports"
-  - ".engineering/reports/**"
+  - ".reports"
+  - ".reports/**"
 
   # ---------------------------------------------------------------------------
-  # Imported and archival resources
+  # Conventional root-level filenames that do not follow extension rules
   # ---------------------------------------------------------------------------
 
-  - ".engineering/resources"
-  - ".engineering/resources/**"
+  # REUSE.toml and Taskfile.yml are externally-defined conventional names that
+  # do not follow the repository's .toml / .yml kebab-case or snake_case rules.
+  - "REUSE.toml"
+  - "Taskfile.yml"

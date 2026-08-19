@@ -1,0 +1,109 @@
+# SPDX-FileCopyrightText: 2026 Ego Hygiene
+# SPDX-License-Identifier: MIT
+
+# ==============================================================================
+# Markdownlint Ignore Specification
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Dependency and package-manager trees
+# ------------------------------------------------------------------------------
+
+node_modules/
+**/node_modules/
+
+.pnpm-store/
+**/.pnpm-store/
+
+.yarn/
+**/.yarn/
+
+vendor/
+**/vendor/
+
+# ------------------------------------------------------------------------------
+# Python environments and caches
+# ------------------------------------------------------------------------------
+
+.venv/
+**/.venv/
+
+venv/
+**/venv/
+
+__pycache__/
+**/__pycache__/
+
+# ------------------------------------------------------------------------------
+# Version-control and local editor state
+# ------------------------------------------------------------------------------
+
+.git/
+**/.git/
+
+.idea/
+**/.idea/
+
+.history/
+**/.history/
+
+.task/
+**/.task/
+
+# ------------------------------------------------------------------------------
+# Infrastructure state
+# ------------------------------------------------------------------------------
+
+.terraform/
+**/.terraform/
+
+# ------------------------------------------------------------------------------
+# Generated build, release, and test output
+# ------------------------------------------------------------------------------
+
+build/
+**/build/
+
+dist/
+**/dist/
+
+out/
+**/out/
+
+target/
+**/target/
+
+release/
+**/release/
+
+coverage/
+**/coverage/
+
+.nyc_output/
+**/.nyc_output/
+
+# ------------------------------------------------------------------------------
+# Generated reports and caches
+# ------------------------------------------------------------------------------
+
+.reports/
+.reports/**
+
+.cache/
+**/.cache/
+
+# Each cross-linter fixture is validated by its owning tool. The remark fixture
+# intentionally exercises Markdown syntax that conflicts with markdownlint's
+# single-title and emphasis-style policy.
+tests/fixtures/remark-lint/
+tests/fixtures/negative/
+
+# ------------------------------------------------------------------------------
+# Generated site output
+# ------------------------------------------------------------------------------
+
+site/
+**/site/
+
+public/generated/
+**/public/generated/

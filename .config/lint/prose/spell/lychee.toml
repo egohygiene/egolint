@@ -84,11 +84,14 @@ fallback_extensions = [
 # Validate heading and text fragments.
 include_fragments = "full"
 
-# Validate mail links when the bundled build supports email checking.
-include_mail = true
+# Mail link validation via MX-record lookup is unreliable in CI environments
+# where DNS is restricted or cached. Email addresses in metadata are not
+# actionable links; use secretlint for credential scanning instead.
+include_mail = false
 
-# Validate Markdown wikilinks.
-include_wikilinks = true
+# Wikilinks require repository-specific graph semantics and are outside the
+# portable link-checking baseline.
+include_wikilinks = false
 
 # ------------------------------------------------------------------------------
 # Local links
@@ -127,7 +130,7 @@ accept_timeouts = false
 exclude_path = [
   "(^|/)\\.git/",
   "(^|/)\\.cache/",
-  "(^|/)\\.engineering/reports/",
+  "(^|/)\\.reports/",
   "(^|/)node_modules/",
   "(^|/)vendor/",
   "(^|/)\\.venv/",
@@ -138,6 +141,9 @@ exclude_path = [
   "(^|/)target/",
   "(^|/)coverage/",
   "(^|/)generated/",
+  # Lock files may contain email addresses and URLs from package metadata
+  # that are not real links and not representative of the repository's content.
+  "pnpm-lock\\.yaml",
 ]
 
 # ------------------------------------------------------------------------------

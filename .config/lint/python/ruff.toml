@@ -12,7 +12,7 @@
 target-version = "py312"
 line-length = 100
 
-cache-dir = ".cache/ruff"
+cache-dir = ".reports/egolint/cache/ruff"
 
 respect-gitignore = true
 force-exclude = true
@@ -41,13 +41,14 @@ extend-exclude = [
   "coverage",
   "dist",
   "generated",
+  "tests/fixtures/negative",
   "node_modules",
   "out",
   "site",
   "target",
   "vendor",
   "venv",
-  ".engineering/reports",
+  ".reports",
 ]
 
 [lint]
@@ -126,6 +127,15 @@ task-tags = [
 
 [lint.per-file-ignores]
 
+".github/actions/**/*.py" = [
+  # Action entry points are standalone executables, not Python packages.
+  "INP001",
+  # Command-line actions intentionally write status and diagnostics.
+  "T201",
+  # argparse and CLI exits keep their actionable messages at the raise site.
+  "TRY003",
+]
+
 "tests/**/*.py" = [
   "S101",
   "PLR2004",
@@ -134,6 +144,64 @@ task-tags = [
 "test_*.py" = [
   "S101",
   "PLR2004",
+]
+
+"**/test_*.py" = [
+  "S101",
+  "PLR2004",
+  # The imported test suites use unittest-style assertions intentionally.
+  "PT009",
+]
+
+"tests/test_megalinter_wrapper.py" = [
+  # The wrapper tests exercise controlled subprocess arguments and unsafe-path
+  # rejection; no untrusted input is executed.
+  "S108",
+  "S603",
+  "S607",
+]
+
+"scripts/validate_megalinter_policy.py" = [
+  # The contract validator is a command-line boundary with explicit errors and
+  # a deliberately branchy schema/policy validator.
+  "PERF401",
+  "PLR0912",
+  "PLR0915",
+  "S108",
+  "S603",
+  "S607",
+  "T201",
+  "TRY003",
+]
+
+"scripts/complementary_tools.py" = [
+  # The contract runner is a command-line boundary with explicit diagnostics
+  # and an intentionally branchy manifest/state-machine validator. Commands
+  # come only from the repository-owned manifest and execute without a shell.
+  "PERF401",
+  "PLR0911",
+  "PLR0912",
+  "S603",
+  "T201",
+]
+
+"tests/test_megalinter_policy.py" = [
+  # The test invokes only the fixed local validator module and constructs one
+  # explicit module-load failure diagnostic.
+  "S603",
+  "TRY003",
+]
+
+"tests/test_complementary_tools.py" = [
+  # A clear module-load diagnostic is more useful than a custom exception type
+  # in this test-only dynamic import boundary.
+  "TRY003",
+]
+
+"tests/fixtures/**/*.py" = [
+  # Cross-tool fixtures are intentionally standalone source files, not Python
+  # packages that should gain synthetic __init__.py modules.
+  "INP001",
 ]
 
 "**/__init__.py" = [

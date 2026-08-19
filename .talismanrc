@@ -1,0 +1,25 @@
+# -----------------------------------------------------------------------------
+# Talisman Configuration
+# -----------------------------------------------------------------------------
+#
+# Ego Hygiene Engineering Standard
+#
+# Documentation:
+#   https://github.com/thoughtworks/talisman
+#
+# Purpose:
+#   Provides repository-wide configuration for Talisman secret scanning.
+#
+# Notes:
+#   This repository relies on Talisman's default detection rules.
+#   Project-specific allowlists should be added only when necessary and
+#   reviewed carefully.
+# -----------------------------------------------------------------------------
+
+version: "1.0"
+
+# Example:
+#
+# fileignoreconfig:
+#   - filename: examples/test.env
+#     checksum: <sha256>

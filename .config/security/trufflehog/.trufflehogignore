@@ -29,7 +29,8 @@
 (^|/)generated/
 (^|/)tmp/
 
-^\.engineering/reports/
+^\.reports/
+^tests/fixtures/negative/
 
 \.map$
 \.min\.js$

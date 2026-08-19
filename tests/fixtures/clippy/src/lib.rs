@@ -18,10 +18,6 @@ mod tests {
 
     #[test]
     fn formats_a_named_greeting() {
-        assert_eq!(
-            format_greeting("Ego Hygiene"),
-            "Hello, Ego Hygiene.",
-        );
+        assert_eq!(format_greeting("Ego Hygiene"), "Hello, Ego Hygiene.",);
     }
 }
-

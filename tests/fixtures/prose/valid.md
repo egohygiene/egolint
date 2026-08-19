@@ -14,4 +14,3 @@ add extensions, and document intentional exceptions.
 1. Publish the resulting reports.
 
 This fixture uses direct technical language and avoids unnecessary repetition.
-

@@ -1,0 +1,40 @@
+{
+  "valid": [
+    "chore(quality): 🧹 establish repository policy",
+    "ci(commits): ✅ validate emoji messages",
+    "docs(reports): 📝 document report lifecycle",
+    "fix(hooks): 🩹 preserve staged changes",
+    "feat(dx): 🧑‍💻 add commit assistance",
+    "security(secrets): :lock: review the baseline"
+  ],
+  "invalid": [
+    {
+      "message": "chore(quality): establish repository policy",
+      "reason": "missing emoji"
+    },
+    {
+      "message": "chore: 🧹 establish repository policy",
+      "reason": "missing scope"
+    },
+    {
+      "message": "chore(quality): 🧹 Establish repository policy",
+      "reason": "uppercase subject"
+    },
+    {
+      "message": "unknown(quality): 🧹 establish repository policy",
+      "reason": "unknown type"
+    },
+    {
+      "message": "chore(quality) 🧹 establish repository policy",
+      "reason": "missing delimiter"
+    },
+    {
+      "message": "chore(quality): 1 establish repository policy",
+      "reason": "non-emoji token"
+    },
+    {
+      "message": "chore(quality): 🧹",
+      "reason": "missing subject"
+    }
+  ]
+}

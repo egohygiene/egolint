@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+set -eu
+
+# @description Validate the pending Git commit message with Egolint's policy.
+# @arg $1 string Path to the temporary commit-message file.
+repository_root="$(git rev-parse --show-toplevel)"
+cd "${repository_root}"
+
+sh scripts/pnpm.sh --dir . run commitlint --edit "$1"

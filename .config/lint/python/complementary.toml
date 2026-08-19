@@ -1,0 +1,19 @@
+[tool.vulture]
+exclude = [".cache", ".reports", ".venv", "build", "dist", "tests", "venv"]
+ignore_decorators = ["@app.*", "@click.*", "@pytest.fixture"]
+ignore_names = ["visit_*", "do_*"]
+min_confidence = 90
+sort_by_size = true
+
+[tool.interrogate]
+exclude = [".cache", ".reports", ".venv", "build", "dist", "tests", "venv"]
+fail-under = 90
+ignore-init-module = true
+ignore-magic = true
+ignore-nested-functions = true
+ignore-private = true
+ignore-semiprivate = false
+omit-covered-files = true
+quiet = false
+style = "google"
+verbose = 1

@@ -1,0 +1,9 @@
+---
+- name: Validate the portable Ansible fixture
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Confirm the fixture is operational
+      ansible.builtin.debug:
+        msg: "Ansible fixture is operational."

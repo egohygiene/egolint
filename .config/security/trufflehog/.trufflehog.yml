@@ -13,12 +13,7 @@
 #   https://trufflesecurity.com/docs/configuration-file-reference
 # ==============================================================================
 
-# Limit concurrent scanning work to keep local and CI runs predictable.
-concurrency: 4
-
-# Use human-readable logs. MegaLinter owns report formatting.
-loglevel: "info"
-logjson: false
-
-# Add repository-specific custom detectors here later.
+# TruffleHog's configuration file accepts custom detectors and sources. Runtime
+# controls such as concurrency and log formatting belong to CLI arguments, not
+# this schema. Add repository-specific custom detectors here later.
 detectors: []

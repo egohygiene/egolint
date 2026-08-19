@@ -1,0 +1,56 @@
+# REUSE Software tool configuration file
+# Specification: https://reuse.software/spec/
+version = 1
+
+# ===========================================================================
+# 1. GLOBAL DEFAULT DEFINITION
+# ===========================================================================
+# Everything in this repository is managed under the primary project license
+# unless explicitly overridden by a more specific third-party path below.
+[[annotations]]
+path = ["**"]
+SPDX-FileCopyrightText = "2026 Ego Hygiene"
+SPDX-License-Identifier = "MIT"
+
+# ===========================================================================
+# 2. THIRD-PARTY DEPENDENCIES & STYLE RULES
+# ===========================================================================
+
+# Proselint style rules (BSD-3-Clause)
+# Source: https://github.com/amperser/proselint
+[[annotations]]
+path = [".config/lint/prose/styles/proselint/**"]
+SPDX-FileCopyrightText = "2014-2015 Jordan Suchow, Michael Pacer, and Lara A. Ross"
+SPDX-License-Identifier = "BSD-3-Clause"
+
+# Offline catalog derived from MegaLinter v10 descriptor metadata
+# Source: https://github.com/oxsecurity/megalinter/tree/v10.0.0
+[[annotations]]
+path = [".config/megalinter/v10-catalog.json"]
+precedence = "override"
+SPDX-FileCopyrightText = "MegaLinter contributors"
+SPDX-License-Identifier = "AGPL-3.0-only"
+
+# Write-good style rules (MIT)
+# Source: https://github.com/btford/write-good
+[[annotations]]
+path = [".config/lint/prose/styles/write-good/**"]
+SPDX-FileCopyrightText = "2014 Brian Ford"
+SPDX-License-Identifier = "MIT"
+
+# ===========================================================================
+# 3. TECHNICAL EXCLUSIONS & TRANSIENT ENVIRONMENT PATHS
+# ===========================================================================
+# Prevent local virtual environments, locked vendor packages, or editor metadata
+# from causing compliance or linting noise.
+[[annotations]]
+path = [
+  ".venv/**",
+  "node_modules/**",
+  ".idea/**",
+  ".pnpm-store/**",
+  "**/.DS_Store"
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Transient Build Environment"
+SPDX-License-Identifier = "LicenseRef-Transient-Resource"

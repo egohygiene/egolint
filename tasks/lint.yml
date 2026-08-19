@@ -1,0 +1,1084 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+vars:
+  EGOLINT_ROOT: "{{.ROOT_DIR}}"
+  MEGALINTER_SCRIPT: "{{.EGOLINT_ROOT}}/scripts/megalinter.sh"
+  PNPM_SCRIPT: "{{.EGOLINT_ROOT}}/scripts/pnpm.sh"
+  PRE_COMMIT_SCRIPT: "{{.EGOLINT_ROOT}}/scripts/precommit.sh"
+  MEGALINTER_VERSION: "v10.0.0"
+  MEGALINTER_CONFIG_FILE: ".mega-linter.yml"
+  MEGALINTER_FAST_CONFIG_FILE: ".mega-linter.fast.yml"
+  MEGALINTER_HOLISTIC_CONFIG_FILE: ".mega-linter.yml"
+  MEGALINTER_POLICY_SCRIPT: "{{.EGOLINT_ROOT}}/scripts/validate_megalinter_policy.py"
+  MEGALINTER_REPORT_DIRECTORY: ".reports/egolint"
+
+env:
+  MEGALINTER_VERSION: "{{.MEGALINTER_VERSION}}"
+  MEGALINTER_CONFIG: "{{.MEGALINTER_CONFIG_FILE}}"
+  MEGALINTER_REPORT_DIRECTORY: "{{.MEGALINTER_REPORT_DIRECTORY}}"
+
+tasks:
+  dependencies:ensure:
+    desc: "Ensure locked workspace dependencies are installed"
+    cmds:
+      - |
+        if test \
+          -f "{{.EGOLINT_ROOT}}/node_modules/@cspell/dict-pokemon/cspell-ext.json" \
+          -a -f "{{.EGOLINT_ROOT}}/node_modules/@cspell/dict-clojure/cspell-ext.json" \
+          -a -f "{{.EGOLINT_ROOT}}/node_modules/@cspell/dict-elisp/cspell-ext.json" \
+          -a -f "{{.EGOLINT_ROOT}}/node_modules/@cspell/dict-gdscript/cspell-ext.json" \
+          -a -f "{{.EGOLINT_ROOT}}/node_modules/@cspell/dict-gis/cspell-ext.json" \
+          -a -f "{{.EGOLINT_ROOT}}/node_modules/@cspell/dict-medicalterms/cspell-ext.json" \
+          -a -f "{{.EGOLINT_ROOT}}/node_modules/@cspell/dict-mime-types/cspell-ext.json" \
+          -a -f "{{.EGOLINT_ROOT}}/node_modules/@cspell/dict-mnemonics/cspell-ext.json" \
+          -a -f "{{.EGOLINT_ROOT}}/node_modules/@cspell/dict-people-names/cspell-ext.json" \
+          -a -f "{{.EGOLINT_ROOT}}/node_modules/@cspell/dict-redis/cspell-ext.json" \
+          -a -f "{{.EGOLINT_ROOT}}/node_modules/@cspell/dict-scientific-terms-us/cspell-ext.json" \
+          -a -f "{{.EGOLINT_ROOT}}/node_modules/@cspell/dict-vim/cspell-ext.json" \
+          -a -f "{{.EGOLINT_ROOT}}/node_modules/@cspell/dict-win32/cspell-ext.json" \
+          -a -d "{{.EGOLINT_ROOT}}/node_modules/@cspell/cspell-json-reporter"; then
+          printf '%s\n' "Workspace dependencies are already installed."
+          exit 0
+        fi
+
+        printf '%s\n' "Installing locked workspace dependencies..."
+
+        sh "{{.PNPM_SCRIPT}}" --dir "{{.EGOLINT_ROOT}}" install \
+          --frozen-lockfile
+
+  hooks:install:
+    desc: "Install Husky as the repository's sole Git hook manager"
+    deps:
+      - dependencies:ensure
+    cmds:
+      - 'sh "{{.PNPM_SCRIPT}}" --dir "{{.EGOLINT_ROOT}}" run hooks:install'
+
+  hooks:check:
+    desc: "Verify the canonical Husky hook path and hook executability"
+    cmds:
+      - |
+        configured_hooks_path="$(git config --get core.hooksPath || true)"
+        expected_hooks_path=".husky/_"
+
+        if test "$configured_hooks_path" != "$expected_hooks_path"; then
+          printf 'Expected core.hooksPath=%s, found %s\n' \
+            "$expected_hooks_path" \
+            "${configured_hooks_path:-<unset>}" >&2
+          exit 1
+        fi
+
+        for hook_path in \
+          "{{.EGOLINT_ROOT}}/.husky/commit-msg" \
+          "{{.EGOLINT_ROOT}}/.husky/pre-commit"; do
+          if ! test -x "$hook_path"; then
+            printf 'Hook is not executable: %s\n' "$hook_path" >&2
+            exit 1
+          fi
+        done
+
+        printf '%s\n' "Husky hook ownership is configured correctly."
+
+  precommit:staged:
+    desc: "Run the structural and security profile against staged files"
+    cmds:
+      - '"{{.PRE_COMMIT_SCRIPT}}" staged'
+
+  precommit:all:
+    desc: "Run the complete pre-commit profile against all tracked files"
+    cmds:
+      - '"{{.PRE_COMMIT_SCRIPT}}" all'
+
+  commit:validate:
+    desc: "Validate a commit-message file passed after --"
+    deps:
+      - dependencies:ensure
+    cmds:
+      - |
+        if test -z "{{.CLI_ARGS}}"; then
+          printf '%s\n' "Usage: task commit:validate -- <commit-message-file>" >&2
+          exit 2
+        fi
+
+        sh "{{.PNPM_SCRIPT}}" --dir "{{.EGOLINT_ROOT}}" run commitlint \
+          --edit "{{.CLI_ARGS}}"
+
+  commit:test:
+    desc: "Validate the canonical valid and invalid commit-message fixtures"
+    cmds:
+      - 'sh "{{.PNPM_SCRIPT}}" --dir "{{.EGOLINT_ROOT}}" run commitlint:test'
+
+  secrets:check:
+    desc: "Scan all tracked files against the reviewed Detect Secrets baseline"
+    cmds:
+      - '"{{.PRE_COMMIT_SCRIPT}}" all detect-secrets'
+
+  license:check:
+    desc: "Verify first-party SPDX headers and repository-wide REUSE compliance"
+    cmds:
+      - '"{{.PRE_COMMIT_SCRIPT}}" all addlicense'
+      - '"{{.PRE_COMMIT_SCRIPT}}" all reuse'
+
+  default:
+    desc: "Run the canonical holistic MegaLinter quality suite"
+    cmds:
+      - task: holistic
+
+  contracts:
+    desc: "Validate MegaLinter v10 variables, profiles, fixtures, and generated inventory"
+    cmds:
+      - 'python3 "{{.MEGALINTER_POLICY_SCRIPT}}" --check'
+
+  contracts:write:
+    desc: "Regenerate the MegaLinter tool matrix and profile snapshots"
+    cmds:
+      - 'python3 "{{.MEGALINTER_POLICY_SCRIPT}}" --write'
+
+  doctor:
+    desc: "Validate MegaLinter runtime and repository configuration"
+    cmds:
+      - '"{{.MEGALINTER_SCRIPT}}" --doctor'
+
+  dry-run:
+    desc: "Print the redacted MegaLinter container command"
+    cmds:
+      - '"{{.MEGALINTER_SCRIPT}}" --dry-run'
+
+  all:
+    desc: "Lint the complete repository with the holistic profile"
+    deps:
+      - contracts
+    cmds:
+      - '"{{.MEGALINTER_SCRIPT}}"'
+
+  holistic:
+    desc: "Lint the complete repository with every supported Egolint descriptor"
+    deps:
+      - "dependencies:ensure"
+      - contracts
+    cmds:
+      - '"{{.MEGALINTER_SCRIPT}}"'
+
+  fast:
+    desc: "Lint changed files with the deterministic 12-linter profile"
+    deps:
+      - contracts
+    env:
+      MEGALINTER_CONFIG: "{{.MEGALINTER_FAST_CONFIG_FILE}}"
+    cmds:
+      - '"{{.MEGALINTER_SCRIPT}}" --changed-only'
+
+  changed:
+    desc: "Alias for the deterministic changed-file profile"
+    cmds:
+      - task: fast
+
+  fix:
+    desc: "Apply fixes from all supported linters"
+    cmds:
+      - '"{{.MEGALINTER_SCRIPT}}" --fix'
+
+  debug:
+    desc: "Run MegaLinter with diagnostic output"
+    cmds:
+      - '"{{.MEGALINTER_SCRIPT}}" --debug'
+
+  actionlint:
+    desc: "Validate GitHub Actions workflows with actionlint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "ACTION_ACTIONLINT"
+
+  ansible:
+    desc: "Run the Ansible descriptor family"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --descriptors "ANSIBLE"
+
+  arm:
+    desc: "Validate Azure Resource Manager templates with ARM TTK"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "ARM_ARM_TTK"
+
+  cljstyle:
+    desc: "Validate Clojure formatting with cljstyle"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "CLOJURE_CLJSTYLE"
+
+  clj-kondo:
+    desc: "Analyze Clojure source with clj-kondo"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "CLOJURE_CLJ_KONDO"
+
+  cloudformation:
+    desc: "Validate AWS CloudFormation templates with cfn-lint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "CLOUDFORMATION_CFN_LINT"
+
+  coffeescript:
+    desc: "Validate CoffeeScript source with CoffeeLint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "COFFEE_COFFEELINT"
+
+  jscpd:
+    desc: "Detect duplicated source blocks with jscpd"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "COPYPASTE_JSCPD"
+
+  clang-format:
+    desc: "Validate C and C++ formatting with clang-format"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "CPP_CLANG_FORMAT"
+
+  clang-format-c:
+    desc: "Validate C formatting with clang-format"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "C_CLANG_FORMAT"
+
+  stylelint:
+    desc: "Validate CSS and stylesheet conventions with Stylelint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "CSS_STYLELINT"
+
+  stylelint:fix:
+    desc: "Fix supported CSS findings with Stylelint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "CSS_STYLELINT" --fix="CSS_STYLELINT"
+
+  dart-analyze:
+    desc: "Analyze Dart and Flutter source with Dart Analyzer"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "DART_DARTANALYZER"
+
+  dockerfile:
+    desc: "Run the Dockerfile descriptor family"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --descriptors "DOCKERFILE"
+
+  hadolint:
+    desc: "Validate Dockerfiles with Hadolint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "DOCKERFILE_HADOLINT"
+
+  editorconfig:
+    desc: "Validate files against EditorConfig policy"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "EDITORCONFIG_EDITORCONFIG_CHECKER"
+
+  gherkin:
+    desc: "Validate Gherkin feature files with gherkin-lint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "GHERKIN_GHERKIN_LINT"
+
+  revive:
+    desc: "Analyze Go source with Revive"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "GO_REVIVE"
+
+  graphql-schema:
+    desc: "Validate GraphQL schema conventions"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "GRAPHQL_GRAPHQL_SCHEMA_LINTER"
+
+  groovy:
+    desc: "Validate Groovy and Jenkinsfiles with npm-groovy-lint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "GROOVY_NPM_GROOVY_LINT"
+
+  htmlhint:
+    desc: "Validate HTML structure and accessibility with HTMLHint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "HTML_HTMLHINT"
+
+  eslint:
+    desc: "Analyze JavaScript, TypeScript, and React source with ESLint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "JAVASCRIPT_ES"
+
+  prettier:
+    desc: "Validate supported files with Prettier"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "JAVASCRIPT_PRETTIER"
+
+  prettier:fix:
+    desc: "Format supported files with Prettier"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "JAVASCRIPT_PRETTIER" --fix="JAVASCRIPT_PRETTIER"
+
+  checkstyle:
+    desc: "Analyze Java source with Checkstyle"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "JAVA_CHECKSTYLE"
+
+  pmd:
+    desc: "Analyze Java source with PMD"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "JAVA_PMD"
+
+  jsonlint:
+    desc: "Validate strict JSON syntax with jsonlint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "JSON_JSONLINT"
+
+  npm-package-json:
+    desc: "Validate package.json files with npm-package-json-lint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "JSON_NPM_PACKAGE_JSON_LINT"
+
+  prettier-json:
+    desc: "Validate JSON formatting with Prettier"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "JSON_PRETTIER"
+
+  prettier-json:fix:
+    desc: "Format JSON files with Prettier"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "JSON_PRETTIER" --fix="JSON_PRETTIER"
+
+  eslint-jsx:
+    desc: "Analyze JSX source with the repository ESLint toolchain"
+    deps:
+      - "dependencies:ensure"
+    cmds:
+      - >-
+        "{{.EGOLINT_ROOT}}/node_modules/.bin/eslint"
+        --config "{{.EGOLINT_ROOT}}/.config/lint/javascript/eslint.config.mjs"
+        "**/*.jsx"
+
+  chktex:
+    desc: "Analyze LaTeX source with ChkTeX"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "LATEX_CHKTEX"
+
+  luacheck:
+    desc: "Analyze Lua source with Luacheck"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "LUA_LUACHECK"
+
+  checkmake:
+    desc: "Analyze Makefiles with Checkmake"
+    cmds:
+      - |
+        find . \
+          \( \
+            -path "./.git" \
+            -o -path "*/node_modules" \
+            -o -path "*/vendor" \
+            -o -path "*/.venv" \
+            -o -path "*/venv" \
+            -o -path "*/dist" \
+            -o -path "*/build" \
+            -o -path "*/coverage" \
+            -o -path "*/.cache" \
+          \) \
+          -prune \
+          -o \
+          -type f \
+          \( \
+            -name "Makefile" \
+            -o -name "GNUmakefile" \
+            -o -name "*.mk" \
+            -o -name "*.make" \
+          \) \
+          -exec sh -c '
+            status=0
+
+            for makefile_path do
+              if ! checkmake \
+                --config ".config/lint/makefile/.checkmake.ini" \
+                "${makefile_path}"; then
+                status=1
+              fi
+            done
+
+            exit "${status}"
+          ' sh {} +
+    silent: true
+
+  markdownlint:
+    desc: "Analyze Markdown files with markdownlint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "MARKDOWN_MARKDOWNLINT"
+
+  markdownlint:fix:
+    desc: "Fix supported Markdown findings with markdownlint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "MARKDOWN_MARKDOWNLINT" --fix="MARKDOWN_MARKDOWNLINT"
+
+  markdown-link-check:
+    desc: "Validate links in Markdown files"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "MARKDOWN_MARKDOWN_LINK_CHECK"
+
+  remark-lint:
+    desc: "Analyze Markdown syntax trees with remark-lint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "MARKDOWN_REMARK_LINT"
+
+  phpcs:
+    desc: "Validate PHP coding conventions with PHP_CodeSniffer"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PHP_PHPCS"
+
+  phpcs:fix:
+    desc: "Fix supported PHP coding-standard findings with PHPCBF"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PHP_PHPCS" --fix="PHP_PHPCS"
+
+  phplint:
+    desc: "Validate PHP syntax with PHPLint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PHP_PHPLINT"
+
+  phpstan:
+    desc: "Analyze PHP types and correctness with PHPStan"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PHP_PHPSTAN"
+
+  psalm:
+    desc: "Analyze PHP types and data flow with Psalm"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PHP_PSALM"
+
+  php:
+    desc: "Run the complete PHP analysis suite"
+    cmds:
+      - task: "phplint"
+      - task: "phpcs"
+      - task: "phpstan"
+      - task: "psalm"
+
+  powershell:
+    desc: "Analyze PowerShell source with PSScriptAnalyzer"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "POWERSHELL_POWERSHELL"
+
+  powershell-formatter:
+    desc: "Validate PowerShell formatting with PSScriptAnalyzer"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "POWERSHELL_POWERSHELL_FORMATTER"
+
+  powershell-formatter:fix:
+    desc: "Format PowerShell source with PSScriptAnalyzer"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "POWERSHELL_POWERSHELL_FORMATTER"
+        --fix="POWERSHELL_POWERSHELL_FORMATTER"
+
+  powershell-all:
+    desc: "Run PowerShell analysis and formatting checks"
+    cmds:
+      - task: "powershell"
+      - task: "powershell-formatter"
+
+  protolint:
+    desc: "Analyze Protocol Buffer definitions with protolint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PROTOBUF_PROTOLINT"
+
+  protolint:fix:
+    desc: "Fix supported Protocol Buffer style findings with protolint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PROTOBUF_PROTOLINT" --fix="PROTOBUF_PROTOLINT"
+
+  puppet-lint:
+    desc: "Analyze Puppet manifests with puppet-lint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PUPPET_PUPPET_LINT"
+
+  raku:
+    desc: "Compile and validate Raku source files"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "RAKU_RAKU"
+
+  ls-lint:
+    desc: "Validate repository file and directory naming conventions"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "REPOSITORY_LS_LINT"
+
+  cspell:
+    desc: "Spell-check repository source and documentation with CSpell"
+    deps:
+      - "dependencies:ensure"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SPELL_CSPELL"
+
+  checkov:
+    desc: "Scan infrastructure-as-code and deployment configuration with Checkov"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "REPOSITORY_CHECKOV"
+
+  betterleaks:
+    desc: "Scan source for committed secrets with Betterleaks"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "REPOSITORY_BETTERLEAKS"
+
+  devskim:
+    desc: "Scan repository source for insecure coding patterns with DevSkim"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "REPOSITORY_DEVSKIM"
+
+  grype:
+    desc: "Scan repository packages for known vulnerabilities with Grype"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "REPOSITORY_GRYPE"
+
+  kics:
+    desc: "Scan infrastructure-as-code with KICS"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "REPOSITORY_KICS"
+
+  syft:
+    desc: "Generate repository SBOMs with Syft"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "REPOSITORY_SYFT"
+
+  rstcheck:
+    desc: "Validate reStructuredText syntax and embedded code with rstcheck"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "RST_RSTCHECK"
+
+  rubocop:
+    desc: "Analyze Ruby source with RuboCop"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "RUBY_RUBOCOP"
+
+  rubocop:fix:
+    desc: "Apply safe RuboCop autocorrections"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "RUBY_RUBOCOP" --fix="RUBY_RUBOCOP"
+
+  clippy:
+    desc: "Analyze Rust crates with Clippy"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "RUST_CLIPPY"
+
+  clippy:fix:
+    desc: "Apply supported Clippy fixes"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "RUST_CLIPPY" --fix="RUST_CLIPPY"
+
+  lintr:
+    desc: "Analyze R and R Markdown source with lintr"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "R_LINTR"
+
+  trivy:
+    desc: "Scan repository security with Trivy"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "REPOSITORY_TRIVY"
+
+  trivy-sbom:
+    desc: "Generate a CycloneDX repository SBOM with Trivy"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "REPOSITORY_TRIVY_SBOM"
+
+  trivy-all:
+    desc: "Run Trivy security scanning and SBOM generation"
+    cmds:
+      - task: "trivy"
+      - task: "trivy-sbom"
+
+  trufflehog:
+    desc: "Scan repository files for exposed credentials with TruffleHog"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "REPOSITORY_TRUFFLEHOG"
+
+  eslint-tsx:
+    desc: "Analyze TSX source with the repository ESLint toolchain"
+    deps:
+      - "dependencies:ensure"
+    cmds:
+      - >-
+        "{{.EGOLINT_ROOT}}/node_modules/.bin/eslint"
+        --config "{{.EGOLINT_ROOT}}/.config/lint/javascript/eslint.config.mjs"
+        --cache
+        --cache-location ".reports/egolint/cache/eslint/tsx"
+        --cache-strategy "content"
+        "**/*.tsx"
+
+  eslint-typescript:
+    desc: "Analyze TypeScript source with the repository ESLint toolchain"
+    deps:
+      - "dependencies:ensure"
+    cmds:
+      - >-
+        "{{.EGOLINT_ROOT}}/node_modules/.bin/eslint"
+        --config "{{.EGOLINT_ROOT}}/.config/lint/javascript/eslint.config.mjs"
+        --cache
+        --cache-location ".reports/egolint/cache/eslint/typescript"
+        --cache-strategy "content"
+        "**/*.ts"
+
+  prettier-typescript:
+    desc: "Validate TypeScript formatting with Prettier"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "TYPESCRIPT_PRETTIER"
+
+  prettier-typescript:fix:
+    desc: "Format TypeScript files with Prettier"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "TYPESCRIPT_PRETTIER" --fix="TYPESCRIPT_PRETTIER"
+
+  prettier-yaml:
+    desc: "Validate YAML formatting with Prettier"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "YAML_PRETTIER"
+
+  prettier-yaml:fix:
+    desc: "Format YAML files with Prettier"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "YAML_PRETTIER" --fix="YAML_PRETTIER"
+
+  terrascan:
+    desc: "Run deprecated Terrascan compatibility analysis"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "TERRAFORM_TERRASCAN"
+
+  tflint:
+    desc: "Analyze Terraform modules with TFLint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "TERRAFORM_TFLINT"
+
+  terragrunt:
+    desc: "Validate Terragrunt HCL formatting"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "TERRAFORM_TERRAGRUNT"
+
+  terragrunt:fix:
+    desc: "Format Terragrunt HCL files"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "TERRAFORM_TERRAGRUNT" --fix="TERRAFORM_TERRAGRUNT"
+
+  tekton-lint:
+    desc: "Analyze Tekton Tasks and Pipelines with tekton-lint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "TEKTON_TEKTON_LINT"
+
+  yamllint:
+    desc: "Validate YAML syntax and style with yamllint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "YAML_YAMLLINT"
+
+  v8r-yaml:
+    desc: "Validate YAML files against matching JSON Schemas with v8r"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "YAML_V8R"
+
+  swiftlint:
+    desc: "Analyze Swift source with SwiftLint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SWIFT_SWIFTLINT"
+
+  swiftlint:fix:
+    desc: "Apply supported SwiftLint corrections"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SWIFT_SWIFTLINT" --fix="SWIFT_SWIFTLINT"
+
+  scalafix:
+    desc: "Analyze and rewrite Scala syntax with Scalafix"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SCALA_SCALAFIX"
+
+  scalafix:fix:
+    desc: "Apply supported Scalafix syntactic rewrites"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SCALA_SCALAFIX" --fix="SCALA_SCALAFIX"
+
+  salesforce-apex:
+    desc: "Analyze Salesforce Apex with Code Analyzer"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SALESFORCE_CODE_ANALYZER_APEX"
+
+  snakefmt:
+    desc: "Validate Snakemake formatting with Snakefmt"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SNAKEMAKE_SNAKEFMT"
+
+  snakefmt:fix:
+    desc: "Format Snakemake files with Snakefmt"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SNAKEMAKE_SNAKEFMT" --fix="SNAKEMAKE_SNAKEFMT"
+
+  gitleaks:
+    desc: "Scan Git history for committed credentials with Gitleaks"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "REPOSITORY_GITLEAKS"
+
+  tsqllint:
+    desc: "Analyze T-SQL source with TSQLLint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SQL_TSQLLINT"
+
+  tsqllint:fix:
+    desc: "Apply supported TSQLLint fixes"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SQL_TSQLLINT" --fix="SQL_TSQLLINT"
+
+  sqlfluff:
+    desc: "Analyze SQL syntax and style with SQLFluff"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SQL_SQLFLUFF"
+
+  sqlfluff:fix:
+    desc: "Apply supported SQLFluff formatting fixes"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SQL_SQLFLUFF" --fix="SQL_SQLFLUFF"
+
+  proselint:
+    desc: "Analyze technical prose with Proselint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SPELL_PROSELINT"
+
+  vale:
+    desc: "Analyze editorial style and terminology with Vale"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SPELL_VALE"
+
+  prose:
+    desc: "Run the complete prose-quality suite"
+    cmds:
+      - task: "proselint"
+      - task: "vale"
+      - task: "cspell"
+
+  lychee:
+    desc: "Validate repository links with Lychee"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "SPELL_LYCHEE"
+
+  secretlint:
+    desc: "Scan the repository for committed secrets with Secretlint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "REPOSITORY_SECRETLINT"
+
+  javascript:
+    desc: "Run the JavaScript descriptor family"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --descriptors "JAVASCRIPT"
+
+  json:
+    desc: "Run the JSON descriptor family"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --descriptors "JSON"
+
+  markdown:
+    desc: "Run the Markdown descriptor family"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --descriptors "MARKDOWN"
+
+  shell:
+    desc: "Run the Bash and shell descriptor families"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --descriptors "BASH"
+
+  spellcheck:
+    desc: "Run spelling and prose-related linters"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --descriptors "SPELL"
+
+  terraform:
+    desc: "Run the Terraform descriptor family"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --descriptors "TERRAFORM"
+
+  yaml:
+    desc: "Run the YAML descriptor family"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --descriptors "YAML"
+
+  latexindent:check:
+    desc: "Check LaTeX formatting with latexindent"
+    cmds:
+      - '"{{.EGOLINT_ROOT}}/scripts/latexindent.sh" check'
+
+  latexindent:format:
+    desc: "Format a LaTeX file with latexindent"
+    requires:
+      vars:
+        - FILE
+    cmds:
+      - '"{{.EGOLINT_ROOT}}/scripts/latexindent.sh" format {{.FILE | quote}}'
+
+  bandit:
+    desc: "Analyze Python security with Bandit"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PYTHON_BANDIT"
+
+  black:
+    desc: "Validate Python formatting with Black"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PYTHON_BLACK"
+
+  black:fix:
+    desc: "Format Python source with Black"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PYTHON_BLACK" --fix="PYTHON_BLACK"
+
+  flake8:
+    desc: "Analyze Python compatibility policy with Flake8"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PYTHON_FLAKE8"
+
+  isort:
+    desc: "Validate Python import ordering with isort"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PYTHON_ISORT"
+
+  isort:fix:
+    desc: "Sort Python imports with isort"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PYTHON_ISORT" --fix="PYTHON_ISORT"
+
+  mypy:
+    desc: "Type-check Python source with Mypy"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PYTHON_MYPY"
+
+  pylint:
+    desc: "Analyze Python maintainability with Pylint"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PYTHON_PYLINT"
+
+  pyright:
+    desc: "Type-check Python source with Pyright"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PYTHON_PYRIGHT"
+
+  ruff:
+    desc: "Analyze Python source with Ruff"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PYTHON_RUFF"
+
+  ruff:fix:
+    desc: "Apply supported Ruff lint and formatting fixes"
+    cmds:
+      - >-
+        "{{.MEGALINTER_SCRIPT}}"
+        --linters "PYTHON_RUFF" --fix="PYTHON_RUFF"
+
+  python:
+    desc: "Run the active Python quality suite"
+    cmds:
+      - task: "ruff"
+      - task: "bandit"
+      - task: "mypy"
+      - task: "pylint"
+      - task: "pyright"

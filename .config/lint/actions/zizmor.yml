@@ -1,0 +1,10 @@
+---
+# zizmor policy is offline and deterministic by default. Online audits may be
+# enabled explicitly in a later security profile with a least-privilege token.
+rules:
+  template-injection:
+    ignore: []
+  dangerous-triggers:
+    ignore: []
+  excessive-permissions:
+    ignore: []

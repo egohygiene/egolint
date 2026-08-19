@@ -26,7 +26,7 @@
   "validateDirectives": true,
   "cache": {
     "useCache": true,
-    "cacheLocation": "../../../../.cache/cspell/cspell-cache.json",
+    "cacheLocation": "${cwd}/.reports/egolint/cache/cspell/cspell-cache.json",
     "cacheStrategy": "content"
   },
   "dictionaryDefinitions": [
@@ -169,7 +169,7 @@
   "ignorePaths": [
     ".git/**",
     ".cache/**",
-    ".engineering/reports/**",
+    ".reports/**",
     ".vscode/**",
     "**/node_modules/**",
     "**/vendor/**",

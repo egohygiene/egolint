@@ -1,0 +1,8 @@
+{
+  "name": "knip-positive-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js"
+  }
+}

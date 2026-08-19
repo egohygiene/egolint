@@ -1,0 +1,9 @@
+---
+name: Negative zizmor fixture
+on:
+  workflow_dispatch:
+jobs:
+  fixture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main

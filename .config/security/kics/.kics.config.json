@@ -9,19 +9,13 @@
 
   "log-file": true,
   "log-level": "INFO",
-  "log-path": ".cache/kics/kics.log",
+  "log-path": ".reports/egolint/cache/kics/kics.log",
 
-  "output-path": ".engineering/reports/megalinter/kics",
+  "output-path": ".reports/egolint/kics",
   "output-name": "kics-results",
-  "report-formats": [
-    "json",
-    "sarif"
-  ],
+  "report-formats": ["json", "sarif"],
 
-  "fail-on": [
-    "critical",
-    "high"
-  ],
+  "fail-on": ["critical", "high"],
   "ignore-on-exit": "none",
 
   "disable-secrets": true,
@@ -36,7 +30,7 @@
   "exclude-paths": [
     "./.git/**",
     "./.cache/**",
-    "./.engineering/reports/**",
+    "./.reports/**",
 
     "./**/node_modules/**",
     "./**/vendor/**",

@@ -1,0 +1,30 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/oxsecurity/megalinter/v10.0.0/megalinter/descriptors/schemas/megalinter-configuration.jsonschema.json
+
+# Deterministic changed-file feedback for pull requests and tight local loops.
+EXTENDS:
+  - .mega-linter.yml
+
+ENABLE_LINTERS:
+  - ACTION_ACTIONLINT
+  - BASH_EXEC
+  - BASH_SHELLCHECK
+  - BASH_SHFMT
+  - EDITORCONFIG_EDITORCONFIG_CHECKER
+  - JSON_JSONLINT
+  - JSON_PRETTIER
+  - MARKDOWN_MARKDOWNLINT
+  - PYTHON_RUFF
+  - REPOSITORY_BETTERLEAKS
+  - YAML_PRETTIER
+  - YAML_YAMLLINT
+
+VALIDATE_ALL_CODEBASE: false
+
+# Let shfmt resolve the nearest .editorconfig so nested projects can declare
+# their own dialect and indentation policy without a conflicting CLI override.
+
+REPORT_OUTPUT_FOLDER: .reports/egolint
+GITHUB_COMMENT_REPORTER: false
+GITHUB_STATUS_REPORTER: false
+FILEIO_REPORTER: false

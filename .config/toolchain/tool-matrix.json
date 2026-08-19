@@ -1,0 +1,520 @@
+{
+  "schema_version": 1,
+  "generated_from": ".config/toolchain/complementary-tools.json",
+  "result_statuses": [
+    "applicable",
+    "not_applicable",
+    "missing_dependency",
+    "deliberately_disabled",
+    "passed",
+    "failed_findings",
+    "execution_error",
+    "timed_out"
+  ],
+  "report_root": ".reports/egolint/complementary",
+  "tools": [
+    {
+      "id": "addlicense",
+      "name": "addlicense",
+      "category": "licensing",
+      "version": "1.2.0",
+      "configuration_path": ".pre-commit-config.yaml",
+      "declared_state": "enabled",
+      "repository_applicability": "applicable",
+      "applicability_markers": [],
+      "fixtures": {
+        "positive": [
+          "scripts/precommit.sh"
+        ],
+        "negative": [],
+        "blocker": "Negative first-party source would intentionally violate the repository header gate."
+      },
+      "runtime": "pre-commit",
+      "report_path": ".reports/egolint/complementary/addlicense/latest.json",
+      "reason": "Compatible MIT/SPDX header insertion; REUSE remains the licensing authority."
+    },
+    {
+      "id": "buf",
+      "name": "Buf",
+      "category": "protobuf-project",
+      "version": "1.72.0",
+      "configuration_path": null,
+      "declared_state": "conditional",
+      "repository_applicability": "not_applicable",
+      "applicability_markers": [
+        [
+          "buf.yaml",
+          "**/buf.yaml"
+        ],
+        [
+          "**/*.proto"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/buf/buf.yaml",
+          "tests/fixtures/buf/greeting.proto"
+        ],
+        "negative": [
+          "tests/fixtures/negative/buf/greeting.proto"
+        ],
+        "expected_rule": "PACKAGE_DIRECTORY_MATCH"
+      },
+      "runtime": "buf",
+      "report_path": ".reports/egolint/complementary/buf/latest.json",
+      "reason": "Project-aware Protocol Buffer module linting; Protolint remains MegaLinter-native."
+    },
+    {
+      "id": "cargo-deny",
+      "name": "cargo-deny",
+      "category": "rust-project",
+      "version": "0.20.2",
+      "configuration_path": ".config/lint/rust/deny.toml",
+      "declared_state": "conditional",
+      "repository_applicability": "applicable",
+      "applicability_markers": [
+        [
+          "Cargo.toml",
+          "**/Cargo.toml"
+        ],
+        [
+          "src/**/*.rs"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/clippy/Cargo.toml",
+          "tests/fixtures/clippy/src/lib.rs"
+        ],
+        "negative": [
+          "tests/fixtures/negative/cargo-deny/deny.toml"
+        ],
+        "expected_rule": "configuration-error"
+      },
+      "runtime": "cargo-deny",
+      "report_path": ".reports/egolint/complementary/cargo-deny/latest.json",
+      "reason": "Rust dependency license, source, and duplicate-version policy."
+    },
+    {
+      "id": "commitlint",
+      "name": "Commitlint",
+      "category": "commits",
+      "version": "21.2.1",
+      "configuration_path": ".config/lint/commits/commitlint.emoji.config.cjs",
+      "declared_state": "enabled",
+      "repository_applicability": "applicable",
+      "applicability_markers": [],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/commitlint/messages.json"
+        ],
+        "negative": [
+          "tests/fixtures/commitlint/messages.json"
+        ],
+        "expected_rule": "canonical-message-fixtures"
+      },
+      "runtime": "node",
+      "report_path": ".reports/egolint/complementary/commitlint/latest.json",
+      "reason": "Canonical emoji Conventional Commit policy."
+    },
+    {
+      "id": "complexipy",
+      "name": "complexipy",
+      "category": "python-project",
+      "version": "7.0.0",
+      "configuration_path": null,
+      "declared_state": "conditional",
+      "repository_applicability": "not_applicable",
+      "applicability_markers": [
+        [
+          "pyproject.toml"
+        ],
+        [
+          "src/**/*.py"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/complexipy/simple.py"
+        ],
+        "negative": [
+          "tests/fixtures/negative/complexipy/complex.py"
+        ],
+        "expected_rule": "complexity-threshold"
+      },
+      "runtime": "uvx",
+      "report_path": ".reports/egolint/complementary/complexipy/latest.json",
+      "reason": "Cognitive-complexity enforcement for packaged Python source trees."
+    },
+    {
+      "id": "conftest",
+      "name": "Conftest",
+      "category": "policy-test",
+      "version": "0.69.0",
+      "configuration_path": ".config/lint/rego/conftest.toml",
+      "declared_state": "conditional",
+      "repository_applicability": "not_applicable",
+      "applicability_markers": [
+        [
+          "policy/**/*.rego",
+          "**/policy/**/*.rego"
+        ],
+        [
+          "policy-inputs/**/*.json",
+          "policy-inputs/**/*.yml",
+          "policy-inputs/**/*.yaml"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/conftest/policy/main.rego",
+          "tests/fixtures/conftest/valid.yml"
+        ],
+        "negative": [
+          "tests/fixtures/negative/conftest/invalid.yml"
+        ],
+        "expected_rule": "deny"
+      },
+      "runtime": "conftest",
+      "report_path": ".reports/egolint/complementary/conftest/latest.json",
+      "reason": "Policy-as-code assertions for repositories that carry policies and matching inputs."
+    },
+    {
+      "id": "deptry",
+      "name": "deptry",
+      "category": "python-project",
+      "version": "0.24.0",
+      "configuration_path": null,
+      "declared_state": "conditional",
+      "repository_applicability": "not_applicable",
+      "applicability_markers": [
+        [
+          "pyproject.toml"
+        ],
+        [
+          "src/**/*.py"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/deptry/pyproject.toml",
+          "tests/fixtures/deptry/src/example/__init__.py"
+        ],
+        "negative": [
+          "tests/fixtures/negative/deptry/pyproject.toml",
+          "tests/fixtures/negative/deptry/src/example/__init__.py"
+        ],
+        "expected_rule": "DEP001"
+      },
+      "runtime": "uvx",
+      "report_path": ".reports/egolint/complementary/deptry/latest.json",
+      "reason": "Project-local pyproject.toml is the native configuration and dependency source."
+    },
+    {
+      "id": "detect-secrets",
+      "name": "detect-secrets",
+      "category": "security-source",
+      "version": "1.5.0",
+      "configuration_path": ".secrets.baseline",
+      "declared_state": "enabled",
+      "repository_applicability": "applicable",
+      "applicability_markers": [
+        [
+          ".secrets.baseline"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/gitleaks/valid.env.example"
+        ],
+        "negative": [
+          "tests/fixtures/negative/kingfisher/fake-secret.env.example"
+        ],
+        "expected_rule": "high-entropy-or-pattern-secret"
+      },
+      "runtime": "pre-commit",
+      "report_path": ".reports/egolint/complementary/detect-secrets/latest.json",
+      "reason": "Fast reviewed-baseline secret gate for staged and repository scans."
+    },
+    {
+      "id": "govulncheck",
+      "name": "govulncheck",
+      "category": "go-project",
+      "version": "1.1.4",
+      "configuration_path": null,
+      "declared_state": "conditional",
+      "repository_applicability": "not_applicable",
+      "applicability_markers": [
+        [
+          "go.mod",
+          "**/go.mod"
+        ],
+        [
+          "**/*.go"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/govulncheck/go.mod",
+          "tests/fixtures/govulncheck/main.go"
+        ],
+        "negative": [],
+        "blocker": "A deterministic vulnerable fixture would depend on the time-varying Go vulnerability database."
+      },
+      "runtime": "go",
+      "report_path": ".reports/egolint/complementary/govulncheck/latest.json",
+      "reason": "Call-graph-aware Go vulnerability analysis for actual Go modules."
+    },
+    {
+      "id": "interrogate",
+      "name": "interrogate",
+      "category": "python-project",
+      "version": "1.7.0",
+      "configuration_path": ".config/lint/python/complementary.toml",
+      "declared_state": "conditional",
+      "repository_applicability": "not_applicable",
+      "applicability_markers": [
+        [
+          "pyproject.toml"
+        ],
+        [
+          "src/**/*.py"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/interrogate/documented.py"
+        ],
+        "negative": [
+          "tests/fixtures/negative/interrogate/undocumented.py"
+        ],
+        "expected_rule": "docstring-coverage"
+      },
+      "runtime": "uvx",
+      "report_path": ".reports/egolint/complementary/interrogate/latest.json",
+      "reason": "Python docstring coverage with a shared explicit threshold."
+    },
+    {
+      "id": "knip",
+      "name": "Knip",
+      "category": "javascript-project",
+      "version": "6.32.1",
+      "configuration_path": ".config/lint/javascript/knip.json",
+      "declared_state": "conditional",
+      "repository_applicability": "not_applicable",
+      "applicability_markers": [
+        [
+          "package.json",
+          "**/package.json"
+        ],
+        [
+          "src/**/*.js",
+          "src/**/*.jsx",
+          "src/**/*.ts",
+          "src/**/*.tsx"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/knip/package.json",
+          "tests/fixtures/knip/src/index.js"
+        ],
+        "negative": [
+          "tests/fixtures/negative/knip/package.json",
+          "tests/fixtures/negative/knip/src/unused.js"
+        ],
+        "expected_rule": "unused-export"
+      },
+      "runtime": "node",
+      "report_path": ".reports/egolint/complementary/knip/latest.json",
+      "reason": "Runs only for a real JavaScript or TypeScript project with source markers."
+    },
+    {
+      "id": "latexindent",
+      "name": "latexindent",
+      "category": "latex",
+      "version": "4.0",
+      "configuration_path": ".config/lint/latex/latexindent.yml",
+      "declared_state": "conditional",
+      "repository_applicability": "not_applicable",
+      "applicability_markers": [
+        [
+          "**/*.tex",
+          "**/*.sty",
+          "**/*.cls",
+          "**/*.bib"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/latexindent/example.tex"
+        ],
+        "negative": [
+          "tests/fixtures/negative/latexindent/unformatted.tex"
+        ],
+        "expected_rule": "format-diff"
+      },
+      "runtime": "latexindent",
+      "report_path": ".reports/egolint/complementary/latexindent/latest.json",
+      "reason": "Canonical LaTeX formatter outside MegaLinter's descriptor inventory."
+    },
+    {
+      "id": "regal",
+      "name": "Regal",
+      "category": "rego-project",
+      "version": "0.42.0",
+      "configuration_path": ".config/lint/rego/regal.yml",
+      "declared_state": "conditional",
+      "repository_applicability": "not_applicable",
+      "applicability_markers": [
+        [
+          "**/*.rego"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/regal/policy.rego"
+        ],
+        "negative": [
+          "tests/fixtures/negative/regal/policy.rego"
+        ],
+        "expected_rule": "opa-fmt"
+      },
+      "runtime": "regal",
+      "report_path": ".reports/egolint/complementary/regal/latest.json",
+      "reason": "Canonical Rego style and language analysis."
+    },
+    {
+      "id": "reuse",
+      "name": "REUSE",
+      "category": "licensing",
+      "version": "6.2.0",
+      "configuration_path": "REUSE.toml",
+      "declared_state": "enabled",
+      "repository_applicability": "applicable",
+      "applicability_markers": [
+        [
+          "REUSE.toml"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "LICENSES/MIT.txt",
+          "REUSE.toml"
+        ],
+        "negative": [],
+        "blocker": "A deliberately noncompliant file would invalidate the repository-wide REUSE scan."
+      },
+      "runtime": "uvx",
+      "report_path": ".reports/egolint/complementary/reuse/latest.json",
+      "reason": "Canonical source-file copyright and license authority."
+    },
+    {
+      "id": "tombi",
+      "name": "Tombi",
+      "category": "configuration",
+      "version": "1.2.10",
+      "configuration_path": ".config/tombi.toml",
+      "declared_state": "enabled",
+      "repository_applicability": "applicable",
+      "applicability_markers": [
+        [
+          "**/*.toml"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/tombi/valid.toml"
+        ],
+        "negative": [
+          "tests/fixtures/negative/tombi/invalid.toml"
+        ],
+        "expected_rule": "toml-syntax"
+      },
+      "runtime": "uvx",
+      "report_path": ".reports/egolint/complementary/tombi/latest.json",
+      "reason": "Canonical TOML parser, linter, formatter, and language server."
+    },
+    {
+      "id": "typos",
+      "name": "typos",
+      "category": "prose",
+      "version": "1.32.0",
+      "configuration_path": ".typos.toml",
+      "declared_state": "enabled",
+      "repository_applicability": "applicable",
+      "applicability_markers": [],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/cspell/valid.txt"
+        ],
+        "negative": [
+          "tests/fixtures/negative/codespell/misspelled.txt"
+        ],
+        "expected_rule": "identifier-typo"
+      },
+      "runtime": "pre-commit",
+      "report_path": ".reports/egolint/complementary/typos/latest.json",
+      "reason": "Conservative identifier and prose typo detection."
+    },
+    {
+      "id": "vacuum",
+      "name": "Vacuum",
+      "category": "api",
+      "version": "0.30.0",
+      "configuration_path": ".config/lint/api/spectral.yaml",
+      "declared_state": "conditional",
+      "repository_applicability": "not_applicable",
+      "applicability_markers": [
+        [
+          "**/openapi*.yml",
+          "**/openapi*.yaml",
+          "**/openapi*.json",
+          "**/asyncapi*.yml",
+          "**/asyncapi*.yaml"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/vacuum/openapi.yml"
+        ],
+        "negative": [
+          "tests/fixtures/negative/vacuum/openapi.yml"
+        ],
+        "expected_rule": "spectral-oas"
+      },
+      "runtime": "go",
+      "report_path": ".reports/egolint/complementary/vacuum/latest.json",
+      "reason": "Spectral-compatible API linting using the preserved canonical ruleset."
+    },
+    {
+      "id": "vulture",
+      "name": "Vulture",
+      "category": "python-project",
+      "version": "2.16",
+      "configuration_path": ".config/lint/python/complementary.toml",
+      "declared_state": "conditional",
+      "repository_applicability": "not_applicable",
+      "applicability_markers": [
+        [
+          "pyproject.toml"
+        ],
+        [
+          "src/**/*.py"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/vulture/valid.py"
+        ],
+        "negative": [
+          "tests/fixtures/negative/vulture/unused.py"
+        ],
+        "expected_rule": "unused-code"
+      },
+      "runtime": "uvx",
+      "report_path": ".reports/egolint/complementary/vulture/latest.json",
+      "reason": "High-confidence dead Python code analysis."
+    }
+  ]
+}

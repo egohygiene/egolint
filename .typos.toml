@@ -1,0 +1,204 @@
+# -----------------------------------------------------------------------------
+# Typos Configuration
+# -----------------------------------------------------------------------------
+#
+# Ego Hygiene Engineering Standard
+#
+# Documentation:
+#   https://github.com/crate-ci/typos
+#
+# Purpose:
+#   Provides a conservative, repository-agnostic baseline for typo detection
+#   across source code, documentation, and configuration files while minimizing
+#   false positives.
+#
+# Design Goals:
+#   - Conservative defaults
+#   - Cross-language compatibility
+#   - Low false-positive rate
+#   - Monorepo friendly
+#   - Safe for generated artifacts
+# -----------------------------------------------------------------------------
+
+###############################################################################
+# Dictionary
+###############################################################################
+
+[default]
+
+# Extend the built-in dictionary with project-specific terminology.
+#
+# Keep this list intentionally small. Every addition should represent a real
+# domain-specific word rather than suppressing legitimate typos.
+#
+[default.extend-words]
+
+# Clojure's extensible data notation file extension.
+edn = "edn"
+
+# LaTeX's canonical multiline equation environment.
+multline = "multline"
+
+# The Paket dependency manager's canonical lockfile stem.
+paket = "paket"
+
+# Examples:
+#
+# egohygiene = "egohygiene"
+# devcontainer = "devcontainer"
+# codespaces = "codespaces"
+# taskfile = "taskfile"
+
+###############################################################################
+# File Filtering
+###############################################################################
+
+[files]
+
+# Ignore generated artifacts, dependency caches, build outputs, binaries,
+# archives, and other files that provide little value for spell checking.
+extend-exclude = [
+
+    # -------------------------------------------------------------------------
+    # Dependency lockfiles
+    # -------------------------------------------------------------------------
+    "Cargo.lock",
+    "Pipfile.lock",
+    "poetry.lock",
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "yarn.lock",
+
+    # -------------------------------------------------------------------------
+    # Dependency / package directories
+    # -------------------------------------------------------------------------
+    ".venv/",
+    "node_modules/",
+    "vendor/",
+
+    # -------------------------------------------------------------------------
+    # Build outputs
+    # -------------------------------------------------------------------------
+    "build/",
+    "coverage/",
+    "debug/",
+    "dist/",
+    "out/",
+    "release/",
+    "site/",
+    "public/",
+    "storybook-static/",
+    "target/",
+
+    # -------------------------------------------------------------------------
+    # Cache directories
+    # -------------------------------------------------------------------------
+    ".cache/",
+    ".eslintcache",
+    ".mypy_cache/",
+    ".nox/",
+    ".parcel-cache/",
+    ".pytest_cache/",
+    ".ruff_cache/",
+    ".sass-cache/",
+    ".tox/",
+
+    # -------------------------------------------------------------------------
+    # Tooling
+    # -------------------------------------------------------------------------
+    ".git/",
+    ".idea/",
+    ".next/",
+    ".nuxt/",
+    ".turbo/",
+    ".vscode/",
+
+    # -------------------------------------------------------------------------
+    # Prose-rule dictionaries intentionally catalog discouraged spellings
+    # -------------------------------------------------------------------------
+    ".config/lint/prose/styles/**",
+
+    # -------------------------------------------------------------------------
+    # Generated source
+    # -------------------------------------------------------------------------
+    "*.freezed.dart",
+    "*.g.dart",
+    "*.pb.cc",
+    "*.pb.go",
+    "*.pb.h",
+
+    # -------------------------------------------------------------------------
+    # Minified assets
+    # -------------------------------------------------------------------------
+    "*.min.css",
+    "*.min.js",
+
+    # -------------------------------------------------------------------------
+    # Images
+    # -------------------------------------------------------------------------
+    "*.avif",
+    "*.bmp",
+    "*.gif",
+    "*.icns",
+    "*.ico",
+    "*.jpeg",
+    "*.jpg",
+    "*.png",
+    "*.svg",
+    "*.tif",
+    "*.tiff",
+    "*.webp",
+
+    # -------------------------------------------------------------------------
+    # Documents
+    # -------------------------------------------------------------------------
+    "*.pdf",
+
+    # -------------------------------------------------------------------------
+    # Fonts
+    # -------------------------------------------------------------------------
+    "*.otf",
+    "*.ttf",
+    "*.woff",
+    "*.woff2",
+
+    # -------------------------------------------------------------------------
+    # Audio
+    # -------------------------------------------------------------------------
+    "*.flac",
+    "*.m4a",
+    "*.mp3",
+    "*.ogg",
+    "*.wav",
+
+    # -------------------------------------------------------------------------
+    # Video
+    # -------------------------------------------------------------------------
+    "*.avi",
+    "*.mkv",
+    "*.mov",
+    "*.mp4",
+    "*.webm",
+
+    # -------------------------------------------------------------------------
+    # Archives
+    # -------------------------------------------------------------------------
+    "*.7z",
+    "*.bz2",
+    "*.gz",
+    "*.rar",
+    "*.tar",
+    "*.xz",
+    "*.zip",
+]
+
+###############################################################################
+# Language Overrides
+###############################################################################
+
+[type.po]
+
+# Ignore gettext-style placeholders.
+extend-ignore-re = [
+    "%[sd]",
+]

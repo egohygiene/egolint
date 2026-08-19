@@ -1,0 +1,68 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+includes:
+  lint:
+    taskfile: ./tasks/lint.yml
+    flatten: false
+  complementary:
+    taskfile: ./tasks/complementary.yml
+    flatten: false
+
+tasks:
+  default:
+    desc: "Validate the standalone Egolint source and policy contracts"
+    cmds:
+      - task: verify
+
+  rust:fmt:
+    desc: "Check Rust formatting"
+    cmds:
+      - cargo fmt --all --check
+
+  rust:clippy:
+    desc: "Run the strict Rust lint profile"
+    cmds:
+      - cargo clippy --all-targets --all-features -- -D warnings
+
+  rust:test:
+    desc: "Run Rust unit and integration tests"
+    cmds:
+      - cargo test --all-targets --all-features
+
+  contracts:
+    desc: "Validate imported MegaLinter and complementary-tool contracts"
+    cmds:
+      - task: lint:contracts
+      - task: complementary:contracts
+
+  schemas:write:
+    desc: "Regenerate checked-in JSON Schemas from the Rust types"
+    cmds:
+      - cargo run --quiet --locked -- schema config > schemas/config.schema.json
+      - cargo run --quiet --locked -- schema plan > schemas/plan.schema.json
+      - cargo run --quiet --locked -- schema report > schemas/report.schema.json
+
+  schemas:check:
+    desc: "Fail when checked-in JSON Schemas differ from the Rust types"
+    cmds:
+      - |
+        temporary_directory="$(mktemp -d)"
+        trap 'rm -rf "$temporary_directory"' EXIT
+        for schema in config plan report; do
+          cargo run --quiet --locked -- schema "$schema" > "$temporary_directory/$schema.schema.json"
+          diff --unified \
+            "schemas/$schema.schema.json" \
+            "$temporary_directory/$schema.schema.json"
+        done
+
+  verify:
+    desc: "Run deterministic source, schema, policy, and test verification"
+    cmds:
+      - task: rust:fmt
+      - task: rust:clippy
+      - task: rust:test
+      - task: schemas:check
+      - task: contracts

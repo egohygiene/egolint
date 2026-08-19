@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+set -eu
+
+# @description Run fast staged-file fixes and the structural/security hook profile.
+repository_root="$(git rev-parse --show-toplevel)"
+cd "${repository_root}"
+
+sh scripts/pnpm.sh --dir . run lint-staged
+scripts/precommit.sh staged

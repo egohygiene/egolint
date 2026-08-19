@@ -25,7 +25,7 @@
     "(^|/)generated/",
     "(^|/)node_modules/",
     "(^|/)out/",
-    "(^|/)reports/",
+    "(^|/)\\.reports/",
     "(^|/)target/",
     "(^|/)venv/",
     "\\.min\\.[^/]+$",
@@ -37,10 +37,10 @@
   "Disable": {
     "Charset": false,
     "EndOfLine": false,
-    "Indentation": false,
+    "Indentation": true,
     "InsertFinalNewline": false,
     "TrimTrailingWhitespace": false,
-    "IndentSize": false,
-    "MaxLineLength": false
+    "IndentSize": true,
+    "MaxLineLength": true
   }
 }

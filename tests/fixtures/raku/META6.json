@@ -3,29 +3,20 @@
   "version": "0.1.0",
   "description": "Raku distribution fixture for validating compilation and module metadata.",
   "auth": "zef:egohygiene",
-  "authors": [
-    "Ego Hygiene Contributors"
-  ],
+  "authors": ["Ego Hygiene Contributors"],
   "license": "MIT",
   "meta-version": "1",
   "raku": "6.d",
   "depends": [],
-  "test-depends": [
-    "Test"
-  ],
+  "test-depends": ["Test"],
   "provides": {
     "EgoHygiene::Greeting": "lib/EgoHygiene/Greeting.rakumod"
   },
   "resources": [],
-  "source-url": "https://github.com/egohygiene/egohygiene.git",
+  "source-url": "https://github.com/egohygiene/egolint.git",
   "support": {
-    "source": "https://github.com/egohygiene/egohygiene",
-    "bugtracker": "https://github.com/egohygiene/egohygiene/issues"
+    "source": "https://github.com/egohygiene/egolint",
+    "bugtracker": "https://github.com/egohygiene/egolint/issues"
   },
-  "tags": [
-    "fixture",
-    "raku",
-    "testing"
-  ]
+  "tags": ["fixture", "raku", "testing"]
 }
-

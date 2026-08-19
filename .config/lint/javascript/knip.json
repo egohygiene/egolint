@@ -1,0 +1,13 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["src/**/*.{js,jsx,ts,tsx}", "tests/**/*.{js,jsx,ts,tsx}"],
+  "project": ["src/**/*.{js,jsx,ts,tsx}", "tests/**/*.{js,jsx,ts,tsx}"],
+  "ignore": [
+    ".cache/**",
+    ".reports/**",
+    "dist/**",
+    "node_modules/**",
+    "tests/fixtures/**"
+  ],
+  "include": ["dependencies", "devDependencies", "exports", "files", "types"]
+}

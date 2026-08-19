@@ -1,0 +1,17 @@
+# Egolint configuration contract. Every file layer must declare this version.
+config-version = 1
+
+profile = "fast"
+runtime = "auto"
+image = "ghcr.io/egohygiene/egolint-full:edge"
+pull-policy = "missing"
+network = "none"
+
+# A repository can select a local YAML policy. Local EXTENDS entries resolve
+# from the workspace root; Egolint rejects remote or absolute entries, command
+# hooks, plugins, and path escapes.
+# megalinter-config = ".mega-linter.yml"
+
+# Only non-secret values belong here. Values are passed to the lint container.
+[environment]
+# LOG_LEVEL = "info"

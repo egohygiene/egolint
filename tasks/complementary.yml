@@ -1,0 +1,142 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+vars:
+  COMPLEMENTARY_SCRIPT: "{{.ROOT_DIR}}/scripts/complementary_tools.py"
+
+tasks:
+  default:
+    desc: "Run every applicable complementary tool"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run-all'
+
+  all:
+    desc: "Run every applicable complementary tool"
+    cmds:
+      - task: default
+
+  contracts:
+    desc: "Validate the complementary inventory, fixtures, applicability, and generated matrix"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --check'
+
+  contracts:write:
+    desc: "Regenerate the complementary tool matrix"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --write'
+
+  status:
+    desc: "Show applicability and dependency status without executing tools"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --status'
+
+  versions:
+    desc: "Print the pinned complementary-tool version inventory"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --versions'
+
+  dependencies:python:
+    desc: "Install the locked complementary Python lint environment"
+    cmds:
+      - >-
+        uv sync --directory "{{.ROOT_DIR}}" --locked
+        --no-default-groups --group lint
+
+  dependencies:security:
+    desc: "Install the separately locked Python security group"
+    cmds:
+      - >-
+        uv sync --directory "{{.ROOT_DIR}}" --locked
+        --no-default-groups --group security
+
+  tombi:
+    desc: "Lint TOML with Tombi"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run tombi'
+
+  reuse:
+    desc: "Validate source licensing with REUSE"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run reuse'
+
+  commitlint:
+    desc: "Validate canonical commit-message fixtures"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run commitlint'
+
+  typos:
+    desc: "Detect identifier and prose typos"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run typos'
+
+  vacuum:
+    desc: "Lint OpenAPI and AsyncAPI descriptions with Vacuum"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run vacuum'
+
+  latexindent:
+    desc: "Check LaTeX formatting with latexindent"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run latexindent'
+
+  detect-secrets:
+    desc: "Scan against the reviewed Detect Secrets baseline"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run detect-secrets'
+
+  addlicense:
+    desc: "Validate compatible MIT/SPDX source headers"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run addlicense'
+
+  knip:
+    desc: "Analyze unused JavaScript and TypeScript project surface"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run knip'
+
+  deptry:
+    desc: "Analyze Python dependency declarations"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run deptry'
+
+  cargo-deny:
+    desc: "Validate Rust dependency licenses and sources"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run cargo-deny'
+
+  govulncheck:
+    desc: "Analyze reachable Go vulnerabilities"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run govulncheck'
+
+  buf:
+    desc: "Lint Buf Protocol Buffer modules"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run buf'
+
+  regal:
+    desc: "Lint Rego policies with Regal"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run regal'
+
+  conftest:
+    desc: "Evaluate policy-as-code assertions with Conftest"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run conftest'
+
+  vulture:
+    desc: "Detect high-confidence dead Python code"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run vulture'
+
+  interrogate:
+    desc: "Measure Python docstring coverage"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run interrogate'
+
+  complexipy:
+    desc: "Enforce Python cognitive-complexity thresholds"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run complexipy'

@@ -16,7 +16,7 @@
 # ==============================================================================
 
 cache:
-  dir: ".cache/trivy"
+  dir: ".reports/egolint/cache/trivy"
 
 timeout: "10m"
 quiet: false
@@ -46,7 +46,7 @@ scan:
   skip-dirs:
     - ".git"
     - ".cache"
-    - ".engineering/reports"
+    - ".reports"
 
     - "node_modules"
     - "vendor"

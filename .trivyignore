@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 Ego Hygiene
+# SPDX-License-Identifier: MIT
+
+# ==============================================================================
+# Trivy Exception Register
+# ==============================================================================
+#
+# Add suppressions only after documenting:
+# - the affected component;
+# - why the finding is not exploitable or is temporarily accepted;
+# - the responsible owner;
+# - and an expiration or review date.
+#
+# Prefer VEX or narrowly scoped exceptions over permanent global CVE ignores.

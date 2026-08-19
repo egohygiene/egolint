@@ -8,4 +8,3 @@ function greeting.format(name)
 end
 
 return greeting
-

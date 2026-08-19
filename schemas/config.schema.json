@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Config",
+  "description": "Fully resolved Egolint configuration.",
+  "type": "object",
+  "properties": {
+    "config-version": {
+      "description": "Configuration contract version.",
+      "type": "integer",
+      "const": 1,
+      "default": 1
+    },
+    "environment": {
+      "description": "Explicit, non-secret environment additions for the adapter.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {}
+    },
+    "image": {
+      "description": "Full Egolint image reference.",
+      "type": "string",
+      "default": "ghcr.io/egohygiene/egolint-full:edge"
+    },
+    "megalinter-config": {
+      "description": "Optional repository-local `MegaLinter` configuration file.",
+      "type": [
+        "string",
+        "null"
+      ],
+      "default": null
+    },
+    "network": {
+      "description": "Container network mode.",
+      "$ref": "#/$defs/NetworkMode",
+      "default": "none"
+    },
+    "profile": {
+      "description": "Default profile when no CLI override is supplied.",
+      "$ref": "#/$defs/Profile",
+      "default": "fast"
+    },
+    "pull-policy": {
+      "description": "Image pull behavior.",
+      "$ref": "#/$defs/PullPolicy",
+      "default": "missing"
+    },
+    "runtime": {
+      "description": "Container runtime selection.",
+      "$ref": "#/$defs/Runtime",
+      "default": "auto"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "config-version"
+  ],
+  "$defs": {
+    "NetworkMode": {
+      "description": "Network access granted to a lint container.",
+      "oneOf": [
+        {
+          "description": "Disable network access.",
+          "type": "string",
+          "const": "none"
+        },
+        {
+          "description": "Use the runtime's default bridge network.",
+          "type": "string",
+          "const": "bridge"
+        }
+      ]
+    },
+    "Profile": {
+      "description": "Built-in lint profiles.",
+      "oneOf": [
+        {
+          "description": "Small, deterministic changed-file feedback surface.",
+          "type": "string",
+          "const": "fast"
+        },
+        {
+          "description": "Complete repository and security inspection.",
+          "type": "string",
+          "const": "holistic"
+        }
+      ]
+    },
+    "PullPolicy": {
+      "description": "Container image pull behavior.",
+      "oneOf": [
+        {
+          "description": "Pull only when the image is absent.",
+          "type": "string",
+          "const": "missing"
+        },
+        {
+          "description": "Always request the current tag.",
+          "type": "string",
+          "const": "always"
+        },
+        {
+          "description": "Never access a registry.",
+          "type": "string",
+          "const": "never"
+        }
+      ]
+    },
+    "Runtime": {
+      "description": "Supported container runtimes.",
+      "oneOf": [
+        {
+          "description": "Prefer Docker, then Podman.",
+          "type": "string",
+          "const": "auto"
+        },
+        {
+          "description": "Use Docker.",
+          "type": "string",
+          "const": "docker"
+        },
+        {
+          "description": "Use Podman.",
+          "type": "string",
+          "const": "podman"
+        }
+      ]
+    }
+  }
+}

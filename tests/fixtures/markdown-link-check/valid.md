@@ -16,4 +16,3 @@ This fixture contains several valid link forms.
 The following development URL is intentionally ignored:
 
 - [Local application](http://localhost:3000/)
-

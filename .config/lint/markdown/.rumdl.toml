@@ -1,0 +1,8 @@
+[global]
+line-length = 100
+exclude = [
+  ".cache/**",
+  ".reports/**",
+  "tests/fixtures/negative/**",
+  "node_modules/**",
+]
