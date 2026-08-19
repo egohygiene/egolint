@@ -26,6 +26,6 @@
     "**/.terraform/**",
     "**/.serverless/**",
 
-    ".engineering/reports/**"
+    ".reports/**"
   ]
 }

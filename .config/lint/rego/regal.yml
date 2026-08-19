@@ -1,0 +1,18 @@
+---
+rules:
+  bugs:
+    level: error
+  idiomatic:
+    level: error
+  imports:
+    level: error
+  performance:
+    level: error
+  style:
+    level: warning
+
+ignore:
+  files:
+    - ".cache/**"
+    - ".reports/**"
+    - "tests/fixtures/negative/**"

@@ -1,0 +1,601 @@
+{
+  "schema_version": 1,
+  "generated_matrix": ".config/toolchain/tool-matrix.json",
+  "report_root": ".reports/egolint/complementary",
+  "result_statuses": [
+    "applicable",
+    "not_applicable",
+    "missing_dependency",
+    "deliberately_disabled",
+    "passed",
+    "failed_findings",
+    "execution_error",
+    "timed_out"
+  ],
+  "tools": [
+    {
+      "id": "tombi",
+      "name": "Tombi",
+      "category": "configuration",
+      "version": "1.2.10",
+      "state": "enabled",
+      "configuration_path": ".config/tombi.toml",
+      "runtime": "uvx",
+      "command": [
+        "uvx",
+        "--from",
+        "tombi==1.2.10",
+        "tombi",
+        "lint",
+        "--offline",
+        "."
+      ],
+      "version_command": [
+        "uvx",
+        "--from",
+        "tombi==1.2.10",
+        "tombi",
+        "--version"
+      ],
+      "applicability": { "marker_groups": [["**/*.toml"]] },
+      "fixtures": {
+        "positive": ["tests/fixtures/tombi/valid.toml"],
+        "negative": ["tests/fixtures/negative/tombi/invalid.toml"],
+        "expected_rule": "toml-syntax"
+      },
+      "report_path": ".reports/egolint/complementary/tombi/latest.json",
+      "reason": "Canonical TOML parser, linter, formatter, and language server."
+    },
+    {
+      "id": "reuse",
+      "name": "REUSE",
+      "category": "licensing",
+      "version": "6.2.0",
+      "state": "enabled",
+      "configuration_path": "REUSE.toml",
+      "runtime": "uvx",
+      "command": ["uvx", "--from", "reuse==6.2.0", "reuse", "lint"],
+      "version_command": [
+        "uvx",
+        "--from",
+        "reuse==6.2.0",
+        "reuse",
+        "--version"
+      ],
+      "applicability": { "marker_groups": [["REUSE.toml"]] },
+      "fixtures": {
+        "positive": ["LICENSES/MIT.txt", "REUSE.toml"],
+        "negative": [],
+        "blocker": "A deliberately noncompliant file would invalidate the repository-wide REUSE scan."
+      },
+      "report_path": ".reports/egolint/complementary/reuse/latest.json",
+      "reason": "Canonical source-file copyright and license authority."
+    },
+    {
+      "id": "commitlint",
+      "name": "Commitlint",
+      "category": "commits",
+      "version": "21.2.1",
+      "state": "enabled",
+      "configuration_path": ".config/lint/commits/commitlint.emoji.config.cjs",
+      "runtime": "node",
+      "command": [
+        "sh",
+        "scripts/pnpm.sh",
+        "--dir",
+        ".",
+        "run",
+        "commitlint:test"
+      ],
+      "version_command": [
+        "sh",
+        "scripts/pnpm.sh",
+        "--dir",
+        ".",
+        "exec",
+        "commitlint",
+        "--version"
+      ],
+      "applicability": { "marker_groups": [] },
+      "fixtures": {
+        "positive": ["tests/fixtures/commitlint/messages.json"],
+        "negative": ["tests/fixtures/commitlint/messages.json"],
+        "expected_rule": "canonical-message-fixtures"
+      },
+      "report_path": ".reports/egolint/complementary/commitlint/latest.json",
+      "reason": "Canonical emoji Conventional Commit policy."
+    },
+    {
+      "id": "typos",
+      "name": "typos",
+      "category": "prose",
+      "version": "1.32.0",
+      "state": "enabled",
+      "configuration_path": ".typos.toml",
+      "runtime": "pre-commit",
+      "command": ["scripts/precommit.sh", "all", "typos"],
+      "version_command": ["scripts/precommit.sh", "all", "typos"],
+      "applicability": { "marker_groups": [] },
+      "fixtures": {
+        "positive": ["tests/fixtures/cspell/valid.txt"],
+        "negative": [
+          "tests/fixtures/negative/codespell/misspelled.txt"
+        ],
+        "expected_rule": "identifier-typo"
+      },
+      "report_path": ".reports/egolint/complementary/typos/latest.json",
+      "reason": "Conservative identifier and prose typo detection."
+    },
+    {
+      "id": "vacuum",
+      "name": "Vacuum",
+      "category": "api",
+      "version": "0.30.0",
+      "state": "conditional",
+      "configuration_path": ".config/lint/api/spectral.yaml",
+      "runtime": "go",
+      "command": [
+        "go",
+        "run",
+        "github.com/daveshanley/vacuum@v0.30.0",
+        "lint",
+        "--ruleset",
+        ".config/lint/api/spectral.yaml",
+        "{files}"
+      ],
+      "version_command": [
+        "go",
+        "run",
+        "github.com/daveshanley/vacuum@v0.30.0",
+        "--version"
+      ],
+      "applicability": {
+        "marker_groups": [
+          [
+            "**/openapi*.yml",
+            "**/openapi*.yaml",
+            "**/openapi*.json",
+            "**/asyncapi*.yml",
+            "**/asyncapi*.yaml"
+          ]
+        ]
+      },
+      "fixtures": {
+        "positive": ["tests/fixtures/vacuum/openapi.yml"],
+        "negative": ["tests/fixtures/negative/vacuum/openapi.yml"],
+        "expected_rule": "spectral-oas"
+      },
+      "report_path": ".reports/egolint/complementary/vacuum/latest.json",
+      "reason": "Spectral-compatible API linting using the preserved canonical ruleset."
+    },
+    {
+      "id": "latexindent",
+      "name": "latexindent",
+      "category": "latex",
+      "version": "4.0",
+      "state": "conditional",
+      "configuration_path": ".config/lint/latex/latexindent.yml",
+      "runtime": "latexindent",
+      "command": ["scripts/latexindent.sh", "check"],
+      "version_command": ["latexindent", "--version"],
+      "applicability": {
+        "marker_groups": [["**/*.tex", "**/*.sty", "**/*.cls", "**/*.bib"]]
+      },
+      "fixtures": {
+        "positive": ["tests/fixtures/latexindent/example.tex"],
+        "negative": [
+          "tests/fixtures/negative/latexindent/unformatted.tex"
+        ],
+        "expected_rule": "format-diff"
+      },
+      "report_path": ".reports/egolint/complementary/latexindent/latest.json",
+      "reason": "Canonical LaTeX formatter outside MegaLinter's descriptor inventory."
+    },
+    {
+      "id": "detect-secrets",
+      "name": "detect-secrets",
+      "category": "security-source",
+      "version": "1.5.0",
+      "state": "enabled",
+      "configuration_path": ".secrets.baseline",
+      "runtime": "pre-commit",
+      "command": ["scripts/precommit.sh", "all", "detect-secrets"],
+      "version_command": [
+        "uvx",
+        "--from",
+        "detect-secrets==1.5.0",
+        "detect-secrets",
+        "--version"
+      ],
+      "applicability": { "marker_groups": [[".secrets.baseline"]] },
+      "fixtures": {
+        "positive": ["tests/fixtures/gitleaks/valid.env.example"],
+        "negative": [
+          "tests/fixtures/negative/kingfisher/fake-secret.env.example"
+        ],
+        "expected_rule": "high-entropy-or-pattern-secret"
+      },
+      "report_path": ".reports/egolint/complementary/detect-secrets/latest.json",
+      "reason": "Fast reviewed-baseline secret gate for staged and repository scans."
+    },
+    {
+      "id": "addlicense",
+      "name": "addlicense",
+      "category": "licensing",
+      "version": "1.2.0",
+      "state": "enabled",
+      "configuration_path": ".pre-commit-config.yaml",
+      "runtime": "pre-commit",
+      "command": ["scripts/precommit.sh", "all", "addlicense"],
+      "version_command": [
+        "go",
+        "run",
+        "github.com/google/addlicense@v1.2.0",
+        "-help"
+      ],
+      "applicability": { "marker_groups": [] },
+      "fixtures": {
+        "positive": ["scripts/precommit.sh"],
+        "negative": [],
+        "blocker": "Negative first-party source would intentionally violate the repository header gate."
+      },
+      "report_path": ".reports/egolint/complementary/addlicense/latest.json",
+      "reason": "Compatible MIT/SPDX header insertion; REUSE remains the licensing authority."
+    },
+    {
+      "id": "knip",
+      "name": "Knip",
+      "category": "javascript-project",
+      "version": "6.32.1",
+      "state": "conditional",
+      "configuration_path": ".config/lint/javascript/knip.json",
+      "runtime": "node",
+      "command": [
+        "sh",
+        "scripts/pnpm.sh",
+        "--dir",
+        ".",
+        "exec",
+        "knip",
+        "--config",
+        ".config/lint/javascript/knip.json",
+        "--include-entry-exports"
+      ],
+      "version_command": [
+        "sh",
+        "scripts/pnpm.sh",
+        "--dir",
+        ".",
+        "exec",
+        "knip",
+        "--version"
+      ],
+      "applicability": {
+        "marker_groups": [
+          ["package.json", "**/package.json"],
+          ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"]
+        ]
+      },
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/knip/package.json",
+          "tests/fixtures/knip/src/index.js"
+        ],
+        "negative": [
+          "tests/fixtures/negative/knip/package.json",
+          "tests/fixtures/negative/knip/src/unused.js"
+        ],
+        "expected_rule": "unused-export"
+      },
+      "report_path": ".reports/egolint/complementary/knip/latest.json",
+      "reason": "Runs only for a real JavaScript or TypeScript project with source markers."
+    },
+    {
+      "id": "deptry",
+      "name": "deptry",
+      "category": "python-project",
+      "version": "0.24.0",
+      "state": "conditional",
+      "configuration_path": null,
+      "runtime": "uvx",
+      "command": [
+        "uvx",
+        "--from",
+        "deptry==0.24.0",
+        "deptry",
+        ".",
+        "--no-ansi"
+      ],
+      "version_command": [
+        "uvx",
+        "--from",
+        "deptry==0.24.0",
+        "deptry",
+        "--version"
+      ],
+      "applicability": {
+        "marker_groups": [["pyproject.toml"], ["src/**/*.py"]]
+      },
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/deptry/pyproject.toml",
+          "tests/fixtures/deptry/src/example/__init__.py"
+        ],
+        "negative": [
+          "tests/fixtures/negative/deptry/pyproject.toml",
+          "tests/fixtures/negative/deptry/src/example/__init__.py"
+        ],
+        "expected_rule": "DEP001"
+      },
+      "report_path": ".reports/egolint/complementary/deptry/latest.json",
+      "reason": "Project-local pyproject.toml is the native configuration and dependency source."
+    },
+    {
+      "id": "cargo-deny",
+      "name": "cargo-deny",
+      "category": "rust-project",
+      "version": "0.20.2",
+      "state": "conditional",
+      "configuration_path": ".config/lint/rust/deny.toml",
+      "runtime": "cargo-deny",
+      "command": [
+        "cargo",
+        "deny",
+        "--config",
+        ".config/lint/rust/deny.toml",
+        "check",
+        "bans",
+        "licenses",
+        "sources"
+      ],
+      "version_command": ["cargo", "deny", "--version"],
+      "applicability": {
+        "marker_groups": [["Cargo.toml", "**/Cargo.toml"], ["src/**/*.rs"]]
+      },
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/clippy/Cargo.toml",
+          "tests/fixtures/clippy/src/lib.rs"
+        ],
+        "negative": ["tests/fixtures/negative/cargo-deny/deny.toml"],
+        "expected_rule": "configuration-error"
+      },
+      "report_path": ".reports/egolint/complementary/cargo-deny/latest.json",
+      "reason": "Rust dependency license, source, and duplicate-version policy."
+    },
+    {
+      "id": "govulncheck",
+      "name": "govulncheck",
+      "category": "go-project",
+      "version": "1.1.4",
+      "state": "conditional",
+      "configuration_path": null,
+      "runtime": "go",
+      "command": [
+        "go",
+        "run",
+        "golang.org/x/vuln/cmd/govulncheck@v1.1.4",
+        "./..."
+      ],
+      "version_command": [
+        "go",
+        "run",
+        "golang.org/x/vuln/cmd/govulncheck@v1.1.4",
+        "-version"
+      ],
+      "applicability": {
+        "marker_groups": [["go.mod", "**/go.mod"], ["**/*.go"]]
+      },
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/govulncheck/go.mod",
+          "tests/fixtures/govulncheck/main.go"
+        ],
+        "negative": [],
+        "blocker": "A deterministic vulnerable fixture would depend on the time-varying Go vulnerability database."
+      },
+      "report_path": ".reports/egolint/complementary/govulncheck/latest.json",
+      "reason": "Call-graph-aware Go vulnerability analysis for actual Go modules."
+    },
+    {
+      "id": "buf",
+      "name": "Buf",
+      "category": "protobuf-project",
+      "version": "1.72.0",
+      "state": "conditional",
+      "configuration_path": null,
+      "runtime": "buf",
+      "command": ["buf", "lint"],
+      "version_command": ["buf", "--version"],
+      "applicability": {
+        "marker_groups": [["buf.yaml", "**/buf.yaml"], ["**/*.proto"]]
+      },
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/buf/buf.yaml",
+          "tests/fixtures/buf/greeting.proto"
+        ],
+        "negative": ["tests/fixtures/negative/buf/greeting.proto"],
+        "expected_rule": "PACKAGE_DIRECTORY_MATCH"
+      },
+      "report_path": ".reports/egolint/complementary/buf/latest.json",
+      "reason": "Project-aware Protocol Buffer module linting; Protolint remains MegaLinter-native."
+    },
+    {
+      "id": "regal",
+      "name": "Regal",
+      "category": "rego-project",
+      "version": "0.42.0",
+      "state": "conditional",
+      "configuration_path": ".config/lint/rego/regal.yml",
+      "runtime": "regal",
+      "command": [
+        "regal",
+        "lint",
+        "--config-file",
+        ".config/lint/rego/regal.yml",
+        "{files}"
+      ],
+      "version_command": ["regal", "version"],
+      "applicability": { "marker_groups": [["**/*.rego"]] },
+      "fixtures": {
+        "positive": ["tests/fixtures/regal/policy.rego"],
+        "negative": ["tests/fixtures/negative/regal/policy.rego"],
+        "expected_rule": "opa-fmt"
+      },
+      "report_path": ".reports/egolint/complementary/regal/latest.json",
+      "reason": "Canonical Rego style and language analysis."
+    },
+    {
+      "id": "conftest",
+      "name": "Conftest",
+      "category": "policy-test",
+      "version": "0.69.0",
+      "state": "conditional",
+      "configuration_path": ".config/lint/rego/conftest.toml",
+      "runtime": "conftest",
+      "command": [
+        "conftest",
+        "test",
+        "--config-file",
+        ".config/lint/rego/conftest.toml",
+        "{files}"
+      ],
+      "version_command": ["conftest", "--version"],
+      "applicability": {
+        "marker_groups": [
+          ["policy/**/*.rego", "**/policy/**/*.rego"],
+          [
+            "policy-inputs/**/*.json",
+            "policy-inputs/**/*.yml",
+            "policy-inputs/**/*.yaml"
+          ]
+        ]
+      },
+      "target_patterns": [
+        "policy-inputs/**/*.json",
+        "policy-inputs/**/*.yml",
+        "policy-inputs/**/*.yaml"
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/conftest/policy/main.rego",
+          "tests/fixtures/conftest/valid.yml"
+        ],
+        "negative": ["tests/fixtures/negative/conftest/invalid.yml"],
+        "expected_rule": "deny"
+      },
+      "report_path": ".reports/egolint/complementary/conftest/latest.json",
+      "reason": "Policy-as-code assertions for repositories that carry policies and matching inputs."
+    },
+    {
+      "id": "vulture",
+      "name": "Vulture",
+      "category": "python-project",
+      "version": "2.16",
+      "state": "conditional",
+      "configuration_path": ".config/lint/python/complementary.toml",
+      "runtime": "uvx",
+      "command": [
+        "uvx",
+        "--from",
+        "vulture==2.16",
+        "vulture",
+        "src",
+        "--config",
+        ".config/lint/python/complementary.toml"
+      ],
+      "version_command": [
+        "uvx",
+        "--from",
+        "vulture==2.16",
+        "vulture",
+        "--version"
+      ],
+      "applicability": {
+        "marker_groups": [["pyproject.toml"], ["src/**/*.py"]]
+      },
+      "fixtures": {
+        "positive": ["tests/fixtures/vulture/valid.py"],
+        "negative": ["tests/fixtures/negative/vulture/unused.py"],
+        "expected_rule": "unused-code"
+      },
+      "report_path": ".reports/egolint/complementary/vulture/latest.json",
+      "reason": "High-confidence dead Python code analysis."
+    },
+    {
+      "id": "interrogate",
+      "name": "interrogate",
+      "category": "python-project",
+      "version": "1.7.0",
+      "state": "conditional",
+      "configuration_path": ".config/lint/python/complementary.toml",
+      "runtime": "uvx",
+      "command": [
+        "uvx",
+        "--from",
+        "interrogate==1.7.0",
+        "interrogate",
+        "--config",
+        ".config/lint/python/complementary.toml",
+        "src"
+      ],
+      "version_command": [
+        "uvx",
+        "--from",
+        "interrogate==1.7.0",
+        "interrogate",
+        "--version"
+      ],
+      "applicability": {
+        "marker_groups": [["pyproject.toml"], ["src/**/*.py"]]
+      },
+      "fixtures": {
+        "positive": ["tests/fixtures/interrogate/documented.py"],
+        "negative": [
+          "tests/fixtures/negative/interrogate/undocumented.py"
+        ],
+        "expected_rule": "docstring-coverage"
+      },
+      "report_path": ".reports/egolint/complementary/interrogate/latest.json",
+      "reason": "Python docstring coverage with a shared explicit threshold."
+    },
+    {
+      "id": "complexipy",
+      "name": "complexipy",
+      "category": "python-project",
+      "version": "7.0.0",
+      "state": "conditional",
+      "configuration_path": null,
+      "runtime": "uvx",
+      "command": [
+        "uvx",
+        "--from",
+        "complexipy==7.0.0",
+        "complexipy",
+        "src",
+        "--max-complexity-allowed",
+        "15",
+        "--failed",
+        "--plain"
+      ],
+      "version_command": [
+        "uvx",
+        "--from",
+        "complexipy==7.0.0",
+        "complexipy",
+        "--version"
+      ],
+      "applicability": {
+        "marker_groups": [["pyproject.toml"], ["src/**/*.py"]]
+      },
+      "fixtures": {
+        "positive": ["tests/fixtures/complexipy/simple.py"],
+        "negative": ["tests/fixtures/negative/complexipy/complex.py"],
+        "expected_rule": "complexity-threshold"
+      },
+      "report_path": ".reports/egolint/complementary/complexipy/latest.json",
+      "reason": "Cognitive-complexity enforcement for packaged Python source trees."
+    }
+  ]
+}

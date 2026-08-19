@@ -32,4 +32,3 @@ type Query {
     input: GreetingInput!
   ): Greeting!
 }
-

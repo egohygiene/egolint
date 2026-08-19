@@ -13,7 +13,7 @@
 **/.cache/**
 
 # Reports
-.engineering/reports/**
+.reports/**
 
 # Migration snapshots
 **/migrations/**

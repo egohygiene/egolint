@@ -34,7 +34,7 @@ exclude =
     target
     vendor
     venv
-    .engineering/reports
+    .reports
 
 count = true
 statistics = true

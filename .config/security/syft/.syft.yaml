@@ -24,7 +24,7 @@ log:
   level: "warn"
 
 cache:
-  dir: ".cache/syft"
+  dir: ".reports/egolint/cache/syft"
   ttl: "7d"
 
 # ------------------------------------------------------------------------------
@@ -33,8 +33,8 @@ cache:
 
 # Generate both primary interoperability formats as separate report files.
 output:
-  - "spdx-json=.engineering/reports/megalinter/syft/sbom.spdx.json"
-  - "cyclonedx-json=.engineering/reports/megalinter/syft/sbom.cyclonedx.json"
+  - "spdx-json=.reports/egolint/syft/sbom.spdx.json"
+  - "cyclonedx-json=.reports/egolint/syft/sbom.cyclonedx.json"
 
 format:
   pretty: true
@@ -120,7 +120,7 @@ source:
 exclude:
   - "./.git/**"
   - "./.cache/**"
-  - "./.engineering/reports/**"
+  - "./.reports/**"
 
   - "./**/node_modules/**"
   - "./**/vendor/**"

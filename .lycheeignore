@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2026 Ego Hygiene
+# SPDX-License-Identifier: MIT
+
+# ==============================================================================
+# Lychee Exception Register
+# ==============================================================================
+#
+# Each entry may be a URL, glob, or regular expression.
+# Add exclusions only for destinations that are intentionally unavailable to
+# automated clients, and document why the exception exists.
+
+# LinkedIn commonly rejects automated link-checking clients.
+^https://(www\.)?linkedin\.com/
+
+# Salesforce developer docs return 403 for automated clients.
+^https://developer\.salesforce\.com/
+
+# npmjs.com/support returns 403 for automated clients.
+^https://www\.npmjs\.com/support
+
+# The CoffeeLint MegaLinter descriptor was removed; the reference URL is a
+# retained comment pointing to the original descriptor location.
+^https://megalinter\.io/latest/descriptors/coffee_coffee_lint/
+
+# egohygiene.io and egohygiene.github.io are placeholder domains and GitHub
+# Pages that are not yet deployed.
+^https?://egohygiene\.io/
+^https?://egohygiene\.github\.io/
+
+# URLs containing unexpanded shell-variable references (e.g. ${VAR}) are
+# template strings in scripts, not real hyperlinks.
+\$\{[^}]+\}
+
+# https://github/ (without a hostname path) is an invalid URL that lychee may
+# extract from malformed text; it is not a resolvable endpoint.
+^https://github/$

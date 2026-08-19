@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PlanView",
+  "description": "Public, redacted execution plan suitable for JSON output.",
+  "type": "object",
+  "properties": {
+    "argv": {
+      "description": "Redacted argument vector. This is evidence, not shell syntax.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "config_sources": {
+      "description": "Ordered configuration provenance.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "image": {
+      "description": "Immutable or tagged image reference requested by configuration.",
+      "type": "string"
+    },
+    "operation": {
+      "description": "Check or fix capability.",
+      "$ref": "#/$defs/Operation"
+    },
+    "profile": {
+      "description": "Selected named profile.",
+      "$ref": "#/$defs/Profile"
+    },
+    "report_directory": {
+      "description": "Workspace-relative report directory.",
+      "type": "string"
+    },
+    "runtime": {
+      "description": "Container runtime executable.",
+      "type": "string"
+    },
+    "schema_version": {
+      "description": "Output contract version.",
+      "type": "integer",
+      "format": "uint32",
+      "minimum": 0
+    },
+    "workspace": {
+      "description": "Canonical host workspace.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "operation",
+    "profile",
+    "runtime",
+    "image",
+    "workspace",
+    "report_directory",
+    "config_sources",
+    "argv"
+  ],
+  "$defs": {
+    "Operation": {
+      "description": "Requested lint operation and its workspace write capability.",
+      "oneOf": [
+        {
+          "description": "Analyze without granting broad workspace writes.",
+          "type": "string",
+          "const": "check"
+        },
+        {
+          "description": "Explicitly allow tools to update workspace files.",
+          "type": "string",
+          "const": "fix"
+        }
+      ]
+    },
+    "Profile": {
+      "description": "Built-in lint profiles.",
+      "oneOf": [
+        {
+          "description": "Small, deterministic changed-file feedback surface.",
+          "type": "string",
+          "const": "fast"
+        },
+        {
+          "description": "Complete repository and security inspection.",
+          "type": "string",
+          "const": "holistic"
+        }
+      ]
+    }
+  }
+}

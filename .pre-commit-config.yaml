@@ -1,0 +1,342 @@
+---
+# Canonical Egolint pre-commit profile.
+#
+# Run from the repository root with:
+#   pre-commit run --config .pre-commit-config.yaml --all-files
+
+minimum_pre_commit_version: "4.6.0"
+fail_fast: false
+default_stages:
+  - manual
+
+exclude: |-
+  (?x)^(
+    \.git/.*
+    |\.cache/.*
+    |\.reports/.*
+    |tests/fixtures/.*
+    |.*\.lock$
+    |.*node_modules/.*
+    |.*(?:\.venv|venv)/.*
+    |.*(?:build|coverage|dist|target)/.*
+  )$
+
+default_language_version:
+  python: python3.12
+
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+        name: "security · detect committed secrets"
+        args:
+          - --config=.config/security/gitleaks/.gitleaks.toml
+        stages:
+          - manual
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        name: "security · reject secrets outside the reviewed baseline"
+        args:
+          - --baseline
+          - .secrets.baseline
+        stages:
+          - manual
+          - pre-commit
+
+  - repo: https://github.com/google/addlicense
+    rev: v1.2.0
+    hooks:
+      - id: addlicense
+        name: "license · require MIT SPDX headers in first-party source"
+        args:
+          - -check
+          - -c
+          - Ego Hygiene
+          - -l
+          - mit
+          - -s=only
+          - -y
+          - "2026"
+        files: >-
+          \.(bash|c|cc|cjs|cpp|cs|css|go|h|hpp|java|js|jsx|mjs|php|py|rb|rs|sh|ts|tsx|zsh)$
+        stages:
+          - manual
+          - pre-commit
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        name: "filesystem · block unexpectedly large files"
+        args:
+          - --maxkb=5000
+        stages:
+          - manual
+          - pre-commit
+      - id: check-case-conflict
+        name: "filesystem · detect case conflicts"
+        stages:
+          - manual
+          - pre-commit
+      - id: check-executables-have-shebangs
+        name: "filesystem · require executable shebangs"
+        stages:
+          - manual
+          - pre-commit
+      - id: check-illegal-windows-names
+        name: "filesystem · reject illegal Windows names"
+        stages:
+          - manual
+          - pre-commit
+      - id: check-json
+        name: "configuration · validate JSON"
+        exclude: >-
+          (^|/)(\.devcontainer|\.vscode)/.*\.json$
+        stages:
+          - manual
+      - id: check-merge-conflict
+        name: "git · detect merge markers"
+        stages:
+          - manual
+          - pre-commit
+      - id: check-shebang-scripts-are-executable
+        name: "filesystem · require executable script modes"
+        stages:
+          - manual
+          - pre-commit
+      - id: check-symlinks
+        name: "filesystem · validate symlinks"
+        stages:
+          - manual
+          - pre-commit
+      - id: check-toml
+        name: "configuration · validate TOML"
+        stages:
+          - manual
+      - id: check-yaml
+        name: "configuration · validate YAML"
+        args:
+          - --allow-multiple-documents
+        stages:
+          - manual
+      - id: destroyed-symlinks
+        name: "filesystem · detect destroyed symlinks"
+        stages:
+          - manual
+          - pre-commit
+      - id: end-of-file-fixer
+        name: "filesystem · require final newlines"
+        stages:
+          - manual
+      - id: forbid-new-submodules
+        name: "git · reject new submodules"
+        stages:
+          - manual
+          - pre-commit
+      - id: mixed-line-ending
+        name: "filesystem · normalize line endings"
+        args:
+          - --fix=lf
+        stages:
+          - manual
+      - id: no-commit-to-branch
+        name: "git · protect default branches"
+        args:
+          - --branch=main
+          - --branch=master
+        stages:
+          - manual
+          - pre-commit
+      - id: trailing-whitespace
+        name: "filesystem · trim trailing whitespace"
+        args:
+          - --markdown-linebreak-ext=md
+        stages:
+          - manual
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.2
+    hooks:
+      - id: ruff
+        name: "python · lint and apply safe fixes"
+        args:
+          - --config=.config/lint/python/ruff.toml
+          - --fix
+        stages:
+          - manual
+      - id: ruff-format
+        name: "python · format"
+        args:
+          - --config=.config/lint/python/ruff.toml
+        stages:
+          - manual
+
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.9.1
+    hooks:
+      - id: nbqa-ruff
+        name: "notebook · lint with Ruff"
+        args:
+          - --config=.config/lint/python/ruff.toml
+          - --fix
+        stages:
+          - manual
+      - id: nbqa-ruff-format
+        name: "notebook · format with Ruff"
+        args:
+          - --config=.config/lint/python/ruff.toml
+        stages:
+          - manual
+
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.25
+    hooks:
+      - id: validate-pyproject
+        name: "python · validate pyproject metadata"
+        additional_dependencies:
+          - validate-pyproject-schema-store[all]
+        stages:
+          - manual
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.9.6
+    hooks:
+      - id: prettier
+        name: "formatting · enforce prettier code style"
+        args:
+          - --config=.config/lint/javascript/prettier.config.mjs
+        stages:
+          - manual
+          - pre-commit
+
+  - repo: https://github.com/biomejs/pre-commit
+    rev: v0.6.1
+    hooks:
+      - id: biome-check
+        name: "web · lint and format with Biome"
+        additional_dependencies:
+          - "@biomejs/biome@2.5.5"
+        stages:
+          - manual
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.49.1
+    hooks:
+      - id: markdownlint
+        name: "markdown · validate style"
+        args:
+          - --config=.config/lint/markdown/.markdownlint.json
+        stages:
+          - manual
+
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 1.0.0
+    hooks:
+      - id: mdformat
+        name: "markdown · format"
+        stages:
+          - manual
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+        name: "shell · analyze scripts"
+        args:
+          - --rcfile=.config/lint/shell/shellcheckrc
+        stages:
+          - manual
+
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        name: "dockerfile · analyze images"
+        args:
+          - --config=.config/lint/dockerfile/hadolint.yaml
+        stages:
+          - manual
+
+  - repo: https://github.com/openstack/bashate
+    rev: 2.1.1
+    hooks:
+      - id: bashate
+        name: "shell · validate style compatibility"
+        args:
+          - --ignore=E006
+        stages:
+          - manual
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.37.3
+    hooks:
+      - id: check-github-actions
+        name: "github · validate action metadata schemas"
+        stages:
+          - manual
+      - id: check-github-workflows
+        name: "github · validate workflow schemas"
+        stages:
+          - manual
+      - id: check-taskfile
+        name: "task · validate Taskfile schemas"
+        stages:
+          - manual
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.2
+    hooks:
+      - id: codespell
+        name: "prose · detect misspellings"
+        args:
+          - --config=.config/lint/prose/spell/.codespellrc
+        additional_dependencies:
+          - tomli
+        stages:
+          - manual
+
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.32.0
+    hooks:
+      - id: typos
+        name: "prose · detect identifier typos"
+        args:
+          - --config=.typos.toml
+        exclude: ^\.config/lint/prose/styles/
+        stages:
+          - manual
+
+  - repo: local
+    hooks:
+      - id: commitlint
+        name: "git · validate commit message"
+        entry: >-
+          sh scripts/pnpm.sh --dir . run commitlint --edit
+        language: system
+        stages:
+          - commit-msg
+
+  - repo: https://github.com/fsfe/reuse-tool
+    rev: v6.2.0
+    hooks:
+      - id: reuse
+        name: "license · validate REUSE metadata"
+        stages:
+          - manual
+          - pre-commit
+
+ci:
+  autofix_commit_msg: |-
+    chore(lint): 🧹 apply pre-commit fixes
+
+    [skip ci]
+  autofix_prs: true
+  autoupdate_commit_msg: "chore(dependencies): ⬆️ update pre-commit hooks"
+  autoupdate_schedule: monthly
+  skip:
+    - commitlint
+  submodules: false

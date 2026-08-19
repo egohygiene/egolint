@@ -7,11 +7,8 @@ namespace fixtures
 
 class GreetingService
 {
- public:
-  explicit GreetingService(std::string prefix)
-      : prefix_(std::move(prefix))
-  {
-  }
+public:
+  explicit GreetingService(std::string prefix) : prefix_(std::move(prefix)) {}
 
   [[nodiscard]] std::string create_greeting(const std::string& name) const
   {
@@ -23,7 +20,7 @@ class GreetingService
     return prefix_ + ", " + name + "!";
   }
 
- private:
+private:
   std::string prefix_;
 };
 
@@ -45,4 +42,3 @@ int main()
 
   return 0;
 }
-

@@ -5,45 +5,21 @@
     "remark-preset-lint-consistent",
     "remark-frontmatter",
 
-    [
-      "remark-lint-file-extension",
-      "md"
-    ],
+    ["remark-lint-file-extension", "md"],
 
-    [
-      "remark-lint-unordered-list-marker-style",
-      "-"
-    ],
+    ["remark-lint-unordered-list-marker-style", "-"],
 
-    [
-      "remark-lint-ordered-list-marker-value",
-      "one"
-    ],
+    ["remark-lint-ordered-list-marker-value", "one"],
 
-    [
-      "remark-lint-rule-style",
-      "-"
-    ],
+    ["remark-lint-rule-style", "-"],
 
-    [
-      "remark-lint-emphasis-marker",
-      "*"
-    ],
+    ["remark-lint-emphasis-marker", "*"],
 
-    [
-      "remark-lint-strong-marker",
-      "*"
-    ],
+    ["remark-lint-strong-marker", "*"],
 
-    [
-      "remark-lint-no-empty-url",
-      true
-    ],
+    ["remark-lint-no-empty-url", true],
 
-    [
-      "remark-lint-maximum-line-length",
-      false
-    ]
+    ["remark-lint-maximum-line-length", false]
   ],
 
   "settings": {

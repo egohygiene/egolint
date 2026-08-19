@@ -1,0 +1,5 @@
+syntax = "proto3"
+
+message missing_package_and_semicolon {
+  string name = 1;
+}

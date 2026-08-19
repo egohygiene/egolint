@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 Ego Hygiene
+# SPDX-License-Identifier: MIT
+
+# Dependencies
+**/node_modules/**
+**/vendor/**
+
+# Generated output
+**/build/**
+**/dist/**
+**/coverage/**
+**/generated/**
+**/.cache/**
+
+# Reports
+.reports/**

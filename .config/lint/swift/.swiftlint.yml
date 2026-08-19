@@ -159,8 +159,8 @@ excluded:
   # Repository runtime output
   - "../../../.cache"
   - "../../../.cache/**"
-  - "../../../.engineering/reports"
-  - "../../../.engineering/reports/**"
+  - "../../../.reports"
+  - "../../../.reports/**"
 
   # Common generated Swift source
   - "../../../**/*.generated.swift"

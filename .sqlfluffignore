@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: 2026 Ego Hygiene
+# SPDX-License-Identifier: MIT
+
+# Dependencies
+**/node_modules/**
+**/vendor/**
+
+# Generated and cached output
+**/build/**
+**/dist/**
+**/out/**
+**/target/**
+**/coverage/**
+**/generated/**
+**/.cache/**
+
+# Tool reports
+.reports/**
+
+# dbt output and downloaded packages
+**/dbt_packages/**
+**/target/**
+**/logs/**

@@ -20,4 +20,3 @@ workflow:
     push:
       branches:
         - "main"
-

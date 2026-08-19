@@ -40,7 +40,7 @@ skip-path:
   - "(^|/)dist(/|$)"
   - "(^|/)coverage(/|$)"
   - "(^|/)generated(/|$)"
-  - "(^|/)\\.engineering/reports(/|$)"
+  - "(^|/)\\.reports(/|$)"
 
 # Keep global suppressions empty.
 #

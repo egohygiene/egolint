@@ -27,7 +27,7 @@ exclude_dirs:
   - "target"
   - "vendor"
   - "venv"
-  - ".engineering/reports"
+  - ".reports"
 
 # Assertions are normal test-framework behavior, but remain checked in
 # production source.

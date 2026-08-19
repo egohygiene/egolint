@@ -1,0 +1,7 @@
+[project]
+name = "complementary-fixture"
+version = "1.0.0"
+
+[project.metadata]
+enabled = true
+labels = ["lint", "toml"]

@@ -1,0 +1,2474 @@
+{
+  "generated_from": {
+    "catalog": ".config/megalinter/v10-catalog.json",
+    "policy": ".config/megalinter/policy.yml"
+  },
+  "megalinter_commit": "15e5b45552097e318c93de385779ce3b1084052c",
+  "megalinter_release": "v10.0.0",
+  "result_statuses": [
+    "selected",
+    "not_applicable",
+    "disabled_by_profile",
+    "disabled_by_configuration",
+    "missing_from_image",
+    "configuration_error",
+    "passed",
+    "passed_with_warnings",
+    "failed_findings",
+    "execution_error",
+    "timed_out"
+  ],
+  "schema_version": 1,
+  "tools": [
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/actions/actionlint.yml",
+      "configuration_state": "enabled",
+      "descriptor": "ACTION",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "ACTION_ACTIONLINT",
+      "name": "actionlint",
+      "profiles": {
+        "fast": "selected",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/ACTION_ACTIONLINT.log",
+      "version": "1.7.12"
+    },
+    {
+      "applicability": [
+        ".github/workflows/*.yml",
+        ".github/workflows/*.yaml"
+      ],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/actions/zizmor.yml",
+      "configuration_state": "disabled",
+      "descriptor": "ACTION",
+      "enforcement": "disabled",
+      "fixtures": {
+        "expected_rule": "unpinned-uses",
+        "negative": [
+          "tests/fixtures/negative/zizmor/unpinned-action.yml"
+        ],
+        "positive": [
+          "tests/fixtures/zizmor/pinned-action.yml"
+        ]
+      },
+      "id": "ACTION_ZIZMOR",
+      "name": "zizmor",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Awaiting review of existing workflow security findings.",
+      "report_path": ".reports/egolint/linters_logs/ACTION_ZIZMOR.log",
+      "version": "1.25.0"
+    },
+    {
+      "applicability": [
+        "ansible/**/*.yml",
+        "ansible/**/*.yaml",
+        ".ansible/**/*.yml",
+        ".ansible/**/*.yaml"
+      ],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/lint/ansible/ansible-lint.yml",
+      "configuration_state": "conditional",
+      "descriptor": "ANSIBLE",
+      "enforcement": "blocking",
+      "fixtures": {
+        "blocker": "A deliberately invalid playbook is unnecessary for validating the portable project fixture.",
+        "negative": [],
+        "positive": [
+          "tests/fixtures/ansible/playbooks/site.yml",
+          "tests/fixtures/ansible/inventories/example/hosts.yml"
+        ]
+      },
+      "id": "ANSIBLE_ANSIBLE_LINT",
+      "name": "ansible-lint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/ANSIBLE_ANSIBLE_LINT.log",
+      "version": "26.6.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "file",
+      "configuration_path": ".config/lint/arm/arm-ttk.psd1",
+      "configuration_state": "enabled",
+      "descriptor": "ARM",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "ARM_ARM_TTK",
+      "name": "arm-ttk",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/ARM_ARM_TTK.log",
+      "version": "20250401"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "file",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "BASH",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "BASH_EXEC",
+      "name": "bash-exec",
+      "profiles": {
+        "fast": "selected",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/BASH_EXEC.log",
+      "version": "5.3.9"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "BASH",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "BASH_SHELLCHECK",
+      "name": "shellcheck",
+      "profiles": {
+        "fast": "selected",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/BASH_SHELLCHECK.log",
+      "version": "0.11.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "BASH",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "BASH_SHFMT",
+      "name": "shfmt",
+      "profiles": {
+        "fast": "selected",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/BASH_SHFMT.log",
+      "version": "3.13.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "file",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "BICEP",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "BICEP_BICEP_LINTER",
+      "name": "bicep_linter",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/BICEP_BICEP_LINTER.log",
+      "version": "0.46.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/clojure/cljstyle.edn",
+      "configuration_state": "enabled",
+      "descriptor": "CLOJURE",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "CLOJURE_CLJSTYLE",
+      "name": "cljstyle",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/CLOJURE_CLJSTYLE.log",
+      "version": "0.17.642"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "file",
+      "configuration_path": ".config/lint/clojure/.clj-kondo/config.edn",
+      "configuration_state": "enabled",
+      "descriptor": "CLOJURE",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "CLOJURE_CLJ_KONDO",
+      "name": "clj-kondo",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/CLOJURE_CLJ_KONDO.log",
+      "version": "2025.01.16"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/cloudformation/cfnlint.yml",
+      "configuration_state": "enabled",
+      "descriptor": "CLOUDFORMATION",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "CLOUDFORMATION_CFN_LINT",
+      "name": "cfn-lint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/CLOUDFORMATION_CFN_LINT.log",
+      "version": "1.54.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/coffee/coffeelint.json",
+      "configuration_state": "enabled",
+      "descriptor": "COFFEE",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "COFFEE_COFFEELINT",
+      "name": "coffeelint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/COFFEE_COFFEELINT.log",
+      "version": "5.2.11"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/lint/copypaste/jscpd.json",
+      "configuration_state": "enabled",
+      "descriptor": "COPYPASTE",
+      "enforcement": "advisory",
+      "fixtures": {},
+      "id": "COPYPASTE_JSCPD",
+      "name": "jscpd",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Duplication is tracked as a refactoring metric, not a correctness gate.",
+      "report_path": ".reports/egolint/linters_logs/COPYPASTE_JSCPD.log",
+      "version": "5.0.14"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/cpp/.clang-format",
+      "configuration_state": "enabled",
+      "descriptor": "CPP",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "CPP_CLANG_FORMAT",
+      "name": "clang-format",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/CPP_CLANG_FORMAT.log",
+      "version": "22.1.3"
+    },
+    {
+      "applicability": [
+        "**/*.cpp",
+        "**/*.hpp"
+      ],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "conditional",
+      "descriptor": "CPP",
+      "enforcement": "blocking",
+      "fixtures": {
+        "expected_rule": "uninitvar",
+        "negative": [
+          "tests/fixtures/negative/cppcheck/uninitialized.cpp"
+        ],
+        "positive": [
+          "tests/fixtures/clang-format/valid.cpp"
+        ]
+      },
+      "id": "CPP_CPPCHECK",
+      "name": "cppcheck",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/CPP_CPPCHECK.log",
+      "version": "2.21.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "CPP",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "CPP_CPPLINT",
+      "name": "cpplint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/CPP_CPPLINT.log",
+      "version": "2.0.2"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "CSHARP",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "CSHARP_CSHARPIER",
+      "name": "csharpier",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/CSHARP_CSHARPIER.log",
+      "version": "1.2.6"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "CSHARP",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "CSHARP_DOTNET_FORMAT",
+      "name": "dotnet-format",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/CSHARP_DOTNET_FORMAT.log",
+      "version": "10.0.302"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "file",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "CSHARP",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "CSHARP_ROSLYNATOR",
+      "name": "roslynator",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/CSHARP_ROSLYNATOR.log",
+      "version": "0.12.0.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/css/stylelint.json",
+      "configuration_state": "enabled",
+      "descriptor": "CSS",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "CSS_STYLELINT",
+      "name": "stylelint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/CSS_STYLELINT.log",
+      "version": "17.14.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/cpp/.clang-format",
+      "configuration_state": "enabled",
+      "descriptor": "C",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "C_CLANG_FORMAT",
+      "name": "clang-format",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/C_CLANG_FORMAT.log",
+      "version": "22.1.3"
+    },
+    {
+      "applicability": [
+        "**/*.c",
+        "**/*.h"
+      ],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "conditional",
+      "descriptor": "C",
+      "enforcement": "blocking",
+      "fixtures": {
+        "expected_rule": "uninitvar",
+        "negative": [
+          "tests/fixtures/negative/cppcheck/uninitialized.c"
+        ],
+        "positive": [
+          "tests/fixtures/clang-format/valid.c"
+        ]
+      },
+      "id": "C_CPPCHECK",
+      "name": "cppcheck",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/C_CPPCHECK.log",
+      "version": "2.21.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "C",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "C_CPPLINT",
+      "name": "cpplint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/C_CPPLINT.log",
+      "version": "2.0.2"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/dart/analysis_options.yaml",
+      "configuration_state": "enabled",
+      "descriptor": "DART",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "DART_DARTANALYZER",
+      "name": "dartanalyzer",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/DART_DARTANALYZER.log",
+      "version": "3.12.2"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/dockerfile/hadolint.yaml",
+      "configuration_state": "enabled",
+      "descriptor": "DOCKERFILE",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "DOCKERFILE_HADOLINT",
+      "name": "hadolint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/DOCKERFILE_HADOLINT.log",
+      "version": "2.15.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/editorconfig/editorconfig-checker.json",
+      "configuration_state": "enabled",
+      "descriptor": "EDITORCONFIG",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "EDITORCONFIG_EDITORCONFIG_CHECKER",
+      "name": "editorconfig-checker",
+      "profiles": {
+        "fast": "selected",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/EDITORCONFIG_EDITORCONFIG_CHECKER.log",
+      "version": "3.10.0"
+    },
+    {
+      "applicability": [
+        "**/*.env"
+      ],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "conditional",
+      "descriptor": "ENV",
+      "enforcement": "blocking",
+      "fixtures": {
+        "expected_rule": "dotenv-format",
+        "negative": [
+          "tests/fixtures/negative/dotenv-linter/invalid.env"
+        ],
+        "positive": [
+          "tests/fixtures/dotenv-linter/valid.env"
+        ]
+      },
+      "id": "ENV_DOTENV_LINTER",
+      "name": "dotenv-linter",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/ENV_DOTENV_LINTER.log",
+      "version": "4.0.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/gherkin/gherkin-lint.json",
+      "configuration_state": "enabled",
+      "descriptor": "GHERKIN",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "GHERKIN_GHERKIN_LINT",
+      "name": "gherkin-lint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/GHERKIN_GHERKIN_LINT.log",
+      "version": "4.2.4"
+    },
+    {
+      "applicability": [
+        "go.mod",
+        "**/*.go"
+      ],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/lint/go/golangci-lint.yml",
+      "configuration_state": "disabled",
+      "descriptor": "GO",
+      "enforcement": "disabled",
+      "fixtures": {
+        "expected_rule": "ineffassign",
+        "negative": [
+          "tests/fixtures/negative/golangci-lint/ineffective_assignment.go"
+        ],
+        "positive": [
+          "tests/fixtures/revive/greeting_service.go"
+        ]
+      },
+      "id": "GO_GOLANGCI_LINT",
+      "name": "golangci-lint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Requires a representative Go module and project-discovery baseline.",
+      "report_path": ".reports/egolint/linters_logs/GO_GOLANGCI_LINT.log",
+      "version": "2.12.2"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/go/revive.toml",
+      "configuration_state": "enabled",
+      "descriptor": "GO",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "GO_REVIVE",
+      "name": "revive",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/GO_REVIVE.log",
+      "version": "1.15.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/graphql/.graphql-schema-linterrc",
+      "configuration_state": "enabled",
+      "descriptor": "GRAPHQL",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "GRAPHQL_GRAPHQL_SCHEMA_LINTER",
+      "name": "graphql-schema-linter",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/GRAPHQL_GRAPHQL_SCHEMA_LINTER.log",
+      "version": "3.0.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/groovy/.groovylintrc.json",
+      "configuration_state": "enabled",
+      "descriptor": "GROOVY",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "GROOVY_NPM_GROOVY_LINT",
+      "name": "npm-groovy-lint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/GROOVY_NPM_GROOVY_LINT.log",
+      "version": "18.0.0"
+    },
+    {
+      "applicability": [
+        "**/*.html",
+        "**/*.htm"
+      ],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "disabled",
+      "descriptor": "HTML",
+      "enforcement": "disabled",
+      "fixtures": {
+        "expected_rule": "H025",
+        "negative": [
+          "tests/fixtures/negative/djlint/invalid.html"
+        ],
+        "positive": [
+          "tests/fixtures/htmlhint/valid.html"
+        ]
+      },
+      "id": "HTML_DJLINT",
+      "name": "djlint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Conditional on a template project and comparison with HTMLHint ownership.",
+      "report_path": ".reports/egolint/linters_logs/HTML_DJLINT.log",
+      "version": "1.44.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/html/htmlhint.json",
+      "configuration_state": "enabled",
+      "descriptor": "HTML",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "HTML_HTMLHINT",
+      "name": "htmlhint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/HTML_HTMLHINT.log",
+      "version": "1.9.2"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/javascript/eslint.config.mjs",
+      "configuration_state": "enabled",
+      "descriptor": "JAVASCRIPT",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "JAVASCRIPT_ES",
+      "name": "eslint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/JAVASCRIPT_ES.log",
+      "version": "10.8.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/javascript/prettier.config.mjs",
+      "configuration_state": "enabled",
+      "descriptor": "JAVASCRIPT",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "JAVASCRIPT_PRETTIER",
+      "name": "prettier",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/JAVASCRIPT_PRETTIER.log",
+      "version": "3.9.6"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "JAVASCRIPT",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "JAVASCRIPT_STANDARD",
+      "name": "standard",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/JAVASCRIPT_STANDARD.log",
+      "version": "17.1.2"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/java/checkstyle/checkstyle.xml",
+      "configuration_state": "enabled",
+      "descriptor": "JAVA",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "JAVA_CHECKSTYLE",
+      "name": "checkstyle",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/JAVA_CHECKSTYLE.log",
+      "version": "12.1.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/java/pmd/java-pmd-ruleset.xml",
+      "configuration_state": "enabled",
+      "descriptor": "JAVA",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "JAVA_PMD",
+      "name": "pmd",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/JAVA_PMD.log",
+      "version": "7.26.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/json/jsonlint.json",
+      "configuration_state": "enabled",
+      "descriptor": "JSON",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "JSON_JSONLINT",
+      "name": "jsonlint",
+      "profiles": {
+        "fast": "selected",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/JSON_JSONLINT.log",
+      "version": "17.0.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "JSON",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "JSON_NPM_PACKAGE_JSON_LINT",
+      "name": "npm-package-json-lint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/JSON_NPM_PACKAGE_JSON_LINT.log",
+      "version": "10.4.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/javascript/prettier.config.mjs",
+      "configuration_state": "enabled",
+      "descriptor": "JSON",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "JSON_PRETTIER",
+      "name": "prettier",
+      "profiles": {
+        "fast": "selected",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/JSON_PRETTIER.log",
+      "version": "3.9.6"
+    },
+    {
+      "applicability": [
+        "**/*.json"
+      ],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/yaml/.v8rrc.yml",
+      "configuration_state": "conditional",
+      "descriptor": "JSON",
+      "enforcement": "blocking",
+      "fixtures": {
+        "expected_rule": "schema-validation",
+        "negative": [
+          "tests/fixtures/negative/v8r/package.json"
+        ],
+        "positive": [
+          "tests/fixtures/v8r/package.json"
+        ]
+      },
+      "id": "JSON_V8R",
+      "name": "v8r",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/JSON_V8R.log",
+      "version": "6.1.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/javascript/eslint.config.mjs",
+      "configuration_state": "disabled",
+      "descriptor": "JSX",
+      "enforcement": "disabled",
+      "fixtures": {},
+      "id": "JSX_ESLINT",
+      "name": "eslint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "The repository-pinned ESLint v9 command owns JSX analysis.",
+      "report_path": ".reports/egolint/linters_logs/JSX_ESLINT.log",
+      "version": "10.8.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "KOTLIN",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "KOTLIN_DETEKT",
+      "name": "detekt",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/KOTLIN_DETEKT.log",
+      "version": "1.23.8"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "KOTLIN",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "KOTLIN_KTLINT",
+      "name": "ktlint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/KOTLIN_KTLINT.log",
+      "version": "1.8.0"
+    },
+    {
+      "applicability": [
+        "**/Chart.yaml"
+      ],
+      "cli_lint_mode": "project",
+      "configuration_path": null,
+      "configuration_state": "disabled",
+      "descriptor": "KUBERNETES",
+      "enforcement": "disabled",
+      "fixtures": {
+        "blocker": "A self-contained representative chart is not yet available.",
+        "negative": [],
+        "positive": []
+      },
+      "id": "KUBERNETES_HELM",
+      "name": "helm",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Requires a representative self-contained Helm chart fixture.",
+      "report_path": ".reports/egolint/linters_logs/KUBERNETES_HELM.log",
+      "version": "3.19.0"
+    },
+    {
+      "applicability": [
+        "kubernetes/**/*.yml",
+        "kubernetes/**/*.yaml"
+      ],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "disabled",
+      "descriptor": "KUBERNETES",
+      "enforcement": "disabled",
+      "fixtures": {
+        "expected_rule": "schema-validation",
+        "negative": [
+          "tests/fixtures/negative/kubernetes/invalid-deployment.yml"
+        ],
+        "positive": [
+          "tests/fixtures/kubernetes/valid-deployment.yml"
+        ]
+      },
+      "id": "KUBERNETES_KUBECONFORM",
+      "name": "kubeconform",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Requires an offline Kubernetes schema-cache policy.",
+      "report_path": ".reports/egolint/linters_logs/KUBERNETES_KUBECONFORM.log",
+      "version": "0.8.0"
+    },
+    {
+      "applicability": [
+        "**/Chart.yaml",
+        "kubernetes/**/*.yml",
+        "kubernetes/**/*.yaml"
+      ],
+      "cli_lint_mode": "project",
+      "configuration_path": null,
+      "configuration_state": "disabled",
+      "descriptor": "KUBERNETES",
+      "enforcement": "disabled",
+      "fixtures": {
+        "expected_rule": "security-control",
+        "negative": [
+          "tests/fixtures/negative/kubernetes/privileged-pod.yml"
+        ],
+        "positive": [
+          "tests/fixtures/kubernetes/valid-deployment.yml"
+        ]
+      },
+      "id": "KUBERNETES_KUBESCAPE",
+      "name": "kubescape",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Requires a reviewed Kubernetes security baseline.",
+      "report_path": ".reports/egolint/linters_logs/KUBERNETES_KUBESCAPE.log",
+      "version": "4.0.9"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "file",
+      "configuration_path": ".config/lint/latex/.chktexrc",
+      "configuration_state": "enabled",
+      "descriptor": "LATEX",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "LATEX_CHKTEX",
+      "name": "chktex",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/LATEX_CHKTEX.log",
+      "version": "1.7.8"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/lua/.luacheckrc",
+      "configuration_state": "enabled",
+      "descriptor": "LUA",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "LUA_LUACHECK",
+      "name": "luacheck",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/LUA_LUACHECK.log",
+      "version": "1.2.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": null,
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "LUA",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "LUA_STYLUA",
+      "name": "stylua",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/LUA_STYLUA.log",
+      "version": "2.5.2"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/markdown/.markdownlint.json",
+      "configuration_state": "enabled",
+      "descriptor": "MARKDOWN",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "MARKDOWN_MARKDOWNLINT",
+      "name": "markdownlint",
+      "profiles": {
+        "fast": "selected",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/MARKDOWN_MARKDOWNLINT.log",
+      "version": "0.49.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "MARKDOWN",
+      "enforcement": "advisory",
+      "fixtures": {},
+      "id": "MARKDOWN_MARKDOWN_TABLE_FORMATTER",
+      "name": "markdown-table-formatter",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Markdownlint and Prettier own blocking Markdown format policy.",
+      "report_path": ".reports/egolint/linters_logs/MARKDOWN_MARKDOWN_TABLE_FORMATTER.log",
+      "version": "1.7.0"
+    },
+    {
+      "applicability": [
+        "**/*.md"
+      ],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/markdown/.rumdl.toml",
+      "configuration_state": "disabled",
+      "descriptor": "MARKDOWN",
+      "enforcement": "disabled",
+      "fixtures": {
+        "expected_rule": "MD001",
+        "negative": [
+          "tests/fixtures/negative/rumdl/invalid.md"
+        ],
+        "positive": [
+          "tests/fixtures/markdownlint/valid.md"
+        ]
+      },
+      "id": "MARKDOWN_RUMDL",
+      "name": "rumdl",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Awaiting rule-by-rule comparison with canonical Markdownlint policy.",
+      "report_path": ".reports/egolint/linters_logs/MARKDOWN_RUMDL.log",
+      "version": "0.2.52"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "PERL",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "PERL_PERLCRITIC",
+      "name": "perlcritic",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/PERL_PERLCRITIC.log",
+      "version": "1.156"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/php/phpcs.xml",
+      "configuration_state": "enabled",
+      "descriptor": "PHP",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "PHP_PHPCS",
+      "name": "phpcs",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/PHP_PHPCS.log",
+      "version": "4.0.4"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "PHP",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "PHP_PHPCSFIXER",
+      "name": "php-cs-fixer",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/PHP_PHPCSFIXER.log",
+      "version": "3.95.18"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/php/.phplint.yml",
+      "configuration_state": "enabled",
+      "descriptor": "PHP",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "PHP_PHPLINT",
+      "name": "phplint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/PHP_PHPLINT.log",
+      "version": "9.7.2"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/php/phpstan.neon.dist",
+      "configuration_state": "enabled",
+      "descriptor": "PHP",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "PHP_PHPSTAN",
+      "name": "phpstan",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/PHP_PHPSTAN.log",
+      "version": "2.2.8"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/php/psalm.xml",
+      "configuration_state": "enabled",
+      "descriptor": "PHP",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "PHP_PSALM",
+      "name": "psalm",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/PHP_PSALM.log",
+      "version": "Psalm.6.16.1@"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "file",
+      "configuration_path": ".config/lint/powershell/powershell-psscriptanalyzer.psd1",
+      "configuration_state": "enabled",
+      "descriptor": "POWERSHELL",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "POWERSHELL_POWERSHELL",
+      "name": "powershell",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/POWERSHELL_POWERSHELL.log",
+      "version": "7.6.4"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "file",
+      "configuration_path": ".config/lint/powershell/powershell-formatter.psd1",
+      "configuration_state": "enabled",
+      "descriptor": "POWERSHELL",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "POWERSHELL_POWERSHELL_FORMATTER",
+      "name": "powershell_formatter",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/POWERSHELL_POWERSHELL_FORMATTER.log",
+      "version": "7.6.4"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/protobuf/.protolintrc.yml",
+      "configuration_state": "enabled",
+      "descriptor": "PROTOBUF",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "PROTOBUF_PROTOLINT",
+      "name": "protolint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/PROTOBUF_PROTOLINT.log",
+      "version": "0.56.4"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/python/.bandit.yml",
+      "configuration_state": "enabled",
+      "descriptor": "PYTHON",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "PYTHON_BANDIT",
+      "name": "bandit",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/PYTHON_BANDIT.log",
+      "version": "1.9.4"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/python/pyproject.toml",
+      "configuration_state": "disabled",
+      "descriptor": "PYTHON",
+      "enforcement": "disabled",
+      "fixtures": {},
+      "id": "PYTHON_BLACK",
+      "name": "black",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Ruff Format is the canonical Python formatter.",
+      "report_path": ".reports/egolint/linters_logs/PYTHON_BLACK.log",
+      "version": "26.5.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/python/.flake8",
+      "configuration_state": "disabled",
+      "descriptor": "PYTHON",
+      "enforcement": "disabled",
+      "fixtures": {},
+      "id": "PYTHON_FLAKE8",
+      "name": "flake8",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Ruff is the canonical Python linter.",
+      "report_path": ".reports/egolint/linters_logs/PYTHON_FLAKE8.log",
+      "version": "7.3.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/python/.isort.cfg",
+      "configuration_state": "disabled",
+      "descriptor": "PYTHON",
+      "enforcement": "disabled",
+      "fixtures": {},
+      "id": "PYTHON_ISORT",
+      "name": "isort",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Ruff import rules are the canonical import sorter.",
+      "report_path": ".reports/egolint/linters_logs/PYTHON_ISORT.log",
+      "version": "8.0.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/python/.mypy.ini",
+      "configuration_state": "enabled",
+      "descriptor": "PYTHON",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "PYTHON_MYPY",
+      "name": "mypy",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/PYTHON_MYPY.log",
+      "version": "1.19.1"
+    },
+    {
+      "applicability": [
+        "**/*.ipynb"
+      ],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/python/.mypy.ini",
+      "configuration_state": "disabled",
+      "descriptor": "PYTHON",
+      "enforcement": "disabled",
+      "fixtures": {
+        "expected_rule": "assignment",
+        "negative": [
+          "tests/fixtures/negative/nbqa-mypy/type-error.ipynb"
+        ],
+        "positive": [
+          "tests/fixtures/nbqa-mypy/valid.ipynb"
+        ]
+      },
+      "id": "PYTHON_NBQA_MYPY",
+      "name": "nbqa",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Requires a deterministic notebook dependency environment.",
+      "report_path": ".reports/egolint/linters_logs/PYTHON_NBQA_MYPY.log",
+      "version": "1.9.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/python/.pylintrc",
+      "configuration_state": "enabled",
+      "descriptor": "PYTHON",
+      "enforcement": "advisory",
+      "fixtures": {},
+      "id": "PYTHON_PYLINT",
+      "name": "pylint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Supplemental maintainability findings remain visible while Ruff owns blocking lint policy.",
+      "report_path": ".reports/egolint/linters_logs/PYTHON_PYLINT.log",
+      "version": "4.0.6"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/python/pyrightconfig.json",
+      "configuration_state": "enabled",
+      "descriptor": "PYTHON",
+      "enforcement": "advisory",
+      "fixtures": {},
+      "id": "PYTHON_PYRIGHT",
+      "name": "pyright",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Strict cross-package typing remains visible while its dependency baseline matures.",
+      "report_path": ".reports/egolint/linters_logs/PYTHON_PYRIGHT.log",
+      "version": "1.1.411"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/python/ruff.toml",
+      "configuration_state": "enabled",
+      "descriptor": "PYTHON",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "PYTHON_RUFF",
+      "name": "ruff",
+      "profiles": {
+        "fast": "selected",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/PYTHON_RUFF.log",
+      "version": "0.16.2"
+    },
+    {
+      "applicability": [
+        "**/*.py",
+        "**/*.pyi",
+        "**/*.ipynb"
+      ],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/python/ruff.toml",
+      "configuration_state": "conditional",
+      "descriptor": "PYTHON",
+      "enforcement": "blocking",
+      "fixtures": {
+        "expected_rule": "format",
+        "negative": [
+          "tests/fixtures/negative/ruff-format/unformatted.py"
+        ],
+        "positive": [
+          "tests/fixtures/python/greeting_service.py"
+        ]
+      },
+      "id": "PYTHON_RUFF_FORMAT",
+      "name": "ruff-format",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/PYTHON_RUFF_FORMAT.log",
+      "version": "0.16.2"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "file",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "RAKU",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "RAKU_RAKU",
+      "name": "raku",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/RAKU_RAKU.log",
+      "version": "2026.03"
+    },
+    {
+      "applicability": [
+        "complete-repository"
+      ],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/security/gitleaks/.gitleaks.toml",
+      "configuration_state": "enabled",
+      "descriptor": "REPOSITORY",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "REPOSITORY_BETTERLEAKS",
+      "name": "betterleaks",
+      "profiles": {
+        "fast": "selected",
+        "holistic": "selected"
+      },
+      "reason": "MegaLinter-native canonical secret scanner.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_BETTERLEAKS.log",
+      "version": "1.7.3"
+    },
+    {
+      "applicability": [
+        "infrastructure-as-code"
+      ],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/security/checkov/.checkov.yml",
+      "configuration_state": "conditional",
+      "descriptor": "REPOSITORY",
+      "enforcement": "advisory",
+      "fixtures": {},
+      "id": "REPOSITORY_CHECKOV",
+      "name": "checkov",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "IaC findings require contextual review and remain visible as security inventory.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_CHECKOV.log",
+      "version": "3.3.9"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/security/devskim/.devskim.json",
+      "configuration_state": "disabled",
+      "descriptor": "REPOSITORY",
+      "enforcement": "disabled",
+      "fixtures": {},
+      "id": "REPOSITORY_DEVSKIM",
+      "name": "devskim",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Awaiting ownership and false-positive review.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_DEVSKIM.log",
+      "version": "1.0.70"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "REPOSITORY",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "REPOSITORY_DUSTILOCK",
+      "name": "dustilock",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_DUSTILOCK.log",
+      "version": "1.2.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": null,
+      "configuration_state": "disabled",
+      "descriptor": "REPOSITORY",
+      "enforcement": "disabled",
+      "fixtures": {},
+      "id": "REPOSITORY_GIT_DIFF",
+      "name": "git_diff",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Generated report snapshots dirty the workspace during the holistic run.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_GIT_DIFF.log",
+      "version": "2.54.0"
+    },
+    {
+      "applicability": [
+        "dependency-manifests"
+      ],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/security/grype/.grype.yaml",
+      "configuration_state": "conditional",
+      "descriptor": "REPOSITORY",
+      "enforcement": "advisory",
+      "fixtures": {},
+      "id": "REPOSITORY_GRYPE",
+      "name": "grype",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "The dedicated OSV and Dependabot workflows own dependency vulnerability enforcement.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_GRYPE.log",
+      "version": "0.116.1"
+    },
+    {
+      "applicability": [
+        "complete-repository"
+      ],
+      "cli_lint_mode": "project",
+      "configuration_path": null,
+      "configuration_state": "disabled",
+      "descriptor": "REPOSITORY",
+      "enforcement": "disabled",
+      "fixtures": {
+        "expected_rule": "credential-detection",
+        "negative": [
+          "tests/fixtures/negative/kingfisher/fake-secret.env.example"
+        ],
+        "positive": [
+          "tests/fixtures/gitleaks/valid.env.example"
+        ]
+      },
+      "id": "REPOSITORY_KINGFISHER",
+      "name": "kingfisher",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Awaiting overlap analysis with Betterleaks and Secretlint.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_KINGFISHER.log",
+      "version": "1.112.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/lint/repo/.ls-lint.yml",
+      "configuration_state": "enabled",
+      "descriptor": "REPOSITORY",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "REPOSITORY_LS_LINT",
+      "name": "ls-lint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_LS_LINT.log",
+      "version": "2.3.1"
+    },
+    {
+      "applicability": [
+        "dependency-manifests"
+      ],
+      "cli_lint_mode": "project",
+      "configuration_path": null,
+      "configuration_state": "disabled",
+      "descriptor": "REPOSITORY",
+      "enforcement": "disabled",
+      "fixtures": {},
+      "id": "REPOSITORY_OSV_SCANNER",
+      "name": "osv-scanner",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "The dedicated OSV workflow owns this signal.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_OSV_SCANNER.log",
+      "version": "2.3.8"
+    },
+    {
+      "applicability": [
+        "complete-repository"
+      ],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/security/secretlint/.secretlintrc.json",
+      "configuration_state": "enabled",
+      "descriptor": "REPOSITORY",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "REPOSITORY_SECRETLINT",
+      "name": "secretlint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "MegaLinter-native structured secret scanner.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_SECRETLINT.log",
+      "version": "13.0.4"
+    },
+    {
+      "applicability": [
+        "source-files"
+      ],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/security/semgrep/semgrep.yml",
+      "configuration_state": "disabled",
+      "descriptor": "REPOSITORY",
+      "enforcement": "disabled",
+      "fixtures": {
+        "expected_rule": "python-dangerous-eval",
+        "negative": [
+          "tests/fixtures/negative/semgrep/dangerous_eval.py"
+        ],
+        "positive": [
+          "tests/fixtures/python/greeting_service.py"
+        ]
+      },
+      "id": "REPOSITORY_SEMGREP",
+      "name": "semgrep",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Awaiting review of the initial local semantic-security ruleset.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_SEMGREP.log",
+      "version": "1.172.0"
+    },
+    {
+      "applicability": [
+        "dependency-manifests"
+      ],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/security/syft/.syft.yaml",
+      "configuration_state": "conditional",
+      "descriptor": "REPOSITORY",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "REPOSITORY_SYFT",
+      "name": "syft",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "MegaLinter-native SBOM generator.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_SYFT.log",
+      "version": "1.50.0"
+    },
+    {
+      "applicability": [
+        "complete-repository"
+      ],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/security/trivy/trivy.yaml",
+      "configuration_state": "enabled",
+      "descriptor": "REPOSITORY",
+      "enforcement": "advisory",
+      "fixtures": {},
+      "id": "REPOSITORY_TRIVY",
+      "name": "trivy",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "The dedicated OSV and Dependabot workflows own dependency vulnerability enforcement.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_TRIVY.log",
+      "version": "0.73.0"
+    },
+    {
+      "applicability": [
+        "dependency-manifests"
+      ],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/security/trivy/trivy-sbom.yaml",
+      "configuration_state": "conditional",
+      "descriptor": "REPOSITORY",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "REPOSITORY_TRIVY_SBOM",
+      "name": "trivy-sbom",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "MegaLinter-native SBOM vulnerability scanner.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_TRIVY_SBOM.log",
+      "version": "0.73.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/security/trufflehog/.trufflehog.yml",
+      "configuration_state": "enabled",
+      "descriptor": "REPOSITORY",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "REPOSITORY_TRUFFLEHOG",
+      "name": "trufflehog",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/REPOSITORY_TRUFFLEHOG.log",
+      "version": "3.96.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "ROBOTFRAMEWORK",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "ROBOTFRAMEWORK_ROBOCOP",
+      "name": "robocop",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/ROBOTFRAMEWORK_ROBOCOP.log",
+      "version": "8.6.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/rst/.rstcheck.cfg",
+      "configuration_state": "enabled",
+      "descriptor": "RST",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "RST_RSTCHECK",
+      "name": "rstcheck",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/RST_RSTCHECK.log",
+      "version": "6.3.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "RST",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "RST_RSTFMT",
+      "name": "rstfmt",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/RST_RSTFMT.log",
+      "version": "0.0.14"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "RST",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "RST_RST_LINT",
+      "name": "rst-lint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/RST_RST_LINT.log",
+      "version": "2.0.2"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/ruby/.rubocop.yml",
+      "configuration_state": "enabled",
+      "descriptor": "RUBY",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "RUBY_RUBOCOP",
+      "name": "rubocop",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/RUBY_RUBOCOP.log",
+      "version": "1.89.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/lint/rust/.clippy.toml",
+      "configuration_state": "enabled",
+      "descriptor": "RUST",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "RUST_CLIPPY",
+      "name": "clippy",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/RUST_CLIPPY.log",
+      "version": "0.1.97"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "file",
+      "configuration_path": ".config/lint/r/.lintr",
+      "configuration_state": "enabled",
+      "descriptor": "R",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "R_LINTR",
+      "name": "lintr",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/R_LINTR.log",
+      "version": "runtime-reported"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/lint/salesforce/code-analyzer.yml",
+      "configuration_state": "enabled",
+      "descriptor": "SALESFORCE",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "SALESFORCE_CODE_ANALYZER_APEX",
+      "name": "code-analyzer-apex",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/SALESFORCE_CODE_ANALYZER_APEX.log",
+      "version": "5.15.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "SALESFORCE",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "SALESFORCE_CODE_ANALYZER_AURA",
+      "name": "code-analyzer-aura",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/SALESFORCE_CODE_ANALYZER_AURA.log",
+      "version": "5.15.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "SALESFORCE",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "SALESFORCE_CODE_ANALYZER_FLOW",
+      "name": "code-analyzer-flow",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/SALESFORCE_CODE_ANALYZER_FLOW.log",
+      "version": "5.15.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "SALESFORCE",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "SALESFORCE_CODE_ANALYZER_LWC",
+      "name": "code-analyzer-lwc",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/SALESFORCE_CODE_ANALYZER_LWC.log",
+      "version": "5.15.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/scala/.scalafix.conf",
+      "configuration_state": "enabled",
+      "descriptor": "SCALA",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "SCALA_SCALAFIX",
+      "name": "scalafix",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/SCALA_SCALAFIX.log",
+      "version": "0.14.7"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "file",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "SNAKEMAKE",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "SNAKEMAKE_LINT",
+      "name": "snakemake",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/SNAKEMAKE_LINT.log",
+      "version": "9.25.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "file",
+      "configuration_path": ".config/lint/snakemake/.snakefmt.toml",
+      "configuration_state": "enabled",
+      "descriptor": "SNAKEMAKE",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "SNAKEMAKE_SNAKEFMT",
+      "name": "snakefmt",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/SNAKEMAKE_SNAKEFMT.log",
+      "version": "2.0.3"
+    },
+    {
+      "applicability": [
+        "**/*.md",
+        "**/*.rst",
+        "**/*.txt"
+      ],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/prose/spell/.codespellrc",
+      "configuration_state": "disabled",
+      "descriptor": "SPELL",
+      "enforcement": "disabled",
+      "fixtures": {
+        "expected_rule": "misspelling",
+        "negative": [
+          "tests/fixtures/negative/codespell/misspelled.txt"
+        ],
+        "positive": [
+          "tests/fixtures/cspell/valid.txt"
+        ]
+      },
+      "id": "SPELL_CODESPELL",
+      "name": "codespell",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "Awaiting repository spelling-baseline classification.",
+      "report_path": ".reports/egolint/linters_logs/SPELL_CODESPELL.log",
+      "version": "2.4.3"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/prose/spell/cspell.megalinter.json",
+      "configuration_state": "enabled",
+      "descriptor": "SPELL",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "SPELL_CSPELL",
+      "name": "cspell",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/SPELL_CSPELL.log",
+      "version": "10.0.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/prose/spell/lychee.toml",
+      "configuration_state": "enabled",
+      "descriptor": "SPELL",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "SPELL_LYCHEE",
+      "name": "lychee",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/SPELL_LYCHEE.log",
+      "version": "0.24.2"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/prose/.proselintrc",
+      "configuration_state": "enabled",
+      "descriptor": "SPELL",
+      "enforcement": "advisory",
+      "fixtures": {},
+      "id": "SPELL_PROSELINT",
+      "name": "proselint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Editorial suggestions are review signals rather than correctness failures.",
+      "report_path": ".reports/egolint/linters_logs/SPELL_PROSELINT.log",
+      "version": "0.16.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/prose/.vale.ini",
+      "configuration_state": "enabled",
+      "descriptor": "SPELL",
+      "enforcement": "advisory",
+      "fixtures": {},
+      "id": "SPELL_VALE",
+      "name": "vale",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Editorial suggestions are review signals rather than correctness failures.",
+      "report_path": ".reports/egolint/linters_logs/SPELL_VALE.log",
+      "version": "3.17.1"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/sql/.sqlfluff.ini",
+      "configuration_state": "enabled",
+      "descriptor": "SQL",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "SQL_SQLFLUFF",
+      "name": "sqlfluff",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/SQL_SQLFLUFF.log",
+      "version": "4.3.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/lint/swift/.swiftlint.yml",
+      "configuration_state": "enabled",
+      "descriptor": "SWIFT",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "SWIFT_SWIFTLINT",
+      "name": "swiftlint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/SWIFT_SWIFTLINT.log",
+      "version": "0.65.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/tekton/.tektonlintrc.yaml",
+      "configuration_state": "enabled",
+      "descriptor": "TEKTON",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "TEKTON_TEKTON_LINT",
+      "name": "tekton-lint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/TEKTON_TEKTON_LINT.log",
+      "version": "1.2.0"
+    },
+    {
+      "applicability": [
+        "**/*.tf",
+        "**/*.tfvars"
+      ],
+      "cli_lint_mode": "file",
+      "configuration_path": null,
+      "configuration_state": "conditional",
+      "descriptor": "TERRAFORM",
+      "enforcement": "blocking",
+      "fixtures": {
+        "expected_rule": "format",
+        "negative": [
+          "tests/fixtures/negative/terraform-fmt/unformatted.tf"
+        ],
+        "positive": [
+          "tests/fixtures/tflint/main.tf"
+        ]
+      },
+      "id": "TERRAFORM_TERRAFORM_FMT",
+      "name": "terraform-fmt",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/TERRAFORM_TERRAFORM_FMT.log",
+      "version": "1.15.8"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "file",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "TERRAFORM",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "TERRAFORM_TERRAGRUNT",
+      "name": "terragrunt",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/TERRAFORM_TERRAGRUNT.log",
+      "version": "1.1.2"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": ".config/lint/terraform/.tflint.hcl",
+      "configuration_state": "enabled",
+      "descriptor": "TERRAFORM",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "TERRAFORM_TFLINT",
+      "name": "tflint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/TERRAFORM_TFLINT.log",
+      "version": "0.64.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/javascript/eslint.config.mjs",
+      "configuration_state": "enabled",
+      "descriptor": "TSX",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "TSX_ESLINT",
+      "name": "eslint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/TSX_ESLINT.log",
+      "version": "10.8.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/javascript/eslint.config.mjs",
+      "configuration_state": "enabled",
+      "descriptor": "TYPESCRIPT",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "TYPESCRIPT_ES",
+      "name": "eslint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/TYPESCRIPT_ES.log",
+      "version": "10.8.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/javascript/prettier.config.mjs",
+      "configuration_state": "enabled",
+      "descriptor": "TYPESCRIPT",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "TYPESCRIPT_PRETTIER",
+      "name": "prettier",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/TYPESCRIPT_PRETTIER.log",
+      "version": "3.9.6"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "disabled",
+      "descriptor": "TYPESCRIPT",
+      "enforcement": "disabled",
+      "fixtures": {},
+      "id": "TYPESCRIPT_STANDARD",
+      "name": "ts-standard",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "disabled_by_configuration"
+      },
+      "reason": "ESLint and Prettier own TypeScript analysis and formatting.",
+      "report_path": ".reports/egolint/linters_logs/TYPESCRIPT_STANDARD.log",
+      "version": "12.0.2"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "project",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "VBDOTNET",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "VBDOTNET_DOTNET_FORMAT",
+      "name": "dotnet-format",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/VBDOTNET_DOTNET_FORMAT.log",
+      "version": "10.0.302"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": null,
+      "configuration_state": "enabled",
+      "descriptor": "XML",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "XML_XMLLINT",
+      "name": "xmllint",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/XML_XMLLINT.log",
+      "version": "21309"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/javascript/prettier.config.mjs",
+      "configuration_state": "enabled",
+      "descriptor": "YAML",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "YAML_PRETTIER",
+      "name": "prettier",
+      "profiles": {
+        "fast": "selected",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/YAML_PRETTIER.log",
+      "version": "3.9.6"
+    },
+    {
+      "applicability": [
+        "**/*.yml",
+        "**/*.yaml"
+      ],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/yaml/.v8rrc.yml",
+      "configuration_state": "conditional",
+      "descriptor": "YAML",
+      "enforcement": "blocking",
+      "fixtures": {
+        "expected_rule": "schema-validation",
+        "negative": [
+          "tests/fixtures/negative/v8r/dependabot.yml"
+        ],
+        "positive": [
+          "tests/fixtures/v8r/dependabot.yml"
+        ]
+      },
+      "id": "YAML_V8R",
+      "name": "v8r",
+      "profiles": {
+        "fast": "disabled_by_profile",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/YAML_V8R.log",
+      "version": "6.1.0"
+    },
+    {
+      "applicability": [],
+      "cli_lint_mode": "list_of_files",
+      "configuration_path": ".config/lint/yaml/.yamllint.yml",
+      "configuration_state": "enabled",
+      "descriptor": "YAML",
+      "enforcement": "blocking",
+      "fixtures": {},
+      "id": "YAML_YAMLLINT",
+      "name": "yamllint",
+      "profiles": {
+        "fast": "selected",
+        "holistic": "selected"
+      },
+      "reason": "Selected by the holistic MegaLinter profile.",
+      "report_path": ".reports/egolint/linters_logs/YAML_YAMLLINT.log",
+      "version": "1.38.0"
+    }
+  ]
+}

@@ -1,0 +1,168 @@
+---
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "ci-${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  rust:
+    name: Rust core
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Show the pinned toolchain
+        run: rustc --version --verbose
+
+      - name: Check formatting
+        run: cargo fmt --all --check
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features --locked -- -D warnings
+
+      - name: Run tests
+        run: cargo test --all-targets --all-features --locked
+
+      - name: Verify package contents
+        run: cargo package --locked
+
+  contracts:
+    name: Policy contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Create the isolated Python environment
+        run: |
+          python3 -m venv "/tmp/egolint-ci-python"
+          "/tmp/egolint-ci-python/bin/python" -m pip install \
+            --disable-pip-version-check \
+            "PyYAML==6.0.3"
+
+      - name: Validate generated policy contracts
+        run: |
+          "/tmp/egolint-ci-python/bin/python" \
+            "scripts/validate_megalinter_policy.py" --check
+          "/tmp/egolint-ci-python/bin/python" \
+            "scripts/complementary_tools.py" --check
+
+      - name: Run Python contract tests
+        run: |
+          "/tmp/egolint-ci-python/bin/python" -m unittest discover \
+            --start-directory "tests" \
+            --pattern "test_*.py"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+
+      - name: Install the locked Node.js toolchain
+        run: |
+          corepack enable pnpm
+          pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Run commit-policy tests
+        run: pnpm run commitlint:test
+
+  schemas:
+    name: Generated schemas
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Verify checked-in schemas
+        run: |
+          temporary_directory="$(mktemp -d)"
+          trap 'rm -rf "$temporary_directory"' EXIT
+          for schema in config plan report; do
+            cargo run --quiet --locked -- schema "$schema" \
+              > "$temporary_directory/$schema.schema.json"
+            diff --unified \
+              "schemas/$schema.schema.json" \
+              "$temporary_directory/$schema.schema.json"
+          done
+
+  cli-image:
+    name: CLI image
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build the lightweight image
+        run: docker build --file "Dockerfile" --tag "egolint:ci" "."
+
+      - name: Smoke-test the image
+        run: docker run --rm "egolint:ci" --version
+
+  full-image:
+    name: Full policy image
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build the full image
+        run: docker build --file "Dockerfile.full" --tag "egolint-full:ci" "."
+
+      - name: Verify the embedded profiles
+        run: |
+          docker run --rm --interactive \
+            --entrypoint "python3" \
+            "egolint-full:ci" - <<'PY'
+          from pathlib import Path
+
+          import yaml
+
+          profiles = Path("/opt/egolint/profiles")
+          holistic = yaml.safe_load((profiles / "holistic.yml").read_text())
+          fast = yaml.safe_load((profiles / "fast.yml").read_text())
+          assert isinstance(holistic, dict)
+          assert isinstance(fast, dict)
+          assert "EXTENDS" not in fast
+          assert fast["VALIDATE_ALL_CODEBASE"] is False
+          assert fast["LINTER_RULES_PATH"] == "/opt/egolint/.config/lint"
+          PY
+
+      - name: Load the embedded Node.js policy dependencies
+        run: |
+          docker run --rm --interactive \
+            --workdir "/opt/egolint" \
+            --entrypoint "node" \
+            "egolint-full:ci" \
+            --input-type="module" - <<'JS'
+          const { default: config } = await import(
+            "file:///opt/egolint/.config/lint/javascript/eslint.config.mjs",
+          );
+          if (!Array.isArray(config)) process.exit(1);
+          JS

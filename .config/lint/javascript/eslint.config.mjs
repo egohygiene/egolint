@@ -1,10 +1,30 @@
-import js from "@eslint/js";
-import jsonPlugin from "@eslint/json";
-import typescriptEslintPlugin from "@typescript-eslint/eslint-plugin";
-import typescriptParser from "@typescript-eslint/parser";
-import reactPlugin from "eslint-plugin-react";
-import { defineConfig, globalIgnores } from "eslint/config";
-import globals from "globals";
+// Copyright 2026 Ego Hygiene
+// SPDX-License-Identifier: MIT
+
+import { createRequire } from "node:module";
+
+// MegaLinter exposes its bundled plugins through NODE_PATH. Native ESM package
+// resolution ignores that path, while createRequire deliberately honors it.
+const require = createRequire(import.meta.url);
+const js = require("@eslint/js");
+const jsonPlugin = (() => {
+    try {
+        return require("@eslint/json");
+    } catch (error) {
+        if (
+            error?.code === "MODULE_NOT_FOUND" &&
+            String(error.message).includes("@eslint/json")
+        ) {
+            return null;
+        }
+        throw error;
+    }
+})();
+const typescriptEslintPlugin = require("@typescript-eslint/eslint-plugin");
+const typescriptParser = require("@typescript-eslint/parser");
+const reactPlugin = require("eslint-plugin-react");
+const { defineConfig, globalIgnores } = require("eslint/config");
+const globals = require("globals");
 
 const javascriptFiles = ["**/*.{js,jsx,mjs,cjs}"];
 const typescriptFiles = ["**/*.{ts,tsx,mts,cts}"];
@@ -15,6 +35,54 @@ const testFiles = [
     "**/tests/**/*.{js,jsx,ts,tsx}",
     "**/__tests__/**/*.{js,jsx,ts,tsx}",
 ];
+const jsonConfigs = jsonPlugin
+    ? [
+          // -----------------------------------------------------------------------------
+          // JSON
+          // -----------------------------------------------------------------------------
+
+          {
+              files: ["**/*.json"],
+              plugins: {
+                  json: jsonPlugin,
+              },
+              language: "json/json",
+              rules: {
+                  ...jsonPlugin.configs.recommended.rules,
+              },
+          },
+
+          // -----------------------------------------------------------------------------
+          // JSON with comments
+          // -----------------------------------------------------------------------------
+
+          {
+              files: ["**/*.jsonc"],
+              plugins: {
+                  json: jsonPlugin,
+              },
+              language: "json/jsonc",
+              rules: {
+                  ...jsonPlugin.configs.recommended.rules,
+              },
+          },
+
+          // -----------------------------------------------------------------------------
+          // JSON5
+          // -----------------------------------------------------------------------------
+
+          {
+              files: ["**/*.json5"],
+              plugins: {
+                  json: jsonPlugin,
+              },
+              language: "json/json5",
+              rules: {
+                  ...jsonPlugin.configs.recommended.rules,
+              },
+          },
+      ]
+    : [];
 
 export default defineConfig([
     globalIgnores(
@@ -58,51 +126,7 @@ export default defineConfig([
         ],
         "Ignore dependencies, generated files, build output, caches, and local tooling state",
     ),
-
-    // -----------------------------------------------------------------------------
-    // JSON
-    // -----------------------------------------------------------------------------
-
-    {
-        files: ["**/*.json"],
-        plugins: {
-            json: jsonPlugin,
-        },
-        language: "json/json",
-        rules: {
-            ...jsonPlugin.configs.recommended.rules,
-        },
-    },
-
-    // -----------------------------------------------------------------------------
-    // JSON with comments
-    // -----------------------------------------------------------------------------
-
-    {
-        files: ["**/*.jsonc"],
-        plugins: {
-            json: jsonPlugin,
-        },
-        language: "json/jsonc",
-        rules: {
-            ...jsonPlugin.configs.recommended.rules,
-        },
-    },
-
-    // -----------------------------------------------------------------------------
-    // JSON5
-    // -----------------------------------------------------------------------------
-
-    {
-        files: ["**/*.json5"],
-        plugins: {
-            json: jsonPlugin,
-        },
-        language: "json/json5",
-        rules: {
-            ...jsonPlugin.configs.recommended.rules,
-        },
-    },
+    ...jsonConfigs,
 
     // -------------------------------------------------------------------------
     // Core JavaScript baseline
@@ -125,7 +149,7 @@ export default defineConfig([
         rules: {
             ...js.configs.recommended.rules,
 
-            "eqeqeq": ["error", "always"],
+            eqeqeq: ["error", "always"],
             "no-console": "off",
             "no-constant-binary-expression": "error",
             "no-duplicate-imports": "error",
@@ -252,10 +276,7 @@ export default defineConfig([
             "react/jsx-uses-react": "off",
             "react/react-in-jsx-scope": "off",
 
-            "react/jsx-boolean-value": [
-                "error",
-                "never",
-            ],
+            "react/jsx-boolean-value": ["error", "never"],
             "react/jsx-key": "error",
             "react/jsx-no-comment-textnodes": "error",
             "react/jsx-no-duplicate-props": "error",
@@ -305,11 +326,7 @@ export default defineConfig([
     // -------------------------------------------------------------------------
 
     {
-        files: [
-            "**/*.cjs",
-            "**/*.cts",
-            "**/scripts/**/*.{js,ts,cjs,mjs,cts,mts}",
-        ],
+        files: ["**/*.cjs", "**/*.cts", "**/scripts/**/*.{js,ts,cjs,mjs,cts,mts}"],
 
         languageOptions: {
             sourceType: "commonjs",

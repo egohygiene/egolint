@@ -1,0 +1,335 @@
+---
+schema_version: 1
+
+megalinter:
+  release: v10.0.0
+  commit: 15e5b45552097e318c93de385779ce3b1084052c
+  catalog_source: https://github.com/oxsecurity/megalinter/tree/v10.0.0
+
+profiles:
+  fast:
+    config: .mega-linter.fast.yml
+    scope: changed-files
+    purpose: Deterministic pull-request and local feedback.
+  holistic:
+    config: .mega-linter.yml
+    scope: complete-repository
+    purpose: Complete scheduled, manual, and trusted-branch inspection.
+
+result_statuses:
+  - selected
+  - not_applicable
+  - disabled_by_profile
+  - disabled_by_configuration
+  - missing_from_image
+  - configuration_error
+  - passed
+  - passed_with_warnings
+  - failed_findings
+  - execution_error
+  - timed_out
+
+disabled_reasons:
+  ACTION_ZIZMOR: Awaiting review of existing workflow security findings.
+  GO_GOLANGCI_LINT: Requires a representative Go module and project-discovery baseline.
+  HTML_DJLINT: Conditional on a template project and comparison with HTMLHint ownership.
+  JSX_ESLINT: The repository-pinned ESLint v9 command owns JSX analysis.
+  KUBERNETES_HELM: Requires a representative self-contained Helm chart fixture.
+  KUBERNETES_KUBECONFORM: Requires an offline Kubernetes schema-cache policy.
+  KUBERNETES_KUBESCAPE: Requires a reviewed Kubernetes security baseline.
+  MARKDOWN_RUMDL: Awaiting rule-by-rule comparison with canonical Markdownlint policy.
+  PYTHON_BLACK: Ruff Format is the canonical Python formatter.
+  PYTHON_FLAKE8: Ruff is the canonical Python linter.
+  PYTHON_ISORT: Ruff import rules are the canonical import sorter.
+  PYTHON_NBQA_MYPY: Requires a deterministic notebook dependency environment.
+  REPOSITORY_DEVSKIM: Awaiting ownership and false-positive review.
+  REPOSITORY_GIT_DIFF: Generated report snapshots dirty the workspace during the holistic run.
+  REPOSITORY_KINGFISHER: Awaiting overlap analysis with Betterleaks and Secretlint.
+  REPOSITORY_OSV_SCANNER: The dedicated OSV workflow owns this signal.
+  REPOSITORY_SEMGREP: Awaiting review of the initial local semantic-security ruleset.
+  SPELL_CODESPELL: Awaiting repository spelling-baseline classification.
+  TYPESCRIPT_STANDARD: ESLint and Prettier own TypeScript analysis and formatting.
+
+advisory_reasons:
+  COPYPASTE_JSCPD: Duplication is tracked as a refactoring metric, not a correctness gate.
+  MARKDOWN_MARKDOWN_TABLE_FORMATTER: Markdownlint and Prettier own blocking Markdown format policy.
+  PYTHON_PYLINT: Supplemental maintainability findings remain visible while Ruff owns blocking lint policy.
+  PYTHON_PYRIGHT: Strict cross-package typing remains visible while its dependency baseline matures.
+  REPOSITORY_CHECKOV: IaC findings require contextual review and remain visible as security inventory.
+  REPOSITORY_GRYPE: The dedicated OSV and Dependabot workflows own dependency vulnerability enforcement.
+  REPOSITORY_TRIVY: The dedicated OSV and Dependabot workflows own dependency vulnerability enforcement.
+  SPELL_PROSELINT: Editorial suggestions are review signals rather than correctness failures.
+  SPELL_VALE: Editorial suggestions are review signals rather than correctness failures.
+
+tools:
+  ANSIBLE_ANSIBLE_LINT:
+    configuration: .config/lint/ansible/ansible-lint.yml
+    applicability:
+      - ansible/**/*.yml
+      - ansible/**/*.yaml
+      - .ansible/**/*.yml
+      - .ansible/**/*.yaml
+    fixtures:
+      positive:
+        - tests/fixtures/ansible/playbooks/site.yml
+        - tests/fixtures/ansible/inventories/example/hosts.yml
+      negative: []
+      blocker: A deliberately invalid playbook is unnecessary for validating the portable project fixture.
+
+  ACTION_ZIZMOR:
+    configuration: .config/lint/actions/zizmor.yml
+    applicability:
+      - .github/workflows/*.yml
+      - .github/workflows/*.yaml
+    fixtures:
+      positive:
+        - tests/fixtures/zizmor/pinned-action.yml
+      negative:
+        - tests/fixtures/negative/zizmor/unpinned-action.yml
+      expected_rule: unpinned-uses
+
+  PYTHON_RUFF_FORMAT:
+    configuration: .config/lint/python/ruff.toml
+    applicability:
+      - "**/*.py"
+      - "**/*.pyi"
+      - "**/*.ipynb"
+    fixtures:
+      positive:
+        - tests/fixtures/python/greeting_service.py
+      negative:
+        - tests/fixtures/negative/ruff-format/unformatted.py
+      expected_rule: format
+
+  SPELL_CODESPELL:
+    configuration: .config/lint/prose/spell/.codespellrc
+    applicability:
+      - "**/*.md"
+      - "**/*.rst"
+      - "**/*.txt"
+    fixtures:
+      positive:
+        - tests/fixtures/cspell/valid.txt
+      negative:
+        - tests/fixtures/negative/codespell/misspelled.txt
+      expected_rule: misspelling
+
+  JSON_V8R:
+    configuration: .config/lint/yaml/.v8rrc.yml
+    applicability:
+      - "**/*.json"
+    fixtures:
+      positive:
+        - tests/fixtures/v8r/package.json
+      negative:
+        - tests/fixtures/negative/v8r/package.json
+      expected_rule: schema-validation
+
+  YAML_V8R:
+    configuration: .config/lint/yaml/.v8rrc.yml
+    applicability:
+      - "**/*.yml"
+      - "**/*.yaml"
+    fixtures:
+      positive:
+        - tests/fixtures/v8r/dependabot.yml
+      negative:
+        - tests/fixtures/negative/v8r/dependabot.yml
+      expected_rule: schema-validation
+
+  REPOSITORY_SEMGREP:
+    configuration: .config/security/semgrep/semgrep.yml
+    applicability:
+      - source-files
+    fixtures:
+      positive:
+        - tests/fixtures/python/greeting_service.py
+      negative:
+        - tests/fixtures/negative/semgrep/dangerous_eval.py
+      expected_rule: python-dangerous-eval
+
+  REPOSITORY_KINGFISHER:
+    configuration: null
+    applicability:
+      - complete-repository
+    fixtures:
+      positive:
+        - tests/fixtures/gitleaks/valid.env.example
+      negative:
+        - tests/fixtures/negative/kingfisher/fake-secret.env.example
+      expected_rule: credential-detection
+
+  ENV_DOTENV_LINTER:
+    configuration: null
+    applicability:
+      - "**/*.env"
+    fixtures:
+      positive:
+        - tests/fixtures/dotenv-linter/valid.env
+      negative:
+        - tests/fixtures/negative/dotenv-linter/invalid.env
+      expected_rule: dotenv-format
+
+  HTML_DJLINT:
+    configuration: null
+    applicability:
+      - "**/*.html"
+      - "**/*.htm"
+    fixtures:
+      positive:
+        - tests/fixtures/htmlhint/valid.html
+      negative:
+        - tests/fixtures/negative/djlint/invalid.html
+      expected_rule: H025
+
+  GO_GOLANGCI_LINT:
+    configuration: .config/lint/go/golangci-lint.yml
+    applicability:
+      - go.mod
+      - "**/*.go"
+    fixtures:
+      positive:
+        - tests/fixtures/revive/greeting_service.go
+      negative:
+        - tests/fixtures/negative/golangci-lint/ineffective_assignment.go
+      expected_rule: ineffassign
+
+  C_CPPCHECK:
+    configuration: null
+    applicability:
+      - "**/*.c"
+      - "**/*.h"
+    fixtures:
+      positive:
+        - tests/fixtures/clang-format/valid.c
+      negative:
+        - tests/fixtures/negative/cppcheck/uninitialized.c
+      expected_rule: uninitvar
+
+  CPP_CPPCHECK:
+    configuration: null
+    applicability:
+      - "**/*.cpp"
+      - "**/*.hpp"
+    fixtures:
+      positive:
+        - tests/fixtures/clang-format/valid.cpp
+      negative:
+        - tests/fixtures/negative/cppcheck/uninitialized.cpp
+      expected_rule: uninitvar
+
+  KUBERNETES_KUBECONFORM:
+    configuration: null
+    applicability:
+      - kubernetes/**/*.yml
+      - kubernetes/**/*.yaml
+    fixtures:
+      positive:
+        - tests/fixtures/kubernetes/valid-deployment.yml
+      negative:
+        - tests/fixtures/negative/kubernetes/invalid-deployment.yml
+      expected_rule: schema-validation
+
+  KUBERNETES_HELM:
+    configuration: null
+    applicability:
+      - "**/Chart.yaml"
+    fixtures:
+      positive: []
+      negative: []
+      blocker: A self-contained representative chart is not yet available.
+
+  KUBERNETES_KUBESCAPE:
+    configuration: null
+    applicability:
+      - "**/Chart.yaml"
+      - kubernetes/**/*.yml
+      - kubernetes/**/*.yaml
+    fixtures:
+      positive:
+        - tests/fixtures/kubernetes/valid-deployment.yml
+      negative:
+        - tests/fixtures/negative/kubernetes/privileged-pod.yml
+      expected_rule: security-control
+
+  TERRAFORM_TERRAFORM_FMT:
+    configuration: null
+    applicability:
+      - "**/*.tf"
+      - "**/*.tfvars"
+    fixtures:
+      positive:
+        - tests/fixtures/tflint/main.tf
+      negative:
+        - tests/fixtures/negative/terraform-fmt/unformatted.tf
+      expected_rule: format
+
+  PYTHON_NBQA_MYPY:
+    configuration: .config/lint/python/.mypy.ini
+    applicability:
+      - "**/*.ipynb"
+    fixtures:
+      positive:
+        - tests/fixtures/nbqa-mypy/valid.ipynb
+      negative:
+        - tests/fixtures/negative/nbqa-mypy/type-error.ipynb
+      expected_rule: assignment
+
+  MARKDOWN_RUMDL:
+    configuration: .config/lint/markdown/.rumdl.toml
+    applicability:
+      - "**/*.md"
+    fixtures:
+      positive:
+        - tests/fixtures/markdownlint/valid.md
+      negative:
+        - tests/fixtures/negative/rumdl/invalid.md
+      expected_rule: MD001
+
+  REPOSITORY_BETTERLEAKS:
+    configuration: .config/security/gitleaks/.gitleaks.toml
+    applicability:
+      - complete-repository
+    ownership: MegaLinter-native canonical secret scanner.
+
+  REPOSITORY_CHECKOV:
+    configuration: .config/security/checkov/.checkov.yml
+    applicability:
+      - infrastructure-as-code
+    ownership: MegaLinter-native IaC policy scanner.
+
+  REPOSITORY_SECRETLINT:
+    configuration: .config/security/secretlint/.secretlintrc.json
+    applicability:
+      - complete-repository
+    ownership: MegaLinter-native structured secret scanner.
+
+  REPOSITORY_SYFT:
+    configuration: .config/security/syft/.syft.yaml
+    applicability:
+      - dependency-manifests
+    ownership: MegaLinter-native SBOM generator.
+
+  REPOSITORY_TRIVY:
+    configuration: .config/security/trivy/trivy.yaml
+    applicability:
+      - complete-repository
+    ownership: MegaLinter-native repository security scanner.
+
+  REPOSITORY_TRIVY_SBOM:
+    configuration: .config/security/trivy/trivy-sbom.yaml
+    applicability:
+      - dependency-manifests
+    ownership: MegaLinter-native SBOM vulnerability scanner.
+
+  REPOSITORY_GRYPE:
+    configuration: .config/security/grype/.grype.yaml
+    applicability:
+      - dependency-manifests
+    ownership: MegaLinter-native vulnerability scanner.
+
+  REPOSITORY_OSV_SCANNER:
+    configuration: null
+    applicability:
+      - dependency-manifests
+    ownership: Disabled in MegaLinter; dedicated OSV workflow owns execution.

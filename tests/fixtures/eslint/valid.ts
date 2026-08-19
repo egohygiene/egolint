@@ -2,10 +2,7 @@ export interface GreetingOptions {
     readonly prefix: string;
 }
 
-export function createGreeting(
-    name: string,
-    options: GreetingOptions,
-): string {
+export function createGreeting(name: string, options: GreetingOptions): string {
     const normalizedName = name.trim();
 
     if (normalizedName === "") {
@@ -14,4 +11,3 @@ export function createGreeting(
 
     return `${options.prefix}, ${normalizedName}!`;
 }
-

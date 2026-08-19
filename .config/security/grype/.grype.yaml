@@ -53,7 +53,7 @@ db:
   auto-update: true
 
   # Reuse the database between supported local/container runs.
-  cache-dir: ".cache/grype/db"
+  cache-dir: ".reports/egolint/cache/grype/db"
 
   # Validate database integrity and freshness.
   validate-by-hash-on-start: true
@@ -86,7 +86,7 @@ exclude:
   - "./**/coverage/**"
   - "./**/generated/**"
 
-  - "./.engineering/reports/**"
+  - "./.reports/**"
 
 # Global vulnerability suppressions are intentionally empty.
 #

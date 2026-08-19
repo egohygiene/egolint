@@ -22,7 +22,7 @@ This fixture validates Markdown syntax-tree analysis and repository conventions.
 
 ## Emphasis
 
-Use *emphasis* for ordinary stress and **strong emphasis** for greater importance.
+Use _emphasis_ for ordinary stress and **strong emphasis** for greater importance.
 
 ---
 
@@ -31,4 +31,3 @@ Use *emphasis* for ordinary stress and **strong emphasis** for greater importanc
 ```bash
 printf '%s\n' "Remark lint fixture passed."
 ```
-

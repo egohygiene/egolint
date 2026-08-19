@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2026 Ego Hygiene
+# SPDX-License-Identifier: MIT
+
+# ==============================================================================
+# Gitleaks Finding Exceptions
+# ==============================================================================
+#
+# Entries in this file are finding fingerprints, not directory glob patterns.
+#
+# Add a fingerprint only after verifying the detection is a false positive or
+# explicitly accepted test artifact. Document the rationale in the associated
+# issue or security review.

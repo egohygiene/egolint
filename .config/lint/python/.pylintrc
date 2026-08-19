@@ -16,7 +16,6 @@ py-version = 3.12
 
 jobs = 0
 persistent = yes
-suggestion-mode = yes
 
 recursive = yes
 
@@ -48,7 +47,7 @@ ignore =
     venv
 
 ignore-paths =
-    ^\.engineering/reports/,
+    ^\.reports/,
     (^|/)site-packages/,
     (^|/).*\.generated\.py$,
     (^|/).*_pb2\.py$,

@@ -23,7 +23,7 @@ exclude = '''
 (
     (^|/)\.git/
   | (^|/)\.cache/
-  | (^|/)\.engineering/reports/
+  | (^|/)\.reports/
   | (^|/)node_modules/
   | (^|/)vendor/
   | (^|/)\.venv/

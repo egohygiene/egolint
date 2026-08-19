@@ -1,0 +1,33 @@
+---
+openapi: "3.1.0"
+info:
+  title: "Greeting fixture"
+  version: "1.0.0"
+  description: "A representative API description for Vacuum validation."
+  license:
+    name: "MIT"
+    identifier: "MIT"
+servers:
+  - url: "https://example.invalid"
+paths:
+  /health:
+    get:
+      operationId: "getHealth"
+      summary: "Read service health"
+      tags:
+        - "health"
+      responses:
+        "200":
+          description: "The service is healthy."
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  status:
+                    type: "string"
+                required:
+                  - "status"
+tags:
+  - name: "health"
+    description: "Service-health operations."

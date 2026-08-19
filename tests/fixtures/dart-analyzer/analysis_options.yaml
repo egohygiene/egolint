@@ -1,0 +1,2 @@
+---
+include: ../../../.config/lint/dart/analysis_options.yaml

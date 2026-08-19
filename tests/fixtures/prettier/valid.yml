@@ -11,4 +11,4 @@ reporting:
   formats:
     - "json"
     - "sarif"
-  output-directory: ".engineering/reports/megalinter"
+  output-directory: ".reports/egolint"

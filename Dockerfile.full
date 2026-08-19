@@ -1,0 +1,54 @@
+# syntax=docker/dockerfile:1.7
+
+# The developer default is readable and reproducible by release tag. Release
+# automation must override this with the reviewed v10.0.0 manifest digest.
+ARG MEGALINTER_IMAGE="ghcr.io/oxsecurity/megalinter:v10.0.0"
+
+# Match MegaLinter v10's Alpine/musl runtime so optional native Node packages
+# are materialized for the same libc rather than copied from a glibc stage.
+FROM node:24-alpine3.24 AS policy-node-dependencies
+
+WORKDIR /opt/egolint
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Corepack resolves the exact pnpm version declared by packageManager. Lifecycle
+# scripts remain disabled while the locked policy dependencies are materialized.
+RUN corepack enable pnpm \
+    && pnpm install --frozen-lockfile --ignore-scripts
+
+FROM ${MEGALINTER_IMAGE}
+
+ARG BUILD_DATE=""
+ARG VERSION="0.1.0-alpha.1"
+ARG REVISION=""
+
+LABEL org.opencontainers.image.title="egolint-full" \
+      org.opencontainers.image.description="MegaLinter engine with embedded Ego Hygiene lint policy" \
+      org.opencontainers.image.source="https://github.com/egohygiene/egolint" \
+      org.opencontainers.image.url="https://github.com/egohygiene/egolint" \
+      org.opencontainers.image.documentation="https://github.com/egohygiene/egolint/blob/main/docs/containers.md" \
+      org.opencontainers.image.licenses="MIT AND BSD-3-Clause AND AGPL-3.0-only" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.revision="${REVISION}"
+
+COPY .config/ /opt/egolint/.config/
+COPY .mega-linter.yml /opt/egolint/profiles/holistic.yml
+COPY .mega-linter.fast.yml /opt/egolint/profiles/fast.yml
+COPY .markdownlintignore /opt/egolint/.markdownlintignore
+COPY --from=policy-node-dependencies /opt/egolint/node_modules/ /opt/egolint/node_modules/
+COPY scripts/render_image_profiles.py /opt/egolint/bin/render_image_profiles.py
+COPY LICENSE NOTICE /usr/share/doc/egolint/
+COPY LICENSES/ /usr/share/doc/egolint/LICENSES/
+
+# Repository-relative policy paths are made image-absolute in the packaged
+# profiles. Fast is flattened against holistic because MegaLinter v10 prefixes
+# every local EXTENDS entry with the workspace path. The source YAML remains
+# useful when developing this repository.
+RUN python3 "/opt/egolint/bin/render_image_profiles.py" \
+      --directory "/opt/egolint/profiles" \
+    && rm -f "/opt/egolint/bin/render_image_profiles.py"
+
+# Deliberately inherit MegaLinter's USER, ENTRYPOINT, and CMD. The native
+# Egolint CLI launches this image as its engine; no local adapter exists yet.

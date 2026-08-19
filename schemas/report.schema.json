@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RunReport",
+  "description": "Minimal versioned report written beside raw adapter output.",
+  "type": "object",
+  "properties": {
+    "adapter_exit_code": {
+      "description": "Raw wrapped-adapter exit code when available.",
+      "type": [
+        "integer",
+        "null"
+      ],
+      "format": "int32"
+    },
+    "config_sources": {
+      "description": "Configuration provenance.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "egolint_exit_code": {
+      "description": "Stable Egolint process exit code.",
+      "type": "integer",
+      "format": "int32"
+    },
+    "generated_at_unix": {
+      "description": "Unix timestamp in seconds.",
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0
+    },
+    "image": {
+      "description": "Requested container image.",
+      "type": "string"
+    },
+    "operation": {
+      "description": "Operation executed.",
+      "$ref": "#/$defs/Operation"
+    },
+    "profile": {
+      "description": "Selected profile name.",
+      "type": "string"
+    },
+    "report_path": {
+      "description": "Workspace-relative location of the report itself.",
+      "type": "string"
+    },
+    "schema_version": {
+      "description": "Output contract version.",
+      "type": "integer",
+      "format": "uint32",
+      "minimum": 0
+    },
+    "status": {
+      "description": "Normalized outcome.",
+      "$ref": "#/$defs/RunStatus"
+    }
+  },
+  "required": [
+    "schema_version",
+    "generated_at_unix",
+    "operation",
+    "status",
+    "egolint_exit_code",
+    "image",
+    "profile",
+    "config_sources",
+    "report_path"
+  ],
+  "$defs": {
+    "Operation": {
+      "description": "Requested lint operation and its workspace write capability.",
+      "oneOf": [
+        {
+          "description": "Analyze without granting broad workspace writes.",
+          "type": "string",
+          "const": "check"
+        },
+        {
+          "description": "Explicitly allow tools to update workspace files.",
+          "type": "string",
+          "const": "fix"
+        }
+      ]
+    },
+    "RunStatus": {
+      "description": "Normalized outcome independent of any individual linter.",
+      "oneOf": [
+        {
+          "description": "All blocking checks passed.",
+          "type": "string",
+          "const": "clean"
+        },
+        {
+          "description": "The wrapped lint engine reported findings.",
+          "type": "string",
+          "const": "findings"
+        },
+        {
+          "description": "The engine could not complete normally.",
+          "type": "string",
+          "const": "execution_error"
+        }
+      ]
+    }
+  }
+}

@@ -11,4 +11,3 @@ def format_greeting(name: str) -> str:
         return "Hello."
 
     return f"Hello, {normalized_name}."
-

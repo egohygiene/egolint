@@ -1,0 +1,16 @@
+---
+rules:
+  - id: python-dangerous-eval
+    message: Avoid evaluating dynamically supplied Python expressions.
+    severity: ERROR
+    languages:
+      - python
+    pattern: eval(...)
+
+  - id: javascript-dangerous-eval
+    message: Avoid evaluating dynamically supplied JavaScript expressions.
+    severity: ERROR
+    languages:
+      - javascript
+      - typescript
+    pattern: eval(...)

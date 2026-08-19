@@ -1,0 +1,23 @@
+# Egolint third-party notices
+
+Egolint's original Rust code, documentation, and first-party lint policy are
+licensed under MIT unless a file-level annotation says otherwise.
+
+The `egolint-full` container is built on MegaLinter. MegaLinter is distributed
+under AGPL-3.0-only and is available at
+https://github.com/oxsecurity/megalinter/tree/v10.0.0. This repository
+explicitly ships the full license text at `LICENSES/AGPL-3.0-only.txt` and
+copies it into the full image. The full image preserves MegaLinter's runtime
+entrypoint. It also contains many independent lint tools and locked Node policy
+dependencies, each governed by its own license. This repository's MIT license
+does not replace any of those terms.
+
+Some prose rules under `.config/lint/prose/styles/proselint` are derived from
+Proselint and are BSD-3-Clause licensed. Some rules under
+`.config/lint/prose/styles/write-good` are derived from write-good and remain
+MIT licensed. Copyright and path-specific SPDX annotations are recorded in
+`REUSE.toml`.
+
+Release automation is expected to attach an SBOM and provenance to each
+published image. During the alpha, inspect the locally built image and its
+upstream base image before redistribution.
