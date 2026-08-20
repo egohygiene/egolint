@@ -17,8 +17,9 @@ stabilize.
   execution-plan, normalized-report, and repository-contract JSON Schemas.
 - First-class `validate`, `lint`, `explain`, and `doctor` commands with
   compatibility aliases for the initial alpha command surface.
-- Canonical executable Empathy and Hygiene repository-contract fixtures pinned
-  to immutable semantic source commits and verified by local digests.
+- Canonical executable Empathy and Hygiene repository-contract artifacts pinned
+  to immutable semantic source commits and recorded in a checksum-bearing
+  install manifest.
 - Standalone MegaLinter and complementary-tool contract inventories with
   positive and negative fixtures.
 - SHA-pinned CI validation for Rust, policy contracts, schemas, packaging, and
