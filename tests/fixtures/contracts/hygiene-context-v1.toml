@@ -1,0 +1,29 @@
+schema-version = 1
+id = "hygiene-repository-context"
+version = "1.0.0"
+profile = "hygiene/repository-context"
+provisional = false
+
+[source]
+repository = "egohygiene/hygiene"
+revision = "8e057bd2f9febd31b09f6dd5fd870b47d66cc411"
+revision-kind = "git-commit"
+path = "catalog/repository-context.json"
+decision = "https://github.com/egohygiene/hygiene/issues/6"
+
+[[requirements]]
+id = "agent-instructions"
+path = "AGENTS.md"
+kind = "file"
+ownership = "required"
+
+[[requirements]]
+id = "ecosystem-context"
+path = "docs/ecosystem/CONTEXT.md"
+kind = "file"
+ownership = "generated"
+markers = [
+  "<!-- egohygiene-context: repository-context/v1 -->",
+  "architecture-release: \"architecture-v0.1.0\"",
+  "generated-by: \"egohygiene/hygiene:repository-context@1.0.0\"",
+]
