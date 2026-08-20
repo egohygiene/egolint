@@ -4,9 +4,9 @@
     {
       "fixture": "tests/fixtures/contracts/empathy-universal-v1.toml",
       "source_repository": "egohygiene/empathy",
-      "source_revision": "b776cd5fb63bdf6c36f9582d46e7a85075c0dc21",
+      "source_revision": "2bc9d77b23acfeb0235f2fc5deb8d0616ab1ff9a",
       "source_path": "foundation/catalog.json",
-      "sha256": "e7dc5865d1f946aacdb941a7a4db6573190fe9999e5e8df287cef02fcf4f01cc"
+      "sha256": "3e48ac4efc324259ffdc244316af59a3db5c7e5d769e2c27263ef2d4ab527f90"
     },
     {
       "fixture": "tests/fixtures/contracts/hygiene-context-v1.toml",

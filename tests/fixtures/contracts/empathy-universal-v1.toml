@@ -6,7 +6,7 @@ provisional = false
 
 [source]
 repository = "egohygiene/empathy"
-revision = "b776cd5fb63bdf6c36f9582d46e7a85075c0dc21"
+revision = "2bc9d77b23acfeb0235f2fc5deb8d0616ab1ff9a"
 revision-kind = "git-commit"
 path = "foundation/catalog.json"
 decision = "https://github.com/egohygiene/empathy/issues/62"
