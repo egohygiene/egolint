@@ -1,15 +1,21 @@
 # syntax=docker/dockerfile:1.7
 
-FROM rust:1.85-bookworm AS builder
+ARG RUST_BUILDER_IMAGE="rust:1.85-bookworm"
+ARG CLI_RUNTIME_IMAGE="debian:bookworm-slim"
+
+FROM ${RUST_BUILDER_IMAGE} AS builder
 
 WORKDIR /source
 
 COPY Cargo.toml Cargo.lock ./
 COPY src/ src/
+COPY .config/rules/portability.toml .config/rules/portability.toml
+COPY .config/megalinter/tool-matrix.json .config/megalinter/tool-matrix.json
+COPY .config/security/scanner-ownership.json .config/security/scanner-ownership.json
 
 RUN cargo build --locked --release --package "egolint" --bin "egolint"
 
-FROM debian:bookworm-slim AS runtime
+FROM ${CLI_RUNTIME_IMAGE} AS runtime
 
 ARG BUILD_DATE=""
 ARG VERSION="0.1.0-alpha.1"

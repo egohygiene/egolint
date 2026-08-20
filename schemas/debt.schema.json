@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DebtReport",
+  "description": "Compact, sanitized dependency-debt evidence.",
+  "type": "object",
+  "properties": {
+    "completeness": {
+      "description": "Source normalization coverage. Partial summaries contain observed\ncounts only and are explicitly not publishable as complete debt.",
+      "$ref": "#/$defs/ReportCompleteness"
+    },
+    "freshness": {
+      "description": "Explicit database freshness state for network-backed authorities.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/DebtFreshness"
+      }
+    },
+    "generated_at_unix": {
+      "description": "Timestamp inherited from the normalized run.",
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0
+    },
+    "groups": {
+      "description": "Counts grouped only by canonical tool and severity.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/DebtGroup"
+      }
+    },
+    "policy_version": {
+      "description": "Scanner ownership-policy version.",
+      "type": "string"
+    },
+    "profile": {
+      "description": "Selected Egolint profile.",
+      "type": "string"
+    },
+    "schema_version": {
+      "description": "Debt-contract version.",
+      "type": "integer",
+      "const": 1
+    },
+    "source_report": {
+      "description": "Canonical workspace-relative source report.",
+      "type": "string"
+    },
+    "summary": {
+      "description": "Aggregate counts with no source paths, messages, or package names.",
+      "$ref": "#/$defs/DebtSummary"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "policy_version",
+    "generated_at_unix",
+    "profile",
+    "source_report",
+    "completeness",
+    "summary",
+    "groups",
+    "freshness"
+  ],
+  "$defs": {
+    "DebtFreshness": {
+      "description": "Database/source freshness disclosure.",
+      "type": "object",
+      "properties": {
+        "observed_at_unix": {
+          "description": "Source/database timestamp when normalized evidence provides one.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0
+        },
+        "state": {
+          "description": "Honest source state. Unknown is the default until timestamp evidence is\nnormalized by a scanner-specific adapter.",
+          "$ref": "#/$defs/FreshnessState"
+        },
+        "tool_id": {
+          "description": "Canonical scanner identifier.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "tool_id",
+        "state"
+      ]
+    },
+    "DebtGroup": {
+      "description": "Sanitized count group.",
+      "type": "object",
+      "properties": {
+        "severity": {
+          "description": "Normalized severity.",
+          "$ref": "#/$defs/Severity"
+        },
+        "suppressed": {
+          "description": "Suppressed finding count.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "tool_id": {
+          "description": "Canonical scanner identifier.",
+          "type": "string"
+        },
+        "unsuppressed": {
+          "description": "Unsuppressed finding count.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "tool_id",
+        "severity",
+        "unsuppressed",
+        "suppressed"
+      ]
+    },
+    "DebtSummary": {
+      "description": "Aggregate dependency-debt counts.",
+      "type": "object",
+      "properties": {
+        "expired_suppressions": {
+          "description": "Expired relevant suppressions, which remain blocking policy debt.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "suppressed": {
+          "description": "Findings with an applied suppression.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "unmatched_suppressions": {
+          "description": "Unmatched relevant suppressions, which remain visible review debt.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "unsuppressed": {
+          "description": "Findings without an applied suppression.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "unsuppressed",
+        "suppressed",
+        "expired_suppressions",
+        "unmatched_suppressions"
+      ]
+    },
+    "FreshnessState": {
+      "description": "Freshness state for an external vulnerability database.",
+      "oneOf": [
+        {
+          "description": "Source evidence satisfies the configured age budget.",
+          "type": "string",
+          "const": "fresh"
+        },
+        {
+          "description": "Source evidence is older than the configured age budget.",
+          "type": "string",
+          "const": "stale"
+        },
+        {
+          "description": "No reviewed source timestamp was available.",
+          "type": "string",
+          "const": "unknown"
+        }
+      ]
+    },
+    "ReportCompleteness": {
+      "description": "How completely adapter evidence has been normalized into this report.",
+      "oneOf": [
+        {
+          "description": "Only the adapter process outcome is known; raw details remain external.",
+          "type": "string",
+          "const": "adapter_exit_only"
+        },
+        {
+          "description": "Available adapter summaries were normalized, but coverage is incomplete.",
+          "type": "string",
+          "const": "partial"
+        },
+        {
+          "description": "Every available adapter result was normalized into typed contracts.",
+          "type": "string",
+          "const": "normalized"
+        }
+      ]
+    },
+    "Severity": {
+      "description": "Normalized finding severity.",
+      "oneOf": [
+        {
+          "description": "Informational observation.",
+          "type": "string",
+          "const": "info"
+        },
+        {
+          "description": "Nonblocking warning.",
+          "type": "string",
+          "const": "warning"
+        },
+        {
+          "description": "Blocking correctness or policy failure.",
+          "type": "string",
+          "const": "error"
+        },
+        {
+          "description": "Urgent high-impact security or safety failure.",
+          "type": "string",
+          "const": "critical"
+        }
+      ]
+    }
+  }
+}

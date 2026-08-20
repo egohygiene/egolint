@@ -58,12 +58,18 @@ class MegaLinterPolicyTests(unittest.TestCase):
             {tool["version"] for tool in self.catalog["tools"].values()},
         )
 
-    def test_fast_and_holistic_profile_snapshots_are_explicit(self) -> None:
+    def test_all_profile_snapshots_are_explicit(self) -> None:
         fast = json.loads(
             megalinter_policy.PROFILE_SNAPSHOT_PATHS["fast"].read_text(encoding="utf-8")
         )
         holistic = json.loads(
             megalinter_policy.PROFILE_SNAPSHOT_PATHS["holistic"].read_text(encoding="utf-8")
+        )
+        security = json.loads(
+            megalinter_policy.PROFILE_SNAPSHOT_PATHS["security"].read_text(encoding="utf-8")
+        )
+        dependency_debt = json.loads(
+            megalinter_policy.PROFILE_SNAPSHOT_PATHS["dependency-debt"].read_text(encoding="utf-8")
         )
         self.assertEqual(len(fast["selected"]), 12)
         self.assertFalse(fast["validate_all_codebase"])
@@ -72,6 +78,11 @@ class MegaLinterPolicyTests(unittest.TestCase):
         self.assertIn("PYTHON_RUFF_FORMAT", holistic["selected"])
         self.assertIn("ACTION_ZIZMOR", holistic["disabled_by_configuration"])
         self.assertNotIn("REPOSITORY_GITLEAKS", holistic["selected"])
+        self.assertEqual(len(security["selected"]), 6)
+        self.assertEqual(len(dependency_debt["selected"]), 6)
+        self.assertIn("REPOSITORY_TRUFFLEHOG", security["selected"])
+        self.assertIn("REPOSITORY_OSV_SCANNER", dependency_debt["selected"])
+        self.assertNotIn("PYTHON_RUFF_FORMAT", security["selected"])
 
     def test_target_tools_have_truthful_config_and_fixture_contracts(self) -> None:
         expected_configuration_paths = {
@@ -93,6 +104,24 @@ class MegaLinterPolicyTests(unittest.TestCase):
                 fixture_contract.get("blocker")
                 or (fixture_contract.get("positive") and fixture_contract.get("negative"))
             )
+
+    def test_every_tool_exposes_structured_ownership_and_evidence(self) -> None:
+        for tool in self.matrix["tools"]:
+            with self.subTest(tool=tool["id"]):
+                self.assertTrue(tool["owner"])
+                self.assertTrue(tool["policy_source"])
+                self.assertEqual(
+                    tool["evidence"]["configuration"],
+                    tool["configuration_path"],
+                )
+                self.assertEqual(
+                    tool["evidence"]["fixtures"],
+                    tool["fixtures"],
+                )
+                self.assertEqual(
+                    tool["evidence"]["runtime_report"],
+                    tool["report_path"],
+                )
 
     def test_removed_linter_variables_and_selections_are_rejected(self) -> None:
         deprecated_findings = megalinter_policy.validate_configuration(
@@ -164,6 +193,18 @@ class MegaLinterPolicyTests(unittest.TestCase):
         self.assertEqual(
             self.matrix_by_id["ACTION_ZIZMOR"]["enforcement"],
             "disabled",
+        )
+        self.assertEqual(
+            self.matrix_by_id["REPOSITORY_OSV_SCANNER"]["profiles"]["dependency-debt"],
+            "selected",
+        )
+        self.assertEqual(
+            self.matrix_by_id["REPOSITORY_OSV_SCANNER"]["profile_enforcement"]["dependency-debt"],
+            "blocking",
+        )
+        self.assertEqual(
+            self.matrix_by_id["REPOSITORY_GRYPE"]["profile_enforcement"]["dependency-debt"],
+            "advisory",
         )
 
     def test_root_policy_never_bootstraps_or_masks_results(self) -> None:

@@ -22,6 +22,12 @@ All nested `egolint/` paths and Empathy-specific exclusions were rebased to the
 standalone repository. Runtime evidence and caches now live under
 `.reports/egolint/**` and are ignored.
 
+The sanitized executable fixture at
+`tests/fixtures/compatibility/empathy-v1/` pins this source commit and verifies
+profile resolution, selected-tool counts, and normalized contract round trips.
+It preserves behavioral evidence without copying generated process
+environments, absolute workstation paths, or unrelated Empathy state.
+
 ## Deliberately excluded
 
 - `.agents/**`: generated Aether projections; Aether remains their owner.

@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Finding",
+  "description": "Versioned normalized lint finding.",
+  "type": "object",
+  "properties": {
+    "evidence": {
+      "description": "Sanitized evidence supporting this finding.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/EvidenceReference"
+      }
+    },
+    "fingerprint": {
+      "description": "Optional stable adapter or Egolint fingerprint.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "description": "Stable finding identifier within the report.",
+      "type": "string"
+    },
+    "location": {
+      "description": "Optional normalized source location.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SourceLocation"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "message": {
+      "description": "Human-readable diagnostic message.",
+      "type": "string"
+    },
+    "ownership": {
+      "description": "Accountable owner and policy provenance.",
+      "$ref": "#/$defs/RuleOwnership"
+    },
+    "rule": {
+      "description": "Tool and rule that produced the finding.",
+      "$ref": "#/$defs/RuleIdentity"
+    },
+    "schema_version": {
+      "description": "Finding-contract version.",
+      "type": "integer",
+      "const": 1
+    },
+    "severity": {
+      "description": "Normalized severity independent of adapter-specific labels.",
+      "$ref": "#/$defs/Severity"
+    },
+    "suppressed_by": {
+      "description": "Suppression identifier applied to this finding, when any.",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "rule",
+    "severity",
+    "message",
+    "ownership",
+    "evidence"
+  ],
+  "$defs": {
+    "EvidenceKind": {
+      "description": "Sanitized evidence category.",
+      "oneOf": [
+        {
+          "description": "Canonical policy selection or ownership record.",
+          "type": "string",
+          "const": "policy"
+        },
+        {
+          "description": "Tool or rule configuration.",
+          "type": "string",
+          "const": "configuration"
+        },
+        {
+          "description": "Positive, negative, or compatibility fixture.",
+          "type": "string",
+          "const": "fixture"
+        },
+        {
+          "description": "Machine-readable adapter report.",
+          "type": "string",
+          "const": "adapter_report"
+        },
+        {
+          "description": "Sanitized adapter log.",
+          "type": "string",
+          "const": "adapter_log"
+        },
+        {
+          "description": "Other reviewed evidence.",
+          "type": "string",
+          "const": "other"
+        }
+      ]
+    },
+    "EvidenceReference": {
+      "description": "Versioned reference to sanitized, workspace-owned evidence.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Optional bounded human-readable context.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kind": {
+          "description": "Kind of evidence referenced.",
+          "$ref": "#/$defs/EvidenceKind"
+        },
+        "path": {
+          "description": "Normalized workspace-relative evidence path.",
+          "type": "string"
+        },
+        "schema_version": {
+          "description": "Evidence-contract version.",
+          "type": "integer",
+          "const": 1
+        },
+        "sha256": {
+          "description": "Optional lowercase hexadecimal SHA-256 digest.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "path"
+      ]
+    },
+    "RuleIdentity": {
+      "description": "Stable identity of a tool-owned rule.",
+      "type": "object",
+      "properties": {
+        "rule_id": {
+          "description": "Tool-native or Egolint-owned rule identifier.",
+          "type": "string"
+        },
+        "tool_id": {
+          "description": "Canonical Egolint or `MegaLinter` tool identifier.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "tool_id",
+        "rule_id"
+      ]
+    },
+    "RuleOwnership": {
+      "description": "Explicit ownership and policy provenance for a rule.",
+      "type": "object",
+      "properties": {
+        "configuration_path": {
+          "description": "Optional workspace-relative configuration implementing the rule.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "owner": {
+          "description": "Repository, team, or external system accountable for the rule.",
+          "type": "string"
+        },
+        "policy_source": {
+          "description": "Logical identifier for the policy decision that selected the rule.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "policy_source"
+      ]
+    },
+    "Severity": {
+      "description": "Normalized finding severity.",
+      "oneOf": [
+        {
+          "description": "Informational observation.",
+          "type": "string",
+          "const": "info"
+        },
+        {
+          "description": "Nonblocking warning.",
+          "type": "string",
+          "const": "warning"
+        },
+        {
+          "description": "Blocking correctness or policy failure.",
+          "type": "string",
+          "const": "error"
+        },
+        {
+          "description": "Urgent high-impact security or safety failure.",
+          "type": "string",
+          "const": "critical"
+        }
+      ]
+    },
+    "SourceLocation": {
+      "description": "Workspace-relative source location.",
+      "type": "object",
+      "properties": {
+        "end_column": {
+          "description": "One-based ending column.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "end_line": {
+          "description": "One-based ending line.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "path": {
+          "description": "Normalized path relative to the inspected workspace.",
+          "type": "string"
+        },
+        "start_column": {
+          "description": "One-based starting column.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "start_line": {
+          "description": "One-based starting line.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ]
+    }
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ToolResult",
+  "description": "Versioned normalized result for one selected tool.",
+  "type": "object",
+  "properties": {
+    "duration_ms": {
+      "description": "Adapter-reported elapsed time, when available.",
+      "type": [
+        "integer",
+        "null"
+      ],
+      "format": "uint64",
+      "minimum": 0
+    },
+    "enforcement": {
+      "description": "Whether this result participates in the blocking quality gate.",
+      "$ref": "#/$defs/Enforcement"
+    },
+    "evidence": {
+      "description": "Sanitized evidence supporting the result.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/EvidenceReference"
+      }
+    },
+    "finding_count": {
+      "description": "Number of normalized findings attributed to the tool.",
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0
+    },
+    "owner": {
+      "description": "Repository, team, or external system accountable for the tool policy.",
+      "type": "string"
+    },
+    "policy_source": {
+      "description": "Logical identifier for the policy that selected the tool.",
+      "type": "string"
+    },
+    "schema_version": {
+      "description": "Tool-result contract version.",
+      "type": "integer",
+      "const": 1
+    },
+    "status": {
+      "description": "Precise observed execution or selection state.",
+      "$ref": "#/$defs/ToolStatus"
+    },
+    "tool_id": {
+      "description": "Canonical Egolint or `MegaLinter` tool identifier.",
+      "type": "string"
+    },
+    "warning_count": {
+      "description": "Number of normalized warnings attributed to the tool.",
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "tool_id",
+    "owner",
+    "policy_source",
+    "status",
+    "enforcement",
+    "finding_count",
+    "warning_count",
+    "evidence"
+  ],
+  "$defs": {
+    "Enforcement": {
+      "description": "Quality-gate behavior for one tool or rule.",
+      "oneOf": [
+        {
+          "description": "Findings fail the quality gate.",
+          "type": "string",
+          "const": "blocking"
+        },
+        {
+          "description": "Findings remain visible without failing the gate.",
+          "type": "string",
+          "const": "advisory"
+        },
+        {
+          "description": "Policy deliberately disables the tool or rule.",
+          "type": "string",
+          "const": "disabled"
+        }
+      ]
+    },
+    "EvidenceKind": {
+      "description": "Sanitized evidence category.",
+      "oneOf": [
+        {
+          "description": "Canonical policy selection or ownership record.",
+          "type": "string",
+          "const": "policy"
+        },
+        {
+          "description": "Tool or rule configuration.",
+          "type": "string",
+          "const": "configuration"
+        },
+        {
+          "description": "Positive, negative, or compatibility fixture.",
+          "type": "string",
+          "const": "fixture"
+        },
+        {
+          "description": "Machine-readable adapter report.",
+          "type": "string",
+          "const": "adapter_report"
+        },
+        {
+          "description": "Sanitized adapter log.",
+          "type": "string",
+          "const": "adapter_log"
+        },
+        {
+          "description": "Other reviewed evidence.",
+          "type": "string",
+          "const": "other"
+        }
+      ]
+    },
+    "EvidenceReference": {
+      "description": "Versioned reference to sanitized, workspace-owned evidence.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Optional bounded human-readable context.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kind": {
+          "description": "Kind of evidence referenced.",
+          "$ref": "#/$defs/EvidenceKind"
+        },
+        "path": {
+          "description": "Normalized workspace-relative evidence path.",
+          "type": "string"
+        },
+        "schema_version": {
+          "description": "Evidence-contract version.",
+          "type": "integer",
+          "const": 1
+        },
+        "sha256": {
+          "description": "Optional lowercase hexadecimal SHA-256 digest.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "path"
+      ]
+    },
+    "ToolStatus": {
+      "description": "Precise normalized state for one tool.",
+      "oneOf": [
+        {
+          "description": "Selected but not yet executed.",
+          "type": "string",
+          "const": "selected"
+        },
+        {
+          "description": "Not relevant to the inspected repository.",
+          "type": "string",
+          "const": "not_applicable"
+        },
+        {
+          "description": "Excluded by the selected profile.",
+          "type": "string",
+          "const": "disabled_by_profile"
+        },
+        {
+          "description": "Deliberately disabled by policy configuration.",
+          "type": "string",
+          "const": "disabled_by_configuration"
+        },
+        {
+          "description": "Selected but absent from the adapter image.",
+          "type": "string",
+          "const": "missing_from_image"
+        },
+        {
+          "description": "Tool configuration could not be loaded.",
+          "type": "string",
+          "const": "configuration_error"
+        },
+        {
+          "description": "Completed without findings or warnings.",
+          "type": "string",
+          "const": "passed"
+        },
+        {
+          "description": "Completed with nonblocking warnings.",
+          "type": "string",
+          "const": "passed_with_warnings"
+        },
+        {
+          "description": "Completed with lint findings.",
+          "type": "string",
+          "const": "failed_findings"
+        },
+        {
+          "description": "Failed to execute normally.",
+          "type": "string",
+          "const": "execution_error"
+        },
+        {
+          "description": "Exceeded its execution budget.",
+          "type": "string",
+          "const": "timed_out"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,822 @@
+---
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "release-${{ github.ref }}"
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  CERTIFICATE_IDENTITY: https://github.com/${{ github.repository }}/.github/workflows/release.yml@${{ github.ref }}
+  REGISTRY: ghcr.io
+  RUST_BUILDER_IMAGE: ${{ vars.EGOLINT_RUST_BUILDER_IMAGE }}
+  CLI_RUNTIME_IMAGE: ${{ vars.EGOLINT_CLI_RUNTIME_IMAGE }}
+  NODE_POLICY_IMAGE: ${{ vars.EGOLINT_NODE_POLICY_IMAGE }}
+  MEGALINTER_IMAGE: ${{ vars.EGOLINT_MEGALINTER_IMAGE }}
+
+jobs:
+  candidate:
+    name: Build and verify candidate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    outputs:
+      rust-builder-image: ${{ steps.release-inputs.outputs.rust-builder-image }}
+      cli-runtime-image: ${{ steps.release-inputs.outputs.cli-runtime-image }}
+      node-policy-image: ${{ steps.release-inputs.outputs.node-policy-image }}
+      megalinter-image: ${{ steps.release-inputs.outputs.megalinter-image }}
+      version: ${{ steps.release-inputs.outputs.version }}
+      build-date: ${{ steps.release-inputs.outputs.build-date }}
+    steps:
+      - name: Check out the immutable tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - id: release-inputs
+        name: Validate and freeze the release identity and base images
+        shell: bash
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+          version="$(python3 - <<'PY'
+          import tomllib
+          with open("Cargo.toml", "rb") as stream:
+              print(tomllib.load(stream)["package"]["version"])
+          PY
+          )"
+          test "${GITHUB_REF_NAME}" = "v${version}"
+          git fetch --no-tags origin \
+            "+refs/heads/main:refs/remotes/origin/main"
+          git merge-base --is-ancestor "${GITHUB_SHA}" "refs/remotes/origin/main"
+          for variable in \
+            RUST_BUILDER_IMAGE \
+            CLI_RUNTIME_IMAGE \
+            NODE_POLICY_IMAGE \
+            MEGALINTER_IMAGE; do
+            value="${!variable:-}"
+            if [[ ! ${value} =~ ^[A-Za-z0-9][A-Za-z0-9._/:@+-]*@sha256:[0-9a-f]{64}$ ]]; then
+              printf "%s must be a reviewed digest-qualified image.\n" "${variable}" >&2
+              exit 1
+            fi
+          done
+          {
+            printf "rust-builder-image=%s\n" "${RUST_BUILDER_IMAGE}"
+            printf "cli-runtime-image=%s\n" "${CLI_RUNTIME_IMAGE}"
+            printf "node-policy-image=%s\n" "${NODE_POLICY_IMAGE}"
+            printf "megalinter-image=%s\n" "${MEGALINTER_IMAGE}"
+            printf "version=%s\n" "${version}"
+            printf "build-date=%s\n" "$(git show -s --format=%cI HEAD)"
+          } >>"${GITHUB_OUTPUT}"
+
+      - name: Test and package the Rust workspace
+        shell: bash
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+          cargo fmt --all --check
+          cargo clippy --all-targets --all-features --locked -- -D warnings
+          cargo test --all-targets --all-features --locked
+          cargo package --locked
+          cargo build --locked --release --bin "egolint"
+
+      - name: Verify generated schemas
+        shell: bash
+        run: |
+          temporary_directory="$(mktemp -d)"
+          trap 'rm -rf "${temporary_directory}"' EXIT
+          for schema in \
+            config \
+            profile \
+            finding \
+            suppression \
+            evidence \
+            tool-result \
+            plan \
+            report \
+            debt; do
+            cargo run --quiet --locked -- schema "${schema}" \
+              > "${temporary_directory}/${schema}.schema.json"
+            diff --unified \
+              "schemas/${schema}.schema.json" \
+              "${temporary_directory}/${schema}.schema.json"
+          done
+
+      - name: Run locked policy contract tests
+        shell: bash
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+          test "$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')" = "3.12"
+          python3 -m venv "${RUNNER_TEMP}/egolint-release-python"
+          printf '%s\n' \
+            'PyYAML==6.0.3 --hash=sha256:ba1cc08a7ccde2d2ec775841541641e4548226580ab850948cbfda66a1befcdc' \
+            > "${RUNNER_TEMP}/egolint-release-requirements.txt"
+          "${RUNNER_TEMP}/egolint-release-python/bin/python" -m pip install \
+            --disable-pip-version-check \
+            --only-binary=:all: \
+            --require-hashes \
+            --requirement "${RUNNER_TEMP}/egolint-release-requirements.txt"
+          "${RUNNER_TEMP}/egolint-release-python/bin/python" \
+            scripts/validate_megalinter_policy.py --check
+          "${RUNNER_TEMP}/egolint-release-python/bin/python" \
+            scripts/complementary_tools.py --check
+          "${RUNNER_TEMP}/egolint-release-python/bin/python" -m unittest discover \
+            --start-directory tests \
+            --pattern "test_*.py"
+
+      - name: Set up the pinned Node.js runtime
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+
+      - name: Run the locked Node.js policy contracts
+        shell: bash
+        run: |
+          corepack enable pnpm
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm run commitlint:test
+          pnpm run eslint-config:test
+
+      - name: Assemble deterministic binary and crate archives
+        shell: bash
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+          version="${GITHUB_REF_NAME#v}"
+          source_date_epoch="$(git show -s --format=%ct HEAD)"
+          mkdir -p "dist" "archive/egolint-${version}-x86_64-unknown-linux-gnu"
+          install -m 0755 "target/release/egolint" \
+            "archive/egolint-${version}-x86_64-unknown-linux-gnu/egolint"
+          install -m 0644 "README.md" "LICENSE" "NOTICE" \
+            "archive/egolint-${version}-x86_64-unknown-linux-gnu/"
+          tar --sort=name --owner=0 --group=0 --numeric-owner \
+            --mtime="@${source_date_epoch}" \
+            --directory "archive" \
+            --create --gzip \
+            --file "dist/egolint-${version}-x86_64-unknown-linux-gnu.tar.gz" \
+            "egolint-${version}-x86_64-unknown-linux-gnu"
+          cp "target/package/egolint-${version}.crate" "dist/"
+
+      - name: Build candidate container images
+        shell: bash
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+          docker build \
+            --file "Dockerfile" \
+            --build-arg "RUST_BUILDER_IMAGE=${RUST_BUILDER_IMAGE}" \
+            --build-arg "CLI_RUNTIME_IMAGE=${CLI_RUNTIME_IMAGE}" \
+            --build-arg "VERSION=${GITHUB_REF_NAME#v}" \
+            --build-arg "REVISION=${GITHUB_SHA}" \
+            --build-arg "BUILD_DATE=$(git show -s --format=%cI HEAD)" \
+            --tag "egolint:candidate" \
+            "."
+          docker build \
+            --file "Dockerfile.full" \
+            --build-arg "NODE_POLICY_IMAGE=${NODE_POLICY_IMAGE}" \
+            --build-arg "MEGALINTER_IMAGE=${MEGALINTER_IMAGE}" \
+            --build-arg "VERSION=${GITHUB_REF_NAME#v}" \
+            --build-arg "REVISION=${GITHUB_SHA}" \
+            --build-arg "BUILD_DATE=$(git show -s --format=%cI HEAD)" \
+            --tag "egolint-full:candidate" \
+            "."
+          docker run --rm "egolint:candidate" --version
+
+      - name: Smoke-test a clean consumer through the action
+        uses: ./
+        with:
+          workspace: tests/fixtures/consumers/clean
+          profile: fast
+          image: egolint-full:candidate
+          allow-unpinned-image: "true"
+          pull-policy: never
+          network: none
+          megalinter-config: .mega-linter.yml
+          changed-only: "false"
+
+      - name: Smoke-test clean and findings consumers
+        shell: bash
+        run: scripts/smoke_consumer.sh "egolint-full:candidate"
+
+      - name: Materialize the exact tagged source for SBOM analysis
+        shell: bash
+        run: |
+          mkdir "sbom-source"
+          git archive "${GITHUB_SHA}" | tar --extract --directory "sbom-source"
+
+      - name: Generate the source SBOM
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          path: sbom-source
+          format: spdx-json
+          output-file: dist/egolint-source.spdx.json
+          upload-artifact: false
+          upload-release-assets: false
+
+      - name: Generate the Linux binary archive SBOM
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          path: archive
+          format: spdx-json
+          output-file: dist/egolint-linux-x86_64.spdx.json
+          upload-artifact: false
+          upload-release-assets: false
+
+      - name: Generate candidate checksums
+        shell: bash
+        working-directory: dist
+        run: sha256sum -- * > SHA256SUMS
+
+      - name: Upload the unsigned candidate inputs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: unsigned-release-candidate
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  sign-candidate:
+    name: Authorize, sign, and attest candidate bytes
+    needs: candidate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download the unsigned candidate
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: unsigned-release-candidate
+          path: dist
+
+      - name: Verify candidate checksums before signing
+        shell: bash
+        working-directory: dist
+        run: sha256sum --check "SHA256SUMS"
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+
+      - name: Sign the checksum manifest
+        shell: bash
+        run: >-
+          cosign sign-blob --yes
+          --bundle "dist/SHA256SUMS.sigstore.json"
+          "dist/SHA256SUMS"
+
+      - name: Attest candidate build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: dist/*
+
+      - name: Associate the SBOM with the source crate
+        uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
+        with:
+          subject-path: dist/*.crate
+          sbom-path: dist/egolint-source.spdx.json
+
+      - name: Associate the SBOM with the binary archive
+        uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
+        with:
+          subject-path: dist/*.tar.gz
+          sbom-path: dist/egolint-linux-x86_64.spdx.json
+
+      - name: Upload the authorized release candidate
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-candidate
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  verify-candidate:
+    name: Verify candidate from downloaded bytes
+    needs: sign-candidate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      attestations: read
+    steps:
+      - name: Download the candidate
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-candidate
+          path: dist
+
+      - name: Verify candidate checksums
+        shell: bash
+        working-directory: dist
+        run: sha256sum --check "SHA256SUMS"
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+
+      - name: Verify the keyless checksum signature
+        shell: bash
+        run: |
+          cosign verify-blob \
+            --bundle "dist/SHA256SUMS.sigstore.json" \
+            --certificate-identity "${CERTIFICATE_IDENTITY}" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "dist/SHA256SUMS"
+
+      - name: Verify GitHub attestations
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh attestation verify dist/*.crate --repo "${GITHUB_REPOSITORY}"
+          gh attestation verify dist/*.tar.gz --repo "${GITHUB_REPOSITORY}"
+
+      - name: Execute the authenticated binary archive
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          extraction_directory="$(mktemp -d)"
+          trap 'rm -rf "${extraction_directory}"' EXIT
+          tar --extract --gzip \
+            --file "dist/egolint-${version}-x86_64-unknown-linux-gnu.tar.gz" \
+            --directory "${extraction_directory}"
+          "${extraction_directory}/egolint-${version}-x86_64-unknown-linux-gnu/egolint" \
+            --version
+
+  build-images:
+    name: Build and smoke ${{ matrix.product }} candidate
+    needs:
+      - candidate
+      - verify-candidate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    environment: release
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - product: egolint
+            dockerfile: Dockerfile
+          - product: egolint-full
+            dockerfile: Dockerfile.full
+    steps:
+      - name: Check out the immutable tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Refuse a pre-existing attempt quarantine tag
+        env:
+          STAGING_TAG: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.product }}:release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+        shell: bash
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+          set +o errexit
+          inspection="$(docker buildx imagetools inspect "${STAGING_TAG}" 2>&1)"
+          status=$?
+          set -o errexit
+          if [[ ${status} -eq 0 ]]; then
+            printf "Refusing to trust or replace pre-existing quarantine tag %s.\n" \
+              "${STAGING_TAG}" >&2
+            exit 1
+          elif [[ ${inspection} == *"not found"* || ${inspection} == *"manifest unknown"* ]]; then
+            printf "Quarantine tag is unused: %s\n" "${STAGING_TAG}"
+          else
+            printf "Could not resolve quarantine tag %s:\n%s\n" \
+              "${STAGING_TAG}" "${inspection}" >&2
+            exit 1
+          fi
+
+      - id: build
+        name: Build and push the multi-architecture quarantine image
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.product }}:release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          build-args: |
+            RUST_BUILDER_IMAGE=${{ needs.candidate.outputs.rust-builder-image }}
+            CLI_RUNTIME_IMAGE=${{ needs.candidate.outputs.cli-runtime-image }}
+            NODE_POLICY_IMAGE=${{ needs.candidate.outputs.node-policy-image }}
+            MEGALINTER_IMAGE=${{ needs.candidate.outputs.megalinter-image }}
+            VERSION=${{ needs.candidate.outputs.version }}
+            REVISION=${{ github.sha }}
+            BUILD_DATE=${{ needs.candidate.outputs.build-date }}
+          provenance: mode=max
+          sbom: true
+
+      - id: candidate-image
+        name: Bind candidate evidence to the quarantine tag
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.product }}
+          BUILD_DIGEST: ${{ steps.build.outputs.digest }}
+          STAGING_TAG: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.product }}:release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+        shell: bash
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+          digest="${BUILD_DIGEST}"
+          [[ ${digest} =~ ^sha256:[0-9a-f]{64}$ ]]
+          resolved_digest="$(
+            docker buildx imagetools inspect "${STAGING_TAG}" \
+              | awk '$1 == "Digest:" { print $2; exit }'
+          )"
+          [[ ${resolved_digest} == "${digest}" ]]
+          printf "digest=%s\n" "${digest}" >>"${GITHUB_OUTPUT}"
+
+      - name: Verify manifest platforms and execute both architectures
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.product }}
+          DIGEST: ${{ steps.candidate-image.outputs.digest }}
+          PRODUCT: ${{ matrix.product }}
+        shell: bash
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+          docker buildx imagetools inspect --raw "${IMAGE}@${DIGEST}" > manifest.json
+          jq -e '
+            [.manifests[].platform | "\(.os)/\(.architecture)"] as $p
+            | ($p | index("linux/amd64") != null)
+              and ($p | index("linux/arm64") != null)
+          ' manifest.json
+          temporary_root="$(mktemp -d)"
+          trap 'rm -rf "${temporary_root}"' EXIT
+          for platform in linux/amd64 linux/arm64; do
+            docker pull --platform "${platform}" "${IMAGE}@${DIGEST}"
+            if [[ ${PRODUCT} == "egolint" ]]; then
+              docker run --rm --platform "${platform}" \
+                "${IMAGE}@${DIGEST}" --version
+            else
+              workspace="${temporary_root}/${platform//\//-}"
+              cp -R tests/fixtures/consumers/clean "${workspace}"
+              mkdir -p "${workspace}/.reports/egolint"
+              chmod 0777 "${workspace}/.reports/egolint"
+              docker run --rm --platform "${platform}" \
+                --network none \
+                --cap-drop ALL \
+                --security-opt no-new-privileges \
+                --pids-limit 512 \
+                --mount "type=bind,source=${workspace},target=/tmp/lint,readonly" \
+                --mount "type=bind,source=${workspace}/.reports/egolint,target=/tmp/lint/.reports/egolint" \
+                --workdir /tmp/lint \
+                --env "CI=true" \
+                --env "GITHUB_WORKSPACE=/tmp/lint" \
+                --env "MEGALINTER_CONFIG=/tmp/lint/.mega-linter.yml" \
+                --env "REPORT_OUTPUT_FOLDER=/tmp/lint/.reports/egolint" \
+                --env "VALIDATE_ALL_CODEBASE=true" \
+                --env "APPLY_FIXES=none" \
+                --env "AZURE_COMMENT_REPORTER=false" \
+                --env "BITBUCKET_COMMENT_REPORTER=false" \
+                --env "EMAIL_REPORTER=false" \
+                --env "FILEIO_REPORTER=false" \
+                --env "GITHUB_COMMENT_REPORTER=false" \
+                --env "GITHUB_STATUS_REPORTER=false" \
+                --env "GITLAB_COMMENT_REPORTER=false" \
+                "${IMAGE}@${DIGEST}"
+              test -s "${workspace}/.reports/egolint/mega-linter-report.json"
+              docker run --rm --interactive --platform "${platform}" \
+                --entrypoint "python3" "${IMAGE}@${DIGEST}" - <<'PY'
+          from pathlib import Path
+          import yaml
+          profiles = Path("/opt/egolint/profiles")
+          for name in ("fast.yml", "holistic.yml", "security.yml", "dependency-debt.yml"):
+              value = yaml.safe_load((profiles / name).read_text(encoding="utf-8"))
+              assert isinstance(value, dict)
+              assert "EXTENDS" not in value
+          PY
+            fi
+          done
+
+      - name: Record candidate image evidence
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.product }}
+          DIGEST: ${{ steps.candidate-image.outputs.digest }}
+        shell: bash
+        run: printf "%s@%s\n" "${IMAGE}" "${DIGEST}" > "${{ matrix.product }}.digest"
+
+      - name: Upload candidate image evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ matrix.product }}-candidate-digest
+          path: ${{ matrix.product }}.digest
+          if-no-files-found: error
+          retention-days: 7
+
+  authorize-images:
+    name: Authorize and promote both image products
+    needs: build-images
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: release
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download CLI candidate evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: egolint-candidate-digest
+          path: dist
+
+      - name: Download full-image candidate evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: egolint-full-candidate-digest
+          path: dist
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+
+      - id: evidence
+        name: Validate downloaded candidate digests
+        shell: bash
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+          validate_candidate() {
+            local product="$1"
+            local evidence="dist/${product}.digest"
+            local expected_prefix="${REGISTRY}/${GITHUB_REPOSITORY_OWNER}/${product}@"
+            local image=""
+            local digest=""
+            test -s "${evidence}"
+            test "$(wc -l <"${evidence}")" -eq 1
+            IFS= read -r image <"${evidence}"
+            digest="${image#"${expected_prefix}"}"
+            [[ ${digest} != "${image}" && ${digest} =~ ^sha256:[0-9a-f]{64}$ ]]
+            resolved_digest="$(
+              docker buildx imagetools inspect "${image}" \
+                | awk '$1 == "Digest:" { print $2; exit }'
+            )"
+            [[ ${resolved_digest} == "${digest}" ]]
+            if [[ ${product} == "egolint" ]]; then
+              printf "egolint_digest=%s\n" "${digest}" >>"${GITHUB_OUTPUT}"
+            else
+              printf "egolint_full_digest=%s\n" "${digest}" >>"${GITHUB_OUTPUT}"
+            fi
+          }
+          validate_candidate "egolint"
+          validate_candidate "egolint-full"
+
+      - name: Sign and verify both candidate digests
+        env:
+          EGOLINT_DIGEST: ${{ steps.evidence.outputs.egolint_digest }}
+          EGOLINT_FULL_DIGEST: ${{ steps.evidence.outputs.egolint_full_digest }}
+        shell: bash
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+          for product in egolint egolint-full; do
+            if [[ ${product} == "egolint" ]]; then
+              digest="${EGOLINT_DIGEST}"
+            else
+              digest="${EGOLINT_FULL_DIGEST}"
+            fi
+            image="${REGISTRY}/${GITHUB_REPOSITORY_OWNER}/${product}@${digest}"
+            cosign sign --yes "${image}"
+            cosign verify \
+              --certificate-identity "${CERTIFICATE_IDENTITY}" \
+              --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+              "${image}"
+          done
+
+      - name: Attest CLI image release provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ github.repository_owner }}/egolint
+          subject-digest: ${{ steps.evidence.outputs.egolint_digest }}
+          push-to-registry: true
+
+      - name: Attest full image release provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ github.repository_owner }}/egolint-full
+          subject-digest: ${{ steps.evidence.outputs.egolint_full_digest }}
+          push-to-registry: true
+
+      - name: Create or verify both write-once version tags
+        env:
+          EGOLINT_DIGEST: ${{ steps.evidence.outputs.egolint_digest }}
+          EGOLINT_FULL_DIGEST: ${{ steps.evidence.outputs.egolint_full_digest }}
+        shell: bash
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+          promote() {
+            local product="$1"
+            local digest="$2"
+            local image="${REGISTRY}/${GITHUB_REPOSITORY_OWNER}/${product}"
+            local version_tag="${image}:${GITHUB_REF_NAME}"
+            local inspection=""
+            local observed=""
+            local status=0
+            set +o errexit
+            inspection="$(docker buildx imagetools inspect "${version_tag}" 2>&1)"
+            status=$?
+            set -o errexit
+            if [[ ${status} -eq 0 ]]; then
+              observed="$(awk '$1 == "Digest:" { print $2; exit }' <<<"${inspection}")"
+              if [[ ${observed} != "${digest}" ]]; then
+                printf "Refusing to replace %s at %s with %s.\n" \
+                  "${version_tag}" "${observed}" "${digest}" >&2
+                exit 1
+              fi
+            elif [[ ${inspection} == *"not found"* || ${inspection} == *"manifest unknown"* ]]; then
+              docker buildx imagetools create \
+                --tag "${version_tag}" \
+                "${image}@${digest}"
+            else
+              printf "Could not prove version-tag state for %s:\n%s\n" \
+                "${version_tag}" "${inspection}" >&2
+              exit 1
+            fi
+            observed="$(
+              docker buildx imagetools inspect "${version_tag}" \
+                | awk '$1 == "Digest:" { print $2; exit }'
+            )"
+            [[ ${observed} == "${digest}" ]]
+            cosign verify \
+              --certificate-identity "${CERTIFICATE_IDENTITY}" \
+              --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+              "${image}@${digest}"
+            printf "%s@%s\n" "${image}" "${digest}" >"dist/${product}.digest"
+          }
+          promote "egolint" "${EGOLINT_DIGEST}"
+          promote "egolint-full" "${EGOLINT_FULL_DIGEST}"
+
+      # GHCR deletion is manifest/digest scoped and can remove the promoted
+      # version as well. Leave the stable quarantine tags for a reviewed
+      # package-retention policy instead of risking the verified digest.
+
+      - name: Upload authorized image evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: authorized-image-digests
+          path: dist/*.digest
+          if-no-files-found: error
+          retention-days: 7
+
+  announce:
+    name: Publish the verified release
+    needs: authorize-images
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: release
+    permissions:
+      contents: write
+      packages: read
+    steps:
+      - name: Download candidate assets
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: release-candidate
+          path: dist
+
+      - name: Download authorized image evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: authorized-image-digests
+          path: dist
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+
+      - name: Log in to GHCR for digest verification
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Set up Docker Buildx for tag verification
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+
+      - name: Reverify assets and publish only the immutable tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            printf "Release already exists; refusing to overwrite %s.\n" \
+              "${GITHUB_REF_NAME}" >&2
+            exit 1
+          fi
+          verify_image_evidence() {
+            local directory="$1"
+            local digest=""
+            local evidence=""
+            local image=""
+            local prefix=""
+            local product=""
+            for product in egolint egolint-full; do
+              evidence="${directory}/${product}.digest"
+              test -s "${evidence}"
+              test "$(wc -l < "${evidence}")" -eq 1
+              IFS= read -r image < "${evidence}"
+              prefix="${REGISTRY}/${GITHUB_REPOSITORY_OWNER}/${product}@"
+              digest="${image#"${prefix}"}"
+              if [[ ${digest} == "${image}" || ! ${digest} =~ ^sha256:[0-9a-f]{64}$ ]]; then
+                printf "Invalid immutable image evidence: %s\n" "${image}" >&2
+                exit 1
+              fi
+              cosign verify \
+                --certificate-identity "${CERTIFICATE_IDENTITY}" \
+                --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+                "${image}"
+              resolved_digest="$(
+                docker buildx imagetools inspect \
+                  "${REGISTRY}/${GITHUB_REPOSITORY_OWNER}/${product}:${GITHUB_REF_NAME}" \
+                  | awk '$1 == "Digest:" { print $2; exit }'
+              )"
+              if [[ ${resolved_digest} != "${digest}" ]]; then
+                printf "Final tag for %s resolved to %s, expected %s.\n" \
+                  "${product}" "${resolved_digest}" "${digest}" >&2
+                exit 1
+              fi
+            done
+          }
+          (cd dist && sha256sum --check "SHA256SUMS")
+          verify_image_evidence "dist"
+          gh release create "${GITHUB_REF_NAME}" \
+            dist/* \
+            --draft \
+            --verify-tag \
+            --title "Egolint ${GITHUB_REF_NAME}" \
+            --generate-notes
+          verification_directory="$(mktemp -d)"
+          trap 'rm -rf "${verification_directory}"' EXIT
+          gh release download "${GITHUB_REF_NAME}" \
+            --dir "${verification_directory}" \
+            --pattern "egolint-*" \
+            --pattern "*.digest" \
+            --pattern "SHA256SUMS" \
+            --pattern "SHA256SUMS.sigstore.json"
+          (cd "${verification_directory}" && sha256sum --check "SHA256SUMS")
+          cosign verify-blob \
+            --bundle "${verification_directory}/SHA256SUMS.sigstore.json" \
+            --certificate-identity "${CERTIFICATE_IDENTITY}" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "${verification_directory}/SHA256SUMS"
+          verify_image_evidence "${verification_directory}"
+          gh release edit "${GITHUB_REF_NAME}" --draft=false
+
+# Intentionally absent: mutable latest/edge tags, crates.io publication, and a
+# moving action tag. Each requires separate policy approval after one immutable
+# release and two pinned consumer adoptions have been observed.

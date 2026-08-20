@@ -469,6 +469,16 @@ DOCKERFILE_HADOLINT_RULES_PATH: .config/lint/dockerfile
 DOCKERFILE_HADOLINT_CONFIG_FILE: hadolint.yaml
 
 # ==============================================================================
+# Shell portability
+# ==============================================================================
+
+# ShellCheck
+# https://www.shellcheck.net/
+# https://megalinter.io/latest/descriptors/bash_shellcheck/
+BASH_SHELLCHECK_RULES_PATH: .config/lint/shell
+BASH_SHELLCHECK_CONFIG_FILE: shellcheckrc
+
+# ==============================================================================
 # EditorConfig compliance
 # ==============================================================================
 
@@ -1391,8 +1401,8 @@ REPOSITORY_KINGFISHER_ARGUMENTS:
 #   - Text logs for detailed per-linter artifacts.
 #   - Markdown summary for readable CI and GitHub summaries.
 #   - JSON for downstream automation and report processing.
-#   - SARIF for GitHub code-scanning integration where supported.
-#   - GitHub PR comments and statuses for pull-request feedback.
+#   - SARIF as a private local artifact where supported.
+#   - Hosting-platform delivery remains a separate, least-privilege step.
 #
 # External delivery reporters remain disabled to avoid unnecessary data transfer.
 # ==============================================================================
@@ -1407,9 +1417,10 @@ GITLAB_COMMENT_REPORTER: false
 # Only relevant if the GitLab reporter is later enabled.
 GITLAB_COMMENT_REPORTER_OVERWRITE_COMMENT: true
 
-# GitHub is the canonical hosting platform.
-GITHUB_COMMENT_REPORTER: true
-GITHUB_STATUS_REPORTER: true
+# Hosting-platform publication is owned by a separate, least-privilege delivery
+# step. Scanner containers never receive a token or call GitHub APIs directly.
+GITHUB_COMMENT_REPORTER: false
+GITHUB_STATUS_REPORTER: false
 
 # Generate the full Markdown report with detailed linter sections.
 REPORTERS_MARKDOWN_TYPE: advanced
@@ -1440,10 +1451,10 @@ MARKDOWN_SUMMARY_REPORTER_FILE_NAME: megalinter-summary.md
 # Machine-readable artifacts
 # ------------------------------------------------------------------------------
 JSON_REPORTER: true
-JSON_REPORTER_OUTPUT_DETAIL: detailed
+JSON_REPORTER_OUTPUT_DETAIL: simple
 
 SARIF_REPORTER: true
-SARIF_REPORTER_FILE_NAME: megalinter-report.sarif
+SARIF_REPORTER_FILE_NAME: mega-linter-report.sarif
 
 # Empty means all SARIF-capable linters may contribute.
 SARIF_REPORTER_LINTERS: []

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "fixture_id": "empathy-v1",
+  "source": {
+    "repository": "egohygiene/empathy",
+    "commit": "560aff8430c2f170dadae9161a4603a71c41acbf",
+    "path": "egolint"
+  },
+  "expected": {
+    "profile": "holistic",
+    "catalog_tools": 124,
+    "fast_tools": 12,
+    "holistic_tools": 105
+  }
+}

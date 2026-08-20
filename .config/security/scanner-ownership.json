@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "policy_version": "0.1.0-alpha.1",
+  "owners": {
+    "egolint": "Selects scanners, normalizes evidence, and enforces local policy.",
+    "hygiene": "Defines organization-wide severity, waiver, and expiry requirements.",
+    "observatory": "Aggregates sanitized organization-level trends; it is not a raw-evidence store.",
+    "relay": "Runs pinned Egolint integrations and publishes only approved artifacts."
+  },
+  "profiles": {
+    "security": {
+      "configuration": ".mega-linter.security.yml",
+      "requires_full_codebase": true,
+      "tools": [
+        "PYTHON_BANDIT",
+        "REPOSITORY_BETTERLEAKS",
+        "REPOSITORY_CHECKOV",
+        "REPOSITORY_SECRETLINT",
+        "REPOSITORY_TRIVY",
+        "REPOSITORY_TRUFFLEHOG"
+      ],
+      "enforcement": {
+        "blocking": [
+          "PYTHON_BANDIT",
+          "REPOSITORY_BETTERLEAKS",
+          "REPOSITORY_SECRETLINT",
+          "REPOSITORY_TRUFFLEHOG"
+        ],
+        "advisory": ["REPOSITORY_CHECKOV", "REPOSITORY_TRIVY"]
+      },
+      "network_contract": "The default is none. A caller must explicitly enable network access for database refreshes; otherwise evidence must record the reviewed cache age and MUST NOT claim current freshness."
+    },
+    "dependency-debt": {
+      "configuration": ".mega-linter.dependency-debt.yml",
+      "requires_full_codebase": true,
+      "tools": [
+        "REPOSITORY_DUSTILOCK",
+        "REPOSITORY_GRYPE",
+        "REPOSITORY_OSV_SCANNER",
+        "REPOSITORY_SYFT",
+        "REPOSITORY_TRIVY",
+        "REPOSITORY_TRIVY_SBOM"
+      ],
+      "enforcement": {
+        "blocking": ["REPOSITORY_DUSTILOCK", "REPOSITORY_OSV_SCANNER"],
+        "advisory": ["REPOSITORY_GRYPE", "REPOSITORY_TRIVY"],
+        "evidence_only": ["REPOSITORY_SYFT", "REPOSITORY_TRIVY_SBOM"]
+      },
+      "network_contract": "Fresh OSV, Grype, and Trivy data requires explicit network access or a reviewed, pre-seeded database whose timestamp is captured in evidence. Offline execution alone is not proof of freshness."
+    }
+  },
+  "capabilities": {
+    "dependency_vulnerabilities": {
+      "primary": ["REPOSITORY_OSV_SCANNER"],
+      "advisory": ["REPOSITORY_GRYPE", "REPOSITORY_TRIVY"],
+      "delegated": ["relay:dependabot-alert-ingestion"]
+    },
+    "dependency_inventory": {
+      "primary": ["REPOSITORY_SYFT", "REPOSITORY_TRIVY_SBOM"],
+      "advisory": ["REPOSITORY_DUSTILOCK"],
+      "delegated": []
+    },
+    "secret_detection": {
+      "primary": ["REPOSITORY_BETTERLEAKS", "REPOSITORY_SECRETLINT"],
+      "advisory": ["REPOSITORY_TRUFFLEHOG"],
+      "delegated": []
+    },
+    "source_and_iac_security": {
+      "primary": ["PYTHON_BANDIT", "REPOSITORY_CHECKOV"],
+      "advisory": ["REPOSITORY_TRIVY"],
+      "delegated": []
+    }
+  },
+  "evidence": {
+    "private_raw_paths": [
+      ".reports/egolint/linters_logs/",
+      ".reports/egolint/mega-linter-report.json",
+      ".reports/egolint/mega-linter-report.sarif",
+      ".reports/egolint/megalinter-summary.md",
+      ".reports/egolint/IDE-config/"
+    ],
+    "canonical_local_paths": [
+      ".reports/egolint/run.json",
+      ".reports/egolint/egolint.sarif",
+      ".reports/egolint/debt.json",
+      ".reports/egolint/debt.md"
+    ],
+    "currently_publishable_paths": [],
+    "publication_rule": "Raw scanner output is private by default because it can contain source excerpts, paths, package coordinates, and secret material. Canonical Egolint outputs are normalized local contracts, not automatic publication approval. No report is publishable until the applicable sanitizer contract and organization policy approve it."
+  },
+  "suppressions": {
+    "authority": "hygiene",
+    "contract": "schemas/suppression.schema.json",
+    "required_fields": [
+      "schema_version",
+      "id",
+      "rule",
+      "owner",
+      "justification",
+      "expires_on",
+      "state",
+      "evidence"
+    ],
+    "optional_selectors": ["path", "fingerprint"],
+    "maximum_days_without_renewal": 90,
+    "expired_behavior": "blocking",
+    "permanent_suppressions_allowed": false
+  },
+  "external_closure_gates": [
+    "Publish and verify one immutable release tag and both OCI image digests.",
+    "Adopt the pinned action or binary in Empathy and at least one non-Empathy repository.",
+    "Demonstrate sanitized dependency-debt trend ingestion in Observatory."
+  ]
+}

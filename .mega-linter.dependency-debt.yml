@@ -1,0 +1,33 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/oxsecurity/megalinter/v10.0.0/megalinter/descriptors/schemas/megalinter-configuration.jsonschema.json
+
+# Supply-chain inventory and dependency-debt overlay. OSV-Scanner is the
+# blocking vulnerability authority. Grype and Trivy provide advisory overlap;
+# Syft and Trivy SBOM provide inventory evidence. Database freshness requires
+# explicit network access or a reviewed, pre-seeded cache with recorded age.
+EXTENDS:
+  - .mega-linter.yml
+
+ENABLE_LINTERS:
+  - REPOSITORY_DUSTILOCK
+  - REPOSITORY_GRYPE
+  - REPOSITORY_OSV_SCANNER
+  - REPOSITORY_SYFT
+  - REPOSITORY_TRIVY
+  - REPOSITORY_TRIVY_SBOM
+
+ENABLE_DISABLE_LINTERS_PRIORITY: ENABLE
+VALIDATE_ALL_CODEBASE: true
+
+# OSV-Scanner is authoritative. Secondary databases can lag or disagree, so
+# their results remain visible without creating duplicate blocking decisions.
+REPOSITORY_GRYPE_DISABLE_ERRORS: true
+REPOSITORY_TRIVY_DISABLE_ERRORS: true
+
+AZURE_COMMENT_REPORTER: false
+BITBUCKET_COMMENT_REPORTER: false
+EMAIL_REPORTER: false
+FILEIO_REPORTER: false
+GITHUB_COMMENT_REPORTER: false
+GITHUB_STATUS_REPORTER: false
+GITLAB_COMMENT_REPORTER: false

@@ -5,8 +5,9 @@
 
 # megalinter
 #
-# A portable local wrapper around the MegaLinter container image. It is
-# intentionally suitable for direct use, Taskfile tasks, and CI jobs.
+# A constrained compatibility wrapper around the MegaLinter container image for
+# this repository's local Taskfile. Public consumers and CI should use the
+# native Egolint CLI or the root composite action with a digest-pinned image.
 #
 # MegaLinter documentation: https://megalinter.io/latest/
 
@@ -37,14 +38,12 @@ IMAGE="${MEGALINTER_IMAGE:-}"
 PULL_POLICY="missing"
 TTY_MODE="auto"
 CHANGED_ONLY="false"
-FIX_VALUE=""
 ENABLE_DESCRIPTORS=""
 ENABLE_LINTERS=""
 DISABLE_DESCRIPTORS=""
 DISABLE_LINTERS=""
-REPORT_DIRECTORY="${MEGALINTER_REPORT_DIRECTORY:-${DEFAULT_REPORT_DIRECTORY}}"
-ENV_FILE=""
-DOCKER_SOCKET="false"
+REPORT_DIRECTORY="${DEFAULT_REPORT_DIRECTORY}"
+REPORT_HOST_DIRECTORY=""
 USER_MODE="default"
 PLATFORM=""
 DEBUG_MODE="false"
@@ -52,9 +51,6 @@ QUIET_MODE="false"
 DRY_RUN="false"
 DOCTOR_MODE="false"
 
-EXTRA_ENVS=()
-EXTRA_VOLUMES=()
-RUNTIME_ARGS=()
 RUN_COMMAND=()
 
 # @description Write an informational wrapper message unless quiet mode is active.
@@ -100,7 +96,7 @@ die() {
 show_help() {
   cat <<'EOF'
 Usage:
-  megalinter [options] [-- runtime-argument ...]
+  megalinter [options]
 
 Run MegaLinter against a repository using Docker or Podman. With no options,
 the wrapper discovers the Git root, uses .mega-linter.yml when present, and
@@ -113,15 +109,15 @@ Selection:
   --disable-descriptors LIST  Disable descriptor keys.
   --disable-linters LIST      Disable canonical linter keys.
   --changed-only              Validate only new or edited files.
-  --fix[=LIST]                Apply fixes for all linters or a comma-separated
-                              list of canonical linter keys.
+  Fixes are intentionally unsupported here. Use native `egolint fix` to create
+  an isolated patch preview, review it, then use `egolint apply-fix` with its
+  exact patch digest, base commit, and expected post-tree.
 
 Repository and output:
   --workspace PATH            Repository to lint. Default: Git root or cwd.
   --config PATH               MegaLinter config inside the workspace.
-  --report-directory PATH     Repository-relative report directory.
+  --report-directory PATH     Must be the fixed report directory.
                               Default: .reports/egolint.
-  --no-reports                Disable report generation.
 
 Container image:
   --runtime auto|docker|podman  Container engine. Default: auto.
@@ -132,15 +128,6 @@ Container image:
   --platform PLATFORM          Optional container platform, such as linux/amd64.
   --tty auto|always|never      TTY allocation policy. Default: auto.
   --user default|host          Run with the host UID:GID on POSIX systems.
-
-Advanced container options:
-  --env NAME=VALUE             Set a MegaLinter environment variable. Repeatable.
-  --env-file PATH              Pass a container environment file.
-  --volume SPEC                Add a volume mount. Repeatable.
-  --mount-docker-socket        Mount the engine socket read/write. This grants
-                               the container control of the host engine.
-  --runtime-arg ARG            Pass one argument to docker/podman run. Repeatable.
-  --                           Pass all remaining arguments to docker/podman run.
 
 Diagnostics:
   --doctor                     Validate configuration and runtime readiness.
@@ -154,25 +141,19 @@ Environment defaults:
   MEGALINTER_IMAGE             Exact default image reference.
   MEGALINTER_VERSION           Default image tag.
   MEGALINTER_CONFIG            Default repository-relative configuration file.
-  MEGALINTER_REPORT_DIRECTORY  Default repository-relative report directory.
 
 Examples:
   megalinter
   megalinter --descriptors "BASH,YAML,MARKDOWN"
   megalinter --linters "PYTHON_RUFF,YAML_PRETTIER"
   megalinter --changed-only
-  megalinter --fix
   megalinter --flavor python --version v10.0.0
-  megalinter --env "LOG_LEVEL=DEBUG" --dry-run
+  megalinter --dry-run
 
 Taskfile example:
   lint:
     cmds:
       - ./scripts/megalinter.sh
-
-  lint:fix:
-    cmds:
-      - ./scripts/megalinter.sh --fix
 EOF
 }
 
@@ -245,15 +226,8 @@ parse_arguments() {
       CHANGED_ONLY="true"
       shift
       ;;
-    --fix)
-      FIX_VALUE="all"
-      shift
-      ;;
-    --fix=*)
-      FIX_VALUE="$(normalize_list "${1#*=}")"
-      [[ -n ${FIX_VALUE} ]] || die "--fix requires a non-empty value after '='."
-      validate_list "--fix" "${FIX_VALUE}"
-      shift
+    --fix | --fix=*)
+      die "$1 was removed because direct in-place fixes bypass Egolint's isolated review boundary; use the native Egolint CLI."
       ;;
     --workspace)
       require_option_value "$1" "${2:-}"
@@ -271,8 +245,7 @@ parse_arguments() {
       shift 2
       ;;
     --no-reports)
-      REPORT_DIRECTORY="none"
-      shift
+      die "--no-reports was removed: Egolint evidence is always written to ${DEFAULT_REPORT_DIRECTORY}."
       ;;
     --runtime)
       require_option_value "$1" "${2:-}"
@@ -314,30 +287,8 @@ parse_arguments() {
       USER_MODE="$2"
       shift 2
       ;;
-    --env)
-      require_option_value "$1" "${2:-}"
-      [[ $2 == *=* && $2 != =* ]] || die "--env requires NAME=VALUE."
-      EXTRA_ENVS+=("$2")
-      shift 2
-      ;;
-    --env-file)
-      require_option_value "$1" "${2:-}"
-      ENV_FILE="$2"
-      shift 2
-      ;;
-    --volume)
-      require_option_value "$1" "${2:-}"
-      EXTRA_VOLUMES+=("$2")
-      shift 2
-      ;;
-    --mount-docker-socket)
-      DOCKER_SOCKET="true"
-      shift
-      ;;
-    --runtime-arg)
-      [[ $# -ge 2 ]] || die "--runtime-arg requires a value."
-      RUNTIME_ARGS+=("$2")
-      shift 2
+    --env | --env-file | --volume | --mount-docker-socket | --runtime-arg)
+      die "$1 was removed because it crosses the wrapper's container security boundary; use the native Egolint CLI."
       ;;
     --doctor)
       DOCTOR_MODE="true"
@@ -364,11 +315,7 @@ parse_arguments() {
       exit "${EXIT_SUCCESS}"
       ;;
     --)
-      shift
-      while [[ $# -gt 0 ]]; do
-        RUNTIME_ARGS+=("$1")
-        shift
-      done
+      die "Passing raw container-runtime arguments was removed; use the native Egolint CLI."
       ;;
     *)
       die "Unknown option: $1. Run ${SCRIPT_NAME} --help for usage."
@@ -430,6 +377,7 @@ resolve_config() {
   fi
 
   [[ -f ${candidate} ]] || die "MegaLinter config does not exist: ${candidate}"
+  [[ ! -L ${candidate} ]] || die "MegaLinter config may not be a symbolic link: ${candidate}"
   candidate="$(cd "$(dirname "${candidate}")" && pwd -P)/$(basename "${candidate}")"
   path_is_within_workspace "${candidate}" ||
     die "MegaLinter config must be inside the workspace: ${candidate}"
@@ -438,13 +386,30 @@ resolve_config() {
 
 # @description Validate and normalize the repository-relative report directory.
 validate_report_directory() {
-  [[ ${REPORT_DIRECTORY} == "none" ]] && return 0
   [[ -n ${REPORT_DIRECTORY} ]] || die "Report directory cannot be empty."
   case "${REPORT_DIRECTORY}" in
   /*) die "Report directory must be relative to the workspace." ;;
   */../* | ../* | */..) die "Report directory may not contain a '..' segment: ${REPORT_DIRECTORY}" ;;
   esac
   REPORT_DIRECTORY="${REPORT_DIRECTORY#./}"
+  [[ ${REPORT_DIRECTORY} == "${DEFAULT_REPORT_DIRECTORY}" ]] ||
+    die "Report directory is fixed at ${DEFAULT_REPORT_DIRECTORY}."
+}
+
+# @description Create the fixed writable report boundary without following links.
+prepare_report_directory() {
+  local reports_parent="${WORKSPACE}/.reports"
+  local reports_path="${WORKSPACE}/${DEFAULT_REPORT_DIRECTORY}"
+
+  [[ ! -L ${reports_parent} ]] || die "Report parent may not be a symbolic link: ${reports_parent}"
+  [[ ! -L ${reports_path} ]] || die "Report directory may not be a symbolic link: ${reports_path}"
+  mkdir -p "${reports_path}"
+  [[ ! -L ${reports_parent} && ! -L ${reports_path} ]] ||
+    die "Report path became a symbolic link while it was prepared."
+  REPORT_HOST_DIRECTORY="$(absolute_directory "${reports_path}")" ||
+    die "Unable to resolve report directory: ${reports_path}"
+  path_is_within_workspace "${REPORT_HOST_DIRECTORY}" ||
+    die "Report directory resolves outside the workspace."
 }
 
 # @description Validate enumerated options and option-dependent prerequisites.
@@ -456,16 +421,15 @@ validate_options() {
 
   [[ ${FLAVOR} =~ ^[a-z0-9][a-z0-9_-]*$ ]] || die "Invalid flavor: ${FLAVOR}"
   [[ -n ${MEGALINTER_VERSION} ]] || die "MegaLinter version cannot be empty."
+  if [[ -n ${IMAGE} && ! ${IMAGE} =~ ^[A-Za-z0-9][A-Za-z0-9._/:@+-]*$ ]]; then
+    die "Image reference contains unsupported characters."
+  fi
 
   if [[ ${CHANGED_ONLY} == "true" && ! -d "${WORKSPACE}/.git" ]]; then
     git -C "${WORKSPACE}" rev-parse --git-dir >/dev/null 2>&1 ||
       die "--changed-only requires a Git worktree."
   fi
 
-  if [[ -n ${ENV_FILE} ]]; then
-    [[ -f ${ENV_FILE} ]] || die "Environment file does not exist: ${ENV_FILE}"
-    ENV_FILE="$(cd "$(dirname "${ENV_FILE}")" && pwd -P)/$(basename "${ENV_FILE}")"
-  fi
 }
 
 # @description Select Docker or Podman and confirm the executable is available.
@@ -520,33 +484,6 @@ prepare_image() {
   fi
 }
 
-# @description Derive an owner/repository identifier from the origin remote.
-# @stdout GitHub repository identifier, or an empty line when unavailable.
-github_repository() {
-  local remote_url=""
-  local repository=""
-  remote_url="$(git -C "${WORKSPACE}" remote get-url origin 2>/dev/null || true)"
-
-  case "${remote_url}" in
-  git@github.com:*) repository="${remote_url#git@github.com:}" ;;
-  ssh://git@github.com/*) repository="${remote_url#ssh://git@github.com/}" ;;
-  https://github.com/*) repository="${remote_url#https://github.com/}" ;;
-  http://github.com/*) repository="${remote_url#http://github.com/}" ;;
-  esac
-  repository="${repository%.git}"
-  printf "%s\n" "${repository}"
-}
-
-# @description Derive the current symbolic Git branch as a full GitHub ref.
-# @stdout Full branch ref, or an empty line for detached worktrees.
-github_ref() {
-  local branch=""
-  branch="$(git -C "${WORKSPACE}" symbolic-ref --quiet --short HEAD 2>/dev/null || true)"
-  if [[ -n ${branch} ]]; then
-    printf "refs/heads/%s\n" "${branch}"
-  fi
-}
-
 # @description Append one environment assignment to the container command.
 # @arg $1 string NAME=VALUE assignment.
 append_env() {
@@ -555,11 +492,13 @@ append_env() {
 
 # @description Build the complete container command as a shell-safe array.
 build_run_command() {
-  local repository=""
-  local ref=""
-  local item=""
-
-  RUN_COMMAND=("${RUNTIME}" "run" "--rm")
+  RUN_COMMAND=(
+    "${RUNTIME}" "run" "--rm"
+    "--network" "none"
+    "--cap-drop" "ALL"
+    "--security-opt" "no-new-privileges"
+    "--pids-limit" "512"
+  )
 
   case "${TTY_MODE}" in
   always) RUN_COMMAND+=("--interactive" "--tty") ;;
@@ -570,7 +509,11 @@ build_run_command() {
     ;;
   esac
 
-  RUN_COMMAND+=("--volume" "${WORKSPACE}:${CONTAINER_WORKSPACE}:rw")
+  RUN_COMMAND+=("--volume" "${WORKSPACE}:${CONTAINER_WORKSPACE}:ro")
+  RUN_COMMAND+=(
+    "--volume"
+    "${REPORT_HOST_DIRECTORY}:${CONTAINER_WORKSPACE}/${DEFAULT_REPORT_DIRECTORY}:rw"
+  )
   RUN_COMMAND+=("--workdir" "${CONTAINER_WORKSPACE}")
 
   if [[ ${USER_MODE} == "host" ]]; then
@@ -579,58 +522,30 @@ build_run_command() {
   fi
 
   [[ -z ${PLATFORM} ]] || RUN_COMMAND+=("--platform" "${PLATFORM}")
-  [[ -z ${ENV_FILE} ]] || RUN_COMMAND+=("--env-file" "${ENV_FILE}")
-
-  if [[ ${DOCKER_SOCKET} == "true" ]]; then
-    if [[ ${RUNTIME} == "docker" ]]; then
-      [[ -S "/var/run/docker.sock" ]] || die "Docker socket not found: /var/run/docker.sock"
-      RUN_COMMAND+=("--volume" "/var/run/docker.sock:/var/run/docker.sock:rw")
-    else
-      local podman_socket="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/podman/podman.sock"
-      [[ -S ${podman_socket} ]] || die "Podman socket not found: ${podman_socket}"
-      RUN_COMMAND+=("--volume" "${podman_socket}:/var/run/docker.sock:rw")
-    fi
-  fi
-
-  for item in "${EXTRA_VOLUMES[@]}"; do
-    RUN_COMMAND+=("--volume" "${item}")
-  done
-
   append_env "GITHUB_WORKSPACE=${CONTAINER_WORKSPACE}"
   append_env "VALIDATE_ALL_CODEBASE=$([[ ${CHANGED_ONLY} == "true" ]] && printf false || printf true)"
+  append_env "AZURE_COMMENT_REPORTER=false"
+  append_env "BITBUCKET_COMMENT_REPORTER=false"
+  append_env "EMAIL_REPORTER=false"
+  append_env "FILEIO_REPORTER=false"
+  append_env "GITHUB_COMMENT_REPORTER=false"
+  append_env "GITHUB_STATUS_REPORTER=false"
+  append_env "GITLAB_COMMENT_REPORTER=false"
 
   [[ -z ${ENABLE_DESCRIPTORS} ]] || append_env "ENABLE=${ENABLE_DESCRIPTORS}"
   [[ -z ${ENABLE_LINTERS} ]] || append_env "ENABLE_LINTERS=${ENABLE_LINTERS}"
   [[ -z ${DISABLE_DESCRIPTORS} ]] || append_env "DISABLE=${DISABLE_DESCRIPTORS}"
   [[ -z ${DISABLE_LINTERS} ]] || append_env "DISABLE_LINTERS=${DISABLE_LINTERS}"
-  [[ -z ${FIX_VALUE} ]] || append_env "APPLY_FIXES=${FIX_VALUE}"
-
-  if [[ ${REPORT_DIRECTORY} == "none" ]]; then
-    append_env "REPORT_OUTPUT_FOLDER=none"
-  else
-    append_env "REPORT_OUTPUT_FOLDER=${CONTAINER_WORKSPACE}/${REPORT_DIRECTORY}"
-  fi
+  append_env "REPORT_OUTPUT_FOLDER=${CONTAINER_WORKSPACE}/${REPORT_DIRECTORY}"
 
   if [[ -n ${CONFIG_FILE} ]]; then
     append_env "MEGALINTER_CONFIG=${CONTAINER_WORKSPACE}/${CONFIG_FILE#"${WORKSPACE}/"}"
   fi
 
-  repository="$(github_repository)"
-  ref="$(github_ref)"
-  [[ -z ${repository} ]] || append_env "GITHUB_REPOSITORY=${repository}"
-  [[ -z ${ref} ]] || append_env "GITHUB_REF=${ref}"
-
   if [[ ${DEBUG_MODE} == "true" ]]; then
     append_env "LOG_LEVEL=DEBUG"
     append_env "PRINT_ALL_FILES=true"
   fi
-
-  for item in "${EXTRA_ENVS[@]}"; do
-    append_env "${item}"
-  done
-  for item in "${RUNTIME_ARGS[@]}"; do
-    RUN_COMMAND+=("${item}")
-  done
 
   RUN_COMMAND+=("${IMAGE}")
 }
@@ -753,6 +668,7 @@ main() {
   resolve_config
   validate_report_directory
   validate_options
+  prepare_report_directory
   select_runtime
   resolve_image
   build_run_command

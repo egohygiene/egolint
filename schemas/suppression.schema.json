@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Suppression",
+  "description": "Versioned, reviewable exception to one rule or finding fingerprint.",
+  "type": "object",
+  "properties": {
+    "evidence": {
+      "description": "Sanitized evidence supporting the exception.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/EvidenceReference"
+      }
+    },
+    "expires_on": {
+      "description": "Required calendar expiry in `YYYY-MM-DD` form.",
+      "type": "string"
+    },
+    "fingerprint": {
+      "description": "Optional exact finding fingerprint scope.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "description": "Stable suppression identifier.",
+      "type": "string"
+    },
+    "justification": {
+      "description": "Nonempty justification for accepting the exception.",
+      "type": "string"
+    },
+    "owner": {
+      "description": "Person, team, or repository accountable for review.",
+      "type": "string"
+    },
+    "path": {
+      "description": "Optional workspace-relative path scope.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rule": {
+      "description": "Rule selected by this suppression.",
+      "$ref": "#/$defs/RuleIdentity"
+    },
+    "schema_version": {
+      "description": "Suppression-contract version.",
+      "type": "integer",
+      "const": 1
+    },
+    "state": {
+      "description": "Observed state for this suppression in the report.",
+      "$ref": "#/$defs/SuppressionState"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "rule",
+    "owner",
+    "justification",
+    "expires_on",
+    "state",
+    "evidence"
+  ],
+  "$defs": {
+    "EvidenceKind": {
+      "description": "Sanitized evidence category.",
+      "oneOf": [
+        {
+          "description": "Canonical policy selection or ownership record.",
+          "type": "string",
+          "const": "policy"
+        },
+        {
+          "description": "Tool or rule configuration.",
+          "type": "string",
+          "const": "configuration"
+        },
+        {
+          "description": "Positive, negative, or compatibility fixture.",
+          "type": "string",
+          "const": "fixture"
+        },
+        {
+          "description": "Machine-readable adapter report.",
+          "type": "string",
+          "const": "adapter_report"
+        },
+        {
+          "description": "Sanitized adapter log.",
+          "type": "string",
+          "const": "adapter_log"
+        },
+        {
+          "description": "Other reviewed evidence.",
+          "type": "string",
+          "const": "other"
+        }
+      ]
+    },
+    "EvidenceReference": {
+      "description": "Versioned reference to sanitized, workspace-owned evidence.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Optional bounded human-readable context.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kind": {
+          "description": "Kind of evidence referenced.",
+          "$ref": "#/$defs/EvidenceKind"
+        },
+        "path": {
+          "description": "Normalized workspace-relative evidence path.",
+          "type": "string"
+        },
+        "schema_version": {
+          "description": "Evidence-contract version.",
+          "type": "integer",
+          "const": 1
+        },
+        "sha256": {
+          "description": "Optional lowercase hexadecimal SHA-256 digest.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "path"
+      ]
+    },
+    "RuleIdentity": {
+      "description": "Stable identity of a tool-owned rule.",
+      "type": "object",
+      "properties": {
+        "rule_id": {
+          "description": "Tool-native or Egolint-owned rule identifier.",
+          "type": "string"
+        },
+        "tool_id": {
+          "description": "Canonical Egolint or `MegaLinter` tool identifier.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "tool_id",
+        "rule_id"
+      ]
+    },
+    "SuppressionState": {
+      "description": "Observed disposition of a declared suppression.",
+      "oneOf": [
+        {
+          "description": "The suppression matched at least one finding and remained valid.",
+          "type": "string",
+          "const": "applied"
+        },
+        {
+          "description": "The suppression did not match a finding.",
+          "type": "string",
+          "const": "unmatched"
+        },
+        {
+          "description": "The suppression passed its required expiry date.",
+          "type": "string",
+          "const": "expired"
+        },
+        {
+          "description": "The suppression could not be evaluated safely.",
+          "type": "string",
+          "const": "invalid"
+        }
+      ]
+    }
+  }
+}

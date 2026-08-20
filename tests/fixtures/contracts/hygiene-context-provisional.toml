@@ -1,0 +1,28 @@
+schema-version = 1
+id = "hygiene-local-context-compatibility"
+version = "0.0.0-provisional.20260819"
+profile = "hygiene/local-context-draft"
+provisional = true
+
+[source]
+repository = "egohygiene/hygiene"
+revision = "feb8ae94e784913553d4ae72a14eebabfe4ecb5f"
+revision-kind = "git-blob"
+path = "docs/ecosystem/AGENT_CONTEXT.md"
+decision = "https://github.com/egohygiene/hygiene/issues/6"
+
+[[requirements]]
+id = "agent-instructions"
+path = "AGENTS.md"
+kind = "file"
+ownership = "required"
+
+[[requirements]]
+id = "ecosystem-context"
+path = "docs/ecosystem/CONTEXT.md"
+kind = "file"
+ownership = "generated"
+markers = [
+  "architecture_release: architecture-v0.1.0",
+  "repository: egohygiene/example",
+]

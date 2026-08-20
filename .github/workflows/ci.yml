@@ -41,6 +41,31 @@ jobs:
       - name: Verify package contents
         run: cargo package --locked
 
+  native-portability:
+    name: Native rules (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - macos-15
+          - windows-2025
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Show the pinned toolchain
+        shell: bash
+        run: rustc --version --verbose
+
+      - name: Test native rule packs
+        shell: bash
+        run: cargo test --locked --lib "rules::"
+
   contracts:
     name: Policy contracts
     runs-on: ubuntu-24.04
@@ -101,7 +126,16 @@ jobs:
         run: |
           temporary_directory="$(mktemp -d)"
           trap 'rm -rf "$temporary_directory"' EXIT
-          for schema in config plan report; do
+          for schema in \
+            config \
+            profile \
+            finding \
+            suppression \
+            evidence \
+            tool-result \
+            plan \
+            report \
+            debt; do
             cargo run --quiet --locked -- schema "$schema" \
               > "$temporary_directory/$schema.schema.json"
             diff --unified \
@@ -148,13 +182,17 @@ jobs:
           import yaml
 
           profiles = Path("/opt/egolint/profiles")
-          holistic = yaml.safe_load((profiles / "holistic.yml").read_text())
-          fast = yaml.safe_load((profiles / "fast.yml").read_text())
-          assert isinstance(holistic, dict)
-          assert isinstance(fast, dict)
-          assert "EXTENDS" not in fast
+          rendered = {
+              name: yaml.safe_load((profiles / f"{name}.yml").read_text())
+              for name in ("holistic", "fast", "security", "dependency-debt")
+          }
+          assert all(isinstance(profile, dict) for profile in rendered.values())
+          assert all("EXTENDS" not in profile for profile in rendered.values())
+          fast = rendered["fast"]
           assert fast["VALIDATE_ALL_CODEBASE"] is False
           assert fast["LINTER_RULES_PATH"] == "/opt/egolint/.config/lint"
+          assert "REPOSITORY_OSV_SCANNER" in rendered["dependency-debt"]["ENABLE_LINTERS"]
+          assert rendered["security"]["GITHUB_COMMENT_REPORTER"] is False
           PY
 
       - name: Load the embedded Node.js policy dependencies

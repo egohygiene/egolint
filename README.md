@@ -16,23 +16,37 @@ Egolint separates orchestration from the lint engine:
   for `plan`, `schema`, and configuration inspection; it does not contain a
   container runtime or require access to a Docker socket.
 - `ghcr.io/egohygiene/egolint-full` is the planned lint-engine image. It extends
-  MegaLinter and embeds the fast and holistic Ego Hygiene policies. The native
-  CLI launches this image and intentionally preserves MegaLinter's entrypoint.
+  MegaLinter and embeds the fast, holistic, security, and dependency-debt Ego
+  Hygiene policies. The native CLI launches this image and intentionally
+  preserves MegaLinter's entrypoint.
 
 ## Current alpha surface
 
-| Command | Purpose |
-| --- | --- |
-| `egolint check` | Run linters with the repository mounted read-only. |
-| `egolint fix` | Explicitly permit tools to modify the repository. |
-| `egolint plan` | Print the redacted container invocation without running it. |
-| `egolint doctor` | Validate configuration and runtime readiness. |
-| `egolint config explain` | Show effective configuration and ordered sources. |
-| `egolint schema` | Emit the config, plan, or report JSON Schema. |
+| Command             | Purpose                                                                                                  |
+| ------------------- | -------------------------------------------------------------------------------------------------------- |
+| `egolint lint`      | Run linters with the repository mounted read-only.                                                       |
+| `egolint fix`       | Generate a bounded patch in an isolated copy; never edit the source worktree.                            |
+| `egolint apply-fix` | Apply and stage one reviewed patch only when its SHA-256, base commit, and expected post-tree all match. |
+| `egolint validate`  | Run native portability and repository-contract checks without a container.                               |
+| `egolint plan`      | Print the redacted container invocation without running it.                                              |
+| `egolint doctor`    | Validate configuration and runtime readiness.                                                            |
+| `egolint explain`   | Show effective configuration and ordered sources.                                                        |
+| `egolint schema`    | Emit a checked-in machine contract as JSON Schema.                                                       |
 
-The `fast` profile targets short changed-file feedback. The `holistic` profile
-performs the broader repository and security inspection encoded by the bundled
-MegaLinter policy.
+`check` remains an alias for `lint`, and `config explain` remains available for
+compatibility with the first alpha surface.
+
+The `fast` profile gives short changed-file MegaLinter feedback while native
+portability and repository-policy checks still inspect the complete repository.
+`holistic` performs the broader scheduled, manual, and trusted-branch
+inspection. `security` focuses secret, static-analysis, and infrastructure
+checks. `dependency-debt` focuses vulnerability and inventory evidence. All
+four selections are versioned in the policy catalog.
+
+Successful lint runs write normalized `.reports/egolint/run.json` and
+`.reports/egolint/egolint.sarif`. Dependency-debt runs also write compact JSON
+and Markdown debt summaries; raw MegaLinter reports remain private adapter
+artifacts.
 
 ## Try it from source
 
@@ -42,7 +56,9 @@ Rust 1.85 or newer is required.
 cargo build --locked
 cargo run --locked -- plan --workspace "." --profile "fast"
 cargo run --locked -- schema config
-cargo run --locked -- config explain --format "json"
+cargo run --locked -- explain --format "json"
+cargo run --locked -- validate --repository-contract \
+  "tests/fixtures/contracts/empathy-universal-provisional.toml"
 ```
 
 Build the two images locally:
@@ -52,7 +68,7 @@ docker build --file "Dockerfile" --tag "egolint:local" "."
 docker build --file "Dockerfile.full" --tag "egolint-full:local" "."
 
 docker run --rm "egolint:local" schema config
-cargo run --locked -- check \
+cargo run --locked -- lint \
   --workspace "." \
   --image "egolint-full:local" \
   --profile "fast" \
@@ -68,7 +84,7 @@ local MegaLinter adapter is a future capability, not part of this alpha.
 Copy [`examples/egolint.toml`](examples/egolint.toml) into a repository and run:
 
 ```sh
-egolint config explain
+egolint explain
 egolint plan --format "json"
 ```
 
@@ -82,6 +98,7 @@ the exact rules.
 
 - [Architecture](docs/architecture.md)
 - [Configuration](docs/configuration.md)
+- [Machine-readable contracts](docs/contracts.md)
 - [Containers and image boundaries](docs/containers.md)
 - [Security model](docs/security.md)
 - [Release design](docs/releasing.md)

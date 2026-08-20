@@ -18,19 +18,23 @@ Sources apply in this order, with later scalar values replacing earlier ones:
 
 When `CI` is nonempty and is neither `0` nor `false`, the user and local files
 at steps 2 and 5 are skipped. Environment maps merge by key; later values win.
-Run `egolint config explain` to see the effective values and applied sources.
+Run `egolint explain` to see the effective values and applied sources.
+`egolint config explain` remains a compatibility form. Run `egolint plan` to
+emit a redacted execution plan. Run `egolint validate` to evaluate native
+portability rules and any repeatable `--repository-contract` inputs without
+requiring Docker or Podman.
 
 ## Fields
 
-| Key | Values | Default |
-| --- | --- | --- |
-| `profile` | `fast`, `holistic` | `fast` |
-| `runtime` | `auto`, `docker`, `podman` | `auto` |
-| `image` | Nonempty OCI reference | `ghcr.io/egohygiene/egolint-full:edge` |
-| `pull-policy` | `missing`, `always`, `never` | `missing` |
-| `network` | `none`, `bridge` | `none` |
-| `megalinter-config` | Existing workspace-relative YAML path | Unset; use image profile |
-| `environment` | Map of valid environment names to strings | Empty |
+| Key                 | Values                                            | Default                                |
+| ------------------- | ------------------------------------------------- | -------------------------------------- |
+| `profile`           | `fast`, `holistic`, `security`, `dependency-debt` | `fast`                                 |
+| `runtime`           | `auto`, `docker`, `podman`                        | `auto`                                 |
+| `image`             | Nonempty OCI reference                            | `ghcr.io/egohygiene/egolint-full:edge` |
+| `pull-policy`       | `missing`, `always`, `never`                      | `missing`                              |
+| `network`           | `none`, `bridge`                                  | `none`                                 |
+| `megalinter-config` | Existing workspace-relative YAML path             | Unset; use image profile               |
+| `environment`       | Map of valid environment names to strings         | Empty                                  |
 
 Supported environment overrides are `EGOLINT_IMAGE`, `EGOLINT_PROFILE`,
 `EGOLINT_RUNTIME`, `EGOLINT_PULL_POLICY`, `EGOLINT_NETWORK`, and
@@ -81,6 +85,10 @@ path behavior.
 
 `--changed-only`, repeatable `--enable-linter`, and repeatable
 `--disable-linter` apply to one invocation and are not persistent TOML fields.
+Repeatable `--suppression` inputs each name one versioned suppression JSON
+document. Suppression evaluation deliberately requires
+`--evaluation-date "YYYY-MM-DD"`, making expiry decisions reproducible rather
+than dependent on an implicit workstation clock.
 
 Prefer a digest-qualified `image` in protected CI. Tags are convenient for local
 alpha development but are mutable.

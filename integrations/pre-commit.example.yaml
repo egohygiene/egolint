@@ -1,0 +1,7 @@
+---
+repos:
+  - repo: https://github.com/egohygiene/egolint
+    # Replace with a reviewed full commit SHA. Never consume a mutable branch.
+    rev: 0000000000000000000000000000000000000000
+    hooks:
+      - id: egolint

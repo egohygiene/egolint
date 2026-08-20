@@ -1,0 +1,6 @@
+config-version = 1
+profile = "holistic"
+runtime = "docker"
+image = "ghcr.io/egohygiene/egolint-full@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+pull-policy = "never"
+network = "none"

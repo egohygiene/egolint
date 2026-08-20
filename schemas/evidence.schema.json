@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EvidenceReference",
+  "description": "Versioned reference to sanitized, workspace-owned evidence.",
+  "type": "object",
+  "properties": {
+    "description": {
+      "description": "Optional bounded human-readable context.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "kind": {
+      "description": "Kind of evidence referenced.",
+      "$ref": "#/$defs/EvidenceKind"
+    },
+    "path": {
+      "description": "Normalized workspace-relative evidence path.",
+      "type": "string"
+    },
+    "schema_version": {
+      "description": "Evidence-contract version.",
+      "type": "integer",
+      "const": 1
+    },
+    "sha256": {
+      "description": "Optional lowercase hexadecimal SHA-256 digest.",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "path"
+  ],
+  "$defs": {
+    "EvidenceKind": {
+      "description": "Sanitized evidence category.",
+      "oneOf": [
+        {
+          "description": "Canonical policy selection or ownership record.",
+          "type": "string",
+          "const": "policy"
+        },
+        {
+          "description": "Tool or rule configuration.",
+          "type": "string",
+          "const": "configuration"
+        },
+        {
+          "description": "Positive, negative, or compatibility fixture.",
+          "type": "string",
+          "const": "fixture"
+        },
+        {
+          "description": "Machine-readable adapter report.",
+          "type": "string",
+          "const": "adapter_report"
+        },
+        {
+          "description": "Sanitized adapter log.",
+          "type": "string",
+          "const": "adapter_log"
+        },
+        {
+          "description": "Other reviewed evidence.",
+          "type": "string",
+          "const": "other"
+        }
+      ]
+    }
+  }
+}

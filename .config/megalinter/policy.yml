@@ -15,6 +15,18 @@ profiles:
     config: .mega-linter.yml
     scope: complete-repository
     purpose: Complete scheduled, manual, and trusted-branch inspection.
+  security:
+    config: .mega-linter.security.yml
+    scope: complete-repository
+    purpose: Focused secret, static-analysis, and infrastructure security inspection.
+  dependency-debt:
+    config: .mega-linter.dependency-debt.yml
+    scope: complete-repository
+    purpose: Focused dependency vulnerability and software-inventory inspection.
+
+ownership:
+  default_owner: egolint
+  policy_source: .config/megalinter/policy.yml
 
 result_statuses:
   - selected
