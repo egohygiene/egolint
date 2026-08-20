@@ -171,6 +171,7 @@ enum SchemaKind {
     Plan,
     Report,
     Debt,
+    RepositoryContract,
 }
 
 fn main() -> ExitCode {
@@ -852,6 +853,7 @@ fn print_schema(kind: SchemaKind) -> Result<(), EgolintError> {
         SchemaKind::Plan => schemars::schema_for!(egolint::plan::PlanView),
         SchemaKind::Report => schemars::schema_for!(RunReport),
         SchemaKind::Debt => schemars::schema_for!(egolint::debt::DebtReport),
+        SchemaKind::RepositoryContract => schemars::schema_for!(RepositoryContract),
     };
     println!("{}", serde_json::to_string_pretty(&schema)?);
     Ok(())
@@ -949,6 +951,18 @@ mod tests {
             ])
             .is_ok()
         );
+    }
+
+    #[test]
+    fn repository_contract_schema_is_a_first_class_cli_surface() {
+        assert!(matches!(
+            Cli::try_parse_from(["egolint", "schema", "repository-contract"])
+                .expect("repository-contract schema command")
+                .command,
+            Command::Schema {
+                kind: SchemaKind::RepositoryContract
+            }
+        ));
     }
 
     #[test]

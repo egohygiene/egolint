@@ -14,7 +14,7 @@ stabilize.
 - Separate lightweight CLI and full lint-engine image definitions.
 - Initial cargo-dist, security, configuration, and release documentation.
 - Versioned config, profile, finding, suppression, evidence, tool-result,
-  execution-plan, and normalized-report JSON Schemas.
+  execution-plan, normalized-report, and repository-contract JSON Schemas.
 - First-class `validate`, `lint`, `explain`, and `doctor` commands with
   compatibility aliases for the initial alpha command surface.
 - A sanitized executable Empathy compatibility fixture pinned to its migration

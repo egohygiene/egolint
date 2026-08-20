@@ -56,6 +56,7 @@ Rust 1.85 or newer is required.
 cargo build --locked
 cargo run --locked -- plan --workspace "." --profile "fast"
 cargo run --locked -- schema config
+cargo run --locked -- schema repository-contract
 cargo run --locked -- explain --format "json"
 cargo run --locked -- validate --repository-contract \
   "tests/fixtures/contracts/empathy-universal-provisional.toml"
