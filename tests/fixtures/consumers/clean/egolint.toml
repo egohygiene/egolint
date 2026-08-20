@@ -1,0 +1,7 @@
+config-version = 1
+profile = "fast"
+runtime = "docker"
+image = "ghcr.io/egohygiene/egolint-full@sha256:0000000000000000000000000000000000000000000000000000000000000000"
+pull-policy = "never"
+network = "none"
+megalinter-config = ".mega-linter.yml"

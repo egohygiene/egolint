@@ -14,7 +14,7 @@ docker run --rm --volume "$PWD:/workspace:ro" "egolint:local" \
   plan --workspace "/workspace"
 ```
 
-Actual `check` and `fix` commands currently require a Docker or Podman executable
+Actual `lint` and `fix` commands currently require a Docker or Podman executable
 and responsive daemon on the same host as the CLI. The image intentionally does
 not bundle a runtime client. Mounting `/var/run/docker.sock` would grant broad
 host control and is outside the supported design.
@@ -23,8 +23,9 @@ host control and is outside the supported design.
 
 `Dockerfile.full` extends `ghcr.io/oxsecurity/megalinter:v10.0.0`, embeds policy,
 materializes the locked Node-based policy dependencies with lifecycle scripts
-disabled, flattens the fast profile so it has no runtime `EXTENDS` dependency,
-and preserves the upstream entrypoint. Build it locally with:
+disabled, flattens the fast, holistic, security, and dependency-debt profiles so
+they have no runtime `EXTENDS` dependency, and preserves the upstream entrypoint.
+Build it locally with:
 
 ```sh
 docker build --file "Dockerfile.full" --tag "egolint-full:local" "."
@@ -56,9 +57,10 @@ Preserve the applicable notices and publish an SBOM with every image. See
 
 The native CLI launches Docker or Podman as direct host argv without host-shell
 interpolation, drops every Linux capability, enables `no-new-privileges`, limits
-PIDs to 512, and disables the network by default. `check` mounts the workspace
-read-only while keeping only the report directory writable. `fix` explicitly
-changes the workspace mount to read-write. Inside the container, the trusted
+PIDs to 512, and disables the network by default. `lint` mounts the original
+workspace read-only while keeping only the report directory writable. `fix`
+mounts only a temporary isolated copy read-write and emits a reviewable patch;
+`apply-fix` does not start a container. Inside the container, the trusted
 MegaLinter entrypoint and embedded path-only pre-commands use upstream Bash.
 
 Some configured tools or MegaLinter pre-commands may need dependency downloads.

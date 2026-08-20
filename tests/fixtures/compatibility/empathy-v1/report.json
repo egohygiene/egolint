@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "generated_at_unix": 0,
+  "operation": "check",
+  "status": "findings",
+  "egolint_exit_code": 1,
+  "adapter_exit_code": 1,
+  "image": "ghcr.io/egohygiene/egolint-full@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "profile": {
+    "schema_version": 1,
+    "name": "holistic",
+    "scope": "complete_repository",
+    "purpose": "Complete scheduled, manual, and trusted-branch inspection.",
+    "policy_source": ".config/megalinter/policy.yml#profiles/holistic"
+  },
+  "config_sources": [
+    "compiled defaults",
+    "egolint.toml"
+  ],
+  "report_path": ".reports/egolint/run.json",
+  "completeness": "normalized",
+  "summary": {
+    "normalized_tool_results": 1,
+    "normalized_findings": 1,
+    "normalized_suppressions": 1
+  },
+  "tool_results": [
+    {
+      "schema_version": 1,
+      "tool_id": "PYTHON_RUFF",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "status": "failed_findings",
+      "enforcement": "blocking",
+      "finding_count": 1,
+      "warning_count": 0,
+      "duration_ms": 12,
+      "evidence": [
+        {
+          "schema_version": 1,
+          "kind": "fixture",
+          "path": "tests/fixtures/compatibility/empathy-v1/finding.json",
+          "sha256": null,
+          "description": "Sanitized synthetic compatibility finding."
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "schema_version": 1,
+      "id": "EMPATHY-F001",
+      "rule": {
+        "tool_id": "PYTHON_RUFF",
+        "rule_id": "F401"
+      },
+      "severity": "warning",
+      "message": "Synthetic unused-import finding for the Empathy compatibility contract.",
+      "location": {
+        "path": "src/example.py",
+        "start_line": 1,
+        "start_column": 1,
+        "end_line": 1,
+        "end_column": 12
+      },
+      "ownership": {
+        "owner": "egolint",
+        "policy_source": ".config/megalinter/policy.yml",
+        "configuration_path": ".config/lint/python/ruff.toml"
+      },
+      "fingerprint": "empathy-fixture-f401",
+      "evidence": [
+        {
+          "schema_version": 1,
+          "kind": "fixture",
+          "path": "tests/fixtures/compatibility/empathy-v1/finding.json",
+          "sha256": null,
+          "description": "Sanitized synthetic compatibility finding."
+        }
+      ],
+      "suppressed_by": "SUP-EMPATHY-001"
+    }
+  ],
+  "suppressions": [
+    {
+      "schema_version": 1,
+      "id": "SUP-EMPATHY-001",
+      "rule": {
+        "tool_id": "PYTHON_RUFF",
+        "rule_id": "F401"
+      },
+      "path": "src/example.py",
+      "fingerprint": "empathy-fixture-f401",
+      "owner": "egohygiene/empathy",
+      "justification": "Synthetic exception used only to verify the standalone compatibility contract.",
+      "expires_on": "2027-08-19",
+      "state": "applied",
+      "evidence": [
+        {
+          "schema_version": 1,
+          "kind": "fixture",
+          "path": "tests/fixtures/compatibility/empathy-v1/manifest.json",
+          "sha256": null,
+          "description": "Pinned source provenance for the compatibility fixture."
+        }
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "schema_version": 1,
+      "kind": "fixture",
+      "path": "tests/fixtures/compatibility/empathy-v1/manifest.json",
+      "sha256": null,
+      "description": "Pinned source provenance for the compatibility fixture."
+    }
+  ]
+}

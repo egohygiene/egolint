@@ -16,7 +16,9 @@ fixture evidence inspectable without starting the container.
 ## Generated contracts
 
 - `tool-matrix.json` joins upstream capabilities with repository policy for all
-  124 tools in the pinned image.
+  124 tools in the pinned image. Every entry exposes structured owner,
+  policy-source, configuration, fixture, and expected runtime-evidence fields;
+  selection reasons remain separate from ownership.
 - `snapshots/fast.json` records the exact fast selection.
 - `snapshots/holistic.json` records selected and explicitly disabled holistic
   tools.

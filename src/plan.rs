@@ -4,20 +4,36 @@ use std::collections::BTreeMap;
 use std::env;
 use std::ffi::OsString;
 use std::path::{Component, Path, PathBuf};
-use std::process::{Command, ExitStatus};
+use std::process::{Command, ExitStatus, Stdio};
 
 use schemars::JsonSchema;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::config::{CONFIG_VERSION, Profile, ResolvedConfig, Runtime};
+use crate::contracts::CONTRACT_VERSION;
 use crate::error::{EgolintError, Result};
 
 const CONTAINER_WORKSPACE: &str = "/tmp/lint";
 /// Fixed workspace-relative location for all engine and Egolint reports.
 pub const REPORT_DIRECTORY: &str = ".reports/egolint";
 
+/// Fixed run-owned artifacts that must never survive into a later execution.
+///
+/// Other files under the reserved report boundary are private diagnostic
+/// evidence and may be retained. These names feed Egolint's normalized public
+/// contracts, so every adapter execution starts by removing them.
+const RUN_OWNED_ARTIFACTS: &[&str] = &[
+    "mega-linter-report.json",
+    "mega-linter-report.sarif",
+    "run.json",
+    "egolint.sarif",
+    "debt.json",
+    "debt.md",
+    "fixes.patch",
+];
+
 /// Requested lint operation and its workspace write capability.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, JsonSchema)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum Operation {
     /// Analyze without granting broad workspace writes.
@@ -42,6 +58,7 @@ pub struct PlanOptions {
 #[serde(rename_all = "snake_case")]
 pub struct PlanView {
     /// Output contract version.
+    #[schemars(schema_with = "crate::contracts::contract_version_schema")]
     pub schema_version: u32,
     /// Check or fix capability.
     pub operation: Operation,
@@ -131,7 +148,7 @@ impl ExecutionPlan {
 
         let redacted = redact_argv(&argv);
         let view = PlanView {
-            schema_version: 1,
+            schema_version: CONTRACT_VERSION,
             operation,
             profile: resolved.config.profile,
             runtime: runtime.to_owned(),
@@ -156,12 +173,7 @@ impl ExecutionPlan {
     /// Returns an error when the report directory cannot be prepared safely or
     /// when the selected container runtime cannot be started.
     pub fn execute(&self) -> Result<ExitStatus> {
-        validate_report_directory(&self.view.workspace, &self.report_path)?;
-        std::fs::create_dir_all(&self.report_path).map_err(|source| EgolintError::Filesystem {
-            path: self.report_path.clone(),
-            source,
-        })?;
-        validate_report_directory(&self.view.workspace, &self.report_path)?;
+        self.prepare_report_directory()?;
 
         let executable = self
             .argv
@@ -169,9 +181,32 @@ impl ExecutionPlan {
             .ok_or_else(|| EgolintError::RuntimeExecution("empty execution plan".to_owned()))?;
         let mut process = Command::new(executable);
         process.args(&self.argv[1..]);
+        // Adapter output is untrusted. In particular, GitHub Actions treats
+        // specially formatted stdout as workflow commands. MegaLinter's raw
+        // diagnostics remain available under the private report boundary;
+        // Egolint emits only normalized findings from the parent process.
+        process.stdout(Stdio::null()).stderr(Stdio::null());
         process
             .status()
             .map_err(|error| EgolintError::RuntimeExecution(error.to_string()))
+    }
+
+    /// Prepare a fresh fixed writable evidence boundary without starting a
+    /// container. Native rules and isolated-fix previews use the same path
+    /// validation and stale-contract cleanup as adapter execution.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when a report-path component is a symlink, canonical
+    /// alias, non-directory, or cannot be created beneath the workspace.
+    pub fn prepare_report_directory(&self) -> Result<()> {
+        validate_report_directory(&self.view.workspace, &self.report_path)?;
+        std::fs::create_dir_all(&self.report_path).map_err(|source| EgolintError::Filesystem {
+            path: self.report_path.clone(),
+            source,
+        })?;
+        validate_report_directory(&self.view.workspace, &self.report_path)?;
+        clear_run_artifacts(&self.view.workspace, &self.report_path)
     }
 
     /// Return the fixed host report directory used by this plan.
@@ -231,7 +266,13 @@ fn build_environment(
     );
     environment.insert(
         "VALIDATE_ALL_CODEBASE".to_owned(),
-        if options.changed_only || resolved.config.profile == Profile::Fast {
+        if operation == Operation::Fix {
+            // A fix preview is materialized from one immutable Git tree and
+            // has no trustworthy changed-file history inside its isolated
+            // repository. Always make the bounded explicit linter selection
+            // inspect the full snapshot.
+            "true"
+        } else if options.changed_only || resolved.config.profile == Profile::Fast {
             "false"
         } else {
             "true"
@@ -260,6 +301,30 @@ fn build_environment(
         );
     }
     Ok(environment)
+}
+
+fn clear_run_artifacts(workspace: &Path, report_path: &Path) -> Result<()> {
+    validate_report_directory(workspace, report_path)?;
+    for name in RUN_OWNED_ARTIFACTS {
+        let path = report_path.join(name);
+        let metadata = match std::fs::symlink_metadata(&path) {
+            Ok(metadata) => metadata,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
+            Err(source) => return Err(EgolintError::Filesystem { path, source }),
+        };
+        if metadata.is_dir() && !metadata.file_type().is_symlink() {
+            return Err(EgolintError::Configuration(format!(
+                "run-owned report artifact may not be a directory: {}",
+                path.display()
+            )));
+        }
+        std::fs::remove_file(&path).map_err(|source| EgolintError::Filesystem {
+            path: path.clone(),
+            source,
+        })?;
+        validate_report_directory(workspace, report_path)?;
+    }
+    Ok(())
 }
 
 fn build_runtime_argv(
@@ -599,6 +664,34 @@ mod tests {
         .expect("execution plan");
         assert!(!mount_for_target(&plan, CONTAINER_WORKSPACE).ends_with(",readonly"));
         assert_eq!(environment_value(&plan, "APPLY_FIXES"), "APPLY_FIXES=all");
+        assert_eq!(
+            environment_value(&plan, "VALIDATE_ALL_CODEBASE"),
+            "VALIDATE_ALL_CODEBASE=true"
+        );
+    }
+
+    #[test]
+    fn a_new_execution_removes_only_stale_contract_artifacts() {
+        let directory = tempfile::tempdir().expect("temporary directory");
+        let report = directory.path().join(REPORT_DIRECTORY);
+        std::fs::create_dir_all(&report).expect("report directory");
+        for name in RUN_OWNED_ARTIFACTS {
+            std::fs::write(report.join(name), b"stale").expect("stale artifact");
+        }
+        std::fs::write(report.join("private-diagnostic.log"), b"retained")
+            .expect("private diagnostic");
+
+        clear_run_artifacts(directory.path(), &report).expect("artifact cleanup");
+
+        assert!(
+            RUN_OWNED_ARTIFACTS
+                .iter()
+                .all(|name| !report.join(name).exists())
+        );
+        assert_eq!(
+            std::fs::read(report.join("private-diagnostic.log")).expect("retained diagnostic"),
+            b"retained"
+        );
     }
 
     #[test]

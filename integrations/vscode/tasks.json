@@ -1,0 +1,41 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "egolint: check",
+      "type": "process",
+      "command": "egolint",
+      "args": ["--workspace", "${workspaceFolder}", "lint", "--profile", "fast", "--changed-only"],
+      "problemMatcher": {
+        "owner": "egolint",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {
+          "regexp": "^egolint:([^:]+):(\\d+):(\\d+): (error|warning|info): (.+) \\[([^/]+)/([^\\]]+)\\]$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5,
+          "code": 7
+        }
+      },
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "egolint: inspect plan",
+      "type": "process",
+      "command": "egolint",
+      "args": [
+        "--workspace",
+        "${workspaceFolder}",
+        "plan",
+        "--profile",
+        "fast",
+        "--format",
+        "json"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

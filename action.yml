@@ -1,0 +1,95 @@
+name: Egolint check
+description: Run a pinned, check-only Egolint policy against a repository.
+author: Ego Hygiene
+
+branding:
+  color: purple
+  icon: check-circle
+
+inputs:
+  workspace:
+    description: Repository-relative directory to inspect.
+    required: false
+    default: "."
+  profile:
+    description: Named Egolint profile.
+    required: false
+    default: "fast"
+  image:
+    description: Digest-qualified egolint-full image reference.
+    required: true
+  allow-unpinned-image:
+    description: Permit a local mutable image only for controlled smoke tests.
+    required: false
+    default: "false"
+  pull-policy:
+    description: Container pull behavior (always, missing, or never).
+    required: false
+    default: "always"
+  network:
+    description: Container network mode; bridge lets source-scanning tools reach the network.
+    required: false
+    default: "none"
+  megalinter-config:
+    description: Optional workspace-relative MegaLinter configuration path.
+    required: false
+    default: ""
+  repository-contract:
+    description: Optional workspace-relative repository-contract TOML path.
+    required: false
+    default: ""
+  suppression:
+    description: Optional workspace-relative reviewed suppression JSON path.
+    required: false
+    default: ""
+  evaluation-date:
+    description: Auditable YYYY-MM-DD date required with a suppression.
+    required: false
+    default: ""
+  changed-only:
+    description: Validate only files changed according to Git.
+    required: false
+    default: "true"
+
+outputs:
+  run-report:
+    description: Workspace-relative canonical Egolint run report.
+    value: ${{ steps.check.outputs.run-report }}
+  sarif-report:
+    description: Workspace-relative canonical Egolint SARIF report.
+    value: ${{ steps.check.outputs.sarif-report }}
+  debt-json:
+    description: Workspace-relative dependency-debt JSON path; the file exists only for that profile.
+    value: ${{ steps.check.outputs.debt-json }}
+  debt-markdown:
+    description: Workspace-relative dependency-debt Markdown path; the file exists only for that profile.
+    value: ${{ steps.check.outputs.debt-markdown }}
+  raw-megalinter-json:
+    description: Workspace-relative private MegaLinter JSON; never publish without sanitizing.
+    value: ${{ steps.check.outputs.raw-megalinter-json }}
+  raw-megalinter-sarif:
+    description: Workspace-relative private MegaLinter SARIF; never publish without sanitizing.
+    value: ${{ steps.check.outputs.raw-megalinter-sarif }}
+  exit-code:
+    description: Egolint process exit code.
+    value: ${{ steps.check.outputs.exit-code }}
+
+runs:
+  using: composite
+  steps:
+    - id: check
+      name: Run Egolint check
+      shell: bash
+      env:
+        INPUT_WORKSPACE: ${{ inputs.workspace }}
+        INPUT_PROFILE: ${{ inputs.profile }}
+        INPUT_IMAGE: ${{ inputs.image }}
+        INPUT_ALLOW_UNPINNED_IMAGE: ${{ inputs.allow-unpinned-image }}
+        INPUT_PULL_POLICY: ${{ inputs.pull-policy }}
+        INPUT_NETWORK: ${{ inputs.network }}
+        INPUT_MEGALINTER_CONFIG: ${{ inputs.megalinter-config }}
+        INPUT_REPOSITORY_CONTRACT: ${{ inputs.repository-contract }}
+        INPUT_SUPPRESSION: ${{ inputs.suppression }}
+        INPUT_EVALUATION_DATE: ${{ inputs.evaluation-date }}
+        INPUT_CHANGED_ONLY: ${{ inputs.changed-only }}
+      run: "${GITHUB_ACTION_PATH}/scripts/github-action.sh"

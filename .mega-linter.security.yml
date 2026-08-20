@@ -1,0 +1,35 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/oxsecurity/megalinter/v10.0.0/megalinter/descriptors/schemas/megalinter-configuration.jsonschema.json
+
+# A security-focused, check-only overlay. Database-backed scanners may require
+# network access to refresh their databases. A network-disabled run is useful
+# only with a reviewed, pre-seeded cache and MUST NOT be described as fresh.
+EXTENDS:
+  - .mega-linter.yml
+
+ENABLE_LINTERS:
+  - PYTHON_BANDIT
+  - REPOSITORY_BETTERLEAKS
+  - REPOSITORY_CHECKOV
+  - REPOSITORY_SECRETLINT
+  - REPOSITORY_TRIVY
+  - REPOSITORY_TRUFFLEHOG
+
+ENABLE_DISABLE_LINTERS_PRIORITY: ENABLE
+VALIDATE_ALL_CODEBASE: true
+
+# Checkov and Trivy provide broad, potentially overlapping signal in this
+# profile. Their normalized findings remain visible, but they do not duplicate
+# the blocking decisions owned by the focused source/secret scanners.
+REPOSITORY_CHECKOV_DISABLE_ERRORS: true
+REPOSITORY_TRIVY_DISABLE_ERRORS: true
+
+# Egolint owns artifact delivery. The scanner profile never calls hosting APIs
+# or external report services, even when a caller happens to expose a token.
+AZURE_COMMENT_REPORTER: false
+BITBUCKET_COMMENT_REPORTER: false
+EMAIL_REPORTER: false
+FILEIO_REPORTER: false
+GITHUB_COMMENT_REPORTER: false
+GITHUB_STATUS_REPORTER: false
+GITLAB_COMMENT_REPORTER: false

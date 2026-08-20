@@ -175,21 +175,21 @@ Taskfile.yaml       text
 
 package.json        text
 
-package-lock.json  text -diff
-pnpm-lock.yaml     text -diff
-yarn.lock          text -diff
+package-lock.json  text
+pnpm-lock.yaml     text
+yarn.lock          text
 
 Cargo.toml         text
-Cargo.lock         text -diff
+Cargo.lock         text
 
 pubspec.yaml       text
-pubspec.lock       text -diff
+pubspec.lock       text
 
 ###############################################################################
 # Generated Files
 ###############################################################################
 
-*.lock             text -diff
+*.lock             text
 *.snap             text -diff
 *.map              text -diff
 

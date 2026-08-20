@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "RunReport",
-  "description": "Minimal versioned report written beside raw adapter output.",
+  "description": "Versioned report written beside raw adapter output.",
   "type": "object",
   "properties": {
     "adapter_exit_code": {
@@ -11,6 +11,10 @@
         "null"
       ],
       "format": "int32"
+    },
+    "completeness": {
+      "description": "Whether adapter details were fully normalized.",
+      "$ref": "#/$defs/ReportCompleteness"
     },
     "config_sources": {
       "description": "Configuration provenance.",
@@ -23,6 +27,20 @@
       "description": "Stable Egolint process exit code.",
       "type": "integer",
       "format": "int32"
+    },
+    "evidence": {
+      "description": "Sanitized evidence supporting the run-level outcome.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/EvidenceReference"
+      }
+    },
+    "findings": {
+      "description": "Normalized findings, when an adapter normalizer is available.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Finding"
+      }
     },
     "generated_at_unix": {
       "description": "Unix timestamp in seconds.",
@@ -39,8 +57,8 @@
       "$ref": "#/$defs/Operation"
     },
     "profile": {
-      "description": "Selected profile name.",
-      "type": "string"
+      "description": "Versioned selected profile contract.",
+      "$ref": "#/$defs/ProfileDefinition"
     },
     "report_path": {
       "description": "Workspace-relative location of the report itself.",
@@ -49,14 +67,32 @@
     "schema_version": {
       "description": "Output contract version.",
       "type": "integer",
-      "format": "uint32",
-      "minimum": 0
+      "const": 1
     },
     "status": {
       "description": "Normalized outcome.",
       "$ref": "#/$defs/RunStatus"
+    },
+    "summary": {
+      "description": "Exact counts for normalized contract arrays.",
+      "$ref": "#/$defs/ReportSummary"
+    },
+    "suppressions": {
+      "description": "Evaluated suppressions, when a suppression engine is available.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Suppression"
+      }
+    },
+    "tool_results": {
+      "description": "Normalized per-tool results, when an adapter normalizer is available.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ToolResult"
+      }
     }
   },
+  "additionalProperties": false,
   "required": [
     "schema_version",
     "generated_at_unix",
@@ -66,9 +102,182 @@
     "image",
     "profile",
     "config_sources",
-    "report_path"
+    "report_path",
+    "completeness",
+    "summary",
+    "tool_results",
+    "findings",
+    "suppressions",
+    "evidence"
   ],
   "$defs": {
+    "Enforcement": {
+      "description": "Quality-gate behavior for one tool or rule.",
+      "oneOf": [
+        {
+          "description": "Findings fail the quality gate.",
+          "type": "string",
+          "const": "blocking"
+        },
+        {
+          "description": "Findings remain visible without failing the gate.",
+          "type": "string",
+          "const": "advisory"
+        },
+        {
+          "description": "Policy deliberately disables the tool or rule.",
+          "type": "string",
+          "const": "disabled"
+        }
+      ]
+    },
+    "EvidenceKind": {
+      "description": "Sanitized evidence category.",
+      "oneOf": [
+        {
+          "description": "Canonical policy selection or ownership record.",
+          "type": "string",
+          "const": "policy"
+        },
+        {
+          "description": "Tool or rule configuration.",
+          "type": "string",
+          "const": "configuration"
+        },
+        {
+          "description": "Positive, negative, or compatibility fixture.",
+          "type": "string",
+          "const": "fixture"
+        },
+        {
+          "description": "Machine-readable adapter report.",
+          "type": "string",
+          "const": "adapter_report"
+        },
+        {
+          "description": "Sanitized adapter log.",
+          "type": "string",
+          "const": "adapter_log"
+        },
+        {
+          "description": "Other reviewed evidence.",
+          "type": "string",
+          "const": "other"
+        }
+      ]
+    },
+    "EvidenceReference": {
+      "description": "Versioned reference to sanitized, workspace-owned evidence.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Optional bounded human-readable context.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kind": {
+          "description": "Kind of evidence referenced.",
+          "$ref": "#/$defs/EvidenceKind"
+        },
+        "path": {
+          "description": "Normalized workspace-relative evidence path.",
+          "type": "string"
+        },
+        "schema_version": {
+          "description": "Evidence-contract version.",
+          "type": "integer",
+          "const": 1
+        },
+        "sha256": {
+          "description": "Optional lowercase hexadecimal SHA-256 digest.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "path"
+      ]
+    },
+    "Finding": {
+      "description": "Versioned normalized lint finding.",
+      "type": "object",
+      "properties": {
+        "evidence": {
+          "description": "Sanitized evidence supporting this finding.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceReference"
+          }
+        },
+        "fingerprint": {
+          "description": "Optional stable adapter or Egolint fingerprint.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "id": {
+          "description": "Stable finding identifier within the report.",
+          "type": "string"
+        },
+        "location": {
+          "description": "Optional normalized source location.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceLocation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "message": {
+          "description": "Human-readable diagnostic message.",
+          "type": "string"
+        },
+        "ownership": {
+          "description": "Accountable owner and policy provenance.",
+          "$ref": "#/$defs/RuleOwnership"
+        },
+        "rule": {
+          "description": "Tool and rule that produced the finding.",
+          "$ref": "#/$defs/RuleIdentity"
+        },
+        "schema_version": {
+          "description": "Finding-contract version.",
+          "type": "integer",
+          "const": 1
+        },
+        "severity": {
+          "description": "Normalized severity independent of adapter-specific labels.",
+          "$ref": "#/$defs/Severity"
+        },
+        "suppressed_by": {
+          "description": "Suppression identifier applied to this finding, when any.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "id",
+        "rule",
+        "severity",
+        "message",
+        "ownership",
+        "evidence"
+      ]
+    },
     "Operation": {
       "description": "Requested lint operation and its workspace write capability.",
       "oneOf": [
@@ -82,6 +291,181 @@
           "type": "string",
           "const": "fix"
         }
+      ]
+    },
+    "Profile": {
+      "description": "Built-in lint profiles.",
+      "oneOf": [
+        {
+          "description": "Changed-file adapter feedback plus full-repository native policy checks.",
+          "type": "string",
+          "const": "fast"
+        },
+        {
+          "description": "Complete scheduled, manual, and trusted-branch inspection.",
+          "type": "string",
+          "const": "holistic"
+        },
+        {
+          "description": "Focused secret, static-analysis, and infrastructure security inspection.",
+          "type": "string",
+          "const": "security"
+        },
+        {
+          "description": "Focused dependency vulnerability and software-inventory inspection.",
+          "type": "string",
+          "const": "dependency-debt"
+        }
+      ]
+    },
+    "ProfileDefinition": {
+      "description": "Versioned description of one selected lint profile.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Stable built-in profile name.",
+          "$ref": "#/$defs/Profile"
+        },
+        "policy_source": {
+          "description": "Logical identifier for the policy that defines the profile.",
+          "type": "string"
+        },
+        "purpose": {
+          "description": "Human-readable reason the profile exists.",
+          "type": "string"
+        },
+        "schema_version": {
+          "description": "Profile-contract version.",
+          "type": "integer",
+          "const": 1
+        },
+        "scope": {
+          "description": "Repository surface evaluated by the profile.",
+          "$ref": "#/$defs/ProfileScope"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "name",
+        "scope",
+        "purpose",
+        "policy_source"
+      ]
+    },
+    "ProfileScope": {
+      "description": "Repository surface selected by a profile.",
+      "oneOf": [
+        {
+          "description": "Files changed relative to the adapter's comparison base.\n\nThis value remains accepted for version-1 documents produced before\nEgolint added repository-wide native policy checks to the fast profile.",
+          "type": "string",
+          "const": "changed_files"
+        },
+        {
+          "description": "Changed-file adapter analysis plus complete-repository native policy.",
+          "type": "string",
+          "const": "changed_files_with_repository_policy"
+        },
+        {
+          "description": "The complete repository surface.",
+          "type": "string",
+          "const": "complete_repository"
+        }
+      ]
+    },
+    "ReportCompleteness": {
+      "description": "How completely adapter evidence has been normalized into this report.",
+      "oneOf": [
+        {
+          "description": "Only the adapter process outcome is known; raw details remain external.",
+          "type": "string",
+          "const": "adapter_exit_only"
+        },
+        {
+          "description": "Available adapter summaries were normalized, but coverage is incomplete.",
+          "type": "string",
+          "const": "partial"
+        },
+        {
+          "description": "Every available adapter result was normalized into typed contracts.",
+          "type": "string",
+          "const": "normalized"
+        }
+      ]
+    },
+    "ReportSummary": {
+      "description": "Counts for data actually normalized into the report.",
+      "type": "object",
+      "properties": {
+        "normalized_findings": {
+          "description": "Number of normalized findings.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "normalized_suppressions": {
+          "description": "Number of normalized suppression evaluations.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "normalized_tool_results": {
+          "description": "Number of normalized per-tool results.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "normalized_tool_results",
+        "normalized_findings",
+        "normalized_suppressions"
+      ]
+    },
+    "RuleIdentity": {
+      "description": "Stable identity of a tool-owned rule.",
+      "type": "object",
+      "properties": {
+        "rule_id": {
+          "description": "Tool-native or Egolint-owned rule identifier.",
+          "type": "string"
+        },
+        "tool_id": {
+          "description": "Canonical Egolint or `MegaLinter` tool identifier.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "tool_id",
+        "rule_id"
+      ]
+    },
+    "RuleOwnership": {
+      "description": "Explicit ownership and policy provenance for a rule.",
+      "type": "object",
+      "properties": {
+        "configuration_path": {
+          "description": "Optional workspace-relative configuration implementing the rule.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "owner": {
+          "description": "Repository, team, or external system accountable for the rule.",
+          "type": "string"
+        },
+        "policy_source": {
+          "description": "Logical identifier for the policy decision that selected the rule.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "policy_source"
       ]
     },
     "RunStatus": {
@@ -101,6 +485,304 @@
           "description": "The engine could not complete normally.",
           "type": "string",
           "const": "execution_error"
+        }
+      ]
+    },
+    "Severity": {
+      "description": "Normalized finding severity.",
+      "oneOf": [
+        {
+          "description": "Informational observation.",
+          "type": "string",
+          "const": "info"
+        },
+        {
+          "description": "Nonblocking warning.",
+          "type": "string",
+          "const": "warning"
+        },
+        {
+          "description": "Blocking correctness or policy failure.",
+          "type": "string",
+          "const": "error"
+        },
+        {
+          "description": "Urgent high-impact security or safety failure.",
+          "type": "string",
+          "const": "critical"
+        }
+      ]
+    },
+    "SourceLocation": {
+      "description": "Workspace-relative source location.",
+      "type": "object",
+      "properties": {
+        "end_column": {
+          "description": "One-based ending column.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "end_line": {
+          "description": "One-based ending line.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "path": {
+          "description": "Normalized path relative to the inspected workspace.",
+          "type": "string"
+        },
+        "start_column": {
+          "description": "One-based starting column.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "start_line": {
+          "description": "One-based starting line.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ]
+    },
+    "Suppression": {
+      "description": "Versioned, reviewable exception to one rule or finding fingerprint.",
+      "type": "object",
+      "properties": {
+        "evidence": {
+          "description": "Sanitized evidence supporting the exception.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceReference"
+          }
+        },
+        "expires_on": {
+          "description": "Required calendar expiry in `YYYY-MM-DD` form.",
+          "type": "string"
+        },
+        "fingerprint": {
+          "description": "Optional exact finding fingerprint scope.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "id": {
+          "description": "Stable suppression identifier.",
+          "type": "string"
+        },
+        "justification": {
+          "description": "Nonempty justification for accepting the exception.",
+          "type": "string"
+        },
+        "owner": {
+          "description": "Person, team, or repository accountable for review.",
+          "type": "string"
+        },
+        "path": {
+          "description": "Optional workspace-relative path scope.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rule": {
+          "description": "Rule selected by this suppression.",
+          "$ref": "#/$defs/RuleIdentity"
+        },
+        "schema_version": {
+          "description": "Suppression-contract version.",
+          "type": "integer",
+          "const": 1
+        },
+        "state": {
+          "description": "Observed state for this suppression in the report.",
+          "$ref": "#/$defs/SuppressionState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "id",
+        "rule",
+        "owner",
+        "justification",
+        "expires_on",
+        "state",
+        "evidence"
+      ]
+    },
+    "SuppressionState": {
+      "description": "Observed disposition of a declared suppression.",
+      "oneOf": [
+        {
+          "description": "The suppression matched at least one finding and remained valid.",
+          "type": "string",
+          "const": "applied"
+        },
+        {
+          "description": "The suppression did not match a finding.",
+          "type": "string",
+          "const": "unmatched"
+        },
+        {
+          "description": "The suppression passed its required expiry date.",
+          "type": "string",
+          "const": "expired"
+        },
+        {
+          "description": "The suppression could not be evaluated safely.",
+          "type": "string",
+          "const": "invalid"
+        }
+      ]
+    },
+    "ToolResult": {
+      "description": "Versioned normalized result for one selected tool.",
+      "type": "object",
+      "properties": {
+        "duration_ms": {
+          "description": "Adapter-reported elapsed time, when available.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0
+        },
+        "enforcement": {
+          "description": "Whether this result participates in the blocking quality gate.",
+          "$ref": "#/$defs/Enforcement"
+        },
+        "evidence": {
+          "description": "Sanitized evidence supporting the result.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceReference"
+          }
+        },
+        "finding_count": {
+          "description": "Number of normalized findings attributed to the tool.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "owner": {
+          "description": "Repository, team, or external system accountable for the tool policy.",
+          "type": "string"
+        },
+        "policy_source": {
+          "description": "Logical identifier for the policy that selected the tool.",
+          "type": "string"
+        },
+        "schema_version": {
+          "description": "Tool-result contract version.",
+          "type": "integer",
+          "const": 1
+        },
+        "status": {
+          "description": "Precise observed execution or selection state.",
+          "$ref": "#/$defs/ToolStatus"
+        },
+        "tool_id": {
+          "description": "Canonical Egolint or `MegaLinter` tool identifier.",
+          "type": "string"
+        },
+        "warning_count": {
+          "description": "Number of normalized warnings attributed to the tool.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "tool_id",
+        "owner",
+        "policy_source",
+        "status",
+        "enforcement",
+        "finding_count",
+        "warning_count",
+        "evidence"
+      ]
+    },
+    "ToolStatus": {
+      "description": "Precise normalized state for one tool.",
+      "oneOf": [
+        {
+          "description": "Selected but not yet executed.",
+          "type": "string",
+          "const": "selected"
+        },
+        {
+          "description": "Not relevant to the inspected repository.",
+          "type": "string",
+          "const": "not_applicable"
+        },
+        {
+          "description": "Excluded by the selected profile.",
+          "type": "string",
+          "const": "disabled_by_profile"
+        },
+        {
+          "description": "Deliberately disabled by policy configuration.",
+          "type": "string",
+          "const": "disabled_by_configuration"
+        },
+        {
+          "description": "Selected but absent from the adapter image.",
+          "type": "string",
+          "const": "missing_from_image"
+        },
+        {
+          "description": "Tool configuration could not be loaded.",
+          "type": "string",
+          "const": "configuration_error"
+        },
+        {
+          "description": "Completed without findings or warnings.",
+          "type": "string",
+          "const": "passed"
+        },
+        {
+          "description": "Completed with nonblocking warnings.",
+          "type": "string",
+          "const": "passed_with_warnings"
+        },
+        {
+          "description": "Completed with lint findings.",
+          "type": "string",
+          "const": "failed_findings"
+        },
+        {
+          "description": "Failed to execute normally.",
+          "type": "string",
+          "const": "execution_error"
+        },
+        {
+          "description": "Exceeded its execution budget.",
+          "type": "string",
+          "const": "timed_out"
         }
       ]
     }

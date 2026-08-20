@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "SUP-EMPATHY-001",
+  "rule": {
+    "tool_id": "PYTHON_RUFF",
+    "rule_id": "F401"
+  },
+  "path": "src/example.py",
+  "fingerprint": "empathy-fixture-f401",
+  "owner": "egohygiene/empathy",
+  "justification": "Synthetic exception used only to verify the standalone compatibility contract.",
+  "expires_on": "2027-08-19",
+  "state": "applied",
+  "evidence": [
+    {
+      "schema_version": 1,
+      "kind": "fixture",
+      "path": "tests/fixtures/compatibility/empathy-v1/manifest.json",
+      "sha256": null,
+      "description": "Pinned source provenance for the compatibility fixture."
+    }
+  ]
+}

@@ -88,6 +88,58 @@ class MegaLinterWrapperTests(unittest.TestCase):
         self.assertIn("MEGALINTER_CONFIG=<redacted>", result.stdout)
         self.assertIn("REPORT_OUTPUT_FOLDER=<redacted>", result.stdout)
         self.assertIn("ghcr.io/oxsecurity/megalinter:v10.0.0", result.stdout)
+        self.assertIn("--network", result.stdout)
+        self.assertIn("--cap-drop", result.stdout)
+        self.assertIn("--security-opt", result.stdout)
+        self.assertIn(":ro", result.stdout)
+        self.assertNotIn(f"{REPOSITORY_ROOT}:/tmp/lint:rw", result.stdout)
+
+    def test_direct_fix_is_rejected_in_favor_of_isolated_native_flow(self) -> None:
+        for argument in ("--fix", "--fix=PYTHON_RUFF"):
+            with self.subTest(argument=argument):
+                result = self.run_wrapper(argument)
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("isolated review boundary", result.stderr)
+                self.assertIn("native Egolint CLI", result.stderr)
+
+    def test_configuration_symlink_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            workspace = root / "workspace"
+            workspace.mkdir()
+            outside = root / "outside.yml"
+            outside.write_text("---\n", encoding="utf-8")
+            (workspace / "linked.yml").symlink_to(outside)
+
+            result = self.run_wrapper(
+                "--workspace",
+                str(workspace),
+                "--config",
+                "linked.yml",
+            )
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("may not be a symbolic link", result.stderr)
+
+    def test_rejects_removed_container_escape_hatches(self) -> None:
+        for arguments in (
+            ("--env", "GITHUB_TOKEN=value"),
+            ("--env-file", ".env"),
+            ("--volume", "/:/host"),
+            ("--mount-docker-socket",),
+            ("--runtime-arg", "--privileged"),
+            ("--", "--privileged"),
+        ):
+            with self.subTest(arguments=arguments):
+                result = self.run_wrapper(*arguments)
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("removed", result.stderr)
+
+    def test_rejects_custom_relative_report_directory(self) -> None:
+        result = self.run_wrapper("--report-directory", "reports")
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("fixed at .reports/egolint", result.stderr)
 
 
 if __name__ == "__main__":

@@ -3,10 +3,11 @@
 # The developer default is readable and reproducible by release tag. Release
 # automation must override this with the reviewed v10.0.0 manifest digest.
 ARG MEGALINTER_IMAGE="ghcr.io/oxsecurity/megalinter:v10.0.0"
+ARG NODE_POLICY_IMAGE="node:24-alpine3.24"
 
 # Match MegaLinter v10's Alpine/musl runtime so optional native Node packages
 # are materialized for the same libc rather than copied from a glibc stage.
-FROM node:24-alpine3.24 AS policy-node-dependencies
+FROM ${NODE_POLICY_IMAGE} AS policy-node-dependencies
 
 WORKDIR /opt/egolint
 
@@ -36,6 +37,8 @@ LABEL org.opencontainers.image.title="egolint-full" \
 COPY .config/ /opt/egolint/.config/
 COPY .mega-linter.yml /opt/egolint/profiles/holistic.yml
 COPY .mega-linter.fast.yml /opt/egolint/profiles/fast.yml
+COPY .mega-linter.security.yml /opt/egolint/profiles/security.yml
+COPY .mega-linter.dependency-debt.yml /opt/egolint/profiles/dependency-debt.yml
 COPY .markdownlintignore /opt/egolint/.markdownlintignore
 COPY --from=policy-node-dependencies /opt/egolint/node_modules/ /opt/egolint/node_modules/
 COPY scripts/render_image_profiles.py /opt/egolint/bin/render_image_profiles.py

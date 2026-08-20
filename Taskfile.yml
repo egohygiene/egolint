@@ -42,8 +42,14 @@ tasks:
     desc: "Regenerate checked-in JSON Schemas from the Rust types"
     cmds:
       - cargo run --quiet --locked -- schema config > schemas/config.schema.json
+      - cargo run --quiet --locked -- schema profile > schemas/profile.schema.json
+      - cargo run --quiet --locked -- schema finding > schemas/finding.schema.json
+      - cargo run --quiet --locked -- schema suppression > schemas/suppression.schema.json
+      - cargo run --quiet --locked -- schema evidence > schemas/evidence.schema.json
+      - cargo run --quiet --locked -- schema tool-result > schemas/tool-result.schema.json
       - cargo run --quiet --locked -- schema plan > schemas/plan.schema.json
       - cargo run --quiet --locked -- schema report > schemas/report.schema.json
+      - cargo run --quiet --locked -- schema debt > schemas/debt.schema.json
 
   schemas:check:
     desc: "Fail when checked-in JSON Schemas differ from the Rust types"
@@ -51,7 +57,16 @@ tasks:
       - |
         temporary_directory="$(mktemp -d)"
         trap 'rm -rf "$temporary_directory"' EXIT
-        for schema in config plan report; do
+        for schema in \
+          config \
+          profile \
+          finding \
+          suppression \
+          evidence \
+          tool-result \
+          plan \
+          report \
+          debt; do
           cargo run --quiet --locked -- schema "$schema" > "$temporary_directory/$schema.schema.json"
           diff --unified \
             "schemas/$schema.schema.json" \

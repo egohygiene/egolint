@@ -31,6 +31,8 @@ SNAPSHOT_ROOT = CONTRACT_ROOT / "snapshots"
 PROFILE_SNAPSHOT_PATHS = {
     "fast": SNAPSHOT_ROOT / "fast.json",
     "holistic": SNAPSHOT_ROOT / "holistic.json",
+    "security": SNAPSHOT_ROOT / "security.json",
+    "dependency-debt": SNAPSHOT_ROOT / "dependency-debt.json",
 }
 MEGALINTER_RELEASE = "v10.0.0"
 MEGALINTER_COMMIT = "15e5b45552097e318c93de385779ce3b1084052c"
@@ -378,6 +380,17 @@ def validate_policy(
             f"{POLICY_PATH}: commit {policy_commit} does not match catalog "
             f"{catalog['megalinter_commit']}"
         )
+    ownership_policy = policy.get("ownership", {})
+    if not isinstance(ownership_policy, dict):
+        return [*findings, f"{POLICY_PATH}: ownership must be a mapping"]
+    default_owner = ownership_policy.get("default_owner")
+    policy_source = ownership_policy.get("policy_source")
+    if not isinstance(default_owner, str) or not default_owner.strip():
+        findings.append(f"{POLICY_PATH}: ownership.default_owner must be nonempty")
+    if not isinstance(policy_source, str) or not policy_source.strip():
+        findings.append(f"{POLICY_PATH}: ownership.policy_source must be nonempty")
+    elif not (REPOSITORY_ROOT / policy_source).is_file():
+        findings.append(f"{POLICY_PATH}: ownership.policy_source is missing: {policy_source}")
     supported_linters = set(catalog["tools"])
     disabled_linters = set(
         as_string_list(holistic_configuration.get("DISABLE_LINTERS"), "DISABLE_LINTERS")
@@ -429,6 +442,12 @@ def validate_policy(
             findings.append(
                 f"{POLICY_PATH}: {linter_id} configuration is missing: {configuration_path}"
             )
+        owner = metadata.get("owner", default_owner)
+        if not isinstance(owner, str) or not owner.strip():
+            findings.append(f"{POLICY_PATH}: {linter_id} owner must be nonempty")
+        tool_policy_source = metadata.get("policy_source", policy_source)
+        if not isinstance(tool_policy_source, str) or not tool_policy_source.strip():
+            findings.append(f"{POLICY_PATH}: {linter_id} policy_source must be nonempty")
 
         fixture_metadata = metadata.get("fixtures")
         if fixture_metadata is None:
@@ -460,7 +479,6 @@ def build_matrix_and_snapshots(
         for profile_name, profile in profiles.items()
     }
     holistic_configuration = effective_profiles["holistic"]
-    fast_configuration = effective_profiles["fast"]
     disabled = set(as_string_list(holistic_configuration.get("DISABLE_LINTERS"), "DISABLE_LINTERS"))
     advisory = set(
         as_string_list(
@@ -468,10 +486,17 @@ def build_matrix_and_snapshots(
             "DISABLE_ERRORS_LINTERS",
         )
     )
-    fast_selected = set(as_string_list(fast_configuration.get("ENABLE_LINTERS"), "ENABLE_LINTERS"))
+    all_tool_ids = set(catalog["tools"])
+    profile_selections = {
+        profile_name: selected_tools(configuration, all_tool_ids)
+        for profile_name, configuration in effective_profiles.items()
+    }
     tool_policy = policy.get("tools", {})
     disabled_reasons = policy["disabled_reasons"]
     advisory_reasons = policy["advisory_reasons"]
+    ownership_policy = policy["ownership"]
+    default_owner = ownership_policy["default_owner"]
+    default_policy_source = ownership_policy["policy_source"]
 
     matrix_tools: list[dict[str, Any]] = []
     for tool_id, catalog_tool in catalog["tools"].items():
@@ -503,10 +528,20 @@ def build_matrix_and_snapshots(
                 "applicability": applicability,
                 "fixtures": fixture_metadata,
                 "profiles": {
-                    "fast": ("selected" if tool_id in fast_selected else "disabled_by_profile"),
-                    "holistic": ("disabled_by_configuration" if is_disabled else "selected"),
+                    profile_name: profile_state(tool_id, selection)
+                    for profile_name, selection in profile_selections.items()
+                },
+                "profile_enforcement": {
+                    profile_name: profile_enforcement(
+                        tool_id,
+                        effective_profiles[profile_name],
+                        selection[0],
+                    )
+                    for profile_name, selection in profile_selections.items()
                 },
                 "enforcement": enforcement,
+                "owner": metadata.get("owner", default_owner),
+                "policy_source": metadata.get("policy_source", default_policy_source),
                 "reason": disabled_reasons.get(
                     tool_id,
                     advisory_reasons.get(
@@ -518,6 +553,11 @@ def build_matrix_and_snapshots(
                     ),
                 ),
                 "report_path": f".reports/egolint/linters_logs/{tool_id}.log",
+                "evidence": {
+                    "configuration": configuration_path,
+                    "fixtures": fixture_metadata,
+                    "runtime_report": f".reports/egolint/linters_logs/{tool_id}.log",
+                },
             }
         )
 
@@ -534,16 +574,8 @@ def build_matrix_and_snapshots(
     }
 
     snapshots: dict[str, dict[str, Any]] = {}
-    all_tool_ids = set(catalog["tools"])
     for profile_name, configuration in effective_profiles.items():
-        if profile_name == "fast":
-            selected = fast_selected
-            disabled_for_profile = all_tool_ids - fast_selected
-            disabled_by_configuration: set[str] = set()
-        else:
-            selected = all_tool_ids - disabled
-            disabled_for_profile = set()
-            disabled_by_configuration = disabled
+        selected, disabled_for_profile, disabled_by_configuration = profile_selections[profile_name]
         snapshots[profile_name] = {
             "schema_version": 1,
             "profile": profile_name,
@@ -554,6 +586,60 @@ def build_matrix_and_snapshots(
             "disabled_by_configuration": sorted(disabled_by_configuration),
         }
     return matrix, snapshots
+
+
+def selected_tools(
+    configuration: Mapping[str, Any],
+    all_tool_ids: set[str],
+) -> tuple[set[str], set[str], set[str]]:
+    """Partition a profile using MegaLinter's explicit selection semantics."""
+    disabled = set(as_string_list(configuration.get("DISABLE_LINTERS"), "DISABLE_LINTERS"))
+    enabled_value = configuration.get("ENABLE_LINTERS")
+    if enabled_value is None:
+        selected = all_tool_ids - disabled
+    else:
+        enabled = set(as_string_list(enabled_value, "ENABLE_LINTERS"))
+        if configuration.get("ENABLE_DISABLE_LINTERS_PRIORITY") == "ENABLE":
+            selected = enabled
+        else:
+            selected = enabled - disabled
+    disabled_by_configuration = disabled - selected
+    disabled_by_profile = all_tool_ids - selected - disabled_by_configuration
+    return selected, disabled_by_profile, disabled_by_configuration
+
+
+def profile_state(
+    tool_id: str,
+    selection: tuple[set[str], set[str], set[str]],
+) -> str:
+    """Return one explicit selection state for a tool in a profile."""
+    selected, disabled_by_profile, disabled_by_configuration = selection
+    if tool_id in selected:
+        return "selected"
+    if tool_id in disabled_by_configuration:
+        return "disabled_by_configuration"
+    if tool_id in disabled_by_profile:
+        return "disabled_by_profile"
+    raise ContractError(f"Tool {tool_id} is not classified by the profile selection")
+
+
+def profile_enforcement(
+    tool_id: str,
+    configuration: Mapping[str, Any],
+    selected: set[str],
+) -> str:
+    """Return effective per-profile enforcement for one tool."""
+    if tool_id not in selected:
+        return "disabled"
+    advisory = set(
+        as_string_list(
+            configuration.get("DISABLE_ERRORS_LINTERS"),
+            "DISABLE_ERRORS_LINTERS",
+        )
+    )
+    if configuration.get(f"{tool_id}_DISABLE_ERRORS") is True or tool_id in advisory:
+        return "advisory"
+    return "blocking"
 
 
 def rendered_json(value: Mapping[str, Any]) -> str:
@@ -581,12 +667,14 @@ def check_generated_file(path: Path, expected: str) -> str | None:
     return None
 
 
-def validate_all_configurations(catalog: Mapping[str, Any]) -> list[str]:
+def validate_all_configurations(
+    catalog: Mapping[str, Any],
+    policy: Mapping[str, Any],
+) -> list[str]:
     """Validate the source and effective form of every profile configuration."""
     findings: list[str] = []
     configuration_paths = [
-        REPOSITORY_ROOT / ".mega-linter.yml",
-        REPOSITORY_ROOT / ".mega-linter.fast.yml",
+        REPOSITORY_ROOT / profile["config"] for profile in policy["profiles"].values()
     ]
     for path in configuration_paths:
         configuration = resolve_extended_configuration(path)
@@ -632,7 +720,7 @@ def main(arguments: list[str] | None = None) -> int:
     catalog = load_json(CATALOG_PATH)
     policy = load_yaml(POLICY_PATH)
     holistic_configuration = resolve_extended_configuration(REPOSITORY_ROOT / ".mega-linter.yml")
-    findings = validate_all_configurations(catalog)
+    findings = validate_all_configurations(catalog, policy)
     findings.extend(validate_policy(policy, catalog, holistic_configuration))
     if findings:
         for finding in findings:
@@ -654,7 +742,9 @@ def main(arguments: list[str] | None = None) -> int:
         f"MegaLinter {catalog['megalinter_release']} contract validated: "
         f"{len(catalog['tools'])} supported tools, "
         f"{len(snapshots['fast']['selected'])} fast, "
-        f"{len(snapshots['holistic']['selected'])} holistic."
+        f"{len(snapshots['holistic']['selected'])} holistic, "
+        f"{len(snapshots['security']['selected'])} security, "
+        f"{len(snapshots['dependency-debt']['selected'])} dependency-debt."
     )
     return 0
 

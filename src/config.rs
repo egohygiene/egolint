@@ -38,20 +38,37 @@ const RESERVED_ADAPTER_ENVIRONMENT_NAMES: [&str; 7] = [
 )]
 #[serde(rename_all = "kebab-case")]
 pub enum Profile {
-    /// Small, deterministic changed-file feedback surface.
+    /// Changed-file adapter feedback plus full-repository native policy checks.
     #[default]
     Fast,
-    /// Complete repository and security inspection.
+    /// Complete scheduled, manual, and trusted-branch inspection.
     Holistic,
+    /// Focused secret, static-analysis, and infrastructure security inspection.
+    Security,
+    /// Focused dependency vulnerability and software-inventory inspection.
+    DependencyDebt,
 }
 
 impl Profile {
+    /// Return the stable serialized profile identifier.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Fast => "fast",
+            Self::Holistic => "holistic",
+            Self::Security => "security",
+            Self::DependencyDebt => "dependency-debt",
+        }
+    }
+
     /// Return the configuration path embedded in `egolint-full`.
     #[must_use]
     pub const fn image_config(self) -> &'static str {
         match self {
             Self::Fast => "/opt/egolint/profiles/fast.yml",
             Self::Holistic => "/opt/egolint/profiles/holistic.yml",
+            Self::Security => "/opt/egolint/profiles/security.yml",
+            Self::DependencyDebt => "/opt/egolint/profiles/dependency-debt.yml",
         }
     }
 }
@@ -375,7 +392,11 @@ fn apply_environment(
         config.image.clone_from(value);
     }
     if let Some(value) = environment.get("EGOLINT_PROFILE") {
-        config.profile = parse_environment_enum("EGOLINT_PROFILE", value, &["fast", "holistic"])?;
+        config.profile = parse_environment_enum(
+            "EGOLINT_PROFILE",
+            value,
+            &["fast", "holistic", "security", "dependency-debt"],
+        )?;
     }
     if let Some(value) = environment.get("EGOLINT_RUNTIME") {
         config.runtime =
@@ -935,6 +956,22 @@ mod tests {
             ..Config::default()
         };
         assert!(validate_and_normalize(directory.path(), &mut config).is_err());
+    }
+
+    #[test]
+    fn focused_profiles_are_valid_environment_overrides() {
+        for (value, expected) in [
+            ("security", Profile::Security),
+            ("dependency-debt", Profile::DependencyDebt),
+        ] {
+            let mut config = Config::default();
+            apply_environment(
+                &mut config,
+                &BTreeMap::from([("EGOLINT_PROFILE", value.to_owned())]),
+            )
+            .expect("focused profile override");
+            assert_eq!(config.profile, expected);
+        }
     }
 
     #[test]

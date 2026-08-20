@@ -52,14 +52,14 @@ def parse_mapping(contents: str, *, profile_name: str) -> dict[str, object]:
     return value
 
 
-def flatten_fast_profile(holistic: str, fast: str) -> str:
+def flatten_overlay_profile(holistic: str, overlay_contents: str, *, name: str) -> str:
     """Apply MegaLinter's v10 shallow EXTENDS merge at image-build time."""
 
     base = parse_mapping(holistic, profile_name="holistic.yml")
-    overlay = parse_mapping(fast, profile_name="fast.yml")
+    overlay = parse_mapping(overlay_contents, profile_name=name)
     extends = overlay.pop("EXTENDS", None)
     if extends not in (".mega-linter.yml", [".mega-linter.yml"]):
-        message = "fast.yml must extend only the source holistic profile"
+        message = f"{name} must extend only the source holistic profile"
         raise ValueError(message)
 
     append_properties = overlay.get("CONFIG_PROPERTIES_TO_APPEND", [])
@@ -83,15 +83,27 @@ def flatten_fast_profile(holistic: str, fast: str) -> str:
     return "---\n" + yaml.safe_dump(flattened, sort_keys=False)
 
 
+def flatten_fast_profile(holistic: str, fast: str) -> str:
+    """Backward-compatible fast-profile helper used by contract tests."""
+
+    return flatten_overlay_profile(holistic, fast, name="fast.yml")
+
+
 def render_directory(directory: Path) -> None:
     """Render and flatten the image profiles in ``directory`` in place."""
 
     holistic_path = directory / "holistic.yml"
-    fast_path = directory / "fast.yml"
     holistic = render_profile(holistic_path.read_text(encoding="utf-8"))
-    fast = render_profile(fast_path.read_text(encoding="utf-8"))
     holistic_path.write_text(holistic, encoding="utf-8")
-    fast_path.write_text(flatten_fast_profile(holistic, fast), encoding="utf-8")
+    for profile_name in ("fast.yml", "security.yml", "dependency-debt.yml"):
+        profile_path = directory / profile_name
+        if not profile_path.exists():
+            continue
+        overlay = render_profile(profile_path.read_text(encoding="utf-8"))
+        profile_path.write_text(
+            flatten_overlay_profile(holistic, overlay, name=profile_name),
+            encoding="utf-8",
+        )
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -102,7 +114,7 @@ def parse_arguments() -> argparse.Namespace:
         "--directory",
         type=Path,
         required=True,
-        help="Directory containing fast.yml and holistic.yml.",
+        help="Directory containing holistic.yml and its packaged overlays.",
     )
     return parser.parse_args()
 

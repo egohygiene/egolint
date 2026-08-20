@@ -46,7 +46,9 @@ ALREADY: /opt/egolint/.config/lint
         self.assertIn("ALREADY: /opt/egolint/.config/lint", rendered)
         self.assertNotIn("/opt/egolint//opt/", rendered)
 
-    def test_directory_render_flattens_fast_profile_without_runtime_extends(self) -> None:
+    def test_directory_render_flattens_fast_profile_without_runtime_extends(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             directory = Path(temporary_directory)
             fast = directory / "fast.yml"
@@ -84,6 +86,27 @@ LIST:
 
         self.assertIn("- base", flattened)
         self.assertIn("- overlay", flattened)
+
+    def test_directory_render_flattens_all_packaged_overlays(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            directory = Path(temporary_directory)
+            (directory / "holistic.yml").write_text(
+                "BASE: .config/security\n",
+                encoding="utf-8",
+            )
+            for name in ("fast.yml", "security.yml", "dependency-debt.yml"):
+                (directory / name).write_text(
+                    "EXTENDS: .mega-linter.yml\nPROFILE: " + name + "\n",
+                    encoding="utf-8",
+                )
+
+            renderer.render_directory(directory)
+
+            for name in ("fast.yml", "security.yml", "dependency-debt.yml"):
+                rendered = (directory / name).read_text(encoding="utf-8")
+                self.assertNotIn("EXTENDS", rendered)
+                self.assertIn("BASE: /opt/egolint/.config/security", rendered)
+                self.assertIn(f"PROFILE: {name}", rendered)
 
 
 if __name__ == "__main__":

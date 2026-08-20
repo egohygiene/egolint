@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "EMPATHY-F001",
+  "rule": {
+    "tool_id": "PYTHON_RUFF",
+    "rule_id": "F401"
+  },
+  "severity": "warning",
+  "message": "Synthetic unused-import finding for the Empathy compatibility contract.",
+  "location": {
+    "path": "src/example.py",
+    "start_line": 1,
+    "start_column": 1,
+    "end_line": 1,
+    "end_column": 12
+  },
+  "ownership": {
+    "owner": "egolint",
+    "policy_source": ".config/megalinter/policy.yml",
+    "configuration_path": ".config/lint/python/ruff.toml"
+  },
+  "fingerprint": "empathy-fixture-f401",
+  "evidence": [
+    {
+      "schema_version": 1,
+      "kind": "fixture",
+      "path": "tests/fixtures/compatibility/empathy-v1/finding.json",
+      "sha256": null,
+      "description": "Sanitized synthetic compatibility finding."
+    }
+  ],
+  "suppressed_by": "SUP-EMPATHY-001"
+}

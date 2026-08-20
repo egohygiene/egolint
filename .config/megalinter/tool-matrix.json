@@ -27,12 +27,27 @@
       "configuration_state": "enabled",
       "descriptor": "ACTION",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/actions/actionlint.yml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/ACTION_ACTIONLINT.log"
+      },
       "fixtures": {},
       "id": "ACTION_ACTIONLINT",
       "name": "actionlint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "blocking",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "selected",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/ACTION_ACTIONLINT.log",
@@ -48,6 +63,19 @@
       "configuration_state": "disabled",
       "descriptor": "ACTION",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": ".config/lint/actions/zizmor.yml",
+        "fixtures": {
+          "expected_rule": "unpinned-uses",
+          "negative": [
+            "tests/fixtures/negative/zizmor/unpinned-action.yml"
+          ],
+          "positive": [
+            "tests/fixtures/zizmor/pinned-action.yml"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/ACTION_ZIZMOR.log"
+      },
       "fixtures": {
         "expected_rule": "unpinned-uses",
         "negative": [
@@ -59,9 +87,19 @@
       },
       "id": "ACTION_ZIZMOR",
       "name": "zizmor",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Awaiting review of existing workflow security findings.",
       "report_path": ".reports/egolint/linters_logs/ACTION_ZIZMOR.log",
@@ -79,6 +117,18 @@
       "configuration_state": "conditional",
       "descriptor": "ANSIBLE",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/ansible/ansible-lint.yml",
+        "fixtures": {
+          "blocker": "A deliberately invalid playbook is unnecessary for validating the portable project fixture.",
+          "negative": [],
+          "positive": [
+            "tests/fixtures/ansible/playbooks/site.yml",
+            "tests/fixtures/ansible/inventories/example/hosts.yml"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/ANSIBLE_ANSIBLE_LINT.log"
+      },
       "fixtures": {
         "blocker": "A deliberately invalid playbook is unnecessary for validating the portable project fixture.",
         "negative": [],
@@ -89,9 +139,19 @@
       },
       "id": "ANSIBLE_ANSIBLE_LINT",
       "name": "ansible-lint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/ANSIBLE_ANSIBLE_LINT.log",
@@ -104,12 +164,27 @@
       "configuration_state": "enabled",
       "descriptor": "ARM",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/arm/arm-ttk.psd1",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/ARM_ARM_TTK.log"
+      },
       "fixtures": {},
       "id": "ARM_ARM_TTK",
       "name": "arm-ttk",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/ARM_ARM_TTK.log",
@@ -122,12 +197,27 @@
       "configuration_state": "enabled",
       "descriptor": "BASH",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/BASH_EXEC.log"
+      },
       "fixtures": {},
       "id": "BASH_EXEC",
       "name": "bash-exec",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "blocking",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "selected",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/BASH_EXEC.log",
@@ -136,16 +226,31 @@
     {
       "applicability": [],
       "cli_lint_mode": "list_of_files",
-      "configuration_path": null,
+      "configuration_path": ".config/lint/shell/shellcheckrc",
       "configuration_state": "enabled",
       "descriptor": "BASH",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/shell/shellcheckrc",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/BASH_SHELLCHECK.log"
+      },
       "fixtures": {},
       "id": "BASH_SHELLCHECK",
       "name": "shellcheck",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "blocking",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "selected",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/BASH_SHELLCHECK.log",
@@ -158,12 +263,27 @@
       "configuration_state": "enabled",
       "descriptor": "BASH",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/BASH_SHFMT.log"
+      },
       "fixtures": {},
       "id": "BASH_SHFMT",
       "name": "shfmt",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "blocking",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "selected",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/BASH_SHFMT.log",
@@ -176,12 +296,27 @@
       "configuration_state": "enabled",
       "descriptor": "BICEP",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/BICEP_BICEP_LINTER.log"
+      },
       "fixtures": {},
       "id": "BICEP_BICEP_LINTER",
       "name": "bicep_linter",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/BICEP_BICEP_LINTER.log",
@@ -194,12 +329,27 @@
       "configuration_state": "enabled",
       "descriptor": "CLOJURE",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/clojure/cljstyle.edn",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/CLOJURE_CLJSTYLE.log"
+      },
       "fixtures": {},
       "id": "CLOJURE_CLJSTYLE",
       "name": "cljstyle",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/CLOJURE_CLJSTYLE.log",
@@ -212,12 +362,27 @@
       "configuration_state": "enabled",
       "descriptor": "CLOJURE",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/clojure/.clj-kondo/config.edn",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/CLOJURE_CLJ_KONDO.log"
+      },
       "fixtures": {},
       "id": "CLOJURE_CLJ_KONDO",
       "name": "clj-kondo",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/CLOJURE_CLJ_KONDO.log",
@@ -230,12 +395,27 @@
       "configuration_state": "enabled",
       "descriptor": "CLOUDFORMATION",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/cloudformation/cfnlint.yml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/CLOUDFORMATION_CFN_LINT.log"
+      },
       "fixtures": {},
       "id": "CLOUDFORMATION_CFN_LINT",
       "name": "cfn-lint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/CLOUDFORMATION_CFN_LINT.log",
@@ -248,12 +428,27 @@
       "configuration_state": "enabled",
       "descriptor": "COFFEE",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/coffee/coffeelint.json",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/COFFEE_COFFEELINT.log"
+      },
       "fixtures": {},
       "id": "COFFEE_COFFEELINT",
       "name": "coffeelint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/COFFEE_COFFEELINT.log",
@@ -266,12 +461,27 @@
       "configuration_state": "enabled",
       "descriptor": "COPYPASTE",
       "enforcement": "advisory",
+      "evidence": {
+        "configuration": ".config/lint/copypaste/jscpd.json",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/COPYPASTE_JSCPD.log"
+      },
       "fixtures": {},
       "id": "COPYPASTE_JSCPD",
       "name": "jscpd",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "advisory",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Duplication is tracked as a refactoring metric, not a correctness gate.",
       "report_path": ".reports/egolint/linters_logs/COPYPASTE_JSCPD.log",
@@ -284,12 +494,27 @@
       "configuration_state": "enabled",
       "descriptor": "CPP",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/cpp/.clang-format",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/CPP_CLANG_FORMAT.log"
+      },
       "fixtures": {},
       "id": "CPP_CLANG_FORMAT",
       "name": "clang-format",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/CPP_CLANG_FORMAT.log",
@@ -305,6 +530,19 @@
       "configuration_state": "conditional",
       "descriptor": "CPP",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {
+          "expected_rule": "uninitvar",
+          "negative": [
+            "tests/fixtures/negative/cppcheck/uninitialized.cpp"
+          ],
+          "positive": [
+            "tests/fixtures/clang-format/valid.cpp"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/CPP_CPPCHECK.log"
+      },
       "fixtures": {
         "expected_rule": "uninitvar",
         "negative": [
@@ -316,9 +554,19 @@
       },
       "id": "CPP_CPPCHECK",
       "name": "cppcheck",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/CPP_CPPCHECK.log",
@@ -331,12 +579,27 @@
       "configuration_state": "enabled",
       "descriptor": "CPP",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/CPP_CPPLINT.log"
+      },
       "fixtures": {},
       "id": "CPP_CPPLINT",
       "name": "cpplint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/CPP_CPPLINT.log",
@@ -349,12 +612,27 @@
       "configuration_state": "enabled",
       "descriptor": "CSHARP",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/CSHARP_CSHARPIER.log"
+      },
       "fixtures": {},
       "id": "CSHARP_CSHARPIER",
       "name": "csharpier",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/CSHARP_CSHARPIER.log",
@@ -367,12 +645,27 @@
       "configuration_state": "enabled",
       "descriptor": "CSHARP",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/CSHARP_DOTNET_FORMAT.log"
+      },
       "fixtures": {},
       "id": "CSHARP_DOTNET_FORMAT",
       "name": "dotnet-format",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/CSHARP_DOTNET_FORMAT.log",
@@ -385,12 +678,27 @@
       "configuration_state": "enabled",
       "descriptor": "CSHARP",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/CSHARP_ROSLYNATOR.log"
+      },
       "fixtures": {},
       "id": "CSHARP_ROSLYNATOR",
       "name": "roslynator",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/CSHARP_ROSLYNATOR.log",
@@ -403,12 +711,27 @@
       "configuration_state": "enabled",
       "descriptor": "CSS",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/css/stylelint.json",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/CSS_STYLELINT.log"
+      },
       "fixtures": {},
       "id": "CSS_STYLELINT",
       "name": "stylelint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/CSS_STYLELINT.log",
@@ -421,12 +744,27 @@
       "configuration_state": "enabled",
       "descriptor": "C",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/cpp/.clang-format",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/C_CLANG_FORMAT.log"
+      },
       "fixtures": {},
       "id": "C_CLANG_FORMAT",
       "name": "clang-format",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/C_CLANG_FORMAT.log",
@@ -442,6 +780,19 @@
       "configuration_state": "conditional",
       "descriptor": "C",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {
+          "expected_rule": "uninitvar",
+          "negative": [
+            "tests/fixtures/negative/cppcheck/uninitialized.c"
+          ],
+          "positive": [
+            "tests/fixtures/clang-format/valid.c"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/C_CPPCHECK.log"
+      },
       "fixtures": {
         "expected_rule": "uninitvar",
         "negative": [
@@ -453,9 +804,19 @@
       },
       "id": "C_CPPCHECK",
       "name": "cppcheck",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/C_CPPCHECK.log",
@@ -468,12 +829,27 @@
       "configuration_state": "enabled",
       "descriptor": "C",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/C_CPPLINT.log"
+      },
       "fixtures": {},
       "id": "C_CPPLINT",
       "name": "cpplint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/C_CPPLINT.log",
@@ -486,12 +862,27 @@
       "configuration_state": "enabled",
       "descriptor": "DART",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/dart/analysis_options.yaml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/DART_DARTANALYZER.log"
+      },
       "fixtures": {},
       "id": "DART_DARTANALYZER",
       "name": "dartanalyzer",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/DART_DARTANALYZER.log",
@@ -504,12 +895,27 @@
       "configuration_state": "enabled",
       "descriptor": "DOCKERFILE",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/dockerfile/hadolint.yaml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/DOCKERFILE_HADOLINT.log"
+      },
       "fixtures": {},
       "id": "DOCKERFILE_HADOLINT",
       "name": "hadolint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/DOCKERFILE_HADOLINT.log",
@@ -522,12 +928,27 @@
       "configuration_state": "enabled",
       "descriptor": "EDITORCONFIG",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/editorconfig/editorconfig-checker.json",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/EDITORCONFIG_EDITORCONFIG_CHECKER.log"
+      },
       "fixtures": {},
       "id": "EDITORCONFIG_EDITORCONFIG_CHECKER",
       "name": "editorconfig-checker",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "blocking",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "selected",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/EDITORCONFIG_EDITORCONFIG_CHECKER.log",
@@ -542,6 +963,19 @@
       "configuration_state": "conditional",
       "descriptor": "ENV",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {
+          "expected_rule": "dotenv-format",
+          "negative": [
+            "tests/fixtures/negative/dotenv-linter/invalid.env"
+          ],
+          "positive": [
+            "tests/fixtures/dotenv-linter/valid.env"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/ENV_DOTENV_LINTER.log"
+      },
       "fixtures": {
         "expected_rule": "dotenv-format",
         "negative": [
@@ -553,9 +987,19 @@
       },
       "id": "ENV_DOTENV_LINTER",
       "name": "dotenv-linter",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/ENV_DOTENV_LINTER.log",
@@ -568,12 +1012,27 @@
       "configuration_state": "enabled",
       "descriptor": "GHERKIN",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/gherkin/gherkin-lint.json",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/GHERKIN_GHERKIN_LINT.log"
+      },
       "fixtures": {},
       "id": "GHERKIN_GHERKIN_LINT",
       "name": "gherkin-lint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/GHERKIN_GHERKIN_LINT.log",
@@ -589,6 +1048,19 @@
       "configuration_state": "disabled",
       "descriptor": "GO",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": ".config/lint/go/golangci-lint.yml",
+        "fixtures": {
+          "expected_rule": "ineffassign",
+          "negative": [
+            "tests/fixtures/negative/golangci-lint/ineffective_assignment.go"
+          ],
+          "positive": [
+            "tests/fixtures/revive/greeting_service.go"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/GO_GOLANGCI_LINT.log"
+      },
       "fixtures": {
         "expected_rule": "ineffassign",
         "negative": [
@@ -600,9 +1072,19 @@
       },
       "id": "GO_GOLANGCI_LINT",
       "name": "golangci-lint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Requires a representative Go module and project-discovery baseline.",
       "report_path": ".reports/egolint/linters_logs/GO_GOLANGCI_LINT.log",
@@ -615,12 +1097,27 @@
       "configuration_state": "enabled",
       "descriptor": "GO",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/go/revive.toml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/GO_REVIVE.log"
+      },
       "fixtures": {},
       "id": "GO_REVIVE",
       "name": "revive",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/GO_REVIVE.log",
@@ -633,12 +1130,27 @@
       "configuration_state": "enabled",
       "descriptor": "GRAPHQL",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/graphql/.graphql-schema-linterrc",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/GRAPHQL_GRAPHQL_SCHEMA_LINTER.log"
+      },
       "fixtures": {},
       "id": "GRAPHQL_GRAPHQL_SCHEMA_LINTER",
       "name": "graphql-schema-linter",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/GRAPHQL_GRAPHQL_SCHEMA_LINTER.log",
@@ -651,12 +1163,27 @@
       "configuration_state": "enabled",
       "descriptor": "GROOVY",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/groovy/.groovylintrc.json",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/GROOVY_NPM_GROOVY_LINT.log"
+      },
       "fixtures": {},
       "id": "GROOVY_NPM_GROOVY_LINT",
       "name": "npm-groovy-lint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/GROOVY_NPM_GROOVY_LINT.log",
@@ -672,6 +1199,19 @@
       "configuration_state": "disabled",
       "descriptor": "HTML",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {
+          "expected_rule": "H025",
+          "negative": [
+            "tests/fixtures/negative/djlint/invalid.html"
+          ],
+          "positive": [
+            "tests/fixtures/htmlhint/valid.html"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/HTML_DJLINT.log"
+      },
       "fixtures": {
         "expected_rule": "H025",
         "negative": [
@@ -683,9 +1223,19 @@
       },
       "id": "HTML_DJLINT",
       "name": "djlint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Conditional on a template project and comparison with HTMLHint ownership.",
       "report_path": ".reports/egolint/linters_logs/HTML_DJLINT.log",
@@ -698,12 +1248,27 @@
       "configuration_state": "enabled",
       "descriptor": "HTML",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/html/htmlhint.json",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/HTML_HTMLHINT.log"
+      },
       "fixtures": {},
       "id": "HTML_HTMLHINT",
       "name": "htmlhint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/HTML_HTMLHINT.log",
@@ -716,12 +1281,27 @@
       "configuration_state": "enabled",
       "descriptor": "JAVASCRIPT",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/javascript/eslint.config.mjs",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/JAVASCRIPT_ES.log"
+      },
       "fixtures": {},
       "id": "JAVASCRIPT_ES",
       "name": "eslint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/JAVASCRIPT_ES.log",
@@ -734,12 +1314,27 @@
       "configuration_state": "enabled",
       "descriptor": "JAVASCRIPT",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/javascript/prettier.config.mjs",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/JAVASCRIPT_PRETTIER.log"
+      },
       "fixtures": {},
       "id": "JAVASCRIPT_PRETTIER",
       "name": "prettier",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/JAVASCRIPT_PRETTIER.log",
@@ -752,12 +1347,27 @@
       "configuration_state": "enabled",
       "descriptor": "JAVASCRIPT",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/JAVASCRIPT_STANDARD.log"
+      },
       "fixtures": {},
       "id": "JAVASCRIPT_STANDARD",
       "name": "standard",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/JAVASCRIPT_STANDARD.log",
@@ -770,12 +1380,27 @@
       "configuration_state": "enabled",
       "descriptor": "JAVA",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/java/checkstyle/checkstyle.xml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/JAVA_CHECKSTYLE.log"
+      },
       "fixtures": {},
       "id": "JAVA_CHECKSTYLE",
       "name": "checkstyle",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/JAVA_CHECKSTYLE.log",
@@ -788,12 +1413,27 @@
       "configuration_state": "enabled",
       "descriptor": "JAVA",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/java/pmd/java-pmd-ruleset.xml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/JAVA_PMD.log"
+      },
       "fixtures": {},
       "id": "JAVA_PMD",
       "name": "pmd",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/JAVA_PMD.log",
@@ -806,12 +1446,27 @@
       "configuration_state": "enabled",
       "descriptor": "JSON",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/json/jsonlint.json",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/JSON_JSONLINT.log"
+      },
       "fixtures": {},
       "id": "JSON_JSONLINT",
       "name": "jsonlint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "blocking",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "selected",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/JSON_JSONLINT.log",
@@ -824,12 +1479,27 @@
       "configuration_state": "enabled",
       "descriptor": "JSON",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/JSON_NPM_PACKAGE_JSON_LINT.log"
+      },
       "fixtures": {},
       "id": "JSON_NPM_PACKAGE_JSON_LINT",
       "name": "npm-package-json-lint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/JSON_NPM_PACKAGE_JSON_LINT.log",
@@ -842,12 +1512,27 @@
       "configuration_state": "enabled",
       "descriptor": "JSON",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/javascript/prettier.config.mjs",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/JSON_PRETTIER.log"
+      },
       "fixtures": {},
       "id": "JSON_PRETTIER",
       "name": "prettier",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "blocking",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "selected",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/JSON_PRETTIER.log",
@@ -862,6 +1547,19 @@
       "configuration_state": "conditional",
       "descriptor": "JSON",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/yaml/.v8rrc.yml",
+        "fixtures": {
+          "expected_rule": "schema-validation",
+          "negative": [
+            "tests/fixtures/negative/v8r/package.json"
+          ],
+          "positive": [
+            "tests/fixtures/v8r/package.json"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/JSON_V8R.log"
+      },
       "fixtures": {
         "expected_rule": "schema-validation",
         "negative": [
@@ -873,9 +1571,19 @@
       },
       "id": "JSON_V8R",
       "name": "v8r",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/JSON_V8R.log",
@@ -888,12 +1596,27 @@
       "configuration_state": "disabled",
       "descriptor": "JSX",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": ".config/lint/javascript/eslint.config.mjs",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/JSX_ESLINT.log"
+      },
       "fixtures": {},
       "id": "JSX_ESLINT",
       "name": "eslint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "The repository-pinned ESLint v9 command owns JSX analysis.",
       "report_path": ".reports/egolint/linters_logs/JSX_ESLINT.log",
@@ -906,12 +1629,27 @@
       "configuration_state": "enabled",
       "descriptor": "KOTLIN",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/KOTLIN_DETEKT.log"
+      },
       "fixtures": {},
       "id": "KOTLIN_DETEKT",
       "name": "detekt",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/KOTLIN_DETEKT.log",
@@ -924,12 +1662,27 @@
       "configuration_state": "enabled",
       "descriptor": "KOTLIN",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/KOTLIN_KTLINT.log"
+      },
       "fixtures": {},
       "id": "KOTLIN_KTLINT",
       "name": "ktlint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/KOTLIN_KTLINT.log",
@@ -944,6 +1697,15 @@
       "configuration_state": "disabled",
       "descriptor": "KUBERNETES",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {
+          "blocker": "A self-contained representative chart is not yet available.",
+          "negative": [],
+          "positive": []
+        },
+        "runtime_report": ".reports/egolint/linters_logs/KUBERNETES_HELM.log"
+      },
       "fixtures": {
         "blocker": "A self-contained representative chart is not yet available.",
         "negative": [],
@@ -951,9 +1713,19 @@
       },
       "id": "KUBERNETES_HELM",
       "name": "helm",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Requires a representative self-contained Helm chart fixture.",
       "report_path": ".reports/egolint/linters_logs/KUBERNETES_HELM.log",
@@ -969,6 +1741,19 @@
       "configuration_state": "disabled",
       "descriptor": "KUBERNETES",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {
+          "expected_rule": "schema-validation",
+          "negative": [
+            "tests/fixtures/negative/kubernetes/invalid-deployment.yml"
+          ],
+          "positive": [
+            "tests/fixtures/kubernetes/valid-deployment.yml"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/KUBERNETES_KUBECONFORM.log"
+      },
       "fixtures": {
         "expected_rule": "schema-validation",
         "negative": [
@@ -980,9 +1765,19 @@
       },
       "id": "KUBERNETES_KUBECONFORM",
       "name": "kubeconform",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Requires an offline Kubernetes schema-cache policy.",
       "report_path": ".reports/egolint/linters_logs/KUBERNETES_KUBECONFORM.log",
@@ -999,6 +1794,19 @@
       "configuration_state": "disabled",
       "descriptor": "KUBERNETES",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {
+          "expected_rule": "security-control",
+          "negative": [
+            "tests/fixtures/negative/kubernetes/privileged-pod.yml"
+          ],
+          "positive": [
+            "tests/fixtures/kubernetes/valid-deployment.yml"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/KUBERNETES_KUBESCAPE.log"
+      },
       "fixtures": {
         "expected_rule": "security-control",
         "negative": [
@@ -1010,9 +1818,19 @@
       },
       "id": "KUBERNETES_KUBESCAPE",
       "name": "kubescape",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Requires a reviewed Kubernetes security baseline.",
       "report_path": ".reports/egolint/linters_logs/KUBERNETES_KUBESCAPE.log",
@@ -1025,12 +1843,27 @@
       "configuration_state": "enabled",
       "descriptor": "LATEX",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/latex/.chktexrc",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/LATEX_CHKTEX.log"
+      },
       "fixtures": {},
       "id": "LATEX_CHKTEX",
       "name": "chktex",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/LATEX_CHKTEX.log",
@@ -1043,12 +1876,27 @@
       "configuration_state": "enabled",
       "descriptor": "LUA",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/lua/.luacheckrc",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/LUA_LUACHECK.log"
+      },
       "fixtures": {},
       "id": "LUA_LUACHECK",
       "name": "luacheck",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/LUA_LUACHECK.log",
@@ -1061,12 +1909,27 @@
       "configuration_state": "enabled",
       "descriptor": "LUA",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/LUA_STYLUA.log"
+      },
       "fixtures": {},
       "id": "LUA_STYLUA",
       "name": "stylua",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/LUA_STYLUA.log",
@@ -1079,12 +1942,27 @@
       "configuration_state": "enabled",
       "descriptor": "MARKDOWN",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/markdown/.markdownlint.json",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/MARKDOWN_MARKDOWNLINT.log"
+      },
       "fixtures": {},
       "id": "MARKDOWN_MARKDOWNLINT",
       "name": "markdownlint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "blocking",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "selected",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/MARKDOWN_MARKDOWNLINT.log",
@@ -1097,12 +1975,27 @@
       "configuration_state": "enabled",
       "descriptor": "MARKDOWN",
       "enforcement": "advisory",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/MARKDOWN_MARKDOWN_TABLE_FORMATTER.log"
+      },
       "fixtures": {},
       "id": "MARKDOWN_MARKDOWN_TABLE_FORMATTER",
       "name": "markdown-table-formatter",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "advisory",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Markdownlint and Prettier own blocking Markdown format policy.",
       "report_path": ".reports/egolint/linters_logs/MARKDOWN_MARKDOWN_TABLE_FORMATTER.log",
@@ -1117,6 +2010,19 @@
       "configuration_state": "disabled",
       "descriptor": "MARKDOWN",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": ".config/lint/markdown/.rumdl.toml",
+        "fixtures": {
+          "expected_rule": "MD001",
+          "negative": [
+            "tests/fixtures/negative/rumdl/invalid.md"
+          ],
+          "positive": [
+            "tests/fixtures/markdownlint/valid.md"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/MARKDOWN_RUMDL.log"
+      },
       "fixtures": {
         "expected_rule": "MD001",
         "negative": [
@@ -1128,9 +2034,19 @@
       },
       "id": "MARKDOWN_RUMDL",
       "name": "rumdl",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Awaiting rule-by-rule comparison with canonical Markdownlint policy.",
       "report_path": ".reports/egolint/linters_logs/MARKDOWN_RUMDL.log",
@@ -1143,12 +2059,27 @@
       "configuration_state": "enabled",
       "descriptor": "PERL",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PERL_PERLCRITIC.log"
+      },
       "fixtures": {},
       "id": "PERL_PERLCRITIC",
       "name": "perlcritic",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/PERL_PERLCRITIC.log",
@@ -1161,12 +2092,27 @@
       "configuration_state": "enabled",
       "descriptor": "PHP",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/php/phpcs.xml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PHP_PHPCS.log"
+      },
       "fixtures": {},
       "id": "PHP_PHPCS",
       "name": "phpcs",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/PHP_PHPCS.log",
@@ -1179,12 +2125,27 @@
       "configuration_state": "enabled",
       "descriptor": "PHP",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PHP_PHPCSFIXER.log"
+      },
       "fixtures": {},
       "id": "PHP_PHPCSFIXER",
       "name": "php-cs-fixer",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/PHP_PHPCSFIXER.log",
@@ -1197,12 +2158,27 @@
       "configuration_state": "enabled",
       "descriptor": "PHP",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/php/.phplint.yml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PHP_PHPLINT.log"
+      },
       "fixtures": {},
       "id": "PHP_PHPLINT",
       "name": "phplint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/PHP_PHPLINT.log",
@@ -1215,12 +2191,27 @@
       "configuration_state": "enabled",
       "descriptor": "PHP",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/php/phpstan.neon.dist",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PHP_PHPSTAN.log"
+      },
       "fixtures": {},
       "id": "PHP_PHPSTAN",
       "name": "phpstan",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/PHP_PHPSTAN.log",
@@ -1233,12 +2224,27 @@
       "configuration_state": "enabled",
       "descriptor": "PHP",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/php/psalm.xml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PHP_PSALM.log"
+      },
       "fixtures": {},
       "id": "PHP_PSALM",
       "name": "psalm",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/PHP_PSALM.log",
@@ -1251,12 +2257,27 @@
       "configuration_state": "enabled",
       "descriptor": "POWERSHELL",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/powershell/powershell-psscriptanalyzer.psd1",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/POWERSHELL_POWERSHELL.log"
+      },
       "fixtures": {},
       "id": "POWERSHELL_POWERSHELL",
       "name": "powershell",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/POWERSHELL_POWERSHELL.log",
@@ -1269,12 +2290,27 @@
       "configuration_state": "enabled",
       "descriptor": "POWERSHELL",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/powershell/powershell-formatter.psd1",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/POWERSHELL_POWERSHELL_FORMATTER.log"
+      },
       "fixtures": {},
       "id": "POWERSHELL_POWERSHELL_FORMATTER",
       "name": "powershell_formatter",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/POWERSHELL_POWERSHELL_FORMATTER.log",
@@ -1287,12 +2323,27 @@
       "configuration_state": "enabled",
       "descriptor": "PROTOBUF",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/protobuf/.protolintrc.yml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PROTOBUF_PROTOLINT.log"
+      },
       "fixtures": {},
       "id": "PROTOBUF_PROTOLINT",
       "name": "protolint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/PROTOBUF_PROTOLINT.log",
@@ -1305,12 +2356,27 @@
       "configuration_state": "enabled",
       "descriptor": "PYTHON",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/python/.bandit.yml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PYTHON_BANDIT.log"
+      },
       "fixtures": {},
       "id": "PYTHON_BANDIT",
       "name": "bandit",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "blocking"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "selected"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/PYTHON_BANDIT.log",
@@ -1323,12 +2389,27 @@
       "configuration_state": "disabled",
       "descriptor": "PYTHON",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": ".config/lint/python/pyproject.toml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PYTHON_BLACK.log"
+      },
       "fixtures": {},
       "id": "PYTHON_BLACK",
       "name": "black",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Ruff Format is the canonical Python formatter.",
       "report_path": ".reports/egolint/linters_logs/PYTHON_BLACK.log",
@@ -1341,12 +2422,27 @@
       "configuration_state": "disabled",
       "descriptor": "PYTHON",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": ".config/lint/python/.flake8",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PYTHON_FLAKE8.log"
+      },
       "fixtures": {},
       "id": "PYTHON_FLAKE8",
       "name": "flake8",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Ruff is the canonical Python linter.",
       "report_path": ".reports/egolint/linters_logs/PYTHON_FLAKE8.log",
@@ -1359,12 +2455,27 @@
       "configuration_state": "disabled",
       "descriptor": "PYTHON",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": ".config/lint/python/.isort.cfg",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PYTHON_ISORT.log"
+      },
       "fixtures": {},
       "id": "PYTHON_ISORT",
       "name": "isort",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Ruff import rules are the canonical import sorter.",
       "report_path": ".reports/egolint/linters_logs/PYTHON_ISORT.log",
@@ -1377,12 +2488,27 @@
       "configuration_state": "enabled",
       "descriptor": "PYTHON",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/python/.mypy.ini",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PYTHON_MYPY.log"
+      },
       "fixtures": {},
       "id": "PYTHON_MYPY",
       "name": "mypy",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/PYTHON_MYPY.log",
@@ -1397,6 +2523,19 @@
       "configuration_state": "disabled",
       "descriptor": "PYTHON",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": ".config/lint/python/.mypy.ini",
+        "fixtures": {
+          "expected_rule": "assignment",
+          "negative": [
+            "tests/fixtures/negative/nbqa-mypy/type-error.ipynb"
+          ],
+          "positive": [
+            "tests/fixtures/nbqa-mypy/valid.ipynb"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/PYTHON_NBQA_MYPY.log"
+      },
       "fixtures": {
         "expected_rule": "assignment",
         "negative": [
@@ -1408,9 +2547,19 @@
       },
       "id": "PYTHON_NBQA_MYPY",
       "name": "nbqa",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Requires a deterministic notebook dependency environment.",
       "report_path": ".reports/egolint/linters_logs/PYTHON_NBQA_MYPY.log",
@@ -1423,12 +2572,27 @@
       "configuration_state": "enabled",
       "descriptor": "PYTHON",
       "enforcement": "advisory",
+      "evidence": {
+        "configuration": ".config/lint/python/.pylintrc",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PYTHON_PYLINT.log"
+      },
       "fixtures": {},
       "id": "PYTHON_PYLINT",
       "name": "pylint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "advisory",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Supplemental maintainability findings remain visible while Ruff owns blocking lint policy.",
       "report_path": ".reports/egolint/linters_logs/PYTHON_PYLINT.log",
@@ -1441,12 +2605,27 @@
       "configuration_state": "enabled",
       "descriptor": "PYTHON",
       "enforcement": "advisory",
+      "evidence": {
+        "configuration": ".config/lint/python/pyrightconfig.json",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PYTHON_PYRIGHT.log"
+      },
       "fixtures": {},
       "id": "PYTHON_PYRIGHT",
       "name": "pyright",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "advisory",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Strict cross-package typing remains visible while its dependency baseline matures.",
       "report_path": ".reports/egolint/linters_logs/PYTHON_PYRIGHT.log",
@@ -1459,12 +2638,27 @@
       "configuration_state": "enabled",
       "descriptor": "PYTHON",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/python/ruff.toml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/PYTHON_RUFF.log"
+      },
       "fixtures": {},
       "id": "PYTHON_RUFF",
       "name": "ruff",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "blocking",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "selected",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/PYTHON_RUFF.log",
@@ -1481,6 +2675,19 @@
       "configuration_state": "conditional",
       "descriptor": "PYTHON",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/python/ruff.toml",
+        "fixtures": {
+          "expected_rule": "format",
+          "negative": [
+            "tests/fixtures/negative/ruff-format/unformatted.py"
+          ],
+          "positive": [
+            "tests/fixtures/python/greeting_service.py"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/PYTHON_RUFF_FORMAT.log"
+      },
       "fixtures": {
         "expected_rule": "format",
         "negative": [
@@ -1492,9 +2699,19 @@
       },
       "id": "PYTHON_RUFF_FORMAT",
       "name": "ruff-format",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/PYTHON_RUFF_FORMAT.log",
@@ -1507,12 +2724,27 @@
       "configuration_state": "enabled",
       "descriptor": "RAKU",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/RAKU_RAKU.log"
+      },
       "fixtures": {},
       "id": "RAKU_RAKU",
       "name": "raku",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/RAKU_RAKU.log",
@@ -1527,12 +2759,27 @@
       "configuration_state": "enabled",
       "descriptor": "REPOSITORY",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/security/gitleaks/.gitleaks.toml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_BETTERLEAKS.log"
+      },
       "fixtures": {},
       "id": "REPOSITORY_BETTERLEAKS",
       "name": "betterleaks",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "blocking",
+        "holistic": "blocking",
+        "security": "blocking"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "selected",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "selected"
       },
       "reason": "MegaLinter-native canonical secret scanner.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_BETTERLEAKS.log",
@@ -1547,12 +2794,27 @@
       "configuration_state": "conditional",
       "descriptor": "REPOSITORY",
       "enforcement": "advisory",
+      "evidence": {
+        "configuration": ".config/security/checkov/.checkov.yml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_CHECKOV.log"
+      },
       "fixtures": {},
       "id": "REPOSITORY_CHECKOV",
       "name": "checkov",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "advisory",
+        "security": "advisory"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "selected"
       },
       "reason": "IaC findings require contextual review and remain visible as security inventory.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_CHECKOV.log",
@@ -1565,12 +2827,27 @@
       "configuration_state": "disabled",
       "descriptor": "REPOSITORY",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": ".config/security/devskim/.devskim.json",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_DEVSKIM.log"
+      },
       "fixtures": {},
       "id": "REPOSITORY_DEVSKIM",
       "name": "devskim",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Awaiting ownership and false-positive review.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_DEVSKIM.log",
@@ -1583,12 +2860,27 @@
       "configuration_state": "enabled",
       "descriptor": "REPOSITORY",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_DUSTILOCK.log"
+      },
       "fixtures": {},
       "id": "REPOSITORY_DUSTILOCK",
       "name": "dustilock",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "blocking",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "selected",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_DUSTILOCK.log",
@@ -1601,12 +2893,27 @@
       "configuration_state": "disabled",
       "descriptor": "REPOSITORY",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_GIT_DIFF.log"
+      },
       "fixtures": {},
       "id": "REPOSITORY_GIT_DIFF",
       "name": "git_diff",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Generated report snapshots dirty the workspace during the holistic run.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_GIT_DIFF.log",
@@ -1621,12 +2928,27 @@
       "configuration_state": "conditional",
       "descriptor": "REPOSITORY",
       "enforcement": "advisory",
+      "evidence": {
+        "configuration": ".config/security/grype/.grype.yaml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_GRYPE.log"
+      },
       "fixtures": {},
       "id": "REPOSITORY_GRYPE",
       "name": "grype",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "advisory",
+        "fast": "disabled",
+        "holistic": "advisory",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "selected",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "The dedicated OSV and Dependabot workflows own dependency vulnerability enforcement.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_GRYPE.log",
@@ -1641,6 +2963,19 @@
       "configuration_state": "disabled",
       "descriptor": "REPOSITORY",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {
+          "expected_rule": "credential-detection",
+          "negative": [
+            "tests/fixtures/negative/kingfisher/fake-secret.env.example"
+          ],
+          "positive": [
+            "tests/fixtures/gitleaks/valid.env.example"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_KINGFISHER.log"
+      },
       "fixtures": {
         "expected_rule": "credential-detection",
         "negative": [
@@ -1652,9 +2987,19 @@
       },
       "id": "REPOSITORY_KINGFISHER",
       "name": "kingfisher",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Awaiting overlap analysis with Betterleaks and Secretlint.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_KINGFISHER.log",
@@ -1667,12 +3012,27 @@
       "configuration_state": "enabled",
       "descriptor": "REPOSITORY",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/repo/.ls-lint.yml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_LS_LINT.log"
+      },
       "fixtures": {},
       "id": "REPOSITORY_LS_LINT",
       "name": "ls-lint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_LS_LINT.log",
@@ -1687,12 +3047,27 @@
       "configuration_state": "disabled",
       "descriptor": "REPOSITORY",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_OSV_SCANNER.log"
+      },
       "fixtures": {},
       "id": "REPOSITORY_OSV_SCANNER",
       "name": "osv-scanner",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "blocking",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "selected",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "The dedicated OSV workflow owns this signal.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_OSV_SCANNER.log",
@@ -1707,12 +3082,27 @@
       "configuration_state": "enabled",
       "descriptor": "REPOSITORY",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/security/secretlint/.secretlintrc.json",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_SECRETLINT.log"
+      },
       "fixtures": {},
       "id": "REPOSITORY_SECRETLINT",
       "name": "secretlint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "blocking"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "selected"
       },
       "reason": "MegaLinter-native structured secret scanner.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_SECRETLINT.log",
@@ -1727,6 +3117,19 @@
       "configuration_state": "disabled",
       "descriptor": "REPOSITORY",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": ".config/security/semgrep/semgrep.yml",
+        "fixtures": {
+          "expected_rule": "python-dangerous-eval",
+          "negative": [
+            "tests/fixtures/negative/semgrep/dangerous_eval.py"
+          ],
+          "positive": [
+            "tests/fixtures/python/greeting_service.py"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_SEMGREP.log"
+      },
       "fixtures": {
         "expected_rule": "python-dangerous-eval",
         "negative": [
@@ -1738,9 +3141,19 @@
       },
       "id": "REPOSITORY_SEMGREP",
       "name": "semgrep",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Awaiting review of the initial local semantic-security ruleset.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_SEMGREP.log",
@@ -1755,12 +3168,27 @@
       "configuration_state": "conditional",
       "descriptor": "REPOSITORY",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/security/syft/.syft.yaml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_SYFT.log"
+      },
       "fixtures": {},
       "id": "REPOSITORY_SYFT",
       "name": "syft",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "blocking",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "selected",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "MegaLinter-native SBOM generator.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_SYFT.log",
@@ -1775,12 +3203,27 @@
       "configuration_state": "enabled",
       "descriptor": "REPOSITORY",
       "enforcement": "advisory",
+      "evidence": {
+        "configuration": ".config/security/trivy/trivy.yaml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_TRIVY.log"
+      },
       "fixtures": {},
       "id": "REPOSITORY_TRIVY",
       "name": "trivy",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "advisory",
+        "fast": "disabled",
+        "holistic": "advisory",
+        "security": "advisory"
+      },
       "profiles": {
+        "dependency-debt": "selected",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "selected"
       },
       "reason": "The dedicated OSV and Dependabot workflows own dependency vulnerability enforcement.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_TRIVY.log",
@@ -1795,12 +3238,27 @@
       "configuration_state": "conditional",
       "descriptor": "REPOSITORY",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/security/trivy/trivy-sbom.yaml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_TRIVY_SBOM.log"
+      },
       "fixtures": {},
       "id": "REPOSITORY_TRIVY_SBOM",
       "name": "trivy-sbom",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "blocking",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "selected",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "MegaLinter-native SBOM vulnerability scanner.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_TRIVY_SBOM.log",
@@ -1813,12 +3271,27 @@
       "configuration_state": "enabled",
       "descriptor": "REPOSITORY",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/security/trufflehog/.trufflehog.yml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/REPOSITORY_TRUFFLEHOG.log"
+      },
       "fixtures": {},
       "id": "REPOSITORY_TRUFFLEHOG",
       "name": "trufflehog",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "blocking"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "selected"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/REPOSITORY_TRUFFLEHOG.log",
@@ -1831,12 +3304,27 @@
       "configuration_state": "enabled",
       "descriptor": "ROBOTFRAMEWORK",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/ROBOTFRAMEWORK_ROBOCOP.log"
+      },
       "fixtures": {},
       "id": "ROBOTFRAMEWORK_ROBOCOP",
       "name": "robocop",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/ROBOTFRAMEWORK_ROBOCOP.log",
@@ -1849,12 +3337,27 @@
       "configuration_state": "enabled",
       "descriptor": "RST",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/rst/.rstcheck.cfg",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/RST_RSTCHECK.log"
+      },
       "fixtures": {},
       "id": "RST_RSTCHECK",
       "name": "rstcheck",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/RST_RSTCHECK.log",
@@ -1867,12 +3370,27 @@
       "configuration_state": "enabled",
       "descriptor": "RST",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/RST_RSTFMT.log"
+      },
       "fixtures": {},
       "id": "RST_RSTFMT",
       "name": "rstfmt",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/RST_RSTFMT.log",
@@ -1885,12 +3403,27 @@
       "configuration_state": "enabled",
       "descriptor": "RST",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/RST_RST_LINT.log"
+      },
       "fixtures": {},
       "id": "RST_RST_LINT",
       "name": "rst-lint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/RST_RST_LINT.log",
@@ -1903,12 +3436,27 @@
       "configuration_state": "enabled",
       "descriptor": "RUBY",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/ruby/.rubocop.yml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/RUBY_RUBOCOP.log"
+      },
       "fixtures": {},
       "id": "RUBY_RUBOCOP",
       "name": "rubocop",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/RUBY_RUBOCOP.log",
@@ -1921,12 +3469,27 @@
       "configuration_state": "enabled",
       "descriptor": "RUST",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/rust/.clippy.toml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/RUST_CLIPPY.log"
+      },
       "fixtures": {},
       "id": "RUST_CLIPPY",
       "name": "clippy",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/RUST_CLIPPY.log",
@@ -1939,12 +3502,27 @@
       "configuration_state": "enabled",
       "descriptor": "R",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/r/.lintr",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/R_LINTR.log"
+      },
       "fixtures": {},
       "id": "R_LINTR",
       "name": "lintr",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/R_LINTR.log",
@@ -1957,12 +3535,27 @@
       "configuration_state": "enabled",
       "descriptor": "SALESFORCE",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/salesforce/code-analyzer.yml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/SALESFORCE_CODE_ANALYZER_APEX.log"
+      },
       "fixtures": {},
       "id": "SALESFORCE_CODE_ANALYZER_APEX",
       "name": "code-analyzer-apex",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/SALESFORCE_CODE_ANALYZER_APEX.log",
@@ -1975,12 +3568,27 @@
       "configuration_state": "enabled",
       "descriptor": "SALESFORCE",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/SALESFORCE_CODE_ANALYZER_AURA.log"
+      },
       "fixtures": {},
       "id": "SALESFORCE_CODE_ANALYZER_AURA",
       "name": "code-analyzer-aura",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/SALESFORCE_CODE_ANALYZER_AURA.log",
@@ -1993,12 +3601,27 @@
       "configuration_state": "enabled",
       "descriptor": "SALESFORCE",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/SALESFORCE_CODE_ANALYZER_FLOW.log"
+      },
       "fixtures": {},
       "id": "SALESFORCE_CODE_ANALYZER_FLOW",
       "name": "code-analyzer-flow",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/SALESFORCE_CODE_ANALYZER_FLOW.log",
@@ -2011,12 +3634,27 @@
       "configuration_state": "enabled",
       "descriptor": "SALESFORCE",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/SALESFORCE_CODE_ANALYZER_LWC.log"
+      },
       "fixtures": {},
       "id": "SALESFORCE_CODE_ANALYZER_LWC",
       "name": "code-analyzer-lwc",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/SALESFORCE_CODE_ANALYZER_LWC.log",
@@ -2029,12 +3667,27 @@
       "configuration_state": "enabled",
       "descriptor": "SCALA",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/scala/.scalafix.conf",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/SCALA_SCALAFIX.log"
+      },
       "fixtures": {},
       "id": "SCALA_SCALAFIX",
       "name": "scalafix",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/SCALA_SCALAFIX.log",
@@ -2047,12 +3700,27 @@
       "configuration_state": "enabled",
       "descriptor": "SNAKEMAKE",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/SNAKEMAKE_LINT.log"
+      },
       "fixtures": {},
       "id": "SNAKEMAKE_LINT",
       "name": "snakemake",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/SNAKEMAKE_LINT.log",
@@ -2065,12 +3733,27 @@
       "configuration_state": "enabled",
       "descriptor": "SNAKEMAKE",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/snakemake/.snakefmt.toml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/SNAKEMAKE_SNAKEFMT.log"
+      },
       "fixtures": {},
       "id": "SNAKEMAKE_SNAKEFMT",
       "name": "snakefmt",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/SNAKEMAKE_SNAKEFMT.log",
@@ -2087,6 +3770,19 @@
       "configuration_state": "disabled",
       "descriptor": "SPELL",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": ".config/lint/prose/spell/.codespellrc",
+        "fixtures": {
+          "expected_rule": "misspelling",
+          "negative": [
+            "tests/fixtures/negative/codespell/misspelled.txt"
+          ],
+          "positive": [
+            "tests/fixtures/cspell/valid.txt"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/SPELL_CODESPELL.log"
+      },
       "fixtures": {
         "expected_rule": "misspelling",
         "negative": [
@@ -2098,9 +3794,19 @@
       },
       "id": "SPELL_CODESPELL",
       "name": "codespell",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "Awaiting repository spelling-baseline classification.",
       "report_path": ".reports/egolint/linters_logs/SPELL_CODESPELL.log",
@@ -2113,12 +3819,27 @@
       "configuration_state": "enabled",
       "descriptor": "SPELL",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/prose/spell/cspell.megalinter.json",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/SPELL_CSPELL.log"
+      },
       "fixtures": {},
       "id": "SPELL_CSPELL",
       "name": "cspell",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/SPELL_CSPELL.log",
@@ -2131,12 +3852,27 @@
       "configuration_state": "enabled",
       "descriptor": "SPELL",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/prose/spell/lychee.toml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/SPELL_LYCHEE.log"
+      },
       "fixtures": {},
       "id": "SPELL_LYCHEE",
       "name": "lychee",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/SPELL_LYCHEE.log",
@@ -2149,12 +3885,27 @@
       "configuration_state": "enabled",
       "descriptor": "SPELL",
       "enforcement": "advisory",
+      "evidence": {
+        "configuration": ".config/lint/prose/.proselintrc",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/SPELL_PROSELINT.log"
+      },
       "fixtures": {},
       "id": "SPELL_PROSELINT",
       "name": "proselint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "advisory",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Editorial suggestions are review signals rather than correctness failures.",
       "report_path": ".reports/egolint/linters_logs/SPELL_PROSELINT.log",
@@ -2167,12 +3918,27 @@
       "configuration_state": "enabled",
       "descriptor": "SPELL",
       "enforcement": "advisory",
+      "evidence": {
+        "configuration": ".config/lint/prose/.vale.ini",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/SPELL_VALE.log"
+      },
       "fixtures": {},
       "id": "SPELL_VALE",
       "name": "vale",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "advisory",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Editorial suggestions are review signals rather than correctness failures.",
       "report_path": ".reports/egolint/linters_logs/SPELL_VALE.log",
@@ -2185,12 +3951,27 @@
       "configuration_state": "enabled",
       "descriptor": "SQL",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/sql/.sqlfluff.ini",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/SQL_SQLFLUFF.log"
+      },
       "fixtures": {},
       "id": "SQL_SQLFLUFF",
       "name": "sqlfluff",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/SQL_SQLFLUFF.log",
@@ -2203,12 +3984,27 @@
       "configuration_state": "enabled",
       "descriptor": "SWIFT",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/swift/.swiftlint.yml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/SWIFT_SWIFTLINT.log"
+      },
       "fixtures": {},
       "id": "SWIFT_SWIFTLINT",
       "name": "swiftlint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/SWIFT_SWIFTLINT.log",
@@ -2221,12 +4017,27 @@
       "configuration_state": "enabled",
       "descriptor": "TEKTON",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/tekton/.tektonlintrc.yaml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/TEKTON_TEKTON_LINT.log"
+      },
       "fixtures": {},
       "id": "TEKTON_TEKTON_LINT",
       "name": "tekton-lint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/TEKTON_TEKTON_LINT.log",
@@ -2242,6 +4053,19 @@
       "configuration_state": "conditional",
       "descriptor": "TERRAFORM",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {
+          "expected_rule": "format",
+          "negative": [
+            "tests/fixtures/negative/terraform-fmt/unformatted.tf"
+          ],
+          "positive": [
+            "tests/fixtures/tflint/main.tf"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/TERRAFORM_TERRAFORM_FMT.log"
+      },
       "fixtures": {
         "expected_rule": "format",
         "negative": [
@@ -2253,9 +4077,19 @@
       },
       "id": "TERRAFORM_TERRAFORM_FMT",
       "name": "terraform-fmt",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/TERRAFORM_TERRAFORM_FMT.log",
@@ -2268,12 +4102,27 @@
       "configuration_state": "enabled",
       "descriptor": "TERRAFORM",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/TERRAFORM_TERRAGRUNT.log"
+      },
       "fixtures": {},
       "id": "TERRAFORM_TERRAGRUNT",
       "name": "terragrunt",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/TERRAFORM_TERRAGRUNT.log",
@@ -2286,12 +4135,27 @@
       "configuration_state": "enabled",
       "descriptor": "TERRAFORM",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/terraform/.tflint.hcl",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/TERRAFORM_TFLINT.log"
+      },
       "fixtures": {},
       "id": "TERRAFORM_TFLINT",
       "name": "tflint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/TERRAFORM_TFLINT.log",
@@ -2304,12 +4168,27 @@
       "configuration_state": "enabled",
       "descriptor": "TSX",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/javascript/eslint.config.mjs",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/TSX_ESLINT.log"
+      },
       "fixtures": {},
       "id": "TSX_ESLINT",
       "name": "eslint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/TSX_ESLINT.log",
@@ -2322,12 +4201,27 @@
       "configuration_state": "enabled",
       "descriptor": "TYPESCRIPT",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/javascript/eslint.config.mjs",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/TYPESCRIPT_ES.log"
+      },
       "fixtures": {},
       "id": "TYPESCRIPT_ES",
       "name": "eslint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/TYPESCRIPT_ES.log",
@@ -2340,12 +4234,27 @@
       "configuration_state": "enabled",
       "descriptor": "TYPESCRIPT",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/javascript/prettier.config.mjs",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/TYPESCRIPT_PRETTIER.log"
+      },
       "fixtures": {},
       "id": "TYPESCRIPT_PRETTIER",
       "name": "prettier",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/TYPESCRIPT_PRETTIER.log",
@@ -2358,12 +4267,27 @@
       "configuration_state": "disabled",
       "descriptor": "TYPESCRIPT",
       "enforcement": "disabled",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/TYPESCRIPT_STANDARD.log"
+      },
       "fixtures": {},
       "id": "TYPESCRIPT_STANDARD",
       "name": "ts-standard",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "disabled",
+        "security": "disabled"
+      },
       "profiles": {
-        "fast": "disabled_by_profile",
-        "holistic": "disabled_by_configuration"
+        "dependency-debt": "disabled_by_configuration",
+        "fast": "disabled_by_configuration",
+        "holistic": "disabled_by_configuration",
+        "security": "disabled_by_configuration"
       },
       "reason": "ESLint and Prettier own TypeScript analysis and formatting.",
       "report_path": ".reports/egolint/linters_logs/TYPESCRIPT_STANDARD.log",
@@ -2376,12 +4300,27 @@
       "configuration_state": "enabled",
       "descriptor": "VBDOTNET",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/VBDOTNET_DOTNET_FORMAT.log"
+      },
       "fixtures": {},
       "id": "VBDOTNET_DOTNET_FORMAT",
       "name": "dotnet-format",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/VBDOTNET_DOTNET_FORMAT.log",
@@ -2394,12 +4333,27 @@
       "configuration_state": "enabled",
       "descriptor": "XML",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": null,
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/XML_XMLLINT.log"
+      },
       "fixtures": {},
       "id": "XML_XMLLINT",
       "name": "xmllint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/XML_XMLLINT.log",
@@ -2412,12 +4366,27 @@
       "configuration_state": "enabled",
       "descriptor": "YAML",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/javascript/prettier.config.mjs",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/YAML_PRETTIER.log"
+      },
       "fixtures": {},
       "id": "YAML_PRETTIER",
       "name": "prettier",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "blocking",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "selected",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/YAML_PRETTIER.log",
@@ -2433,6 +4402,19 @@
       "configuration_state": "conditional",
       "descriptor": "YAML",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/yaml/.v8rrc.yml",
+        "fixtures": {
+          "expected_rule": "schema-validation",
+          "negative": [
+            "tests/fixtures/negative/v8r/dependabot.yml"
+          ],
+          "positive": [
+            "tests/fixtures/v8r/dependabot.yml"
+          ]
+        },
+        "runtime_report": ".reports/egolint/linters_logs/YAML_V8R.log"
+      },
       "fixtures": {
         "expected_rule": "schema-validation",
         "negative": [
@@ -2444,9 +4426,19 @@
       },
       "id": "YAML_V8R",
       "name": "v8r",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "disabled",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "disabled_by_profile",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/YAML_V8R.log",
@@ -2459,12 +4451,27 @@
       "configuration_state": "enabled",
       "descriptor": "YAML",
       "enforcement": "blocking",
+      "evidence": {
+        "configuration": ".config/lint/yaml/.yamllint.yml",
+        "fixtures": {},
+        "runtime_report": ".reports/egolint/linters_logs/YAML_YAMLLINT.log"
+      },
       "fixtures": {},
       "id": "YAML_YAMLLINT",
       "name": "yamllint",
+      "owner": "egolint",
+      "policy_source": ".config/megalinter/policy.yml",
+      "profile_enforcement": {
+        "dependency-debt": "disabled",
+        "fast": "blocking",
+        "holistic": "blocking",
+        "security": "disabled"
+      },
       "profiles": {
+        "dependency-debt": "disabled_by_profile",
         "fast": "selected",
-        "holistic": "selected"
+        "holistic": "selected",
+        "security": "disabled_by_profile"
       },
       "reason": "Selected by the holistic MegaLinter profile.",
       "report_path": ".reports/egolint/linters_logs/YAML_YAMLLINT.log",

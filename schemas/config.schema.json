@@ -76,14 +76,24 @@
       "description": "Built-in lint profiles.",
       "oneOf": [
         {
-          "description": "Small, deterministic changed-file feedback surface.",
+          "description": "Changed-file adapter feedback plus full-repository native policy checks.",
           "type": "string",
           "const": "fast"
         },
         {
-          "description": "Complete repository and security inspection.",
+          "description": "Complete scheduled, manual, and trusted-branch inspection.",
           "type": "string",
           "const": "holistic"
+        },
+        {
+          "description": "Focused secret, static-analysis, and infrastructure security inspection.",
+          "type": "string",
+          "const": "security"
+        },
+        {
+          "description": "Focused dependency vulnerability and software-inventory inspection.",
+          "type": "string",
+          "const": "dependency-debt"
         }
       ]
     },

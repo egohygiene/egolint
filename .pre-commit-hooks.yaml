@@ -1,0 +1,12 @@
+---
+- id: egolint
+  name: Egolint check
+  description: Run the fast Egolint profile without granting source write access.
+  entry: egolint lint --profile fast --changed-only
+  language: rust
+  pass_filenames: false
+  require_serial: true
+  always_run: true
+  stages:
+    - pre-commit
+    - manual

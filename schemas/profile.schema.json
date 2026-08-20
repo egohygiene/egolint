@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ProfileDefinition",
+  "description": "Versioned description of one selected lint profile.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "Stable built-in profile name.",
+      "$ref": "#/$defs/Profile"
+    },
+    "policy_source": {
+      "description": "Logical identifier for the policy that defines the profile.",
+      "type": "string"
+    },
+    "purpose": {
+      "description": "Human-readable reason the profile exists.",
+      "type": "string"
+    },
+    "schema_version": {
+      "description": "Profile-contract version.",
+      "type": "integer",
+      "const": 1
+    },
+    "scope": {
+      "description": "Repository surface evaluated by the profile.",
+      "$ref": "#/$defs/ProfileScope"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "name",
+    "scope",
+    "purpose",
+    "policy_source"
+  ],
+  "$defs": {
+    "Profile": {
+      "description": "Built-in lint profiles.",
+      "oneOf": [
+        {
+          "description": "Changed-file adapter feedback plus full-repository native policy checks.",
+          "type": "string",
+          "const": "fast"
+        },
+        {
+          "description": "Complete scheduled, manual, and trusted-branch inspection.",
+          "type": "string",
+          "const": "holistic"
+        },
+        {
+          "description": "Focused secret, static-analysis, and infrastructure security inspection.",
+          "type": "string",
+          "const": "security"
+        },
+        {
+          "description": "Focused dependency vulnerability and software-inventory inspection.",
+          "type": "string",
+          "const": "dependency-debt"
+        }
+      ]
+    },
+    "ProfileScope": {
+      "description": "Repository surface selected by a profile.",
+      "oneOf": [
+        {
+          "description": "Files changed relative to the adapter's comparison base.\n\nThis value remains accepted for version-1 documents produced before\nEgolint added repository-wide native policy checks to the fast profile.",
+          "type": "string",
+          "const": "changed_files"
+        },
+        {
+          "description": "Changed-file adapter analysis plus complete-repository native policy.",
+          "type": "string",
+          "const": "changed_files_with_repository_policy"
+        },
+        {
+          "description": "The complete repository surface.",
+          "type": "string",
+          "const": "complete_repository"
+        }
+      ]
+    }
+  }
+}

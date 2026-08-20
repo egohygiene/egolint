@@ -1,0 +1,34 @@
+---
+name: Egolint
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Run a pinned Egolint check
+        # Replace the sentinel with a reviewed full Egolint commit SHA.
+        uses: egohygiene/egolint@0000000000000000000000000000000000000000
+        with:
+          # Replace the sentinel with a verified egolint-full manifest digest.
+          image: ghcr.io/egohygiene/egolint-full@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          profile: fast
+          pull-policy: always
+          network: none
+          changed-only: "true"
