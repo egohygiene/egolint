@@ -285,7 +285,10 @@ class IntegrationDistributionTests(unittest.TestCase):
         self.assertIn("gh attestation verify", workflow)
         self.assertIn("linux/amd64,linux/arm64", workflow)
         self.assertIn("subject-digest:", workflow)
-        self.assertRegex(workflow, r"\breport \\\n\s+debt; do")
+        self.assertRegex(
+            workflow,
+            r"\breport \\\n\s+debt \\\n\s+repository-contract; do",
+        )
         self.assertNotRegex(workflow, r"tags:.*:(latest|edge)\s*$")
 
     def test_release_separates_candidate_build_from_trusted_promotion(  # noqa: PLR0915

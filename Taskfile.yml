@@ -50,6 +50,7 @@ tasks:
       - cargo run --quiet --locked -- schema plan > schemas/plan.schema.json
       - cargo run --quiet --locked -- schema report > schemas/report.schema.json
       - cargo run --quiet --locked -- schema debt > schemas/debt.schema.json
+      - cargo run --quiet --locked -- schema repository-contract > schemas/repository-contract.schema.json
 
   schemas:check:
     desc: "Fail when checked-in JSON Schemas differ from the Rust types"
@@ -66,7 +67,8 @@ tasks:
           tool-result \
           plan \
           report \
-          debt; do
+          debt \
+          repository-contract; do
           cargo run --quiet --locked -- schema "$schema" > "$temporary_directory/$schema.schema.json"
           diff --unified \
             "schemas/$schema.schema.json" \

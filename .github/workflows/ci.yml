@@ -135,7 +135,8 @@ jobs:
             tool-result \
             plan \
             report \
-            debt; do
+            debt \
+            repository-contract; do
             cargo run --quiet --locked -- schema "$schema" \
               > "$temporary_directory/$schema.schema.json"
             diff --unified \

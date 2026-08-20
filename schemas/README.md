@@ -23,6 +23,9 @@ equivalent semantic validation.
 - `report.schema.json` describes the normalized run result.
 - `debt.schema.json` describes the compact, privacy-bounded dependency-debt
   projection.
+- `repository-contract.schema.json` describes the offline, immutable envelope
+  used by Empathy profiles, Hygiene ecosystem context, and other source-owned
+  repository requirements after TOML-to-data decoding.
 
 Every contract version is constrained to exactly `1` in its generated schema.
 The report declares whether it contains adapter-exit-only, partial, or complete

@@ -1,9 +1,10 @@
 # Machine-readable contracts
 
 Egolint owns versioned contracts for profiles, findings, suppressions, evidence,
-per-tool results, execution plans, and run reports. The checked-in JSON Schemas
-in [`schemas/`](../schemas/) are generated from the Rust types used by the CLI;
-CI rejects schema drift.
+per-tool results, execution plans, run reports, and the repository-contract
+validation envelope. The checked-in JSON Schemas in
+[`schemas/`](../schemas/) are generated from the Rust types used by the CLI; CI
+rejects schema drift.
 
 All current contracts use version `1`, and every generated schema constrains its
 version field to exactly `1`. Contract changes must update the Rust type,
@@ -81,6 +82,7 @@ egolint lint --profile "fast"
 egolint explain --format "json"
 egolint doctor --profile "holistic"
 egolint schema finding
+egolint schema repository-contract
 ```
 
 `validate` resolves every configuration layer, evaluates native portability

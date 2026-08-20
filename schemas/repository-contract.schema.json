@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RepositoryContract",
+  "description": "Versioned, offline repository contract consumed by Egolint.\n\nEmpathy and Hygiene own the meaning and contents of their projections;\nEgolint owns only deterministic validation of this local, pinned envelope.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "Stable contract identifier.",
+      "type": "string"
+    },
+    "profile": {
+      "description": "Source-owned profile/context name.",
+      "type": "string"
+    },
+    "provisional": {
+      "description": "Whether this is compatibility evidence for an unfinished upstream contract.",
+      "type": "boolean"
+    },
+    "requirements": {
+      "description": "Required repository surfaces.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ContractRequirement"
+      }
+    },
+    "schema-version": {
+      "description": "Contract envelope version.",
+      "type": "integer",
+      "const": 1
+    },
+    "source": {
+      "description": "Immutable upstream provenance.",
+      "$ref": "#/$defs/ContractSource"
+    },
+    "version": {
+      "description": "Source-owned contract version.",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema-version",
+    "id",
+    "version",
+    "profile",
+    "provisional",
+    "source",
+    "requirements"
+  ],
+  "$defs": {
+    "ContractRequirement": {
+      "description": "One exact-case repository requirement.",
+      "type": "object",
+      "properties": {
+        "executable": {
+          "description": "Required Git executable mode for a file.",
+          "type": "boolean",
+          "default": false
+        },
+        "id": {
+          "description": "Stable source-owned requirement identifier.",
+          "type": "string"
+        },
+        "kind": {
+          "description": "Required filesystem object kind.",
+          "$ref": "#/$defs/RequirementKind"
+        },
+        "markers": {
+          "description": "Required literal content markers for generated/context files.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "ownership": {
+          "description": "Which system may control the content.",
+          "$ref": "#/$defs/RequirementOwnership"
+        },
+        "path": {
+          "description": "Exact-case workspace-relative path.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path",
+        "kind",
+        "ownership"
+      ]
+    },
+    "ContractSource": {
+      "description": "Immutable source information for an upstream profile or context projection.",
+      "type": "object",
+      "properties": {
+        "decision": {
+          "description": "Human-review issue or decision describing provisional status.",
+          "type": "string"
+        },
+        "path": {
+          "description": "Repository-relative upstream source path.",
+          "type": "string"
+        },
+        "repository": {
+          "description": "Canonical `owner/repository` identifier.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Exact 40-character lowercase Git commit or blob identifier.",
+          "type": "string"
+        },
+        "revision-kind": {
+          "description": "Whether `revision` names a commit or a single source blob.",
+          "$ref": "#/$defs/SourceRevisionKind"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "revision",
+        "revision-kind",
+        "path",
+        "decision"
+      ]
+    },
+    "RequirementKind": {
+      "description": "Required repository object kind.",
+      "oneOf": [
+        {
+          "description": "Regular file, not a symbolic link.",
+          "type": "string",
+          "const": "file"
+        },
+        {
+          "description": "Directory represented by one or more inventory entries.",
+          "type": "string",
+          "const": "directory"
+        }
+      ]
+    },
+    "RequirementOwnership": {
+      "description": "Content-control boundary for a required repository artifact.",
+      "oneOf": [
+        {
+          "description": "Materialized from the pinned upstream profile/context source.",
+          "type": "string",
+          "const": "generated"
+        },
+        {
+          "description": "Required by the upstream contract, with locally chosen content.",
+          "type": "string",
+          "const": "required"
+        },
+        {
+          "description": "Owned and evolved by the consumer repository.",
+          "type": "string",
+          "const": "repository-owned"
+        }
+      ]
+    },
+    "SourceRevisionKind": {
+      "description": "Kind of immutable Git identifier used by a contract source.",
+      "oneOf": [
+        {
+          "description": "Complete source repository revision.",
+          "type": "string",
+          "const": "git-commit"
+        },
+        {
+          "description": "Content API blob identifier for a provisional source document.",
+          "type": "string",
+          "const": "git-blob"
+        }
+      ]
+    }
+  }
+}

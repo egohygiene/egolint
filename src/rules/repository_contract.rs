@@ -27,6 +27,7 @@ const CONTEXT_RULE: &str = "EGO-CONTRACT-CONTEXT-001";
 #[serde(deny_unknown_fields, rename_all = "kebab-case")]
 pub struct RepositoryContract {
     /// Contract envelope version.
+    #[schemars(schema_with = "crate::contracts::contract_version_schema")]
     pub schema_version: u32,
     /// Stable contract identifier.
     pub id: String,
@@ -595,5 +596,13 @@ mod tests {
             )
             .is_err()
         );
+    }
+
+    #[test]
+    fn repository_contract_schema_pins_version_one() {
+        let schema = serde_json::to_value(schemars::schema_for!(RepositoryContract))
+            .expect("repository-contract schema");
+
+        assert_eq!(schema["properties"]["schema-version"]["const"], 1);
     }
 }
