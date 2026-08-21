@@ -19,17 +19,13 @@ Generated content requires at least one marker. Repository-owned files are
 checked for presence and kind without freezing their contents. Symbolic links do
 not satisfy file requirements. Every check is offline and deterministic.
 
-The fixtures under `tests/fixtures/contracts/` pin the observed Empathy and
-Hygiene sources from August 19, 2026. They are explicitly provisional
-compatibility evidence:
-
-- Empathy issue `EMP-02` still owns the universal-file/profile contract.
-- Hygiene issue `HYG-04` still owns the generated local ecosystem-context
-  contract.
-
-These fixtures must not be published as the canonical upstream contracts. Once
-those issues release schemas, replace the provisional projections with pinned
-release artifacts and retain the old fixtures only for compatibility tests.
+The fixtures under `tests/fixtures/contracts/` are reviewed, byte-pinned copies
+of the canonical Empathy universal-foundation and Hygiene repository-context
+artifacts. Both set `provisional = false`, identify their immutable semantic
+source commit and path, and validate through the same decoder used by the CLI.
+`install-manifest.json` records the local SHA-256 digest and upstream provenance
+for drift detection. The old provisional compatibility projections were removed
+after EMP-02 and HYG-04 published their version-1 contracts.
 
 ## Canonical upstream artifact protocol
 

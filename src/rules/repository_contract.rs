@@ -491,40 +491,77 @@ mod tests {
     use crate::rules::inventory::RepositoryEntry;
 
     const EMPATHY_CONTRACT: &str =
-        include_str!("../../tests/fixtures/contracts/empathy-universal-provisional.toml");
+        include_str!("../../tests/fixtures/contracts/empathy-universal-v1.toml");
     const HYGIENE_CONTRACT: &str =
-        include_str!("../../tests/fixtures/contracts/hygiene-context-provisional.toml");
+        include_str!("../../tests/fixtures/contracts/hygiene-context-v1.toml");
 
     fn contract(contents: &str, path: &str) -> RepositoryContract {
         RepositoryContract::from_toml(contents, Path::new(path)).expect("valid fixture contract")
     }
 
+    fn satisfying_inventory(contract: &RepositoryContract) -> RepositoryInventory {
+        let entries = contract
+            .requirements
+            .iter()
+            .map(|requirement| {
+                let path = if requirement.kind == RequirementKind::Directory {
+                    requirement.path.join("egolint-contract-fixture")
+                } else {
+                    requirement.path.clone()
+                };
+                let contents = requirement.markers.join("\n").into_bytes();
+                RepositoryEntry::file(
+                    path,
+                    Some(if requirement.executable {
+                        100_755
+                    } else {
+                        100_644
+                    }),
+                    contents,
+                )
+            })
+            .collect();
+        RepositoryInventory::from_entries(entries).expect("valid satisfying inventory")
+    }
+
     #[test]
-    fn provisional_contract_sources_are_immutable_and_visible() {
+    fn canonical_upstream_contracts_are_immutable_and_quiet() {
         let empathy = contract(EMPATHY_CONTRACT, "tests/fixtures/contracts/empathy.toml");
+        let hygiene = contract(HYGIENE_CONTRACT, "tests/fixtures/contracts/hygiene.toml");
+
+        assert!(!empathy.provisional);
+        assert!(!hygiene.provisional);
+        assert_eq!(empathy.source.revision_kind, SourceRevisionKind::GitCommit);
+        assert_eq!(hygiene.source.revision_kind, SourceRevisionKind::GitCommit);
+        for (contract, path) in [
+            (&empathy, Path::new("tests/fixtures/contracts/empathy.toml")),
+            (&hygiene, Path::new("tests/fixtures/contracts/hygiene.toml")),
+        ] {
+            let findings = RepositoryContractEvaluator::new(contract, path)
+                .expect("valid evaluator")
+                .evaluate(&satisfying_inventory(contract))
+                .expect("evaluation");
+            assert!(
+                findings.is_empty(),
+                "canonical contract drift: {findings:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn explicitly_provisional_contracts_remain_visible() {
+        let provisional_contents =
+            EMPATHY_CONTRACT.replace("provisional = false", "provisional = true");
+        let provisional = contract(
+            &provisional_contents,
+            "tests/fixtures/contracts/provisional.toml",
+        );
         let findings = RepositoryContractEvaluator::new(
-            &empathy,
-            Path::new("tests/fixtures/contracts/empathy.toml"),
+            &provisional,
+            Path::new("tests/fixtures/contracts/provisional.toml"),
         )
         .expect("valid evaluator")
-        .evaluate(
-            &RepositoryInventory::from_entries(vec![
-                RepositoryEntry::file("README.md", Some(100_644), b"# Consumer\n".to_vec()),
-                RepositoryEntry::file(".editorconfig", Some(100_644), b"root = true\n".to_vec()),
-                RepositoryEntry::file(
-                    ".gitattributes",
-                    Some(100_644),
-                    b"* text=auto eol=lf\n".to_vec(),
-                ),
-                RepositoryEntry::file(
-                    "ARCHITECTURE.md",
-                    Some(100_644),
-                    b"# Architecture\n".to_vec(),
-                ),
-                RepositoryEntry::file("Taskfile.yml", Some(100_644), b"version: '3'\n".to_vec()),
-            ])
-            .expect("valid repository"),
-        )
+        .evaluate(&satisfying_inventory(&provisional))
         .expect("evaluation");
 
         assert_eq!(findings.len(), 1);
@@ -557,26 +594,27 @@ mod tests {
             .collect::<Vec<_>>();
         assert!(rules.contains(&FILE_RULE));
         assert!(rules.contains(&CONTEXT_RULE));
-        assert!(rules.contains(&SOURCE_RULE));
-        let source = findings
+        assert!(!rules.contains(&SOURCE_RULE));
+        let context = findings
             .iter()
-            .find(|finding| finding.rule.rule_id == SOURCE_RULE)
-            .expect("provisional source finding");
+            .find(|finding| finding.rule.rule_id == CONTEXT_RULE)
+            .expect("context marker finding");
         assert_eq!(
-            source.ownership.policy_source,
-            "https://api.github.com/repos/egohygiene/hygiene/git/blobs/feb8ae94e784913553d4ae72a14eebabfe4ecb5f"
+            context.ownership.policy_source,
+            "https://github.com/egohygiene/hygiene/blob/8e057bd2f9febd31b09f6dd5fd870b47d66cc411/catalog/repository-context.json"
         );
         assert!(
-            source.evidence[0]
+            context.evidence[0]
                 .description
                 .as_deref()
-                .is_some_and(|description| description.contains("docs/ecosystem/AGENT_CONTEXT.md"))
+                .is_some_and(|description| description.contains("catalog/repository-context.json"))
         );
     }
 
     #[test]
     fn contract_rejects_mutable_sources_and_ambiguous_requirements() {
-        let mutable = EMPATHY_CONTRACT.replace("560aff8430c2f170dadae9161a4603a71c41acbf", "main");
+        let empathy = contract(EMPATHY_CONTRACT, "tests/fixtures/contracts/empathy.toml");
+        let mutable = EMPATHY_CONTRACT.replace(&empathy.source.revision, "main");
         assert!(
             RepositoryContract::from_toml(
                 &mutable,
@@ -586,8 +624,8 @@ mod tests {
         );
 
         let duplicate = EMPATHY_CONTRACT.replace(
+            "[[requirements]]\nid = \"gitattributes\"",
             "[[requirements]]\nid = \"editorconfig\"",
-            "[[requirements]]\nid = \"readme\"",
         );
         assert!(
             RepositoryContract::from_toml(

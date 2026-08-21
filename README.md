@@ -59,7 +59,7 @@ cargo run --locked -- schema config
 cargo run --locked -- schema repository-contract
 cargo run --locked -- explain --format "json"
 cargo run --locked -- validate --repository-contract \
-  "tests/fixtures/contracts/empathy-universal-provisional.toml"
+  "tests/fixtures/contracts/empathy-universal-v1.toml"
 ```
 
 Build the two images locally:

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "artifacts": [
+    {
+      "fixture": "tests/fixtures/contracts/empathy-universal-v1.toml",
+      "source_repository": "egohygiene/empathy",
+      "source_revision": "2bc9d77b23acfeb0235f2fc5deb8d0616ab1ff9a",
+      "source_path": "foundation/catalog.json",
+      "sha256": "3e48ac4efc324259ffdc244316af59a3db5c7e5d769e2c27263ef2d4ab527f90"
+    },
+    {
+      "fixture": "tests/fixtures/contracts/hygiene-context-v1.toml",
+      "source_repository": "egohygiene/hygiene",
+      "source_revision": "8e057bd2f9febd31b09f6dd5fd870b47d66cc411",
+      "source_path": "catalog/repository-context.json",
+      "sha256": "b19b3d099666dfc70aea146fb68281e2b6e23d56b063d59480418c350ad1e3bb"
+    }
+  ]
+}
