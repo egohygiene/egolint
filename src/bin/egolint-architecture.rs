@@ -16,9 +16,9 @@ struct Cli {
     #[arg(long, default_value = ".")]
     workspace: PathBuf,
 
-    /// Canonical Egolint JavaScript architecture profile.
-    #[arg(long, default_value = ".config/rules/javascript-architecture.v1.json")]
-    profile: PathBuf,
+    /// Optional repository-local profile override. The built-in profile is canonical by default.
+    #[arg(long)]
+    profile: Option<PathBuf>,
 
     /// Repository-owned profile overlay. Repeatable.
     #[arg(long = "overlay")]
@@ -56,7 +56,7 @@ fn main() -> ExitCode {
     };
     let options = ArchitectureRunOptions {
         workspace: &workspace,
-        profile_path: &cli.profile,
+        profile_path: cli.profile.as_deref(),
         overlay_paths: &cli.overlays,
         evaluation_date: &cli.evaluation_date,
         json_output: &cli.output,
