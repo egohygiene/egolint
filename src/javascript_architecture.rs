@@ -2,6 +2,7 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
+use std::io::Write;
 use std::path::{Component, Path, PathBuf};
 use std::process::Command;
 
@@ -13,6 +14,7 @@ use tempfile::NamedTempFile;
 
 use crate::contracts::{
     CONTRACT_VERSION, Finding, RuleIdentity, RuleOwnership, Severity, SourceLocation,
+    validate_contract_date,
 };
 use crate::error::{EgolintError, Result, exit_code};
 
@@ -22,6 +24,10 @@ pub const JAVASCRIPT_ARCHITECTURE_SCHEMA_VERSION: u32 = 1;
 pub const DEPENDENCY_CRUISER_VERSION: &str = "18.2.0";
 /// Stable Egolint tool identity for dependency graph findings.
 pub const ARCHITECTURE_TOOL_ID: &str = "DEPENDENCY_CRUISER";
+/// Canonical policy path embedded into the Egolint binary.
+pub const BUILTIN_PROFILE_PATH: &str = ".config/rules/javascript-architecture.v1.json";
+
+const BUILTIN_PROFILE: &str = include_str!("../.config/rules/javascript-architecture.v1.json");
 
 /// Versioned architecture profile owned by Egolint rather than dependency-cruiser.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -37,7 +43,7 @@ pub struct JavascriptArchitectureProfile {
     pub policy_source: String,
     /// Tool adapter declaration.
     pub adapter: ArchitectureAdapter,
-    /// Workspace-relative roots dependency-cruiser should inspect.
+    /// Workspace-relative roots dependency-cruiser should inspect when present.
     pub roots: Vec<String>,
     /// Ordered Egolint-owned architecture rules.
     pub rules: Vec<ArchitectureRule>,
@@ -90,7 +96,7 @@ pub struct ArchitectureRestriction {
     /// Match dependencies dependency-cruiser cannot resolve.
     #[serde(default)]
     pub could_not_resolve: Option<bool>,
-    /// Match dependency types (for example `core`, `local`, or `npm`).
+    /// Match dependency types such as `core`, `local`, or `npm`.
     #[serde(default)]
     pub dependency_types: Vec<String>,
     /// Exclude dependency types.
@@ -230,8 +236,8 @@ pub struct ArchitectureSummary {
 pub struct ArchitectureRunOptions<'a> {
     /// Repository workspace.
     pub workspace: &'a Path,
-    /// Canonical profile file.
-    pub profile_path: &'a Path,
+    /// Optional repository-local profile override. The built-in profile is canonical by default.
+    pub profile_path: Option<&'a Path>,
     /// Repository overlay files.
     pub overlay_paths: &'a [PathBuf],
     /// Auditable date for exception expiry evaluation.
@@ -251,34 +257,38 @@ pub struct ArchitectureRunOptions<'a> {
 /// Returns configuration errors for invalid profiles/overlays, runtime errors for
 /// missing or incompatible tooling, and filesystem errors for output failures.
 pub fn run_javascript_architecture(options: &ArchitectureRunOptions<'_>) -> Result<i32> {
-    validate_date(options.evaluation_date)?;
-    let (profile_relative, profile) = load_profile(options.workspace, options.profile_path)?;
-    let overlays = load_overlays(options.workspace, options.overlay_paths, &profile.id)?;
+    validate_contract_date(options.evaluation_date)?;
+    let (profile_path, profile) = load_profile(options.workspace, options.profile_path)?;
     validate_profile(&profile)?;
+    let overlays = load_overlays(options.workspace, options.overlay_paths, &profile.id)?;
+    let roots = existing_roots(options.workspace, &profile.roots)?;
 
-    let expected_version = profile.adapter.version.as_str();
     let observed_version = dependency_cruiser_version(options.workspace)?;
-    if observed_version != expected_version {
+    if observed_version != profile.adapter.version {
         return Err(EgolintError::RuntimeUnavailable(format!(
-            "dependency-cruiser version mismatch: profile requires {expected_version}, found {observed_version}"
+            "dependency-cruiser version mismatch: profile requires {}, found {observed_version}",
+            profile.adapter.version
         )));
     }
 
     let (rules, exceptions) = resolve_policy(&profile, &overlays)?;
     let generated_config = dependency_cruiser_config(&rules);
-    let raw_report = run_dependency_cruiser(options.workspace, &profile.roots, &generated_config, "json")?;
+    let raw_report = run_dependency_cruiser(
+        options.workspace,
+        &roots,
+        &generated_config,
+        "json",
+    )?;
     let mut findings = normalize_violations(
         &raw_report,
         &rules,
-        &profile_relative,
+        &profile_path,
         &observed_version,
     )?;
     let evaluated_exceptions = apply_architecture_exceptions(
         &mut findings,
         &exceptions,
         options.evaluation_date,
-        &profile_relative,
-        &observed_version,
     )?;
     findings.sort_by(|left, right| {
         (
@@ -300,7 +310,12 @@ pub fn run_javascript_architecture(options: &ArchitectureRunOptions<'_>) -> Resu
     write_sarif(options.workspace, options.sarif_output, &report)?;
 
     if let Some(graph_output) = options.graph_output {
-        let dot = run_dependency_cruiser(options.workspace, &profile.roots, &generated_config, "dot")?;
+        let dot = run_dependency_cruiser(
+            options.workspace,
+            &roots,
+            &generated_config,
+            "dot",
+        )?;
         write_bytes(options.workspace, graph_output, dot.as_bytes())?;
     }
 
@@ -311,20 +326,31 @@ pub fn run_javascript_architecture(options: &ArchitectureRunOptions<'_>) -> Resu
     })
 }
 
-fn load_profile(workspace: &Path, requested: &Path) -> Result<(PathBuf, JavascriptArchitectureProfile)> {
-    let relative = validate_workspace_path(requested, "architecture profile")?;
-    let path = workspace.join(&relative);
-    let contents = fs::read(&path).map_err(|source| EgolintError::Filesystem {
-        path: path.clone(),
-        source,
-    })?;
-    let profile = serde_json::from_slice(&contents).map_err(|error| {
+fn load_profile(
+    workspace: &Path,
+    requested: Option<&Path>,
+) -> Result<(PathBuf, JavascriptArchitectureProfile)> {
+    if let Some(requested) = requested {
+        let relative = validate_workspace_path(requested, "architecture profile")?;
+        let path = workspace.join(&relative);
+        let contents = fs::read(&path).map_err(|source| EgolintError::Filesystem {
+            path: path.clone(),
+            source,
+        })?;
+        let profile = serde_json::from_slice(&contents).map_err(|error| {
+            EgolintError::Configuration(format!(
+                "invalid JavaScript architecture profile at {}: {error}",
+                relative.display()
+            ))
+        })?;
+        return Ok((relative, profile));
+    }
+    let profile = serde_json::from_str(BUILTIN_PROFILE).map_err(|error| {
         EgolintError::Configuration(format!(
-            "invalid JavaScript architecture profile at {}: {error}",
-            relative.display()
+            "embedded JavaScript architecture profile is invalid: {error}"
         ))
     })?;
-    Ok((relative, profile))
+    Ok((PathBuf::from(BUILTIN_PROFILE_PATH), profile))
 }
 
 fn load_overlays(
@@ -369,12 +395,17 @@ fn validate_profile(profile: &JavascriptArchitectureProfile) -> Result<()> {
             "JavaScript architecture profile schema_version must equal {JAVASCRIPT_ARCHITECTURE_SCHEMA_VERSION}"
         )));
     }
-    if profile.id.trim().is_empty() || profile.version.trim().is_empty() || profile.policy_source.trim().is_empty() {
+    if !valid_identifier(&profile.id)
+        || profile.version.trim().is_empty()
+        || profile.policy_source.trim().is_empty()
+    {
         return Err(EgolintError::Configuration(
-            "JavaScript architecture profile id, version, and policy_source must be non-empty".to_owned(),
+            "JavaScript architecture profile id, version, and policy_source are invalid".to_owned(),
         ));
     }
-    if profile.adapter.name != "dependency-cruiser" || profile.adapter.version != DEPENDENCY_CRUISER_VERSION {
+    if profile.adapter.name != "dependency-cruiser"
+        || profile.adapter.version != DEPENDENCY_CRUISER_VERSION
+    {
         return Err(EgolintError::Configuration(format!(
             "JavaScript architecture profile must use reviewed dependency-cruiser {DEPENDENCY_CRUISER_VERSION}"
         )));
@@ -400,9 +431,12 @@ fn validate_profile(profile: &JavascriptArchitectureProfile) -> Result<()> {
 }
 
 fn validate_rule(rule: &ArchitectureRule) -> Result<()> {
-    if rule.id.trim().is_empty() || rule.description.trim().is_empty() || rule.remediation.trim().is_empty() {
+    if !valid_identifier(&rule.id)
+        || rule.description.trim().is_empty()
+        || rule.remediation.trim().is_empty()
+    {
         return Err(EgolintError::Configuration(
-            "architecture rules require id, description, and remediation".to_owned(),
+            "architecture rules require a kebab-case id, description, and remediation".to_owned(),
         ));
     }
     if rule.to.orphan.is_some() {
@@ -453,33 +487,45 @@ fn resolve_policy(
 }
 
 fn validate_exception(exception: &ArchitectureException) -> Result<()> {
-    if exception.id.trim().is_empty()
-        || exception.rule_id.trim().is_empty()
+    if !valid_identifier(&exception.id)
+        || !valid_identifier(&exception.rule_id)
         || exception.owner.trim().is_empty()
         || exception.reason.trim().is_empty()
     {
         return Err(EgolintError::Configuration(
-            "architecture exceptions require id, rule_id, owner, and reason".to_owned(),
+            "architecture exceptions require kebab-case id/rule_id, owner, and reason".to_owned(),
         ));
     }
-    validate_date(&exception.expires_on)
+    validate_contract_date(&exception.expires_on)
 }
 
-fn validate_date(value: &str) -> Result<()> {
-    let bytes = value.as_bytes();
-    if bytes.len() != 10
-        || bytes[4] != b'-'
-        || bytes[7] != b'-'
-        || !bytes
-            .iter()
+fn valid_identifier(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= 256
+        && value
+            .bytes()
             .enumerate()
-            .all(|(index, byte)| matches!(index, 4 | 7) || byte.is_ascii_digit())
-    {
+            .all(|(index, byte)| {
+                byte.is_ascii_lowercase()
+                    || byte.is_ascii_digit()
+                    || (byte == b'-' && index > 0 && index + 1 < value.len())
+            })
+        && !value.contains("--")
+}
+
+fn existing_roots(workspace: &Path, declared: &[String]) -> Result<Vec<String>> {
+    let roots = declared
+        .iter()
+        .filter(|root| workspace.join(root.as_str()).is_dir())
+        .cloned()
+        .collect::<Vec<_>>();
+    if roots.is_empty() {
         return Err(EgolintError::Configuration(format!(
-            "architecture evaluation/expiry date must use YYYY-MM-DD: {value}"
+            "none of the JavaScript architecture roots exist: {}",
+            declared.join(", ")
         )));
     }
-    Ok(())
+    Ok(roots)
 }
 
 fn dependency_cruiser_version(workspace: &Path) -> Result<String> {
@@ -496,7 +542,30 @@ fn dependency_cruiser_version(workspace: &Path) -> Result<String> {
             bounded_text(&String::from_utf8_lossy(&output.stderr))
         )));
     }
-    Ok(String::from_utf8_lossy(&output.stdout).trim().to_owned())
+    normalize_dependency_cruiser_version(String::from_utf8_lossy(&output.stdout).trim())
+}
+
+fn normalize_dependency_cruiser_version(raw: &str) -> Result<String> {
+    let candidate = raw
+        .split_whitespace()
+        .last()
+        .unwrap_or(raw)
+        .rsplit('@')
+        .next()
+        .unwrap_or(raw)
+        .trim_start_matches('v');
+    if candidate.split('.').count() == 3
+        && candidate
+            .split('.')
+            .all(|part| !part.is_empty() && part.bytes().all(|byte| byte.is_ascii_digit()))
+    {
+        Ok(candidate.to_owned())
+    } else {
+        Err(EgolintError::RuntimeExecution(format!(
+            "could not parse dependency-cruiser version from: {}",
+            bounded_text(raw)
+        )))
+    }
 }
 
 fn dependency_cruiser_config(rules: &[ArchitectureRule]) -> Value {
@@ -522,7 +591,7 @@ fn dependency_cruiser_config(rules: &[ArchitectureRule]) -> Value {
         "required": [],
         "options": {
             "doNotFollow": {"path": "node_modules"},
-            "exclude": "(^|/)(node_modules|dist|build|coverage)(/|$)",
+            "exclude": "(^|/)node_modules(/|$)",
             "skipAnalysisNotInRules": true
         }
     })
@@ -566,19 +635,31 @@ fn run_dependency_cruiser(
     output_type: &str,
 ) -> Result<String> {
     let mut config_file = NamedTempFile::new().map_err(|source| EgolintError::Filesystem {
-        path: PathBuf::from("<temporary dependency-cruiser config>"),
+        path: PathBuf::from("temporary-dependency-cruiser-config.json"),
         source,
     })?;
     serde_json::to_writer_pretty(&mut config_file, config)?;
+    config_file.flush().map_err(|source| EgolintError::Filesystem {
+        path: PathBuf::from("temporary-dependency-cruiser-config.json"),
+        source,
+    })?;
     let config_path = config_file.path().to_string_lossy().into_owned();
-    let mut command = Command::new("pnpm");
-    command
+    let output = Command::new("pnpm")
         .current_dir(workspace)
-        .args(["exec", "depcruise", "--config", &config_path, "--output-type", output_type, "--"])
-        .args(roots);
-    let output = command.output().map_err(|error| EgolintError::RuntimeExecution(format!(
-        "could not start dependency-cruiser: {error}"
-    )))?;
+        .args([
+            "exec",
+            "depcruise",
+            "--config",
+            &config_path,
+            "--output-type",
+            output_type,
+            "--",
+        ])
+        .args(roots)
+        .output()
+        .map_err(|error| EgolintError::RuntimeExecution(format!(
+            "could not start dependency-cruiser: {error}"
+        )))?;
     let code = output.status.code().unwrap_or(exit_code::RUNTIME);
     if !matches!(code, 0 | 1) {
         return Err(EgolintError::RuntimeExecution(format!(
@@ -619,7 +700,10 @@ fn normalize_violations(
                 "dependency-cruiser returned undeclared rule {rule_id}"
             )));
         };
-        let source = violation.get("from").and_then(Value::as_str).unwrap_or("<unknown>");
+        let source = violation
+            .get("from")
+            .and_then(Value::as_str)
+            .unwrap_or("unknown-module");
         let target = violation.get("to").and_then(Value::as_str).map(str::to_owned);
         let dependency_path = violation
             .get("cycle")
@@ -639,12 +723,28 @@ fn normalize_violations(
             &dependency_path.join("->"),
         ]);
         let id = format!("architecture-{}", &fingerprint[..16]);
-        let message = if let Some(target) = &target {
-            format!("{}: {source} -> {target}. {}", rule.description, rule.remediation)
+        let message = target.as_ref().map_or_else(
+            || format!("{}: {source}. {}", rule.description, rule.remediation),
+            |target| {
+                format!(
+                    "{}: {source} -> {target}. {}",
+                    rule.description, rule.remediation
+                )
+            },
+        );
+        let location = if source == "unknown-module" {
+            None
         } else {
-            format!("{}: {source}. {}", rule.description, rule.remediation)
+            let path = PathBuf::from(source);
+            Some(SourceLocation {
+                path,
+                start_line: None,
+                start_column: None,
+                end_line: None,
+                end_column: None,
+            })
         };
-        findings.push(ArchitectureFinding {
+        let architecture_finding = ArchitectureFinding {
             finding: Finding {
                 schema_version: CONTRACT_VERSION,
                 id,
@@ -658,17 +758,7 @@ fn normalize_violations(
                     ArchitectureSeverity::Error => Severity::Error,
                 },
                 message,
-                location: if source == "<unknown>" {
-                    None
-                } else {
-                    Some(SourceLocation {
-                        path: PathBuf::from(source),
-                        start_line: None,
-                        start_column: None,
-                        end_line: None,
-                        end_column: None,
-                    })
-                },
+                location,
                 ownership: RuleOwnership {
                     owner: "egohygiene/egolint".to_owned(),
                     policy_source: profile_path.display().to_string(),
@@ -683,7 +773,9 @@ fn normalize_violations(
             dependency_path,
             dependency_cruiser_version: adapter_version.to_owned(),
             remediation: rule.remediation.clone(),
-        });
+        };
+        architecture_finding.finding.validate()?;
+        findings.push(architecture_finding);
     }
     Ok(findings)
 }
@@ -692,8 +784,6 @@ fn apply_architecture_exceptions(
     findings: &mut [ArchitectureFinding],
     exceptions: &[ArchitectureException],
     evaluation_date: &str,
-    profile_path: &Path,
-    adapter_version: &str,
 ) -> Result<Vec<EvaluatedArchitectureException>> {
     let mut evaluated = Vec::new();
     for exception in exceptions {
@@ -704,10 +794,18 @@ fn apply_architecture_exceptions(
                 if finding.finding.rule.rule_id != exception.rule_id {
                     continue;
                 }
-                if exception.from.as_ref().is_some_and(|from| from != &finding.source_module) {
+                if exception
+                    .from
+                    .as_ref()
+                    .is_some_and(|from| from != &finding.source_module)
+                {
                     continue;
                 }
-                if exception.to.as_ref().is_some_and(|to| finding.target_module.as_ref() != Some(to)) {
+                if exception
+                    .to
+                    .as_ref()
+                    .is_some_and(|to| finding.target_module.as_ref() != Some(to))
+                {
                     continue;
                 }
                 finding.finding.suppressed_by = Some(exception.id.clone());
@@ -725,13 +823,6 @@ fn apply_architecture_exceptions(
             },
         });
     }
-    for exception in evaluated.iter().filter(|entry| entry.state == ArchitectureExceptionState::Expired) {
-        let fingerprint = stable_hash(&["expired-exception", &exception.exception.id]);
-        findings.first_mut().map(|_| ());
-        // Expiry is represented in report summary and makes the command fail. The
-        // exception remains machine-readable without fabricating a module location.
-        let _ = (profile_path, adapter_version, fingerprint);
-    }
     Ok(evaluated)
 }
 
@@ -748,13 +839,15 @@ fn build_report(
     let errors = findings
         .iter()
         .filter(|finding| {
-            finding.finding.suppressed_by.is_none() && finding.finding.severity == Severity::Error
+            finding.finding.suppressed_by.is_none()
+                && finding.finding.severity == Severity::Error
         })
         .count() as u64;
     let warnings = findings
         .iter()
         .filter(|finding| {
-            finding.finding.suppressed_by.is_none() && finding.finding.severity == Severity::Warning
+            finding.finding.suppressed_by.is_none()
+                && finding.finding.severity == Severity::Warning
         })
         .count() as u64;
     let expired_exceptions = exceptions
@@ -779,18 +872,30 @@ fn build_report(
     }
 }
 
-fn write_json(workspace: &Path, relative: &Path, report: &JavascriptArchitectureReport) -> Result<()> {
-    let bytes = serde_json::to_vec_pretty(report)?;
-    write_bytes(workspace, relative, &[bytes.as_slice(), b"\n"].concat())
+fn write_json(
+    workspace: &Path,
+    relative: &Path,
+    report: &JavascriptArchitectureReport,
+) -> Result<()> {
+    let mut bytes = serde_json::to_vec_pretty(report)?;
+    bytes.push(b'\n');
+    write_bytes(workspace, relative, &bytes)
 }
 
-fn write_sarif(workspace: &Path, relative: &Path, report: &JavascriptArchitectureReport) -> Result<()> {
+fn write_sarif(
+    workspace: &Path,
+    relative: &Path,
+    report: &JavascriptArchitectureReport,
+) -> Result<()> {
     let mut rules = BTreeMap::new();
     let results = report
         .findings
         .iter()
         .map(|finding| {
-            let rule_id = format!("{}:{}", ARCHITECTURE_TOOL_ID, finding.finding.rule.rule_id);
+            let rule_id = format!(
+                "{}:{}",
+                ARCHITECTURE_TOOL_ID, finding.finding.rule.rule_id
+            );
             rules.entry(rule_id.clone()).or_insert_with(|| {
                 json!({
                     "id": rule_id,
@@ -853,8 +958,9 @@ fn write_sarif(workspace: &Path, relative: &Path, report: &JavascriptArchitectur
             }
         }]
     });
-    let bytes = serde_json::to_vec_pretty(&document)?;
-    write_bytes(workspace, relative, &[bytes.as_slice(), b"\n"].concat())
+    let mut bytes = serde_json::to_vec_pretty(&document)?;
+    bytes.push(b'\n');
+    write_bytes(workspace, relative, &bytes)
 }
 
 fn write_bytes(workspace: &Path, relative: &Path, bytes: &[u8]) -> Result<()> {
@@ -877,15 +983,20 @@ fn write_bytes(workspace: &Path, relative: &Path, bytes: &[u8]) -> Result<()> {
 
 fn validate_workspace_path(path: &Path, name: &str) -> Result<PathBuf> {
     let Some(text) = path.to_str() else {
-        return Err(EgolintError::Configuration(format!("{name} must contain UTF-8")));
+        return Err(EgolintError::Configuration(format!(
+            "{name} must contain UTF-8"
+        )));
     };
     if text.is_empty()
         || path.is_absolute()
         || text.contains('\\')
-        || path.components().any(|component| !matches!(component, Component::Normal(_)))
+        || path
+            .components()
+            .any(|component| !matches!(component, Component::Normal(_)))
     {
         return Err(EgolintError::Configuration(format!(
-            "{name} must be a normalized workspace-relative path: {}", path.display()
+            "{name} must be a normalized workspace-relative path: {}",
+            path.display()
         )));
     }
     Ok(path.to_path_buf())
@@ -902,8 +1013,11 @@ fn stable_hash(parts: &[&str]) -> String {
 
 fn bounded_text(value: &str) -> String {
     const LIMIT: usize = 2_048;
-    let normalized = value.replace(['\r', '\n'], " ");
-    normalized.chars().take(LIMIT).collect()
+    value
+        .replace(['\r', '\n'], " ")
+        .chars()
+        .take(LIMIT)
+        .collect()
 }
 
 #[cfg(test)]
@@ -922,12 +1036,40 @@ mod tests {
     }
 
     #[test]
+    fn built_in_profile_is_valid_and_pinned() {
+        let profile: JavascriptArchitectureProfile =
+            serde_json::from_str(BUILTIN_PROFILE).expect("built-in profile parses");
+        validate_profile(&profile).expect("built-in profile validates");
+        assert_eq!(profile.adapter.version, DEPENDENCY_CRUISER_VERSION);
+        assert!(profile.rules.iter().any(|rule| rule.id == "no-circular"));
+        assert!(
+            profile
+                .rules
+                .iter()
+                .any(|rule| rule.id == "no-browser-to-node-core")
+        );
+    }
+
+    #[test]
     fn generated_dependency_cruiser_config_is_deterministic() {
         let first = dependency_cruiser_config(&[rule("no-deep-import")]);
         let second = dependency_cruiser_config(&[rule("no-deep-import")]);
         assert_eq!(first, second);
         assert_eq!(first["forbidden"][0]["name"], "no-deep-import");
         assert_eq!(first["options"]["skipAnalysisNotInRules"], true);
+    }
+
+    #[test]
+    fn adapter_version_output_is_normalized() {
+        assert_eq!(
+            normalize_dependency_cruiser_version("18.2.0").expect("plain version"),
+            "18.2.0"
+        );
+        assert_eq!(
+            normalize_dependency_cruiser_version("dependency-cruiser@18.2.0")
+                .expect("package version"),
+            "18.2.0"
+        );
     }
 
     #[test]
@@ -946,15 +1088,35 @@ mod tests {
         let findings = normalize_violations(
             &raw.to_string(),
             &[rule("no-deep-import")],
-            Path::new(".config/rules/javascript-architecture.v1.json"),
+            Path::new(BUILTIN_PROFILE_PATH),
             DEPENDENCY_CRUISER_VERSION,
         )
         .expect("normalize fixture");
         assert_eq!(findings.len(), 1);
         assert_eq!(findings[0].finding.rule.tool_id, ARCHITECTURE_TOOL_ID);
         assert_eq!(findings[0].source_module, "apps/web/src/app.ts");
-        assert_eq!(findings[0].target_module.as_deref(), Some("packages/ui/src/internal.ts"));
-        findings[0].finding.validate().expect("shared finding contract");
+        assert_eq!(
+            findings[0].target_module.as_deref(),
+            Some("packages/ui/src/internal.ts")
+        );
+        findings[0]
+            .finding
+            .validate()
+            .expect("shared finding contract");
+    }
+
+    #[test]
+    fn overlay_cannot_replace_canonical_rule() {
+        let profile: JavascriptArchitectureProfile =
+            serde_json::from_str(BUILTIN_PROFILE).expect("profile");
+        let overlay = JavascriptArchitectureOverlay {
+            schema_version: 1,
+            profile_id: profile.id.clone(),
+            add_rules: vec![profile.rules[0].clone()],
+            exceptions: Vec::new(),
+        };
+        let error = resolve_policy(&profile, &[overlay]).expect_err("replacement rejected");
+        assert!(error.to_string().contains("may not replace canonical"));
     }
 
     #[test]
@@ -969,7 +1131,7 @@ mod tests {
         let mut findings = normalize_violations(
             &raw.to_string(),
             &[rule("no-deep-import")],
-            Path::new("policy.json"),
+            Path::new(BUILTIN_PROFILE_PATH),
             DEPENDENCY_CRUISER_VERSION,
         )
         .expect("normalize");
@@ -986,12 +1148,13 @@ mod tests {
             &mut findings,
             &[exception],
             "2026-08-23",
-            Path::new("policy.json"),
-            DEPENDENCY_CRUISER_VERSION,
         )
         .expect("evaluate exception");
         assert_eq!(evaluated[0].state, ArchitectureExceptionState::Applied);
-        assert_eq!(findings[0].finding.suppressed_by.as_deref(), Some("migration-001"));
+        assert_eq!(
+            findings[0].finding.suppressed_by.as_deref(),
+            Some("migration-001")
+        );
     }
 
     #[test]
@@ -1006,7 +1169,7 @@ mod tests {
         let mut findings = normalize_violations(
             &raw.to_string(),
             &[rule("no-app-to-app")],
-            Path::new("policy.json"),
+            Path::new(BUILTIN_PROFILE_PATH),
             DEPENDENCY_CRUISER_VERSION,
         )
         .expect("normalize");
@@ -1023,8 +1186,6 @@ mod tests {
             &mut findings,
             &[exception],
             "2026-08-23",
-            Path::new("policy.json"),
-            DEPENDENCY_CRUISER_VERSION,
         )
         .expect("evaluate exception");
         assert_eq!(evaluated[0].state, ArchitectureExceptionState::Expired);
