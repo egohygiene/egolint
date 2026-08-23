@@ -5,6 +5,7 @@ pub mod contracts;
 pub mod debt;
 pub mod error;
 pub mod fix;
+pub mod javascript_architecture;
 pub mod megalinter;
 pub mod plan;
 pub mod report;
@@ -21,6 +22,10 @@ pub use contracts::{
 };
 pub use error::{EgolintError, Result};
 pub use fix::{FIX_PATCH_PATH, FixOutcome, apply_reviewed_fix, run_isolated_fix};
+pub use javascript_architecture::{
+    ArchitectureRunOptions, JavascriptArchitectureOverlay, JavascriptArchitectureProfile,
+    JavascriptArchitectureReport, run_javascript_architecture,
+};
 pub use megalinter::{NormalizedMegaLinter, normalize_workspace};
 pub use plan::{ExecutionPlan, Operation, PlanOptions};
 pub use report::{ReportCompleteness, ReportSummary, RunReport, RunStatus};
