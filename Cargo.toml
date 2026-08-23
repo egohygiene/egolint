@@ -3,6 +3,7 @@ name = "egolint"
 version = "0.1.0-alpha.1"
 edition = "2024"
 rust-version = "1.85"
+default-run = "egolint"
 description = "A portable, policy-driven lint orchestrator for repositories and CI"
 license = "MIT"
 repository = "https://github.com/egohygiene/egolint"
@@ -14,6 +15,7 @@ categories = ["command-line-utilities", "development-tools"]
 include = [
   "/.config/megalinter/policy.yml",
   "/.config/rules/portability.toml",
+  "/.config/rules/javascript-architecture.v1.json",
   "/.config/megalinter/tool-matrix.json",
   "/.config/security/scanner-ownership.json",
   "/src/**",
@@ -22,8 +24,10 @@ include = [
   "/tests/dependency_debt_pipeline.rs",
   "/tests/empathy_compatibility.rs",
   "/tests/fix_pipeline.rs",
+  "/tests/javascript_architecture_pipeline.rs",
   "/tests/fixtures/compatibility/**",
   "/tests/fixtures/contracts/**",
+  "/tests/fixtures/javascript-architecture/**",
   "/README.md",
   "/LICENSE",
   "/Cargo.toml",

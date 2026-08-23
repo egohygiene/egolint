@@ -3,6 +3,9 @@
 
 version: "3"
 
+vars:
+  ARCHITECTURE_WORKSPACE: '{{default "." .ARCHITECTURE_WORKSPACE}}'
+
 includes:
   lint:
     taskfile: ./tasks/lint.yml
@@ -31,6 +34,35 @@ tasks:
     desc: "Run Rust unit and integration tests"
     cmds:
       - cargo test --all-targets --all-features
+
+  architecture:check:
+    desc: "Run the canonical JS/TS dependency architecture profile"
+    requires:
+      vars:
+        - EVALUATION_DATE
+    preconditions:
+      - sh: command -v pnpm >/dev/null 2>&1
+        msg: "pnpm is required for the dependency-cruiser adapter."
+    cmds:
+      - >-
+        cargo run --quiet --locked --bin egolint-architecture --
+        --workspace "{{.ARCHITECTURE_WORKSPACE}}"
+        --evaluation-date "{{.EVALUATION_DATE}}"
+
+  architecture:graph:
+    desc: "Run JS/TS architecture checks and emit an optional DOT graph"
+    requires:
+      vars:
+        - EVALUATION_DATE
+    preconditions:
+      - sh: command -v pnpm >/dev/null 2>&1
+        msg: "pnpm is required for the dependency-cruiser adapter."
+    cmds:
+      - >-
+        cargo run --quiet --locked --bin egolint-architecture --
+        --workspace "{{.ARCHITECTURE_WORKSPACE}}"
+        --evaluation-date "{{.EVALUATION_DATE}}"
+        --graph ".reports/egolint/javascript-architecture.dot"
 
   contracts:
     desc: "Validate imported MegaLinter and complementary-tool contracts"
