@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "id": "javascript-typescript-architecture",
+  "version": "1.0.0",
+  "policy_source": "egohygiene/egolint#12",
+  "adapter": {
+    "name": "dependency-cruiser",
+    "version": "18.2.0"
+  },
+  "roots": [
+    "src",
+    "apps",
+    "packages"
+  ],
+  "rules": [
+    {
+      "id": "no-app-to-app",
+      "severity": "error",
+      "description": "Applications may not depend directly on sibling applications",
+      "from": {
+        "path": ["^apps/([^/]+)/"]
+      },
+      "to": {
+        "path": ["^apps/(?!$1(?:/|$))"]
+      },
+      "remediation": "Move shared behavior behind a package/domain boundary and depend on that public contract."
+    },
+    {
+      "id": "no-browser-to-node-core",
+      "severity": "error",
+      "description": "Browser-facing application and UI modules may not import Node.js core modules",
+      "from": {
+        "path": ["^apps/", "(^|/)(browser|client|ui|components)(/|$)"]
+      },
+      "to": {
+        "dependency_types": ["core"]
+      },
+      "remediation": "Move Node-only behavior to a build/server adapter or replace it with a browser platform API."
+    },
+    {
+      "id": "no-circular",
+      "severity": "error",
+      "description": "Production JavaScript and TypeScript dependency cycles are forbidden",
+      "from": {
+        "path": ["^(src|apps|packages)/"],
+        "path_not": ["(^|/)(test|tests|fixtures)(/|$)"]
+      },
+      "to": {
+        "circular": true
+      },
+      "remediation": "Break the cycle by extracting a lower-level contract or reversing the dependency direction."
+    },
+    {
+      "id": "no-cross-feature-import",
+      "severity": "error",
+      "description": "Feature/domain packages may not reach into a sibling feature/domain implementation",
+      "from": {
+        "path": ["^packages/(?:features|domains)/([^/]+)/"]
+      },
+      "to": {
+        "path": ["^packages/(?:features|domains)/(?!$1(?:/|$))"]
+      },
+      "remediation": "Integrate through a foundational/shared package or an explicit public domain contract."
+    },
+    {
+      "id": "no-generated-internals",
+      "severity": "error",
+      "description": "Production source may not import generated, coverage, build, or distribution internals",
+      "from": {
+        "path": ["^(src|apps|packages)/"],
+        "path_not": ["(^|/)(test|tests|fixtures)(/|$)"]
+      },
+      "to": {
+        "path": ["(^|/)(dist|build|coverage|generated)(/|$)"]
+      },
+      "remediation": "Depend on canonical source or a declared package export instead of generated internals."
+    },
+    {
+      "id": "no-orphans",
+      "severity": "warning",
+      "description": "Unreferenced JavaScript/TypeScript modules require review",
+      "from": {
+        "path": ["^(src|apps|packages)/"],
+        "path_not": ["(?:^|/)(index|main|entry|vite\.config|vitest\.config)\\.[cm]?[jt]sx?$"],
+        "orphan": true
+      },
+      "to": {},
+      "remediation": "Remove dead code or document and configure the module as an intentional entry point."
+    },
+    {
+      "id": "no-package-deep-import",
+      "severity": "error",
+      "description": "Applications may not bypass package public exports to import package source internals",
+      "from": {
+        "path": ["^apps/"]
+      },
+      "to": {
+        "path": ["^packages/[^/]+/src/(?!index\\.[cm]?[jt]sx?$).+"]
+      },
+      "remediation": "Import the package public entry point/export map instead of a source-internal module."
+    },
+    {
+      "id": "no-package-to-app",
+      "severity": "error",
+      "description": "Reusable packages may not depend on applications",
+      "from": {
+        "path": ["^packages/"]
+      },
+      "to": {
+        "path": ["^apps/"]
+      },
+      "remediation": "Invert the dependency so applications compose packages, never the reverse."
+    },
+    {
+      "id": "no-production-to-test",
+      "severity": "error",
+      "description": "Production modules may not depend on tests, specs, or fixtures",
+      "from": {
+        "path": ["^(src|apps|packages)/"],
+        "path_not": ["(^|/)(test|tests|spec|fixtures)(/|$)"]
+      },
+      "to": {
+        "path": ["(^|/)(test|tests|spec|fixtures)(/|$)"]
+      },
+      "remediation": "Move reusable test helpers behind a production-safe support package or keep the dependency test-only."
+    },
+    {
+      "id": "not-to-unresolvable",
+      "severity": "error",
+      "description": "Every analyzed dependency must resolve deterministically",
+      "from": {},
+      "to": {
+        "could_not_resolve": true
+      },
+      "remediation": "Correct the import path, package export, alias configuration, or missing dependency declaration."
+    }
+  ]
+}
