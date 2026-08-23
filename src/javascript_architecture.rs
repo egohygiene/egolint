@@ -273,23 +273,10 @@ pub fn run_javascript_architecture(options: &ArchitectureRunOptions<'_>) -> Resu
 
     let (rules, exceptions) = resolve_policy(&profile, &overlays)?;
     let generated_config = dependency_cruiser_config(&rules);
-    let raw_report = run_dependency_cruiser(
-        options.workspace,
-        &roots,
-        &generated_config,
-        "json",
-    )?;
-    let mut findings = normalize_violations(
-        &raw_report,
-        &rules,
-        &profile_path,
-        &observed_version,
-    )?;
-    let evaluated_exceptions = apply_architecture_exceptions(
-        &mut findings,
-        &exceptions,
-        options.evaluation_date,
-    )?;
+    let raw_report = run_dependency_cruiser(options.workspace, &roots, &generated_config, "json")?;
+    let mut findings = normalize_violations(&raw_report, &rules, &profile_path, &observed_version)?;
+    let evaluated_exceptions =
+        apply_architecture_exceptions(&mut findings, &exceptions, options.evaluation_date)?;
     findings.sort_by(|left, right| {
         (
             left.finding.rule.rule_id.as_str(),
@@ -310,20 +297,17 @@ pub fn run_javascript_architecture(options: &ArchitectureRunOptions<'_>) -> Resu
     write_sarif(options.workspace, options.sarif_output, &report)?;
 
     if let Some(graph_output) = options.graph_output {
-        let dot = run_dependency_cruiser(
-            options.workspace,
-            &roots,
-            &generated_config,
-            "dot",
-        )?;
+        let dot = run_dependency_cruiser(options.workspace, &roots, &generated_config, "dot")?;
         write_bytes(options.workspace, graph_output, dot.as_bytes())?;
     }
 
-    Ok(if report.summary.errors > 0 || report.summary.expired_exceptions > 0 {
-        exit_code::FINDINGS
-    } else {
-        exit_code::CLEAN
-    })
+    Ok(
+        if report.summary.errors > 0 || report.summary.expired_exceptions > 0 {
+            exit_code::FINDINGS
+        } else {
+            exit_code::CLEAN
+        },
+    )
 }
 
 fn load_profile(
@@ -366,22 +350,25 @@ fn load_overlays(
             path: path.clone(),
             source,
         })?;
-        let overlay: JavascriptArchitectureOverlay = serde_json::from_slice(&contents).map_err(|error| {
-            EgolintError::Configuration(format!(
-                "invalid JavaScript architecture overlay at {}: {error}",
-                relative.display()
-            ))
-        })?;
+        let overlay: JavascriptArchitectureOverlay =
+            serde_json::from_slice(&contents).map_err(|error| {
+                EgolintError::Configuration(format!(
+                    "invalid JavaScript architecture overlay at {}: {error}",
+                    relative.display()
+                ))
+            })?;
         if overlay.schema_version != JAVASCRIPT_ARCHITECTURE_SCHEMA_VERSION {
             return Err(EgolintError::Configuration(format!(
                 "architecture overlay {} schema_version must equal {}",
-                relative.display(), JAVASCRIPT_ARCHITECTURE_SCHEMA_VERSION
+                relative.display(),
+                JAVASCRIPT_ARCHITECTURE_SCHEMA_VERSION
             )));
         }
         if overlay.profile_id != profile_id {
             return Err(EgolintError::Configuration(format!(
                 "architecture overlay {} targets profile {}, expected {profile_id}",
-                relative.display(), overlay.profile_id
+                relative.display(),
+                overlay.profile_id
             )));
         }
         overlays.push(overlay);
@@ -423,7 +410,8 @@ fn validate_profile(profile: &JavascriptArchitectureProfile) -> Result<()> {
         validate_rule(rule)?;
         if !ids.insert(rule.id.clone()) {
             return Err(EgolintError::Configuration(format!(
-                "duplicate architecture rule id: {}", rule.id
+                "duplicate architecture rule id: {}",
+                rule.id
             )));
         }
     }
@@ -441,7 +429,8 @@ fn validate_rule(rule: &ArchitectureRule) -> Result<()> {
     }
     if rule.to.orphan.is_some() {
         return Err(EgolintError::Configuration(format!(
-            "architecture rule {} may use orphan only in from", rule.id
+            "architecture rule {} may use orphan only in from",
+            rule.id
         )));
     }
     Ok(())
@@ -452,7 +441,10 @@ fn resolve_policy(
     overlays: &[JavascriptArchitectureOverlay],
 ) -> Result<(Vec<ArchitectureRule>, Vec<ArchitectureException>)> {
     let mut rules = profile.rules.clone();
-    let mut rule_ids = rules.iter().map(|rule| rule.id.clone()).collect::<BTreeSet<_>>();
+    let mut rule_ids = rules
+        .iter()
+        .map(|rule| rule.id.clone())
+        .collect::<BTreeSet<_>>();
     let mut exceptions = Vec::new();
     let mut exception_ids = BTreeSet::new();
     for overlay in overlays {
@@ -460,7 +452,8 @@ fn resolve_policy(
             validate_rule(rule)?;
             if !rule_ids.insert(rule.id.clone()) {
                 return Err(EgolintError::Configuration(format!(
-                    "repository overlay may not replace canonical architecture rule {}", rule.id
+                    "repository overlay may not replace canonical architecture rule {}",
+                    rule.id
                 )));
             }
             rules.push(rule.clone());
@@ -475,7 +468,8 @@ fn resolve_policy(
             }
             if !exception_ids.insert(exception.id.clone()) {
                 return Err(EgolintError::Configuration(format!(
-                    "duplicate architecture exception id: {}", exception.id
+                    "duplicate architecture exception id: {}",
+                    exception.id
                 )));
             }
             exceptions.push(exception.clone());
@@ -502,14 +496,11 @@ fn validate_exception(exception: &ArchitectureException) -> Result<()> {
 fn valid_identifier(value: &str) -> bool {
     !value.is_empty()
         && value.len() <= 256
-        && value
-            .bytes()
-            .enumerate()
-            .all(|(index, byte)| {
-                byte.is_ascii_lowercase()
-                    || byte.is_ascii_digit()
-                    || (byte == b'-' && index > 0 && index + 1 < value.len())
-            })
+        && value.bytes().enumerate().all(|(index, byte)| {
+            byte.is_ascii_lowercase()
+                || byte.is_ascii_digit()
+                || (byte == b'-' && index > 0 && index + 1 < value.len())
+        })
         && !value.contains("--")
 }
 
@@ -533,9 +524,11 @@ fn dependency_cruiser_version(workspace: &Path) -> Result<String> {
         .current_dir(workspace)
         .args(["exec", "depcruise", "--version"])
         .output()
-        .map_err(|error| EgolintError::RuntimeUnavailable(format!(
-            "could not start pnpm/dependency-cruiser: {error}"
-        )))?;
+        .map_err(|error| {
+            EgolintError::RuntimeUnavailable(format!(
+                "could not start pnpm/dependency-cruiser: {error}"
+            ))
+        })?;
     if !output.status.success() {
         return Err(EgolintError::RuntimeUnavailable(format!(
             "dependency-cruiser is unavailable; install the profile's pinned dev dependency (stderr: {})",
@@ -617,7 +610,10 @@ fn restriction_json(restriction: &ArchitectureRestriction, allow_orphan: bool) -
         object.insert("couldNotResolve".to_owned(), json!(could_not_resolve));
     }
     if !restriction.dependency_types.is_empty() {
-        object.insert("dependencyTypes".to_owned(), json!(restriction.dependency_types));
+        object.insert(
+            "dependencyTypes".to_owned(),
+            json!(restriction.dependency_types),
+        );
     }
     if !restriction.dependency_types_not.is_empty() {
         object.insert(
@@ -639,10 +635,12 @@ fn run_dependency_cruiser(
         source,
     })?;
     serde_json::to_writer_pretty(&mut config_file, config)?;
-    config_file.flush().map_err(|source| EgolintError::Filesystem {
-        path: PathBuf::from("temporary-dependency-cruiser-config.json"),
-        source,
-    })?;
+    config_file
+        .flush()
+        .map_err(|source| EgolintError::Filesystem {
+            path: PathBuf::from("temporary-dependency-cruiser-config.json"),
+            source,
+        })?;
     let config_path = config_file.path().to_string_lossy().into_owned();
     let output = Command::new("pnpm")
         .current_dir(workspace)
@@ -657,9 +655,9 @@ fn run_dependency_cruiser(
         ])
         .args(roots)
         .output()
-        .map_err(|error| EgolintError::RuntimeExecution(format!(
-            "could not start dependency-cruiser: {error}"
-        )))?;
+        .map_err(|error| {
+            EgolintError::RuntimeExecution(format!("could not start dependency-cruiser: {error}"))
+        })?;
     let code = output.status.code().unwrap_or(exit_code::RUNTIME);
     if !matches!(code, 0 | 1) {
         return Err(EgolintError::RuntimeExecution(format!(
@@ -667,9 +665,11 @@ fn run_dependency_cruiser(
             bounded_text(&String::from_utf8_lossy(&output.stderr))
         )));
     }
-    String::from_utf8(output.stdout).map_err(|error| EgolintError::RuntimeExecution(format!(
-        "dependency-cruiser emitted non-UTF-8 output: {error}"
-    )))
+    String::from_utf8(output.stdout).map_err(|error| {
+        EgolintError::RuntimeExecution(format!(
+            "dependency-cruiser emitted non-UTF-8 output: {error}"
+        ))
+    })
 }
 
 fn normalize_violations(
@@ -682,9 +682,11 @@ fn normalize_violations(
     let violations = document
         .pointer("/summary/violations")
         .and_then(Value::as_array)
-        .ok_or_else(|| EgolintError::RuntimeExecution(
-            "dependency-cruiser JSON omitted summary.violations".to_owned(),
-        ))?;
+        .ok_or_else(|| {
+            EgolintError::RuntimeExecution(
+                "dependency-cruiser JSON omitted summary.violations".to_owned(),
+            )
+        })?;
     let rules_by_id = rules
         .iter()
         .map(|rule| (rule.id.as_str(), rule))
@@ -704,7 +706,10 @@ fn normalize_violations(
             .get("from")
             .and_then(Value::as_str)
             .unwrap_or("unknown-module");
-        let target = violation.get("to").and_then(Value::as_str).map(str::to_owned);
+        let target = violation
+            .get("to")
+            .and_then(Value::as_str)
+            .map(str::to_owned);
         let dependency_path = violation
             .get("cycle")
             .and_then(Value::as_array)
@@ -839,15 +844,13 @@ fn build_report(
     let errors = findings
         .iter()
         .filter(|finding| {
-            finding.finding.suppressed_by.is_none()
-                && finding.finding.severity == Severity::Error
+            finding.finding.suppressed_by.is_none() && finding.finding.severity == Severity::Error
         })
         .count() as u64;
     let warnings = findings
         .iter()
         .filter(|finding| {
-            finding.finding.suppressed_by.is_none()
-                && finding.finding.severity == Severity::Warning
+            finding.finding.suppressed_by.is_none() && finding.finding.severity == Severity::Warning
         })
         .count() as u64;
     let expired_exceptions = exceptions
@@ -892,10 +895,7 @@ fn write_sarif(
         .findings
         .iter()
         .map(|finding| {
-            let rule_id = format!(
-                "{}:{}",
-                ARCHITECTURE_TOOL_ID, finding.finding.rule.rule_id
-            );
+            let rule_id = format!("{}:{}", ARCHITECTURE_TOOL_ID, finding.finding.rule.rule_id);
             rules.entry(rule_id.clone()).or_insert_with(|| {
                 json!({
                     "id": rule_id,
@@ -1144,12 +1144,8 @@ mod tests {
             from: Some("apps/web/a.ts".to_owned()),
             to: Some("packages/ui/src/internal.ts".to_owned()),
         };
-        let evaluated = apply_architecture_exceptions(
-            &mut findings,
-            &[exception],
-            "2026-08-23",
-        )
-        .expect("evaluate exception");
+        let evaluated = apply_architecture_exceptions(&mut findings, &[exception], "2026-08-23")
+            .expect("evaluate exception");
         assert_eq!(evaluated[0].state, ArchitectureExceptionState::Applied);
         assert_eq!(
             findings[0].finding.suppressed_by.as_deref(),
@@ -1182,12 +1178,8 @@ mod tests {
             from: None,
             to: None,
         };
-        let evaluated = apply_architecture_exceptions(
-            &mut findings,
-            &[exception],
-            "2026-08-23",
-        )
-        .expect("evaluate exception");
+        let evaluated = apply_architecture_exceptions(&mut findings, &[exception], "2026-08-23")
+            .expect("evaluate exception");
         assert_eq!(evaluated[0].state, ArchitectureExceptionState::Expired);
         assert!(findings[0].finding.suppressed_by.is_none());
     }
