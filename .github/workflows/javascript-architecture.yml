@@ -1,0 +1,126 @@
+---
+name: JavaScript architecture
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "javascript-architecture-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  architecture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+
+      - name: Install locked adapter toolchain
+        run: |
+          set -euo pipefail
+          corepack enable pnpm
+          pnpm install --frozen-lockfile --ignore-scripts
+          test "$(pnpm exec depcruise --version)" = "18.2.0"
+
+      - name: Prove clean React/Vite architecture
+        run: |
+          set -euo pipefail
+          cargo run --quiet --locked --bin egolint-architecture -- \
+            --workspace "tests/fixtures/javascript-architecture/clean" \
+            --evaluation-date "2026-08-23" \
+            --graph ".reports/egolint/javascript-architecture.dot"
+          test -s "tests/fixtures/javascript-architecture/clean/.reports/egolint/javascript-architecture.dot"
+
+      - name: Prove React/Vite boundary findings
+        run: |
+          set -euo pipefail
+          set +e
+          cargo run --quiet --locked --bin egolint-architecture -- \
+            --workspace "tests/fixtures/javascript-architecture/react-vite" \
+            --evaluation-date "2026-08-23"
+          status="$?"
+          set -e
+          test "$status" -eq 1
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("tests/fixtures/javascript-architecture/react-vite/.reports/egolint/javascript-architecture.json").read_text())
+          rules = {item["rule"]["rule_id"] for item in report["findings"]}
+          assert "no-app-to-app" in rules, rules
+          assert "no-browser-to-node-core" in rules, rules
+          assert "no-package-deep-import" in rules, rules
+          assert report["dependency_cruiser_version"] == "18.2.0"
+          PY
+
+      - name: Prove package public-export boundary
+        run: |
+          set -euo pipefail
+          set +e
+          cargo run --quiet --locked --bin egolint-architecture -- \
+            --workspace "tests/fixtures/javascript-architecture/library" \
+            --evaluation-date "2026-08-23"
+          status="$?"
+          set -e
+          test "$status" -eq 1
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("tests/fixtures/javascript-architecture/library/.reports/egolint/javascript-architecture.json").read_text())
+          assert any(item["rule"]["rule_id"] == "no-package-deep-import" for item in report["findings"])
+          PY
+
+      - name: Prove owned exception and expiry behavior
+        run: |
+          set -euo pipefail
+          cargo run --quiet --locked --bin egolint-architecture -- \
+            --workspace "tests/fixtures/javascript-architecture/library" \
+            --overlay "architecture.overlay.json" \
+            --evaluation-date "2026-08-23"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("tests/fixtures/javascript-architecture/library/.reports/egolint/javascript-architecture.json").read_text())
+          assert report["summary"]["suppressed"] == 1, report["summary"]
+          assert report["exceptions"][0]["state"] == "applied"
+          PY
+          set +e
+          cargo run --quiet --locked --bin egolint-architecture -- \
+            --workspace "tests/fixtures/javascript-architecture/library" \
+            --overlay "architecture.overlay.json" \
+            --evaluation-date "2026-09-02"
+          status="$?"
+          set -e
+          test "$status" -eq 1
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("tests/fixtures/javascript-architecture/library/.reports/egolint/javascript-architecture.json").read_text())
+          assert report["summary"]["expired_exceptions"] == 1
+          assert report["exceptions"][0]["state"] == "expired"
+          PY
+
+      - name: Validate SARIF projection
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("tests/fixtures/javascript-architecture/react-vite/.reports/egolint/javascript-architecture.sarif")
+          sarif = json.loads(path.read_text())
+          assert sarif["version"] == "2.1.0"
+          assert sarif["runs"][0]["tool"]["driver"]["name"] == "Egolint"
+          assert sarif["runs"][0]["results"]
+          PY
