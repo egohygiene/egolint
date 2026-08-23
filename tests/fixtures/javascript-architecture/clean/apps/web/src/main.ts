@@ -1,3 +1,3 @@
-import { publicValue } from "../../../../packages/ui/src/index";
+import { publicValue } from "../../../packages/ui/src/index";
 
 export const web = publicValue;
