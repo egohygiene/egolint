@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "profile_id": "javascript-typescript-architecture",
+  "add_rules": [],
+  "exceptions": [
+    {
+      "id": "temporary-deep-import",
+      "rule_id": "no-package-deep-import",
+      "owner": "fixture-maintainer",
+      "reason": "Demonstrate a bounded migration exception with accountable expiry.",
+      "expires_on": "2026-09-01",
+      "from": "apps/example/src/main.ts",
+      "to": "packages/public-lib/src/private.ts"
+    }
+  ]
+}
