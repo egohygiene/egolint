@@ -40,6 +40,32 @@ const expectedLegacyRules = [
     "react/self-closing-comp",
 ].sort();
 
+const reactCompilerRules = [
+    "react/react-compiler",
+    "react/error-boundaries",
+    "react/globals",
+    "react/immutability",
+    "react/incompatible-library",
+    "react/preserve-manual-memoization",
+    "react/purity",
+    "react/refs",
+    "react/set-state-in-effect",
+    "react/set-state-in-render",
+    "react/static-components",
+    "react/use-memo",
+    "react/unsupported-syntax",
+    "react/void-use-memo",
+    "react/no-deriving-state-in-effects",
+    "react/invariant",
+    "react/rule-suppression",
+    "react/syntax",
+    "react/todo",
+    "react/capitalized-calls",
+    "react/exhaustive-effect-dependencies",
+    "react/hooks",
+    "react/memo-dependencies",
+];
+
 test("profile assigns non-overlapping adapter ownership", async () => {
     const profile = await json(".config/rules/javascript-package-quality.v1.json");
     assert.equal(profile.schema_version, 1);
@@ -61,14 +87,34 @@ test("Oxlint uses native plugins rather than the alpha JavaScript bridge", async
     const react = await json(".config/lint/javascript/oxlint.react-library.json");
     assert.equal(base.jsPlugins, undefined);
     assert.equal(react.jsPlugins, undefined);
-    assert.equal(base.options.typeAware, true);
-    assert.equal(base.options.typeCheck, false);
+    assert.equal(react.extends, undefined);
+    assert.deepEqual(react.options, base.options);
+    assert.deepEqual(react.categories, base.categories);
     assert.equal(base.rules["no-duplicate-imports"], undefined);
     assert.ok(react.plugins.includes("react"));
     assert.ok(react.plugins.includes("jsx-a11y"));
     assert.ok(react.plugins.includes("vitest"));
     assert.ok(react.plugins.includes("react-perf"));
-    assert.equal(react.rules["react/react-compiler"], undefined);
+});
+
+test("React library preserves base rule semantics and disables compiler diagnostics", async () => {
+    const base = await json(".config/lint/javascript/oxlint.base.json");
+    const react = await json(".config/lint/javascript/oxlint.react-library.json");
+    const migration = await json(".config/rules/javascript-eslint-migration.v1.json");
+
+    for (const replacement of Object.values(migration.legacy_rules)) {
+        if (!replacement.startsWith("oxlint:")) continue;
+        const rule = replacement.slice("oxlint:".length);
+        if (rule.startsWith("react/")) continue;
+        assert.deepEqual(react.rules[rule], base.rules[rule], `React variant changed ${rule}`);
+    }
+
+    for (const rule of reactCompilerRules) {
+        assert.equal(react.rules[rule], "off", `compiler rule must be opt-in: ${rule}`);
+    }
+    assert.equal(react.rules["react/rules-of-hooks"], "error");
+    assert.equal(react.rules["react/exhaustive-deps"], "error");
+    assert.equal(react.rules["react/react-in-jsx-scope"], "off");
 });
 
 test("Biome owns formatting and imports without enabling duplicate lint rules", async () => {
@@ -94,6 +140,7 @@ test("migration ledger accounts for every intentional legacy ESLint rule", async
     }
     assert.equal(migration.policy.biome_linter, "disabled");
     assert.equal(migration.policy.alpha_oxlint_js_plugins, "forbidden_when_native_plugin_exists");
+    assert.equal(migration.policy.react_compiler_rules, "deferred_experimental");
 });
 
 test("consumer manifests make publint applicability explicit", async () => {
