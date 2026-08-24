@@ -50,7 +50,7 @@ test("profile assigns non-overlapping adapter ownership", async () => {
     assert.equal(profile.adapters.biome.linter_enabled, false);
     assert.equal(profile.adapters.biome.output, "sarif");
     assert.equal(profile.adapters.publint.applicability, "manifest_publication_npm");
-    assert.deepEqual(
+    assert.equal(
         new Set(Object.values(profile.adapters).map((adapter) => adapter.owner)).size,
         Object.keys(profile.adapters).length,
     );
@@ -63,6 +63,7 @@ test("Oxlint uses native plugins rather than the alpha JavaScript bridge", async
     assert.equal(react.jsPlugins, undefined);
     assert.equal(base.options.typeAware, true);
     assert.equal(base.options.typeCheck, false);
+    assert.equal(base.rules["no-duplicate-imports"], undefined);
     assert.ok(react.plugins.includes("react"));
     assert.ok(react.plugins.includes("jsx-a11y"));
     assert.ok(react.plugins.includes("vitest"));
@@ -84,8 +85,12 @@ test("Biome owns formatting and imports without enabling duplicate lint rules", 
 test("migration ledger accounts for every intentional legacy ESLint rule", async () => {
     const migration = await json(".config/rules/javascript-eslint-migration.v1.json");
     assert.deepEqual(Object.keys(migration.legacy_rules).sort(), expectedLegacyRules);
-    for (const replacement of Object.values(migration.legacy_rules)) {
-        assert.match(replacement, /^oxlint:/);
+    assert.equal(
+        migration.legacy_rules["no-duplicate-imports"],
+        "biome:assist/source/organizeImports",
+    );
+    for (const [legacy, replacement] of Object.entries(migration.legacy_rules)) {
+        if (legacy !== "no-duplicate-imports") assert.match(replacement, /^oxlint:/);
     }
     assert.equal(migration.policy.biome_linter, "disabled");
     assert.equal(migration.policy.alpha_oxlint_js_plugins, "forbidden_when_native_plugin_exists");
