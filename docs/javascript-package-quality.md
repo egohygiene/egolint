@@ -21,8 +21,18 @@ duplicated in Oxlint.
 
 The profile does not use Oxlint's JavaScript-plugin bridge. The required React,
 React Hooks, import, jsx-a11y, Vitest, Node, Promise, TypeScript, and react-perf
-plugins are native Oxlint plugins. Experimental React Compiler rules are not
-part of the baseline.
+plugins are native Oxlint plugins.
+
+### React Compiler boundary
+
+Oxlint 1.79 includes React Compiler-powered lint rules in the native React
+plugin. The default Egolint `react-library` profile keeps those experimental
+compiler diagnostics explicitly disabled, even when Oxlint categories would
+otherwise enable them. Traditional React, Hooks, accessibility, testing, and
+performance rules remain enabled.
+
+React Compiler diagnostics belong in a future explicit opt-in profile. They are
+not silently inherited by the baseline package-quality contract.
 
 ## Consumer manifest
 
@@ -54,7 +64,7 @@ Egolint does not infer publication intent from incidental package metadata.
 Local development, editor tasks, hooks, and CI should call the same command:
 
 ```sh
-pnpm run javascript-quality:check -- --workspace "."
+node scripts/javascript-package-quality.mjs --workspace "."
 ```
 
 The Taskfile wrapper is:
@@ -75,11 +85,9 @@ surface:
 {
   "label": "egolint: javascript package quality",
   "type": "process",
-  "command": "pnpm",
+  "command": "node",
   "args": [
-    "run",
-    "javascript-quality:check",
-    "--",
+    "scripts/javascript-package-quality.mjs",
     "--workspace",
     "${workspaceFolder}"
   ],
@@ -97,7 +105,7 @@ replace the canonical Egolint command in CI.
 A pre-commit or pre-push adapter should invoke exactly:
 
 ```sh
-pnpm run javascript-quality:check -- --workspace "."
+node scripts/javascript-package-quality.mjs --workspace "."
 ```
 
 Hooks should not invoke ESLint, Prettier, Biome lint rules, or publint
@@ -154,11 +162,13 @@ profile does not execute either tool.
 The migration is complete only when:
 
 1. the ledger accounts for every intentional legacy rule;
-2. the native Oxlint configs load successfully;
-3. Biome formatting matches the reviewed Prettier conventions that matter to
+2. the native Oxlint configs load successfully and preserve reviewed rule
+   options in both base and React variants;
+3. the React variant proves its compiler-rule firewall;
+4. Biome formatting matches the reviewed Prettier conventions that matter to
    the repository;
-4. consumer fixtures remain clean;
-5. the broken fixture produces normalized findings from Oxlint, Biome, and
+5. consumer fixtures remain clean;
+6. the broken fixture produces normalized findings from Oxlint, Biome, and
    publint.
 
 Removing legacy dependencies is a follow-up cleanup after those compatibility
@@ -168,10 +178,10 @@ signals are established across real consumers.
 
 The disposable React-library fixture proves the complete contract:
 
-1. Oxlint parses TS/TSX and loads native React, hooks, accessibility, import,
+1. Oxlint parses TS/TSX and loads native React, Hooks, accessibility, import,
    test, and performance rules.
-2. oxlint-tsgolint provides type-aware rule support without enabling
-   experimental compiler diagnostics.
+2. oxlint-tsgolint provides type-aware rule support while the React Compiler
+   rule family remains explicitly disabled.
 3. Biome validates deterministic formatting and import organization with its
    linter disabled.
 4. Node's built-in test runner smoke-tests the published JavaScript entrypoint.
