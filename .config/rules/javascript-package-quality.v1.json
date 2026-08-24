@@ -18,7 +18,7 @@
       "version": "2.5.9",
       "owner": "formatting_and_import_organization",
       "linter_enabled": false,
-      "output": "json"
+      "output": "sarif"
     },
     "publint": {
       "version": "0.3.24",
