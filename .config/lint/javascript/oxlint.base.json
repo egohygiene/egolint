@@ -70,7 +70,6 @@
     "typescript/prefer-as-const": "error",
     "typescript/no-floating-promises": "error",
     "typescript/no-misused-promises": "error",
-    "import/no-unresolved": "error",
     "promise/catch-or-return": "warn"
   },
   "overrides": [
