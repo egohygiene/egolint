@@ -59,7 +59,7 @@ jobs:
       - name: Prove publishable React library quality
         run: |
           set -euo pipefail
-          pnpm run javascript-quality:check -- \
+          node scripts/javascript-package-quality.mjs \
             --workspace "tests/fixtures/javascript-package-quality/react-library"
           node --test \
             "tests/fixtures/javascript-package-quality/react-library/runtime.test.mjs"
@@ -83,7 +83,7 @@ jobs:
       - name: Prove private package skips publint
         run: |
           set -euo pipefail
-          pnpm run javascript-quality:check -- \
+          node scripts/javascript-package-quality.mjs \
             --workspace "tests/fixtures/javascript-package-quality/private-app"
           python3 - <<'PY'
           import json
@@ -101,7 +101,7 @@ jobs:
         run: |
           set -euo pipefail
           set +e
-          pnpm run javascript-quality:check -- \
+          node scripts/javascript-package-quality.mjs \
             --workspace "tests/fixtures/javascript-package-quality/broken-library"
           status="$?"
           set -e
