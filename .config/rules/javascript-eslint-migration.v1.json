@@ -18,7 +18,7 @@
   "legacy_rules": {
     "eqeqeq": "oxlint:eqeqeq",
     "no-constant-binary-expression": "oxlint:no-constant-binary-expression",
-    "no-duplicate-imports": "oxlint:no-duplicate-imports",
+    "no-duplicate-imports": "biome:assist/source/organizeImports",
     "no-promise-executor-return": "oxlint:no-promise-executor-return",
     "no-self-compare": "oxlint:no-self-compare",
     "no-template-curly-in-string": "oxlint:no-template-curly-in-string",
