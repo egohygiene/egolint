@@ -1,5 +1,4 @@
 {
-  "$schema": "../../schemas/suppression.schema.json",
   "schema_version": 1,
   "id": "dogfood-rust-inner-attribute-shebang-false-positive",
   "rule": {
