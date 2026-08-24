@@ -6,6 +6,9 @@ version: "3"
 vars:
   ARCHITECTURE_WORKSPACE: '{{default "." .ARCHITECTURE_WORKSPACE}}'
   JAVASCRIPT_QUALITY_WORKSPACE: '{{default "." .JAVASCRIPT_QUALITY_WORKSPACE}}'
+  DOGFOOD_IMAGE: '{{default "egolint-full:dogfood" .DOGFOOD_IMAGE}}'
+  DOGFOOD_EVALUATION_DATE:
+    sh: date -u "+%Y-%m-%d"
 
 includes:
   lint:
@@ -134,3 +137,66 @@ tasks:
       - task: rust:test
       - task: schemas:check
       - task: contracts
+
+  dogfood:image:
+    desc: "Build the current checkout's full Egolint policy image"
+    preconditions:
+      - sh: command -v docker >/dev/null 2>&1
+        msg: "Docker is required for holistic Egolint dogfooding."
+    cmds:
+      - >-
+        docker build
+        --file "Dockerfile.full"
+        --tag "{{.DOGFOOD_IMAGE}}"
+        "."
+
+  dogfood:native:
+    desc: "Consume Egolint's public validate CLI against this repository"
+    cmds:
+      - >-
+        cargo run --quiet --locked --
+        --workspace "."
+        --config ".config/dogfood/egolint.toml"
+        validate
+        --suppression ".config/dogfood/rust-inner-attribute.suppression.json"
+        --evaluation-date "{{.DOGFOOD_EVALUATION_DATE}}"
+
+  dogfood:architecture:
+    desc: "Run Egolint's architecture adapter with bounded self-consumer debt"
+    preconditions:
+      - sh: command -v pnpm >/dev/null 2>&1
+        msg: "pnpm is required for the dependency-cruiser adapter."
+    cmds:
+      - >-
+        cargo run --quiet --locked --bin egolint-architecture --
+        --workspace "."
+        --overlay ".config/dogfood/javascript-architecture.overlay.json"
+        --evaluation-date "{{.DOGFOOD_EVALUATION_DATE}}"
+
+  dogfood:javascript:
+    desc: "Consume Egolint's JS architecture and package-quality profiles against itself"
+    cmds:
+      - task: dogfood:architecture
+      - task: javascript-quality:check
+        vars:
+          JAVASCRIPT_QUALITY_WORKSPACE: "."
+
+  dogfood:holistic:
+    desc: "Run the public Egolint holistic lint path using the current checkout's full image"
+    deps:
+      - dogfood:image
+    cmds:
+      - >-
+        cargo run --quiet --locked --
+        --workspace "."
+        --config ".config/dogfood/egolint.toml"
+        lint
+        --suppression ".config/dogfood/rust-inner-attribute.suppression.json"
+        --evaluation-date "{{.DOGFOOD_EVALUATION_DATE}}"
+
+  dogfood:
+    desc: "Dogfood Egolint as its own reference consumer"
+    cmds:
+      - task: dogfood:native
+      - task: dogfood:javascript
+      - task: dogfood:holistic

@@ -1,0 +1,6 @@
+config-version = 1
+profile = "holistic"
+runtime = "docker"
+image = "egolint-full:dogfood"
+pull-policy = "never"
+network = "none"

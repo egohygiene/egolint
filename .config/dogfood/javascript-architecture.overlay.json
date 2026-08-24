@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "profile_id": "javascript-typescript-architecture",
+  "add_rules": [],
+  "exceptions": [
+    {
+      "id": "dogfood-publint-package-export",
+      "rule_id": "not-to-unresolvable",
+      "owner": "egohygiene/egolint",
+      "reason": "Temporary exact-edge exception for issue #21 while the dependency-cruiser adapter is updated to resolve Node package exports generically.",
+      "expires_on": "2026-09-07",
+      "from": "scripts/javascript-package-quality.mjs",
+      "to": "publint"
+    },
+    {
+      "id": "dogfood-publint-utils-package-export",
+      "rule_id": "not-to-unresolvable",
+      "owner": "egohygiene/egolint",
+      "reason": "Temporary exact-edge exception for issue #21 while the dependency-cruiser adapter is updated to resolve Node package subpath exports generically.",
+      "expires_on": "2026-09-07",
+      "from": "scripts/javascript-package-quality.mjs",
+      "to": "publint/utils"
+    }
+  ]
+}
