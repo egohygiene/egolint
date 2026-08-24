@@ -9,6 +9,7 @@
   },
   "roots": [
     "src",
+    "scripts",
     "apps",
     "packages"
   ],
@@ -42,7 +43,7 @@
       "severity": "error",
       "description": "Production JavaScript and TypeScript dependency cycles are forbidden",
       "from": {
-        "path": ["^(src|apps|packages)/"],
+        "path": ["^(src|scripts|apps|packages)/"],
         "path_not": ["(^|/)(test|tests|fixtures)(/|$)"]
       },
       "to": {
@@ -67,7 +68,7 @@
       "severity": "error",
       "description": "Production source may not import generated, coverage, build, or distribution internals",
       "from": {
-        "path": ["^(src|apps|packages)/"],
+        "path": ["^(src|scripts|apps|packages)/"],
         "path_not": ["(^|/)(test|tests|fixtures)(/|$)"]
       },
       "to": {
@@ -80,7 +81,7 @@
       "severity": "warning",
       "description": "Unreferenced JavaScript/TypeScript modules require review",
       "from": {
-        "path": ["^(src|apps|packages)/"],
+        "path": ["^(src|scripts|apps|packages)/"],
         "path_not": ["(?:^|/)(index|main|entry|vite\\.config|vitest\\.config)\\.[cm]?[jt]sx?$"],
         "orphan": true
       },
@@ -116,7 +117,7 @@
       "severity": "error",
       "description": "Production modules may not depend on tests, specs, or fixtures",
       "from": {
-        "path": ["^(src|apps|packages)/"],
+        "path": ["^(src|scripts|apps|packages)/"],
         "path_not": ["(^|/)(test|tests|spec|fixtures)(/|$)"]
       },
       "to": {
