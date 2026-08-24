@@ -158,6 +158,8 @@ tasks:
         --workspace "."
         --config ".config/dogfood/egolint.toml"
         validate
+        --suppression ".config/dogfood/rust-inner-attribute.suppression.json"
+        --evaluation-date "{{.DOGFOOD_EVALUATION_DATE}}"
 
   dogfood:javascript:
     desc: "Consume Egolint's JS architecture and package-quality profiles against itself"
@@ -180,6 +182,8 @@ tasks:
         --workspace "."
         --config ".config/dogfood/egolint.toml"
         lint
+        --suppression ".config/dogfood/rust-inner-attribute.suppression.json"
+        --evaluation-date "{{.DOGFOOD_EVALUATION_DATE}}"
 
   dogfood:
     desc: "Dogfood Egolint as its own reference consumer"
