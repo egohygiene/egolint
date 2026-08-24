@@ -68,11 +68,13 @@ tasks:
   javascript-quality:check:
     desc: "Run the canonical JavaScript/TypeScript package-quality profile"
     preconditions:
+      - sh: command -v node >/dev/null 2>&1
+        msg: "Node.js is required for the JavaScript package-quality adapter."
       - sh: command -v pnpm >/dev/null 2>&1
         msg: "pnpm is required for JavaScript package-quality adapters."
     cmds:
       - >-
-        pnpm run javascript-quality:check --
+        node scripts/javascript-package-quality.mjs
         --workspace "{{.JAVASCRIPT_QUALITY_WORKSPACE}}"
 
   javascript-quality:test:
