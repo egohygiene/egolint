@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/suppression.schema.json",
+  "schema_version": 1,
+  "id": "dogfood-rust-inner-attribute-shebang-false-positive",
+  "rule": {
+    "tool_id": "EGOLINT_PORTABILITY",
+    "rule_id": "EGO-PORT-EXEC-001"
+  },
+  "owner": "egohygiene/egolint",
+  "justification": "Temporary exact-path suppression for issue #20: Rust crate-level inner attributes begin with #![...] but are not interpreter shebangs. The underlying detector must be fixed without weakening real shebang executable-mode enforcement.",
+  "expires_on": "2026-09-07",
+  "state": "unmatched",
+  "path": "tests/fixtures/clippy/src/lib.rs",
+  "fingerprint": null,
+  "evidence": [
+    {
+      "schema_version": 1,
+      "kind": "fixture",
+      "path": "tests/fixtures/clippy/src/lib.rs",
+      "sha256": null,
+      "description": "Rust fixture begins with #![forbid(unsafe_code)] and is correctly tracked as a non-executable source file. See egohygiene/egolint#20."
+    }
+  ]
+}
