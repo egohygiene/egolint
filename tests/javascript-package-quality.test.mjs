@@ -41,7 +41,6 @@ const expectedLegacyRules = [
 ].sort();
 
 const reactCompilerRules = [
-    "react/react-compiler",
     "react/error-boundaries",
     "react/globals",
     "react/immutability",
@@ -102,6 +101,7 @@ test("React library preserves base rule semantics and disables compiler diagnost
     const react = await json(".config/lint/javascript/oxlint.react-library.json");
     const migration = await json(".config/rules/javascript-eslint-migration.v1.json");
 
+    assert.equal(reactCompilerRules.length, 22);
     for (const replacement of Object.values(migration.legacy_rules)) {
         if (!replacement.startsWith("oxlint:")) continue;
         const rule = replacement.slice("oxlint:".length);
