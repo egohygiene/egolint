@@ -10,7 +10,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
-use tempfile::NamedTempFile;
+use tempfile::Builder;
 
 use crate::contracts::{
     CONTRACT_VERSION, Finding, RuleIdentity, RuleOwnership, Severity, SourceLocation,
@@ -630,10 +630,14 @@ fn run_dependency_cruiser(
     config: &Value,
     output_type: &str,
 ) -> Result<String> {
-    let mut config_file = NamedTempFile::new().map_err(|source| EgolintError::Filesystem {
-        path: PathBuf::from("temporary-dependency-cruiser-config.json"),
-        source,
-    })?;
+    let mut config_file = Builder::new()
+        .prefix("egolint-dependency-cruiser-")
+        .suffix(".json")
+        .tempfile()
+        .map_err(|source| EgolintError::Filesystem {
+            path: PathBuf::from("temporary-dependency-cruiser-config.json"),
+            source,
+        })?;
     serde_json::to_writer_pretty(&mut config_file, config)?;
     config_file
         .flush()
@@ -659,17 +663,23 @@ fn run_dependency_cruiser(
             EgolintError::RuntimeExecution(format!("could not start dependency-cruiser: {error}"))
         })?;
     let code = output.status.code().unwrap_or(exit_code::RUNTIME);
+    let stderr = bounded_text(&String::from_utf8_lossy(&output.stderr));
     if !matches!(code, 0 | 1) {
         return Err(EgolintError::RuntimeExecution(format!(
-            "dependency-cruiser exited with {code}: {}",
-            bounded_text(&String::from_utf8_lossy(&output.stderr))
+            "dependency-cruiser exited with {code}: {stderr}"
         )));
     }
-    String::from_utf8(output.stdout).map_err(|error| {
+    let stdout = String::from_utf8(output.stdout).map_err(|error| {
         EgolintError::RuntimeExecution(format!(
             "dependency-cruiser emitted non-UTF-8 output: {error}"
         ))
-    })
+    })?;
+    if stdout.trim().is_empty() {
+        return Err(EgolintError::RuntimeExecution(format!(
+            "dependency-cruiser produced no {output_type} output (exit {code}): {stderr}"
+        )));
+    }
+    Ok(stdout)
 }
 
 fn normalize_violations(

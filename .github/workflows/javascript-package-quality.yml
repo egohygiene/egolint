@@ -1,0 +1,128 @@
+---
+name: JavaScript package quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "javascript-package-quality-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  package-quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+
+      - name: Install locked package-quality adapters
+        run: |
+          set -euo pipefail
+          corepack enable pnpm
+          pnpm install --frozen-lockfile --ignore-scripts
+          test "$(pnpm exec oxlint --version | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)" = "1.79.0"
+          test "$(pnpm exec biome --version | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)" = "2.5.9"
+
+      - name: Validate policy and migration contracts
+        run: pnpm run javascript-quality:test
+
+      - name: Validate Oxlint configuration loading
+        run: |
+          set -euo pipefail
+          pnpm exec oxlint \
+            --config ".config/lint/javascript/oxlint.base.json" \
+            --print-config \
+            "tests/fixtures/javascript-package-quality/private-app/src/main.ts" \
+            | tee /tmp/oxlint-base.json
+          pnpm exec oxlint \
+            --config ".config/lint/javascript/oxlint.react-library.json" \
+            --print-config \
+            "tests/fixtures/javascript-package-quality/react-library/src/Button.tsx" \
+            | tee /tmp/oxlint-react-library.json
+          test -s /tmp/oxlint-base.json
+          test -s /tmp/oxlint-react-library.json
+
+      - name: Prove publishable React library quality
+        run: |
+          set -euo pipefail
+          node scripts/javascript-package-quality.mjs \
+            --workspace "tests/fixtures/javascript-package-quality/react-library"
+          node --test \
+            "tests/fixtures/javascript-package-quality/react-library/runtime.test.mjs"
+          cargo run --quiet --locked --bin egolint-architecture -- \
+            --workspace "tests/fixtures/javascript-package-quality/react-library" \
+            --evaluation-date "2026-08-23"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path(
+              "tests/fixtures/javascript-package-quality/react-library/.reports/egolint/javascript-package-quality.json"
+          ).read_text())
+          states = {item["tool_id"]: item["status"] for item in report["tool_results"]}
+          assert states["OXLINT"] in {"passed", "passed_with_warnings"}, states
+          assert states["BIOME"] == "passed", states
+          assert states["PUBLINT"] in {"passed", "passed_with_warnings"}, states
+          assert report["summary"]["errors"] == 0, report["summary"]
+          PY
+
+      - name: Prove private package skips publint
+        run: |
+          set -euo pipefail
+          node scripts/javascript-package-quality.mjs \
+            --workspace "tests/fixtures/javascript-package-quality/private-app"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path(
+              "tests/fixtures/javascript-package-quality/private-app/.reports/egolint/javascript-package-quality.json"
+          ).read_text())
+          states = {item["tool_id"]: item["status"] for item in report["tool_results"]}
+          assert states["PUBLINT"] == "not_applicable", states
+          assert report["summary"]["not_applicable_tools"] == ["PUBLINT"]
+          PY
+
+      - name: Prove all adapter findings normalize together
+        run: |
+          set -euo pipefail
+          set +e
+          node scripts/javascript-package-quality.mjs \
+            --workspace "tests/fixtures/javascript-package-quality/broken-library"
+          status="$?"
+          set -e
+          test "$status" -eq 1
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("tests/fixtures/javascript-package-quality/broken-library/.reports/egolint")
+          report = json.loads((root / "javascript-package-quality.json").read_text())
+          tools = {item["finding"]["rule"]["tool_id"] for item in report["findings"]}
+          assert {"OXLINT", "BIOME", "PUBLINT"}.issubset(tools), tools
+          assert any(
+              item["source_tool"] == "biome" and item["fix_safety"] == "safe"
+              for item in report["findings"]
+          )
+          assert report["summary"]["errors"] > 0, report["summary"]
+
+          sarif = json.loads((root / "javascript-package-quality.sarif").read_text())
+          assert sarif["version"] == "2.1.0"
+          assert sarif["runs"][0]["tool"]["driver"]["name"] == "Egolint"
+          sarif_tools = {result["ruleId"].split(":", 1)[0] for result in sarif["runs"][0]["results"]}
+          assert {"OXLINT", "BIOME", "PUBLINT"}.issubset(sarif_tools), sarif_tools
+          PY

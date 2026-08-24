@@ -1,0 +1,7 @@
+{
+  "$schema": "../../../../schemas/javascript-package-quality-manifest.schema.json",
+  "schema_version": 1,
+  "profile": "react-library",
+  "package_path": ".",
+  "publication": "npm"
+}

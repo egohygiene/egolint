@@ -1,0 +1,21 @@
+{
+  "name": "@egohygiene/fixture-react-library",
+  "version": "1.0.0",
+  "description": "Disposable Egolint React library package-quality fixture.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=20"
+  }
+}

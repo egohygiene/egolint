@@ -5,6 +5,7 @@ version: "3"
 
 vars:
   ARCHITECTURE_WORKSPACE: '{{default "." .ARCHITECTURE_WORKSPACE}}'
+  JAVASCRIPT_QUALITY_WORKSPACE: '{{default "." .JAVASCRIPT_QUALITY_WORKSPACE}}'
 
 includes:
   lint:
@@ -64,11 +65,29 @@ tasks:
         --evaluation-date "{{.EVALUATION_DATE}}"
         --graph ".reports/egolint/javascript-architecture.dot"
 
+  javascript-quality:check:
+    desc: "Run the canonical JavaScript/TypeScript package-quality profile"
+    preconditions:
+      - sh: command -v node >/dev/null 2>&1
+        msg: "Node.js is required for the JavaScript package-quality adapter."
+      - sh: command -v pnpm >/dev/null 2>&1
+        msg: "pnpm is required for JavaScript package-quality adapters."
+    cmds:
+      - >-
+        node scripts/javascript-package-quality.mjs
+        --workspace "{{.JAVASCRIPT_QUALITY_WORKSPACE}}"
+
+  javascript-quality:test:
+    desc: "Validate JavaScript package-quality policy and migration contracts"
+    cmds:
+      - node --test tests/javascript-package-quality.test.mjs
+
   contracts:
     desc: "Validate imported MegaLinter and complementary-tool contracts"
     cmds:
       - task: lint:contracts
       - task: complementary:contracts
+      - task: javascript-quality:test
 
   schemas:write:
     desc: "Regenerate checked-in JSON Schemas from the Rust types"

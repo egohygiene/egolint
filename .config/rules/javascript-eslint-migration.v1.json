@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "source": {
+    "eslint": ".config/lint/javascript/eslint.config.mjs",
+    "prettier": ".config/lint/javascript/prettier.config.mjs"
+  },
+  "destination": {
+    "semantic_lint": "oxlint@1.79.0",
+    "formatting": "@biomejs/biome@2.5.9"
+  },
+  "policy": {
+    "eslint_execution": "compatibility_only",
+    "prettier_execution": "compatibility_only",
+    "biome_linter": "disabled",
+    "alpha_oxlint_js_plugins": "forbidden_when_native_plugin_exists",
+    "react_compiler_rules": "deferred_experimental"
+  },
+  "legacy_rules": {
+    "eqeqeq": "oxlint:eqeqeq",
+    "no-constant-binary-expression": "oxlint:no-constant-binary-expression",
+    "no-duplicate-imports": "biome:assist/source/organizeImports",
+    "no-promise-executor-return": "oxlint:no-promise-executor-return",
+    "no-self-compare": "oxlint:no-self-compare",
+    "no-template-curly-in-string": "oxlint:no-template-curly-in-string",
+    "no-unmodified-loop-condition": "oxlint:no-unmodified-loop-condition",
+    "no-unreachable-loop": "oxlint:no-unreachable-loop",
+    "no-unused-private-class-members": "oxlint:no-unused-private-class-members",
+    "no-use-before-define": "oxlint:no-use-before-define",
+    "no-useless-assignment": "oxlint:no-useless-assignment",
+    "object-shorthand": "oxlint:object-shorthand",
+    "prefer-const": "oxlint:prefer-const",
+    "prefer-object-has-own": "oxlint:prefer-object-has-own",
+    "prefer-promise-reject-errors": "oxlint:prefer-promise-reject-errors",
+    "prefer-template": "oxlint:prefer-template",
+    "@typescript-eslint/consistent-type-exports": "oxlint:typescript/consistent-type-exports",
+    "@typescript-eslint/consistent-type-imports": "oxlint:typescript/consistent-type-imports",
+    "@typescript-eslint/no-explicit-any": "oxlint:typescript/no-explicit-any",
+    "@typescript-eslint/no-import-type-side-effects": "oxlint:typescript/no-import-type-side-effects",
+    "@typescript-eslint/no-unused-vars": "oxlint:typescript/no-unused-vars",
+    "@typescript-eslint/prefer-as-const": "oxlint:typescript/prefer-as-const",
+    "react/jsx-boolean-value": "oxlint:react/jsx-boolean-value",
+    "react/jsx-key": "oxlint:react/jsx-key",
+    "react/jsx-no-comment-textnodes": "oxlint:react/jsx-no-comment-textnodes",
+    "react/jsx-no-duplicate-props": "oxlint:react/jsx-no-duplicate-props",
+    "react/jsx-no-target-blank": "oxlint:react/jsx-no-target-blank",
+    "react/no-array-index-key": "oxlint:react/no-array-index-key",
+    "react/no-danger": "oxlint:react/no-danger",
+    "react/no-unknown-property": "oxlint:react/no-unknown-property",
+    "react/self-closing-comp": "oxlint:react/self-closing-comp"
+  },
+  "formatter": {
+    "owner": "biome",
+    "semantic_source": ".config/lint/javascript/prettier.config.mjs",
+    "target": ".config/lint/javascript/biome.package-quality.json",
+    "reviewed_options": [
+      "printWidth=100",
+      "tabWidth=4",
+      "useTabs=false",
+      "semi=true",
+      "singleQuote=false",
+      "jsxSingleQuote=false",
+      "trailingComma=all",
+      "arrowParens=always",
+      "bracketSpacing=true",
+      "bracketSameLine=false",
+      "endOfLine=lf",
+      "json.tabWidth=2",
+      "json.printWidth=80"
+    ]
+  }
+}

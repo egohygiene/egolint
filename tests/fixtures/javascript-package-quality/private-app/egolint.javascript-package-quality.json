@@ -1,0 +1,7 @@
+{
+  "$schema": "../../../../schemas/javascript-package-quality-manifest.schema.json",
+  "schema_version": 1,
+  "profile": "base",
+  "package_path": ".",
+  "publication": "private"
+}

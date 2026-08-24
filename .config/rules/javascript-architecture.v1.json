@@ -81,7 +81,7 @@
       "description": "Unreferenced JavaScript/TypeScript modules require review",
       "from": {
         "path": ["^(src|apps|packages)/"],
-        "path_not": ["(?:^|/)(index|main|entry|vite\.config|vitest\.config)\\.[cm]?[jt]sx?$"],
+        "path_not": ["(?:^|/)(index|main|entry|vite\\.config|vitest\\.config)\\.[cm]?[jt]sx?$"],
         "orphan": true
       },
       "to": {},

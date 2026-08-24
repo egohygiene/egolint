@@ -1,0 +1,156 @@
+{
+  "$schema": "../../../node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "plugins": [
+    "eslint",
+    "typescript",
+    "oxc",
+    "import",
+    "promise",
+    "node",
+    "react",
+    "jsx-a11y",
+    "vitest",
+    "react-perf"
+  ],
+  "env": {
+    "builtin": true,
+    "browser": true,
+    "node": true,
+    "vitest": true
+  },
+  "options": {
+    "typeAware": true,
+    "typeCheck": false,
+    "denyWarnings": false,
+    "reportUnusedDisableDirectives": "warn",
+    "respectEslintDisableDirectives": true
+  },
+  "rules": {
+    "eqeqeq": ["error", "always"],
+    "no-constant-binary-expression": "error",
+    "no-promise-executor-return": "error",
+    "no-self-compare": "error",
+    "no-template-curly-in-string": "error",
+    "no-unmodified-loop-condition": "error",
+    "no-unreachable-loop": "error",
+    "no-unused-private-class-members": "error",
+    "no-use-before-define": [
+      "error",
+      {
+        "functions": false,
+        "classes": true,
+        "variables": true
+      }
+    ],
+    "no-useless-assignment": "error",
+    "object-shorthand": ["error", "always"],
+    "prefer-const": "error",
+    "prefer-object-has-own": "error",
+    "prefer-promise-reject-errors": "error",
+    "prefer-template": "error",
+    "typescript/consistent-type-exports": "error",
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "separate-type-imports"
+      }
+    ],
+    "typescript/no-explicit-any": "warn",
+    "typescript/no-import-type-side-effects": "error",
+    "typescript/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "caughtErrors": "all",
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_",
+        "ignoreRestSiblings": true,
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "typescript/prefer-as-const": "error",
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": "error",
+    "promise/catch-or-return": "warn",
+
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "error",
+    "react/jsx-boolean-value": ["error", "never"],
+    "react/jsx-key": "error",
+    "react/jsx-no-comment-textnodes": "error",
+    "react/jsx-no-duplicate-props": "error",
+    "react/jsx-no-target-blank": [
+      "error",
+      {
+        "allowReferrer": false,
+        "enforceDynamicLinks": "always"
+      }
+    ],
+    "react/no-array-index-key": "warn",
+    "react/no-danger": "warn",
+    "react/no-unknown-property": "error",
+    "react/react-in-jsx-scope": "off",
+    "react/self-closing-comp": [
+      "error",
+      {
+        "component": true,
+        "html": true
+      }
+    ],
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/anchor-has-content": "error",
+    "jsx-a11y/label-has-associated-control": "error",
+    "jsx-a11y/no-redundant-roles": "warn",
+    "vitest/expect-expect": "warn",
+    "react-perf/jsx-no-new-array-as-prop": "warn",
+    "react-perf/jsx-no-new-function-as-prop": "warn",
+    "react-perf/jsx-no-new-object-as-prop": "warn",
+
+    "react/error-boundaries": "off",
+    "react/globals": "off",
+    "react/immutability": "off",
+    "react/incompatible-library": "off",
+    "react/preserve-manual-memoization": "off",
+    "react/purity": "off",
+    "react/refs": "off",
+    "react/set-state-in-effect": "off",
+    "react/set-state-in-render": "off",
+    "react/static-components": "off",
+    "react/use-memo": "off",
+    "react/unsupported-syntax": "off",
+    "react/void-use-memo": "off",
+    "react/no-deriving-state-in-effects": "off",
+    "react/invariant": "off",
+    "react/rule-suppression": "off",
+    "react/syntax": "off",
+    "react/todo": "off",
+    "react/capitalized-calls": "off",
+    "react/exhaustive-effect-dependencies": "off",
+    "react/hooks": "off",
+    "react/memo-dependencies": "off"
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.{test,spec}.{js,jsx,ts,tsx}",
+        "**/test/**/*.{js,jsx,ts,tsx}",
+        "**/tests/**/*.{js,jsx,ts,tsx}",
+        "**/__tests__/**/*.{js,jsx,ts,tsx}"
+      ],
+      "env": {
+        "builtin": true,
+        "node": true,
+        "vitest": true,
+        "jest": true
+      },
+      "rules": {
+        "typescript/no-explicit-any": "off"
+      }
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "$schema": "../../../node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "plugins": [
+    "eslint",
+    "typescript",
+    "oxc",
+    "import",
+    "promise",
+    "node"
+  ],
+  "env": {
+    "builtin": true,
+    "node": true
+  },
+  "options": {
+    "typeAware": true,
+    "typeCheck": false,
+    "denyWarnings": false,
+    "reportUnusedDisableDirectives": "warn",
+    "respectEslintDisableDirectives": true
+  },
+  "rules": {
+    "eqeqeq": ["error", "always"],
+    "no-constant-binary-expression": "error",
+    "no-promise-executor-return": "error",
+    "no-self-compare": "error",
+    "no-template-curly-in-string": "error",
+    "no-unmodified-loop-condition": "error",
+    "no-unreachable-loop": "error",
+    "no-unused-private-class-members": "error",
+    "no-use-before-define": [
+      "error",
+      {
+        "functions": false,
+        "classes": true,
+        "variables": true
+      }
+    ],
+    "no-useless-assignment": "error",
+    "object-shorthand": ["error", "always"],
+    "prefer-const": "error",
+    "prefer-object-has-own": "error",
+    "prefer-promise-reject-errors": "error",
+    "prefer-template": "error",
+    "typescript/consistent-type-exports": "error",
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "separate-type-imports"
+      }
+    ],
+    "typescript/no-explicit-any": "warn",
+    "typescript/no-import-type-side-effects": "error",
+    "typescript/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "caughtErrors": "all",
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_",
+        "ignoreRestSiblings": true,
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "typescript/prefer-as-const": "error",
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": "error",
+    "promise/catch-or-return": "warn"
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.{test,spec}.{js,jsx,ts,tsx}",
+        "**/test/**/*.{js,jsx,ts,tsx}",
+        "**/tests/**/*.{js,jsx,ts,tsx}",
+        "**/__tests__/**/*.{js,jsx,ts,tsx}"
+      ],
+      "env": {
+        "builtin": true,
+        "node": true,
+        "vitest": true,
+        "jest": true
+      },
+      "rules": {
+        "typescript/no-explicit-any": "off"
+      }
+    }
+  ]
+}

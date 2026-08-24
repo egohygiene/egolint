@@ -1,0 +1,63 @@
+{
+  "$schema": "../../schemas/javascript-package-quality-profile.schema.json",
+  "schema_version": 1,
+  "id": "egolint/javascript-package-quality",
+  "version": "1.0.0",
+  "policy_source": ".config/rules/javascript-package-quality.v1.json",
+  "adapters": {
+    "oxlint": {
+      "version": "1.79.0",
+      "owner": "semantic_lint",
+      "output": "json"
+    },
+    "oxlint_tsgolint": {
+      "version": "7.0.2001",
+      "owner": "type_aware_semantic_lint"
+    },
+    "biome": {
+      "version": "2.5.9",
+      "owner": "formatting_and_import_organization",
+      "linter_enabled": false,
+      "output": "sarif"
+    },
+    "publint": {
+      "version": "0.3.24",
+      "owner": "npm_publishability",
+      "applicability": "manifest_publication_npm"
+    }
+  },
+  "variants": {
+    "base": {
+      "oxlint_config": ".config/lint/javascript/oxlint.base.json",
+      "biome_config": ".config/lint/javascript/biome.package-quality.json",
+      "capabilities": [
+        "javascript",
+        "typescript",
+        "imports",
+        "node",
+        "promises",
+        "type-aware"
+      ]
+    },
+    "react-library": {
+      "oxlint_config": ".config/lint/javascript/oxlint.react-library.json",
+      "biome_config": ".config/lint/javascript/biome.package-quality.json",
+      "capabilities": [
+        "javascript",
+        "typescript",
+        "imports",
+        "react",
+        "react-hooks",
+        "jsx-a11y",
+        "react-perf",
+        "vitest",
+        "type-aware"
+      ]
+    }
+  },
+  "fix_policy": {
+    "default_mode": "check",
+    "safe_fixes": "explicit",
+    "dangerous_fixes": "never_automatic"
+  }
+}
