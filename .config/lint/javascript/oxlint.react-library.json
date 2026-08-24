@@ -1,0 +1,44 @@
+{
+  "$schema": "../../../node_modules/oxlint/configuration_schema.json",
+  "extends": [
+    "./oxlint.base.json"
+  ],
+  "plugins": [
+    "eslint",
+    "typescript",
+    "oxc",
+    "import",
+    "promise",
+    "node",
+    "react",
+    "jsx-a11y",
+    "vitest",
+    "react-perf"
+  ],
+  "env": {
+    "builtin": true,
+    "browser": true,
+    "node": true,
+    "vitest": true
+  },
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "error",
+    "react/jsx-key": "error",
+    "react/jsx-no-comment-textnodes": "error",
+    "react/jsx-no-duplicate-props": "error",
+    "react/jsx-no-target-blank": "error",
+    "react/no-array-index-key": "warn",
+    "react/no-danger": "warn",
+    "react/no-unknown-property": "error",
+    "react/self-closing-comp": "error",
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/anchor-has-content": "error",
+    "jsx-a11y/label-has-associated-control": "error",
+    "jsx-a11y/no-redundant-roles": "warn",
+    "vitest/expect-expect": "warn",
+    "react-perf/jsx-no-new-array-as-prop": "warn",
+    "react-perf/jsx-no-new-function-as-prop": "warn",
+    "react-perf/jsx-no-new-object-as-prop": "warn"
+  }
+}
