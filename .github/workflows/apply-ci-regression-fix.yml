@@ -1,0 +1,257 @@
+---
+name: Apply CI regression fixes
+
+on:
+  push:
+    branches:
+      - fix/ci-regressions-20260824
+    paths:
+      - .github/workflows/apply-ci-regression-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out the fix branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: fix/ci-regressions-20260824
+
+      - name: Refactor architecture normalization and repair image context
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          source_path = Path("src/javascript_architecture.rs")
+          source = source_path.read_text()
+
+          old_call = """    let evaluated_exceptions =
+              apply_architecture_exceptions(&mut findings, &exceptions, options.evaluation_date)?;
+          """
+          new_call = """    let evaluated_exceptions =
+              apply_architecture_exceptions(&mut findings, &exceptions, options.evaluation_date);
+          """
+          if source.count(old_call) != 1:
+              raise SystemExit("expected one fallible exception-evaluation call")
+          source = source.replace(old_call, new_call)
+
+          start = source.index("fn normalize_violations(")
+          end = source.index("fn build_report(", start)
+          replacement = r'''fn normalize_violations(
+              raw_report: &str,
+              rules: &[ArchitectureRule],
+              profile_path: &Path,
+              adapter_version: &str,
+          ) -> Result<Vec<ArchitectureFinding>> {
+              let document: Value = serde_json::from_str(raw_report)?;
+              let violations = document
+                  .pointer("/summary/violations")
+                  .and_then(Value::as_array)
+                  .ok_or_else(|| {
+                      EgolintError::RuntimeExecution(
+                          "dependency-cruiser JSON omitted summary.violations".to_owned(),
+                      )
+                  })?;
+              let rules_by_id = rules
+                  .iter()
+                  .map(|rule| (rule.id.as_str(), rule))
+                  .collect::<BTreeMap<_, _>>();
+              violations
+                  .iter()
+                  .map(|violation| {
+                      normalize_violation(violation, &rules_by_id, profile_path, adapter_version)
+                  })
+                  .collect()
+          }
+
+          fn normalize_violation(
+              violation: &Value,
+              rules_by_id: &BTreeMap<&str, &ArchitectureRule>,
+              profile_path: &Path,
+              adapter_version: &str,
+          ) -> Result<ArchitectureFinding> {
+              let rule_id = violation
+                  .pointer("/rule/name")
+                  .and_then(Value::as_str)
+                  .unwrap_or("unnamed");
+              let Some(rule) = rules_by_id.get(rule_id) else {
+                  return Err(EgolintError::RuntimeExecution(format!(
+                      "dependency-cruiser returned undeclared rule {rule_id}"
+                  )));
+              };
+              let source = violation
+                  .get("from")
+                  .and_then(Value::as_str)
+                  .unwrap_or("unknown-module");
+              let target = violation
+                  .get("to")
+                  .and_then(Value::as_str)
+                  .map(str::to_owned);
+              let dependency_path = violation
+                  .get("cycle")
+                  .and_then(Value::as_array)
+                  .map(|cycle| {
+                      cycle
+                          .iter()
+                          .filter_map(Value::as_str)
+                          .map(str::to_owned)
+                          .collect::<Vec<_>>()
+                  })
+                  .unwrap_or_default();
+              let fingerprint = stable_hash(&[
+                  rule_id,
+                  source,
+                  target.as_deref().unwrap_or(""),
+                  &dependency_path.join("->"),
+              ]);
+              let id = format!("architecture-{}", &fingerprint[..16]);
+              let message = target.as_ref().map_or_else(
+                  || format!("{}: {source}. {}", rule.description, rule.remediation),
+                  |target| {
+                      format!(
+                          "{}: {source} -> {target}. {}",
+                          rule.description, rule.remediation
+                      )
+                  },
+              );
+              let location = if source == "unknown-module" {
+                  None
+              } else {
+                  Some(SourceLocation {
+                      path: PathBuf::from(source),
+                      start_line: None,
+                      start_column: None,
+                      end_line: None,
+                      end_column: None,
+                  })
+              };
+              let architecture_finding = ArchitectureFinding {
+                  finding: Finding {
+                      schema_version: CONTRACT_VERSION,
+                      id,
+                      rule: RuleIdentity {
+                          tool_id: ARCHITECTURE_TOOL_ID.to_owned(),
+                          rule_id: rule.id.clone(),
+                      },
+                      severity: match rule.severity {
+                          ArchitectureSeverity::Info => Severity::Info,
+                          ArchitectureSeverity::Warning => Severity::Warning,
+                          ArchitectureSeverity::Error => Severity::Error,
+                      },
+                      message,
+                      location,
+                      ownership: RuleOwnership {
+                          owner: "egohygiene/egolint".to_owned(),
+                          policy_source: profile_path.display().to_string(),
+                          configuration_path: Some(profile_path.to_path_buf()),
+                      },
+                      fingerprint: Some(fingerprint),
+                      evidence: Vec::new(),
+                      suppressed_by: None,
+                  },
+                  source_module: source.to_owned(),
+                  target_module: target,
+                  dependency_path,
+                  dependency_cruiser_version: adapter_version.to_owned(),
+                  remediation: rule.remediation.clone(),
+              };
+              architecture_finding.finding.validate()?;
+              Ok(architecture_finding)
+          }
+
+          fn apply_architecture_exceptions(
+              findings: &mut [ArchitectureFinding],
+              exceptions: &[ArchitectureException],
+              evaluation_date: &str,
+          ) -> Vec<EvaluatedArchitectureException> {
+              let mut evaluated = Vec::new();
+              for exception in exceptions {
+                  let expired = evaluation_date > exception.expires_on.as_str();
+                  let mut matched = false;
+                  if !expired {
+                      for finding in findings.iter_mut() {
+                          if finding.finding.rule.rule_id != exception.rule_id {
+                              continue;
+                          }
+                          if exception
+                              .from
+                              .as_ref()
+                              .is_some_and(|from| from != &finding.source_module)
+                          {
+                              continue;
+                          }
+                          if exception
+                              .to
+                              .as_ref()
+                              .is_some_and(|to| finding.target_module.as_ref() != Some(to))
+                          {
+                              continue;
+                          }
+                          finding.finding.suppressed_by = Some(exception.id.clone());
+                          matched = true;
+                      }
+                  }
+                  evaluated.push(EvaluatedArchitectureException {
+                      exception: exception.clone(),
+                      state: if expired {
+                          ArchitectureExceptionState::Expired
+                      } else if matched {
+                          ArchitectureExceptionState::Applied
+                      } else {
+                          ArchitectureExceptionState::Unmatched
+                      },
+                  });
+              }
+              evaluated
+          }
+
+          '''
+          source = source[:start] + replacement + source[end:]
+
+          old_test = '''        let evaluated = apply_architecture_exceptions(&mut findings, &[exception], "2026-08-23")
+              .expect("evaluate exception");'''
+          new_test = '''        let evaluated =
+              apply_architecture_exceptions(&mut findings, &[exception], "2026-08-23");'''
+          if source.count(old_test) != 2:
+              raise SystemExit("expected two exception-evaluation test calls")
+          source = source.replace(old_test, new_test)
+          source_path.write_text(source)
+
+          dockerfile_path = Path("Dockerfile")
+          dockerfile = dockerfile_path.read_text()
+          anchor = "COPY .config/rules/portability.toml .config/rules/portability.toml\n"
+          addition = (
+              anchor
+              + "COPY .config/rules/javascript-architecture.v1.json "
+              + ".config/rules/javascript-architecture.v1.json\n"
+          )
+          if dockerfile.count(anchor) != 1:
+              raise SystemExit("expected one portability-profile COPY instruction")
+          if "COPY .config/rules/javascript-architecture.v1.json" not in dockerfile:
+              dockerfile = dockerfile.replace(anchor, addition)
+          dockerfile_path.write_text(dockerfile)
+          PY
+
+          cargo fmt --all
+          cargo clippy --all-targets --all-features --locked -- -D warnings
+          cargo test --all-targets --all-features --locked
+          docker build --file "Dockerfile" --tag "egolint:ci-regression-fix" "."
+          docker run --rm "egolint:ci-regression-fix" --version
+
+      - name: Commit validated fixes
+        run: |
+          set -euo pipefail
+          git add "src/javascript_architecture.rs" "Dockerfile"
+          if git diff --cached --quiet; then
+            printf '%s\n' "CI regression fixes are already applied."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --message "fix(ci): restore strict core and image validation"
+          git push origin HEAD:fix/ci-regressions-20260824
