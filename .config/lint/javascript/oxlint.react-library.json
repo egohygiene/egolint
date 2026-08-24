@@ -111,7 +111,6 @@
     "react-perf/jsx-no-new-function-as-prop": "warn",
     "react-perf/jsx-no-new-object-as-prop": "warn",
 
-    "react/react-compiler": "off",
     "react/error-boundaries": "off",
     "react/globals": "off",
     "react/immutability": "off",
