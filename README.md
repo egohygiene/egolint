@@ -80,6 +80,27 @@ The second command runs the native CLI, which launches the local full image.
 Do not mount a host Docker socket into the lightweight CLI image. An in-container
 local MegaLinter adapter is a future capability, not part of this alpha.
 
+## Dogfood the complete architecture
+
+Egolint is also its own reference consumer. With Docker, Node.js, pnpm, Rust,
+and Task available, run:
+
+```sh
+task dogfood
+```
+
+That single developer entrypoint exercises the public `egolint validate` CLI,
+Egolint's JavaScript dependency-architecture and package-quality adapters, then
+the public `egolint lint` CLI using a full policy image built from the current
+checkout. The lint image uses `pull-policy = "never"` and `network = "none"`, so
+the proof cannot silently fall back to a previously published image or networked
+lint execution.
+
+The same task runs in the read-only `Dogfood` GitHub Actions workflow and emits
+normalized evidence under `.reports/egolint`. See
+[dogfooding](docs/dogfooding.md) for the exact proof boundary and exception
+policy.
+
 ## Configuration
 
 Copy [`examples/egolint.toml`](examples/egolint.toml) into a repository and run:
@@ -99,6 +120,7 @@ the exact rules.
 
 - [Architecture](docs/architecture.md)
 - [Configuration](docs/configuration.md)
+- [Dogfooding and self-consumer proof](docs/dogfooding.md)
 - [Machine-readable contracts](docs/contracts.md)
 - [Containers and image boundaries](docs/containers.md)
 - [Security model](docs/security.md)
