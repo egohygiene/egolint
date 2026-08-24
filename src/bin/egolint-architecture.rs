@@ -47,11 +47,11 @@ fn main() -> ExitCode {
         Ok(workspace) if workspace.is_dir() => workspace,
         Ok(_) => {
             eprintln!("egolint-architecture: workspace is not a directory");
-            return ExitCode::from(exit_code::CONFIGURATION as u8);
+            return process_exit_code(exit_code::CONFIGURATION);
         }
         Err(error) => {
             eprintln!("egolint-architecture: could not resolve workspace: {error}");
-            return ExitCode::from(exit_code::CONFIGURATION as u8);
+            return process_exit_code(exit_code::CONFIGURATION);
         }
     };
     let options = ArchitectureRunOptions {
@@ -64,10 +64,15 @@ fn main() -> ExitCode {
         graph_output: cli.graph.as_deref(),
     };
     match run_javascript_architecture(&options) {
-        Ok(code) => ExitCode::from(u8::try_from(code).unwrap_or(INTERNAL_EXIT_CODE)),
+        Ok(code) => process_exit_code(code),
         Err(error) => {
             eprintln!("egolint-architecture: {error}");
-            ExitCode::from(u8::try_from(error.exit_code()).unwrap_or(INTERNAL_EXIT_CODE))
+            process_exit_code(error.exit_code())
         }
     }
+}
+
+fn process_exit_code(code: i32) -> ExitCode {
+    debug_assert_eq!(i32::from(INTERNAL_EXIT_CODE), exit_code::INTERNAL);
+    ExitCode::from(u8::try_from(code).unwrap_or(INTERNAL_EXIT_CODE))
 }
