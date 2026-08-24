@@ -7,38 +7,45 @@ on:
       - fix/ci-regressions-20260824
     paths:
       - .github/workflows/apply-ci-regression-fix.yml
+  pull_request:
+    paths:
+      - .github/workflows/apply-ci-regression-fix.yml
 
 permissions:
   contents: write
 
+concurrency:
+  group: apply-ci-regression-fix
+  cancel-in-progress: true
+
 jobs:
   apply:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 10
     steps:
       - name: Check out the fix branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: fix/ci-regressions-20260824
 
-      - name: Refactor architecture normalization and repair image context
+      - name: Apply source and Docker fixes
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           source_path = Path("src/javascript_architecture.rs")
           source = source_path.read_text()
 
-          old_call = """    let evaluated_exceptions =
-              apply_architecture_exceptions(&mut findings, &exceptions, options.evaluation_date)?;
-          """
-          new_call = """    let evaluated_exceptions =
-              apply_architecture_exceptions(&mut findings, &exceptions, options.evaluation_date);
-          """
-          if source.count(old_call) != 1:
-              raise SystemExit("expected one fallible exception-evaluation call")
-          source = source.replace(old_call, new_call)
+          source, call_count = re.subn(
+              r"    let evaluated_exceptions =\n\s+apply_architecture_exceptions\(&mut findings, &exceptions, options\.evaluation_date\)\?;",
+              "    let evaluated_exceptions =\n        apply_architecture_exceptions(&mut findings, &exceptions, options.evaluation_date);",
+              source,
+              count=1,
+          )
+          if call_count != 1:
+              raise SystemExit(f"expected one fallible exception call, found {call_count}")
 
           start = source.index("fn normalize_violations(")
           end = source.index("fn build_report(", start)
@@ -213,37 +220,33 @@ jobs:
           '''
           source = source[:start] + replacement + source[end:]
 
-          old_test = '''        let evaluated = apply_architecture_exceptions(&mut findings, &[exception], "2026-08-23")
-              .expect("evaluate exception");'''
-          new_test = '''        let evaluated =
-              apply_architecture_exceptions(&mut findings, &[exception], "2026-08-23");'''
-          if source.count(old_test) != 2:
-              raise SystemExit("expected two exception-evaluation test calls")
-          source = source.replace(old_test, new_test)
+          source, test_count = re.subn(
+              r'''        let evaluated = apply_architecture_exceptions\(&mut findings, &\[exception\], "2026-08-23"\)\n\s+\.expect\("evaluate exception"\);''',
+              '''        let evaluated =
+              apply_architecture_exceptions(&mut findings, &[exception], "2026-08-23");''',
+              source,
+          )
+          if test_count != 2:
+              raise SystemExit(f"expected two fallible test calls, found {test_count}")
           source_path.write_text(source)
 
           dockerfile_path = Path("Dockerfile")
           dockerfile = dockerfile_path.read_text()
           anchor = "COPY .config/rules/portability.toml .config/rules/portability.toml\n"
-          addition = (
-              anchor
-              + "COPY .config/rules/javascript-architecture.v1.json "
-              + ".config/rules/javascript-architecture.v1.json\n"
+          profile_copy = (
+              "COPY .config/rules/javascript-architecture.v1.json "
+              ".config/rules/javascript-architecture.v1.json\n"
           )
           if dockerfile.count(anchor) != 1:
               raise SystemExit("expected one portability-profile COPY instruction")
-          if "COPY .config/rules/javascript-architecture.v1.json" not in dockerfile:
-              dockerfile = dockerfile.replace(anchor, addition)
+          if profile_copy not in dockerfile:
+              dockerfile = dockerfile.replace(anchor, anchor + profile_copy)
           dockerfile_path.write_text(dockerfile)
           PY
 
           cargo fmt --all
-          cargo clippy --all-targets --all-features --locked -- -D warnings
-          cargo test --all-targets --all-features --locked
-          docker build --file "Dockerfile" --tag "egolint:ci-regression-fix" "."
-          docker run --rm "egolint:ci-regression-fix" --version
 
-      - name: Commit validated fixes
+      - name: Commit the repair for normal CI validation
         run: |
           set -euo pipefail
           git add "src/javascript_architecture.rs" "Dockerfile"
