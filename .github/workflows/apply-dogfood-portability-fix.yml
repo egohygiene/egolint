@@ -1,0 +1,91 @@
+---
+name: Apply dogfood portability fix
+
+on:
+  push:
+    branches:
+      - feat/18-dogfood-reference-consumer
+    paths:
+      - .github/workflows/apply-dogfood-portability-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out dogfood branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: feat/18-dogfood-reference-consumer
+
+      - name: Tighten interpreter shebang detection
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("src/rules/portability.rs")
+          source = path.read_text()
+
+          old = '''        if entry.kind == RepositoryEntryKind::File
+              && entry.content.starts_with(b"#!")
+              && entry.git_mode.is_some()
+          '''
+          new = '''        if entry.kind == RepositoryEntryKind::File
+              && is_interpreter_shebang(&entry.content)
+              && entry.git_mode.is_some()
+          '''
+          if source.count(old) != 1:
+              raise SystemExit("expected one executable-mode shebang predicate")
+          source = source.replace(old, new)
+
+          anchor = '''fn is_posix_shell(path: &str, content: &[u8]) -> bool {
+          '''
+          helper = '''fn is_interpreter_shebang(content: &[u8]) -> bool {
+              content.starts_with(b"#!/")
+          }
+
+          fn is_posix_shell(path: &str, content: &[u8]) -> bool {
+          '''
+          if source.count(anchor) != 1:
+              raise SystemExit("expected one is_posix_shell helper")
+          source = source.replace(anchor, helper)
+
+          test_anchor = '''    #[test]
+              fn automation_assumptions_are_advisory_and_located() {
+          '''
+          test = '''    #[test]
+              fn rust_inner_attributes_are_not_interpreter_shebangs() {
+                  let findings = evaluate(vec![RepositoryEntry::file(
+                      "src/lib.rs",
+                      Some(100_644),
+                      b"#![forbid(unsafe_code)]\\n".to_vec(),
+                  )]);
+
+                  assert!(findings.is_empty(), "unexpected findings: {findings:#?}");
+              }
+
+              #[test]
+              fn automation_assumptions_are_advisory_and_located() {
+          '''
+          if source.count(test_anchor) != 1:
+              raise SystemExit("expected automation test anchor")
+          source = source.replace(test_anchor, test)
+          path.write_text(source)
+          PY
+
+          cargo fmt --all
+          cargo test --locked rust_inner_attributes_are_not_interpreter_shebangs
+          cargo test --locked line_endings_and_git_index_mode_are_checked_without_host_mode
+
+      - name: Commit validated repair
+        run: |
+          set -euo pipefail
+          git add "src/rules/portability.rs"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --message "fix(portability): distinguish rust attributes from shebangs"
+          git push origin HEAD:feat/18-dogfood-reference-consumer
