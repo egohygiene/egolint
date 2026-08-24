@@ -47,12 +47,12 @@ jobs:
             --config ".config/lint/javascript/oxlint.base.json" \
             --print-config \
             "tests/fixtures/javascript-package-quality/private-app/src/main.ts" \
-            > /tmp/oxlint-base.json
+            | tee /tmp/oxlint-base.json
           pnpm exec oxlint \
             --config ".config/lint/javascript/oxlint.react-library.json" \
             --print-config \
             "tests/fixtures/javascript-package-quality/react-library/src/Button.tsx" \
-            > /tmp/oxlint-react-library.json
+            | tee /tmp/oxlint-react-library.json
           test -s /tmp/oxlint-base.json
           test -s /tmp/oxlint-react-library.json
 
