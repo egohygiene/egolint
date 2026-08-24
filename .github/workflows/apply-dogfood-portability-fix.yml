@@ -2,11 +2,7 @@
 name: Apply dogfood portability fix
 
 on:
-  push:
-    branches:
-      - feat/18-dogfood-reference-consumer
-    paths:
-      - .github/workflows/apply-dogfood-portability-fix.yml
+  pull_request:
 
 permissions:
   contents: write
@@ -34,30 +30,39 @@ jobs:
               && entry.content.starts_with(b"#!")
               && entry.git_mode.is_some()
           '''
-          new = '''        if entry.kind == RepositoryEntryKind::File
+          if old in source:
+              source = source.replace(
+                  old,
+                  '''        if entry.kind == RepositoryEntryKind::File
               && is_interpreter_shebang(&entry.content)
               && entry.git_mode.is_some()
-          '''
-          if source.count(old) != 1:
-              raise SystemExit("expected one executable-mode shebang predicate")
-          source = source.replace(old, new)
+          ''',
+              )
 
           anchor = '''fn is_posix_shell(path: &str, content: &[u8]) -> bool {
           '''
-          helper = '''fn is_interpreter_shebang(content: &[u8]) -> bool {
+          if "fn is_interpreter_shebang(" not in source:
+              if source.count(anchor) != 1:
+                  raise SystemExit("expected one is_posix_shell helper")
+              source = source.replace(
+                  anchor,
+                  '''fn is_interpreter_shebang(content: &[u8]) -> bool {
               content.starts_with(b"#!/")
           }
 
           fn is_posix_shell(path: &str, content: &[u8]) -> bool {
-          '''
-          if source.count(anchor) != 1:
-              raise SystemExit("expected one is_posix_shell helper")
-          source = source.replace(anchor, helper)
+          ''',
+              )
 
           test_anchor = '''    #[test]
               fn automation_assumptions_are_advisory_and_located() {
           '''
-          test = '''    #[test]
+          if "fn rust_inner_attributes_are_not_interpreter_shebangs()" not in source:
+              if source.count(test_anchor) != 1:
+                  raise SystemExit("expected automation test anchor")
+              source = source.replace(
+                  test_anchor,
+                  '''    #[test]
               fn rust_inner_attributes_are_not_interpreter_shebangs() {
                   let findings = evaluate(vec![RepositoryEntry::file(
                       "src/lib.rs",
@@ -70,10 +75,9 @@ jobs:
 
               #[test]
               fn automation_assumptions_are_advisory_and_located() {
-          '''
-          if source.count(test_anchor) != 1:
-              raise SystemExit("expected automation test anchor")
-          source = source.replace(test_anchor, test)
+          ''',
+              )
+
           path.write_text(source)
           PY
 
@@ -81,10 +85,14 @@ jobs:
           cargo test --locked rust_inner_attributes_are_not_interpreter_shebangs
           cargo test --locked line_endings_and_git_index_mode_are_checked_without_host_mode
 
-      - name: Commit validated repair
+      - name: Commit validated repair when needed
         run: |
           set -euo pipefail
           git add "src/rules/portability.rs"
+          if git diff --cached --quiet; then
+            printf '%s\n' "Portability repair is already applied."
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit --message "fix(portability): distinguish rust attributes from shebangs"
