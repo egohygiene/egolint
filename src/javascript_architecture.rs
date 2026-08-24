@@ -276,7 +276,7 @@ pub fn run_javascript_architecture(options: &ArchitectureRunOptions<'_>) -> Resu
     let raw_report = run_dependency_cruiser(options.workspace, &roots, &generated_config, "json")?;
     let mut findings = normalize_violations(&raw_report, &rules, &profile_path, &observed_version)?;
     let evaluated_exceptions =
-        apply_architecture_exceptions(&mut findings, &exceptions, options.evaluation_date)?;
+        apply_architecture_exceptions(&mut findings, &exceptions, options.evaluation_date);
     findings.sort_by(|left, right| {
         (
             left.finding.rule.rule_id.as_str(),
@@ -701,105 +701,114 @@ fn normalize_violations(
         .iter()
         .map(|rule| (rule.id.as_str(), rule))
         .collect::<BTreeMap<_, _>>();
-    let mut findings = Vec::new();
-    for violation in violations {
-        let rule_id = violation
-            .pointer("/rule/name")
-            .and_then(Value::as_str)
-            .unwrap_or("unnamed");
-        let Some(rule) = rules_by_id.get(rule_id) else {
-            return Err(EgolintError::RuntimeExecution(format!(
-                "dependency-cruiser returned undeclared rule {rule_id}"
-            )));
-        };
-        let source = violation
-            .get("from")
-            .and_then(Value::as_str)
-            .unwrap_or("unknown-module");
-        let target = violation
-            .get("to")
-            .and_then(Value::as_str)
-            .map(str::to_owned);
-        let dependency_path = violation
-            .get("cycle")
-            .and_then(Value::as_array)
-            .map(|cycle| {
-                cycle
-                    .iter()
-                    .filter_map(Value::as_str)
-                    .map(str::to_owned)
-                    .collect::<Vec<_>>()
-            })
-            .unwrap_or_default();
-        let fingerprint = stable_hash(&[
-            rule_id,
-            source,
-            target.as_deref().unwrap_or(""),
-            &dependency_path.join("->"),
-        ]);
-        let id = format!("architecture-{}", &fingerprint[..16]);
-        let message = target.as_ref().map_or_else(
-            || format!("{}: {source}. {}", rule.description, rule.remediation),
-            |target| {
-                format!(
-                    "{}: {source} -> {target}. {}",
-                    rule.description, rule.remediation
-                )
+    violations
+        .iter()
+        .map(|violation| {
+            normalize_violation(violation, &rules_by_id, profile_path, adapter_version)
+        })
+        .collect()
+}
+
+fn normalize_violation(
+    violation: &Value,
+    rules_by_id: &BTreeMap<&str, &ArchitectureRule>,
+    profile_path: &Path,
+    adapter_version: &str,
+) -> Result<ArchitectureFinding> {
+    let rule_id = violation
+        .pointer("/rule/name")
+        .and_then(Value::as_str)
+        .unwrap_or("unnamed");
+    let Some(rule) = rules_by_id.get(rule_id) else {
+        return Err(EgolintError::RuntimeExecution(format!(
+            "dependency-cruiser returned undeclared rule {rule_id}"
+        )));
+    };
+    let source = violation
+        .get("from")
+        .and_then(Value::as_str)
+        .unwrap_or("unknown-module");
+    let target = violation
+        .get("to")
+        .and_then(Value::as_str)
+        .map(str::to_owned);
+    let dependency_path = violation
+        .get("cycle")
+        .and_then(Value::as_array)
+        .map(|cycle| {
+            cycle
+                .iter()
+                .filter_map(Value::as_str)
+                .map(str::to_owned)
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default();
+    let fingerprint = stable_hash(&[
+        rule_id,
+        source,
+        target.as_deref().unwrap_or(""),
+        &dependency_path.join("->"),
+    ]);
+    let id = format!("architecture-{}", &fingerprint[..16]);
+    let message = target.as_ref().map_or_else(
+        || format!("{}: {source}. {}", rule.description, rule.remediation),
+        |target| {
+            format!(
+                "{}: {source} -> {target}. {}",
+                rule.description, rule.remediation
+            )
+        },
+    );
+    let location = if source == "unknown-module" {
+        None
+    } else {
+        Some(SourceLocation {
+            path: PathBuf::from(source),
+            start_line: None,
+            start_column: None,
+            end_line: None,
+            end_column: None,
+        })
+    };
+    let architecture_finding = ArchitectureFinding {
+        finding: Finding {
+            schema_version: CONTRACT_VERSION,
+            id,
+            rule: RuleIdentity {
+                tool_id: ARCHITECTURE_TOOL_ID.to_owned(),
+                rule_id: rule.id.clone(),
             },
-        );
-        let location = if source == "unknown-module" {
-            None
-        } else {
-            let path = PathBuf::from(source);
-            Some(SourceLocation {
-                path,
-                start_line: None,
-                start_column: None,
-                end_line: None,
-                end_column: None,
-            })
-        };
-        let architecture_finding = ArchitectureFinding {
-            finding: Finding {
-                schema_version: CONTRACT_VERSION,
-                id,
-                rule: RuleIdentity {
-                    tool_id: ARCHITECTURE_TOOL_ID.to_owned(),
-                    rule_id: rule.id.clone(),
-                },
-                severity: match rule.severity {
-                    ArchitectureSeverity::Info => Severity::Info,
-                    ArchitectureSeverity::Warning => Severity::Warning,
-                    ArchitectureSeverity::Error => Severity::Error,
-                },
-                message,
-                location,
-                ownership: RuleOwnership {
-                    owner: "egohygiene/egolint".to_owned(),
-                    policy_source: profile_path.display().to_string(),
-                    configuration_path: Some(profile_path.to_path_buf()),
-                },
-                fingerprint: Some(fingerprint),
-                evidence: Vec::new(),
-                suppressed_by: None,
+            severity: match rule.severity {
+                ArchitectureSeverity::Info => Severity::Info,
+                ArchitectureSeverity::Warning => Severity::Warning,
+                ArchitectureSeverity::Error => Severity::Error,
             },
-            source_module: source.to_owned(),
-            target_module: target,
-            dependency_path,
-            dependency_cruiser_version: adapter_version.to_owned(),
-            remediation: rule.remediation.clone(),
-        };
-        architecture_finding.finding.validate()?;
-        findings.push(architecture_finding);
-    }
-    Ok(findings)
+            message,
+            location,
+            ownership: RuleOwnership {
+                owner: "egohygiene/egolint".to_owned(),
+                policy_source: profile_path.display().to_string(),
+                configuration_path: Some(profile_path.to_path_buf()),
+            },
+            fingerprint: Some(fingerprint),
+            evidence: Vec::new(),
+            suppressed_by: None,
+        },
+        source_module: source.to_owned(),
+        target_module: target,
+        dependency_path,
+        dependency_cruiser_version: adapter_version.to_owned(),
+        remediation: rule.remediation.clone(),
+    };
+    architecture_finding.finding.validate()?;
+    Ok(architecture_finding)
 }
 
 fn apply_architecture_exceptions(
     findings: &mut [ArchitectureFinding],
     exceptions: &[ArchitectureException],
     evaluation_date: &str,
-) -> Result<Vec<EvaluatedArchitectureException>> {
+) -> Vec<EvaluatedArchitectureException> {
     let mut evaluated = Vec::new();
     for exception in exceptions {
         let expired = evaluation_date > exception.expires_on.as_str();
@@ -838,7 +847,7 @@ fn apply_architecture_exceptions(
             },
         });
     }
-    Ok(evaluated)
+    evaluated
 }
 
 fn build_report(
@@ -1154,8 +1163,7 @@ mod tests {
             from: Some("apps/web/a.ts".to_owned()),
             to: Some("packages/ui/src/internal.ts".to_owned()),
         };
-        let evaluated = apply_architecture_exceptions(&mut findings, &[exception], "2026-08-23")
-            .expect("evaluate exception");
+        let evaluated = apply_architecture_exceptions(&mut findings, &[exception], "2026-08-23");
         assert_eq!(evaluated[0].state, ArchitectureExceptionState::Applied);
         assert_eq!(
             findings[0].finding.suppressed_by.as_deref(),
@@ -1188,8 +1196,7 @@ mod tests {
             from: None,
             to: None,
         };
-        let evaluated = apply_architecture_exceptions(&mut findings, &[exception], "2026-08-23")
-            .expect("evaluate exception");
+        let evaluated = apply_architecture_exceptions(&mut findings, &[exception], "2026-08-23");
         assert_eq!(evaluated[0].state, ArchitectureExceptionState::Expired);
         assert!(findings[0].finding.suppressed_by.is_none());
     }

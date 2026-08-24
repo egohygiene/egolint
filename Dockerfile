@@ -10,6 +10,7 @@ WORKDIR /source
 COPY Cargo.toml Cargo.lock ./
 COPY src/ src/
 COPY .config/rules/portability.toml .config/rules/portability.toml
+COPY .config/rules/javascript-architecture.v1.json .config/rules/javascript-architecture.v1.json
 COPY .config/megalinter/tool-matrix.json .config/megalinter/tool-matrix.json
 COPY .config/security/scanner-ownership.json .config/security/scanner-ownership.json
 
