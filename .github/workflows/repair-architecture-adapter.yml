@@ -1,9 +1,12 @@
 name: Repair architecture adapter
 
 on:
-  pull_request:
+  push:
+    branches:
+      - feat/13-javascript-package-quality
     paths:
       - .github/workflows/repair-architecture-adapter.yml
+      - src/javascript_architecture.rs
 
 permissions:
   contents: write
@@ -26,10 +29,12 @@ jobs:
           path = Path("src/javascript_architecture.rs")
           text = path.read_text()
 
-          text = text.replace(
-              "use tempfile::NamedTempFile;",
-              "use tempfile::Builder;",
-          )
+          if "use tempfile::NamedTempFile;" in text:
+              text = text.replace(
+                  "use tempfile::NamedTempFile;",
+                  "use tempfile::Builder;",
+                  1,
+              )
 
           before_temp = '''    let mut config_file = NamedTempFile::new().map_err(|source| EgolintError::Filesystem {
         path: PathBuf::from("temporary-dependency-cruiser-config.json"),
@@ -43,9 +48,10 @@ jobs:
             path: PathBuf::from("temporary-dependency-cruiser-config.json"),
             source,
         })?;'''
-          if before_temp not in text:
+          if before_temp in text:
+              text = text.replace(before_temp, after_temp, 1)
+          elif after_temp not in text:
               raise SystemExit("temporary-file block did not match expected source")
-          text = text.replace(before_temp, after_temp, 1)
 
           before_output = '''    let code = output.status.code().unwrap_or(exit_code::RUNTIME);
     if !matches!(code, 0 | 1) {
@@ -77,9 +83,10 @@ jobs:
         )));
     }
     Ok(stdout)'''
-          if before_output not in text:
+          if before_output in text:
+              text = text.replace(before_output, after_output, 1)
+          elif after_output not in text:
               raise SystemExit("adapter-output block did not match expected source")
-          text = text.replace(before_output, after_output, 1)
 
           path.write_text(text)
           PY
