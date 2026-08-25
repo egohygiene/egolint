@@ -6,9 +6,9 @@ use std::process::ExitCode;
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use egolint::error::exit_code;
 use egolint::rules::{
-    IntelligenceEnforcement, PortabilityRuleSet, RepresentedCommit, RepositoryContract,
-    RepositoryContractEvaluator, RepositoryIntelligenceEvaluator, RepositoryIntelligencePolicy,
-    RepositoryIntelligenceReport, RepositoryInventory, collect_commit_history,
+    IntelligenceEnforcement, PortabilityRuleSet, RepositoryContract, RepositoryContractEvaluator,
+    RepositoryIntelligenceEvaluator, RepositoryIntelligencePolicy, RepositoryIntelligenceReport,
+    RepositoryInventory, RepresentedCommit, collect_commit_history,
     write_intelligence_report_atomic,
 };
 use egolint::rules::{REPOSITORY_INTELLIGENCE_REPORT, apply_suppressions};
@@ -734,11 +734,7 @@ fn add_native_tool_results(
     tool_results.sort_by(|left, right| left.tool_id.cmp(&right.tool_id));
 }
 
-fn native_tool_result(
-    tool_id: &str,
-    findings: &[Finding],
-    enforcement: Enforcement,
-) -> ToolResult {
+fn native_tool_result(tool_id: &str, findings: &[Finding], enforcement: Enforcement) -> ToolResult {
     let relevant = findings
         .iter()
         .filter(|finding| finding.rule.tool_id == tool_id)
@@ -766,9 +762,7 @@ fn native_tool_result(
         policy_source: match tool_id {
             "EGOLINT_PORTABILITY" => ".config/rules/portability.toml",
             "EGOLINT_REPOSITORY_CONTRACT" => "docs/repository-contracts.md",
-            "EGOLINT_REPOSITORY_INTELLIGENCE" => {
-                ".config/rules/repository-intelligence.v1.toml"
-            }
+            "EGOLINT_REPOSITORY_INTELLIGENCE" => ".config/rules/repository-intelligence.v1.toml",
             "EGOLINT_SUPPRESSIONS" => "docs/suppressions.md",
             _ => "README.md",
         }

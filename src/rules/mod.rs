@@ -14,9 +14,9 @@ pub use repository_contract::{
 };
 pub use repository_intelligence::{
     AdoptionState, CommitHistory, CommitRecord, IntelligenceEnforcement, IntelligenceEvaluation,
-    IntelligenceProfile, IntelligenceValidationStatus, RepresentedCommit,
-    RepositoryIntelligenceEvaluator, RepositoryIntelligencePolicy, RepositoryIntelligenceReport,
-    REPORT_PATH as REPOSITORY_INTELLIGENCE_REPORT, collect_commit_history,
-    write_intelligence_report_atomic,
+    IntelligenceProfile, IntelligenceValidationStatus,
+    REPORT_PATH as REPOSITORY_INTELLIGENCE_REPORT, RepositoryIntelligenceEvaluator,
+    RepositoryIntelligencePolicy, RepositoryIntelligenceReport, RepresentedCommit,
+    collect_commit_history, write_intelligence_report_atomic,
 };
 pub use suppressions::apply_suppressions;

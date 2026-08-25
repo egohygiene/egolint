@@ -52,8 +52,7 @@ const EXPECTED_RULE_IDS: [&str; 11] = [
 ];
 
 const ADR_CONTRACT: &str = "egohygiene.architecture-decision/v1";
-const ADR_REFERENCE_CONTRACT: &str =
-    "egohygiene.architecture-decision-policy-reference/v1";
+const ADR_REFERENCE_CONTRACT: &str = "egohygiene.architecture-decision-policy-reference/v1";
 const ROADMAP_CONTRACT: &str = "hygiene.roadmap/v1alpha1";
 
 const REQUIRED_ADR_SECTIONS: [&str; 7] = [
@@ -205,8 +204,7 @@ impl RepositoryIntelligencePolicy {
         }
         if !valid_repository(&self.repository) {
             return Err(EgolintError::Configuration(
-                "repository-intelligence repository must use egohygiene/owner-name form"
-                    .to_owned(),
+                "repository-intelligence repository must use egohygiene/owner-name form".to_owned(),
             ));
         }
         if self.profile.id.trim().is_empty() || self.profile.enabled_rules.is_empty() {
@@ -231,10 +229,7 @@ impl RepositoryIntelligencePolicy {
             "known external ADR",
         )?;
         ensure_unique(
-            self.roadmap
-                .known_external_steps
-                .iter()
-                .map(String::as_str),
+            self.roadmap.known_external_steps.iter().map(String::as_str),
             "known external roadmap step",
         )?;
         for (name, path) in [
@@ -245,8 +240,7 @@ impl RepositoryIntelligencePolicy {
         ] {
             validate_relative_path(path, name)?;
         }
-        if self.commit_history.maximum_commits == 0
-            || self.commit_history.maximum_commits > 50_000
+        if self.commit_history.maximum_commits == 0 || self.commit_history.maximum_commits > 50_000
         {
             return Err(EgolintError::Configuration(
                 "commit-history maximum-commits must be between 1 and 50000".to_owned(),
@@ -426,12 +420,11 @@ pub fn write_intelligence_report_atomic(
         )));
     }
     let (path, parent) = crate::sarif::validated_report_target(path)?;
-    let mut temporary = tempfile::NamedTempFile::new_in(&parent).map_err(|source| {
-        EgolintError::Filesystem {
+    let mut temporary =
+        tempfile::NamedTempFile::new_in(&parent).map_err(|source| EgolintError::Filesystem {
             path: parent.clone(),
             source,
-        }
-    })?;
+        })?;
     serde_json::to_writer_pretty(temporary.as_file_mut(), report)?;
     temporary
         .as_file_mut()
@@ -808,10 +801,7 @@ impl<'a> RepositoryIntelligenceEvaluator<'a> {
                     Some(location(&self.policy_path, None)),
                     format!(
                         "contract {} does not match the supported {} {} pin at {}",
-                        observed.id,
-                        expected.authority,
-                        expected.version,
-                        expected.source_revision
+                        observed.id, expected.authority, expected.version, expected.source_revision
                     ),
                 )?,
                 None => self.emit(
@@ -828,7 +818,10 @@ impl<'a> RepositoryIntelligenceEvaluator<'a> {
                     context,
                     CONTRACT_RULE,
                     Some(location(&self.policy_path, None)),
-                    format!("contract {} is not supported by this Egolint catalog", contract.id),
+                    format!(
+                        "contract {} is not supported by this Egolint catalog",
+                        contract.id
+                    ),
                 )?;
             }
         }
@@ -949,10 +942,7 @@ impl<'a> RepositoryIntelligenceEvaluator<'a> {
             location: diagnostic.location.clone(),
             ownership: RuleOwnership {
                 owner: self.catalog.owner.clone(),
-                policy_source: format!(
-                    "{}#{}",
-                    self.catalog.policy_source, diagnostic.rule_id
-                ),
+                policy_source: format!("{}#{}", self.catalog.policy_source, diagnostic.rule_id),
                 configuration_path: Some(self.policy_path.clone()),
             },
             fingerprint: Some(fingerprint),
@@ -1098,7 +1088,11 @@ impl RepositoryIntelligenceEvaluator<'_> {
         for entry in inventory.entries() {
             if entry.kind != RepositoryEntryKind::File
                 || !entry.path.starts_with(&self.policy.adrs.decision_directory)
-                || entry.path.extension().and_then(|extension| extension.to_str()) != Some("md")
+                || entry
+                    .path
+                    .extension()
+                    .and_then(|extension| extension.to_str())
+                    != Some("md")
             {
                 continue;
             }
@@ -1208,14 +1202,21 @@ impl RepositoryIntelligenceEvaluator<'_> {
                 && matches!(extension.kind.as_str(), "metadata" | "validation")
                 && validate_relative_path(&extension.schema, "extension schema").is_ok()
                 && portable_path(&extension.schema).starts_with("schemas/")
-                && extension.schema.extension().and_then(|value| value.to_str()) == Some("json")
+                && extension
+                    .schema
+                    .extension()
+                    .and_then(|value| value.to_str())
+                    == Some("json")
                 && extension_ids.insert(extension.id.clone());
             if !valid {
                 self.emit(
                     context,
                     ADR_METADATA_RULE,
                     Some(location(path, Some(1))),
-                    format!("ADR policy extension {} is malformed or duplicated", extension.id),
+                    format!(
+                        "ADR policy extension {} is malformed or duplicated",
+                        extension.id
+                    ),
                 )?;
             }
         }
@@ -1253,7 +1254,9 @@ impl RepositoryIntelligenceEvaluator<'_> {
         let metadata = match serde_yaml::from_str::<AdrMetadata>(front_matter) {
             Ok(metadata) => metadata,
             Err(error) => {
-                let line = error.location().map_or(2, |location| location.line() as u32 + 1);
+                let line = error
+                    .location()
+                    .map_or(2, |location| location.line() as u32 + 1);
                 self.emit(
                     context,
                     ADR_METADATA_RULE,
@@ -1284,8 +1287,14 @@ impl RepositoryIntelligenceEvaluator<'_> {
             || metadata.title.trim().is_empty()
             || metadata.title.len() > 160
             || !valid_date(&metadata.date)
-            || !matches!(metadata.decision_scope.as_str(), "repository" | "organization")
-            || !matches!(metadata.visibility.as_str(), "public" | "internal" | "private")
+            || !matches!(
+                metadata.decision_scope.as_str(),
+                "repository" | "organization"
+            )
+            || !matches!(
+                metadata.visibility.as_str(),
+                "public" | "internal" | "private"
+            )
             || metadata.owners.is_empty()
             || !all_unique_nonempty(&metadata.owners)
             || metadata.affected_repositories.is_empty()
@@ -1308,7 +1317,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
                 context,
                 ADR_METADATA_RULE,
                 Some(location(path, Some(2))),
-                format!("ADR id {} does not agree with its canonical filename", metadata.id),
+                format!(
+                    "ADR id {} does not agree with its canonical filename",
+                    metadata.id
+                ),
             )?;
         }
         let heading = format!("# {}:", metadata.id);
@@ -1317,7 +1329,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
                 context,
                 ADR_METADATA_RULE,
                 Some(location(path, Some(body_line))),
-                format!("ADR {} is missing a matching level-one heading", metadata.id),
+                format!(
+                    "ADR {} is missing a matching level-one heading",
+                    metadata.id
+                ),
             )?;
         }
         let mut prior = 0;
@@ -1336,7 +1351,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
                 self.emit(
                     context,
                     ADR_METADATA_RULE,
-                    Some(location(path, Some(body_line + line_number(body, offset) - 1))),
+                    Some(location(
+                        path,
+                        Some(body_line + line_number(body, offset) - 1),
+                    )),
                     format!("ADR {} required sections are out of order", metadata.id),
                 )?;
             }
@@ -1371,7 +1389,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
                 context,
                 ADR_LIFECYCLE_RULE,
                 Some(location(path, Some(2))),
-                format!("ADR {} declares an unsupported lifecycle state", metadata.id),
+                format!(
+                    "ADR {} declares an unsupported lifecycle state",
+                    metadata.id
+                ),
             )?;
         }
         match metadata.status.as_str() {
@@ -1443,7 +1464,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
             if exception.rule.trim().is_empty()
                 || exception.reason.trim().is_empty()
                 || exception.owner.trim().is_empty()
-                || !matches!(exception.status.as_str(), "proposed" | "approved" | "expired")
+                || !matches!(
+                    exception.status.as_str(),
+                    "proposed" | "approved" | "expired"
+                )
                 || exception
                     .expires
                     .as_deref()
@@ -1476,7 +1500,11 @@ impl RepositoryIntelligenceEvaluator<'_> {
             ("pull request", metadata.pull_request.as_deref()),
         ] {
             if let Some(url) = url {
-                let expected_segment = if kind == "issue" { "/issues/" } else { "/pull/" };
+                let expected_segment = if kind == "issue" {
+                    "/issues/"
+                } else {
+                    "/pull/"
+                };
                 if !valid_github_number_url(url, expected_segment) {
                     self.emit(
                         context,
@@ -1514,7 +1542,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
                     context,
                     LINK_RULE,
                     Some(location(path, Some(2))),
-                    format!("ADR {} contains malformed {} evidence", metadata.id, evidence.kind),
+                    format!(
+                        "ADR {} contains malformed {} evidence",
+                        metadata.id, evidence.kind
+                    ),
                 )?;
             }
         }
@@ -1524,7 +1555,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
                     context,
                     ADR_METADATA_RULE,
                     Some(location(path, Some(2))),
-                    format!("ADR {} contains malformed affected contract {contract}", metadata.id),
+                    format!(
+                        "ADR {} contains malformed affected contract {contract}",
+                        metadata.id
+                    ),
                 )?;
             }
         }
@@ -1584,7 +1618,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
                 self.emit(
                     context,
                     ADR_INDEX_RULE,
-                    Some(location(path, matching.first().map_or(Some(1), |link| Some(link.2)))),
+                    Some(location(
+                        path,
+                        matching.first().map_or(Some(1), |link| Some(link.2)),
+                    )),
                     format!(
                         "ADR index must link {} exactly once to {}",
                         record.metadata.id,
@@ -1645,7 +1682,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
                         context,
                         ADR_LINEAGE_RULE,
                         Some(location(&record.path, Some(record.line))),
-                        format!("ADR {} may not reference itself in lineage", record.metadata.id),
+                        format!(
+                            "ADR {} may not reference itself in lineage",
+                            record.metadata.id
+                        ),
                     )?;
                 }
             }
@@ -1714,10 +1754,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
             })
             .collect::<BTreeMap<_, _>>();
         for cycle in graph_cycles(&graph) {
-            let path = context
-                .adrs
-                .get(&cycle[0])
-                .map_or_else(|| self.policy.adrs.index.clone(), |record| record.path.clone());
+            let path = context.adrs.get(&cycle[0]).map_or_else(
+                || self.policy.adrs.index.clone(),
+                |record| record.path.clone(),
+            );
             self.emit(
                 context,
                 CYCLE_RULE,
@@ -1784,7 +1824,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
         if exception.rule.trim().is_empty()
             || exception.reason.trim().is_empty()
             || exception.owner.trim().is_empty()
-            || !matches!(exception.status.as_str(), "proposed" | "approved" | "expired")
+            || !matches!(
+                exception.status.as_str(),
+                "proposed" | "approved" | "expired"
+            )
             || exception
                 .expires
                 .as_deref()
@@ -1843,16 +1886,19 @@ impl RepositoryIntelligenceEvaluator<'_> {
                 continue;
             }
             for (line_index, line) in commit.message.lines().enumerate() {
-                let line_number = u32::try_from(line_index).unwrap_or(u32::MAX).saturating_add(1);
+                let line_number = u32::try_from(line_index)
+                    .unwrap_or(u32::MAX)
+                    .saturating_add(1);
                 let trimmed = line.trim();
-                if trimmed.starts_with("Roadmap-Step")
-                    && !trimmed.starts_with("Roadmap-Step:")
-                {
+                if trimmed.starts_with("Roadmap-Step") && !trimmed.starts_with("Roadmap-Step:") {
                     self.emit(
                         context,
                         TRAILER_RULE,
                         Some(commit_location(&commit.sha, line_number)),
-                        format!("commit {} contains a malformed Roadmap-Step trailer", commit.sha),
+                        format!(
+                            "commit {} contains a malformed Roadmap-Step trailer",
+                            commit.sha
+                        ),
                     )?;
                     continue;
                 }
@@ -1887,8 +1933,8 @@ impl RepositoryIntelligenceEvaluator<'_> {
                 }
                 if let Some(value) = trimmed.strip_prefix("ADR-Ref:") {
                     let value = value.trim();
-                    let structurally_valid = valid_adr_id(value)
-                        || valid_external_decision_ref(value);
+                    let structurally_valid =
+                        valid_adr_id(value) || valid_external_decision_ref(value);
                     if value.is_empty()
                         || value.contains(',')
                         || !structurally_valid
@@ -2063,9 +2109,9 @@ fn valid_repository(value: &str) -> bool {
     };
     repository == ".github"
         || (!repository.is_empty()
-            && repository
-                .bytes()
-                .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || b".-".contains(&byte))
+            && repository.bytes().all(|byte| {
+                byte.is_ascii_lowercase() || byte.is_ascii_digit() || b".-".contains(&byte)
+            })
             && repository.as_bytes()[0].is_ascii_alphanumeric())
 }
 
@@ -2087,17 +2133,13 @@ fn valid_external_decision_ref(value: &str) -> bool {
     let Some((repository, id)) = value.split_once('#') else {
         return false;
     };
-    repository
-        .split_once('/')
-        .is_some_and(|(owner, name)| {
-            !owner.is_empty()
-                && !name.is_empty()
-                && owner
-                    .bytes()
-                    .chain(name.bytes())
-                    .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || b".-".contains(&byte))
-        })
-        && valid_adr_id(id)
+    repository.split_once('/').is_some_and(|(owner, name)| {
+        !owner.is_empty()
+            && !name.is_empty()
+            && owner.bytes().chain(name.bytes()).all(|byte| {
+                byte.is_ascii_lowercase() || byte.is_ascii_digit() || b".-".contains(&byte)
+            })
+    }) && valid_adr_id(id)
 }
 
 fn valid_contract_id(value: &str) -> bool {
@@ -2152,8 +2194,12 @@ fn valid_date(value: &str) -> bool {
 
 fn valid_http_url(value: &str) -> bool {
     (value.starts_with("https://") || value.starts_with("http://"))
-        && !value.chars().any(|character| character.is_control() || character.is_whitespace())
-        && value.split_once("://").is_some_and(|(_, rest)| rest.contains('.'))
+        && !value
+            .chars()
+            .any(|character| character.is_control() || character.is_whitespace())
+        && value
+            .split_once("://")
+            .is_some_and(|(_, rest)| rest.contains('.'))
 }
 
 fn valid_github_number_url(value: &str, segment: &str) -> bool {
@@ -2192,13 +2238,15 @@ fn valid_issue_reference(value: &serde_yaml::Value) -> bool {
         serde_yaml::Value::Number(number) => number.as_u64().is_some_and(|number| number > 0),
         serde_yaml::Value::String(reference) => {
             valid_github_number_url(reference, "/issues/")
-                || reference.split_once('#').is_some_and(|(repository, number)| {
-                    repository.split('/').count() == 2
-                        && !repository.is_empty()
-                        && !number.is_empty()
-                        && number.bytes().all(|byte| byte.is_ascii_digit())
-                        && number != "0"
-                })
+                || reference
+                    .split_once('#')
+                    .is_some_and(|(repository, number)| {
+                        repository.split('/').count() == 2
+                            && !repository.is_empty()
+                            && !number.is_empty()
+                            && number.bytes().all(|byte| byte.is_ascii_digit())
+                            && number != "0"
+                    })
         }
         _ => false,
     }
@@ -2237,9 +2285,14 @@ fn validate_relative_path(path: &Path, name: &str) -> Result<()> {
 }
 
 fn line_number(contents: &str, offset: usize) -> u32 {
-    u32::try_from(contents[..offset].bytes().filter(|byte| *byte == b'\n').count())
-        .unwrap_or(u32::MAX)
-        .saturating_add(1)
+    u32::try_from(
+        contents[..offset]
+            .bytes()
+            .filter(|byte| *byte == b'\n')
+            .count(),
+    )
+    .unwrap_or(u32::MAX)
+    .saturating_add(1)
 }
 
 fn location(path: &Path, line: Option<u32>) -> SourceLocation {
@@ -2253,20 +2306,18 @@ fn location(path: &Path, line: Option<u32>) -> SourceLocation {
 }
 
 fn commit_location(sha: &str, line: u32) -> SourceLocation {
-    location(Path::new("@git").join(sha).as_path(), Some(line))
+    location(Path::new(&format!("@git/{sha}")), Some(line))
 }
 
 fn portable_path(path: &Path) -> String {
     path.to_string_lossy().replace('\\', "/")
 }
 
-fn stable_fingerprint(
-    rule_id: &str,
-    location: Option<&SourceLocation>,
-    message: &str,
-) -> String {
+fn stable_fingerprint(rule_id: &str, location: Option<&SourceLocation>, message: &str) -> String {
     let path = location.map_or_else(String::new, |location| portable_path(&location.path));
-    let line = location.and_then(|location| location.start_line).unwrap_or(0);
+    let line = location
+        .and_then(|location| location.start_line)
+        .unwrap_or(0);
     let mut hash = 0xcbf2_9ce4_8422_2325_u64;
     for byte in rule_id
         .bytes()
@@ -2322,9 +2373,8 @@ mod tests {
     const POLICY_REFERENCE: &str = include_str!(
         "../../tests/fixtures/repository-intelligence/valid/docs/decisions/policy-reference.json"
     );
-    const VALID_INDEX: &str = include_str!(
-        "../../tests/fixtures/repository-intelligence/valid/docs/decisions/README.md"
-    );
+    const VALID_INDEX: &str =
+        include_str!("../../tests/fixtures/repository-intelligence/valid/docs/decisions/README.md");
     const VALID_ADR: &str = include_str!(
         "../../tests/fixtures/repository-intelligence/valid/docs/decisions/ADR-001-validation-contract.md"
     );
@@ -2368,12 +2418,12 @@ mod tests {
             entry("ROADMAP.md", VALID_ROADMAP),
             entry("docs/decisions/ADR-001-validation-contract.md", VALID_ADR),
             entry("docs/decisions/ADR-002-legacy-projection.md", VALID_ADR_TWO),
-            entry("docs/decisions/ADR-003-versioned-projection.md", VALID_ADR_THREE),
-            entry("docs/decisions/README.md", VALID_INDEX),
             entry(
-                "docs/decisions/policy-reference.json",
-                POLICY_REFERENCE,
+                "docs/decisions/ADR-003-versioned-projection.md",
+                VALID_ADR_THREE,
             ),
+            entry("docs/decisions/README.md", VALID_INDEX),
+            entry("docs/decisions/policy-reference.json", POLICY_REFERENCE),
         ])
         .expect("valid fixture inventory")
     }
@@ -2406,7 +2456,10 @@ mod tests {
             .expect("semantic evaluation");
 
         assert!(evaluation.findings.is_empty());
-        assert_eq!(evaluation.report.status, IntelligenceValidationStatus::Valid);
+        assert_eq!(
+            evaluation.report.status,
+            IntelligenceValidationStatus::Valid
+        );
         assert_eq!(evaluation.report.summary.adrs_inspected, 3);
         assert_eq!(evaluation.report.summary.roadmap_steps_inspected, 2);
         assert_eq!(evaluation.report.summary.commits_inspected, 1);
@@ -2425,15 +2478,9 @@ mod tests {
             entry("ROADMAP.md", HOSTILE_ROADMAP),
             entry("docs/decisions/ADR-001-first.md", HOSTILE_ADR_ONE),
             entry("docs/decisions/ADR-002-second.md", HOSTILE_ADR_TWO),
-            entry(
-                "docs/decisions/ADR-003-duplicate.md",
-                HOSTILE_ADR_DUPLICATE,
-            ),
+            entry("docs/decisions/ADR-003-duplicate.md", HOSTILE_ADR_DUPLICATE),
             entry("docs/decisions/README.md", HOSTILE_INDEX),
-            entry(
-                "docs/decisions/policy-reference.json",
-                POLICY_REFERENCE,
-            ),
+            entry("docs/decisions/policy-reference.json", POLICY_REFERENCE),
         ])
         .expect("hostile fixture inventory");
         let history = CommitHistory {
@@ -2468,7 +2515,10 @@ mod tests {
         ] {
             assert!(rules.contains(expected), "missing hostile rule {expected}");
         }
-        assert_eq!(evaluation.report.status, IntelligenceValidationStatus::Invalid);
+        assert_eq!(
+            evaluation.report.status,
+            IntelligenceValidationStatus::Invalid
+        );
         assert!(evaluation.report.summary.blocking_diagnostics > 0);
         assert!(evaluation.report.diagnostics.iter().all(|diagnostic| {
             !diagnostic.remediation.is_empty() && diagnostic.location.is_some()
@@ -2490,13 +2540,19 @@ mod tests {
         .expect("evaluator");
 
         let evaluation = evaluator
-            .evaluate(&RepositoryInventory::default(), &CommitHistory {
-                records: Vec::new(),
-                truncated: false,
-            })
+            .evaluate(
+                &RepositoryInventory::default(),
+                &CommitHistory {
+                    records: Vec::new(),
+                    truncated: false,
+                },
+            )
             .expect("semantic evaluation");
 
-        assert_eq!(evaluation.report.status, IntelligenceValidationStatus::Incomplete);
+        assert_eq!(
+            evaluation.report.status,
+            IntelligenceValidationStatus::Incomplete
+        );
         assert!(
             evaluation
                 .findings
@@ -2521,10 +2577,13 @@ mod tests {
         .expect("evaluator");
 
         let evaluation = evaluator
-            .evaluate(&RepositoryInventory::default(), &CommitHistory {
-                records: Vec::new(),
-                truncated: false,
-            })
+            .evaluate(
+                &RepositoryInventory::default(),
+                &CommitHistory {
+                    records: Vec::new(),
+                    truncated: false,
+                },
+            )
             .expect("semantic evaluation");
 
         assert!(!evaluation.report.diagnostics.is_empty());
@@ -2545,7 +2604,6 @@ mod tests {
         assert_eq!(schema["properties"]["schema-version"]["const"], 1);
     }
 }
-
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -2691,7 +2749,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
         };
         if manifest.schema != ROADMAP_CONTRACT
             || manifest.repository != self.policy.repository
-            || !matches!(manifest.visibility.as_str(), "public" | "internal" | "private")
+            || !matches!(
+                manifest.visibility.as_str(),
+                "public" | "internal" | "private"
+            )
             || !matches!(
                 manifest.publication.as_str(),
                 "canonical" | "composed" | "central" | "artifact-only" | "disabled"
@@ -2720,13 +2781,7 @@ impl RepositoryIntelligenceEvaluator<'_> {
         if !valid_step_id(&metadata.id)
             || !matches!(
                 metadata.status.as_str(),
-                "complete"
-                    | "active"
-                    | "ready"
-                    | "blocked"
-                    | "planned"
-                    | "deferred"
-                    | "cancelled"
+                "complete" | "active" | "ready" | "blocked" | "planned" | "deferred" | "cancelled"
             )
             || !all_unique_nonempty(&metadata.depends_on)
         {
@@ -2734,7 +2789,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
                 context,
                 ROADMAP_STRUCTURE_RULE,
                 Some(location(path, Some(line))),
-                format!("roadmap step {} has malformed identity, state, or dependencies", metadata.id),
+                format!(
+                    "roadmap step {} has malformed identity, state, or dependencies",
+                    metadata.id
+                ),
             )?;
         }
         let heading_matches = segment.lines().any(|candidate| {
@@ -2750,7 +2808,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
                 context,
                 ROADMAP_STRUCTURE_RULE,
                 Some(location(path, Some(line))),
-                format!("roadmap step {} is missing its matching renderable heading", metadata.id),
+                format!(
+                    "roadmap step {} is missing its matching renderable heading",
+                    metadata.id
+                ),
             )?;
         }
         let outcome = segment
@@ -2832,7 +2893,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
                     context,
                     LINK_RULE,
                     Some(location(path, Some(line))),
-                    format!("roadmap step {} contains a malformed issue reference", metadata.id),
+                    format!(
+                        "roadmap step {} contains a malformed issue reference",
+                        metadata.id
+                    ),
                 )?;
             }
         }

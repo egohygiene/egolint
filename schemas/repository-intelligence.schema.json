@@ -1,1 +1,243 @@
-{}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RepositoryIntelligencePolicy",
+  "description": "Repository-owned, versioned semantic validation policy.",
+  "type": "object",
+  "properties": {
+    "adrs": {
+      "description": "ADR source coverage and paths.",
+      "$ref": "#/$defs/AdrSurface"
+    },
+    "commit-history": {
+      "description": "Commit source coverage and deterministic bound.",
+      "$ref": "#/$defs/CommitHistorySurface"
+    },
+    "contracts": {
+      "description": "Exact upstream inputs supported by the bundled catalog.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/IntelligenceContractPin"
+      }
+    },
+    "id": {
+      "description": "Exact Egolint policy contract identifier.",
+      "type": "string"
+    },
+    "profile": {
+      "description": "Selected rule profile.",
+      "$ref": "#/$defs/IntelligenceProfile"
+    },
+    "repository": {
+      "description": "Canonical repository identity.",
+      "type": "string"
+    },
+    "roadmap": {
+      "description": "Roadmap source coverage and path.",
+      "$ref": "#/$defs/RoadmapSurface"
+    },
+    "schema-version": {
+      "description": "Policy envelope version.",
+      "type": "integer",
+      "const": 1
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema-version",
+    "id",
+    "repository",
+    "profile",
+    "contracts",
+    "adrs",
+    "roadmap",
+    "commit-history"
+  ],
+  "$defs": {
+    "AdoptionState": {
+      "description": "Whether a Repository Intelligence source surface is available.",
+      "oneOf": [
+        {
+          "description": "The source is declared and must validate.",
+          "type": "string",
+          "const": "present"
+        },
+        {
+          "description": "Migration has not yet established whether the source is available.",
+          "type": "string",
+          "const": "unknown"
+        },
+        {
+          "description": "The source is intentionally irrelevant to this repository.",
+          "type": "string",
+          "const": "not-applicable"
+        }
+      ]
+    },
+    "AdrSurface": {
+      "description": "ADR surface declaration for incremental adoption.",
+      "type": "object",
+      "properties": {
+        "decision-directory": {
+          "description": "Directory containing canonical ADR Markdown.",
+          "type": "string"
+        },
+        "index": {
+          "description": "Canonical human-readable ADR index.",
+          "type": "string"
+        },
+        "known-external-decisions": {
+          "description": "Pinned external decision identities allowed in cross-references.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "policy-reference": {
+          "description": "Repository policy inheritance declaration.",
+          "type": "string"
+        },
+        "state": {
+          "description": "Evidence availability.",
+          "$ref": "#/$defs/AdoptionState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "policy-reference",
+        "decision-directory",
+        "index"
+      ]
+    },
+    "CommitHistorySurface": {
+      "description": "Commit-history surface declaration for incremental adoption.",
+      "type": "object",
+      "properties": {
+        "maximum-commits": {
+          "description": "Maximum number of commits inspected from the represented revision.",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "state": {
+          "description": "Evidence availability.",
+          "$ref": "#/$defs/AdoptionState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "maximum-commits"
+      ]
+    },
+    "IntelligenceContractPin": {
+      "description": "One exact upstream contract supported by the bundled rule catalog.",
+      "type": "object",
+      "properties": {
+        "authority": {
+          "description": "Current authority state, such as `proposed` or `approved`.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Versioned contract identifier.",
+          "type": "string"
+        },
+        "source-path": {
+          "description": "Repository-relative canonical source path.",
+          "type": "string"
+        },
+        "source-repository": {
+          "description": "Canonical source repository.",
+          "type": "string"
+        },
+        "source-revision": {
+          "description": "Immutable 40-character Git revision.",
+          "type": "string"
+        },
+        "version": {
+          "description": "Exact semantic contract or policy version.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "authority",
+        "source-repository",
+        "source-revision",
+        "source-path"
+      ]
+    },
+    "IntelligenceEnforcement": {
+      "description": "Quality-gate behavior for the declared Repository Intelligence profile.",
+      "oneOf": [
+        {
+          "description": "Error-level enabled rules fail the Egolint run.",
+          "type": "string",
+          "const": "blocking"
+        },
+        {
+          "description": "Enabled rules remain visible as warnings without failing the run.",
+          "type": "string",
+          "const": "advisory"
+        }
+      ]
+    },
+    "IntelligenceProfile": {
+      "description": "Exact rules and enforcement selected by a repository.",
+      "type": "object",
+      "properties": {
+        "enabled-rules": {
+          "description": "Stable Egolint rule IDs evaluated by this profile.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enforcement": {
+          "description": "Whether enabled rule failures block CI.",
+          "$ref": "#/$defs/IntelligenceEnforcement"
+        },
+        "id": {
+          "description": "Stable repository-owned profile name.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "enforcement",
+        "enabled-rules"
+      ]
+    },
+    "RoadmapSurface": {
+      "description": "Roadmap surface declaration for incremental adoption.",
+      "type": "object",
+      "properties": {
+        "known-external-steps": {
+          "description": "Pinned external roadmap step identities allowed in dependencies/trailers.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "path": {
+          "description": "Canonical roadmap Markdown path.",
+          "type": "string"
+        },
+        "state": {
+          "description": "Evidence availability.",
+          "$ref": "#/$defs/AdoptionState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "path"
+      ]
+    }
+  }
+}
