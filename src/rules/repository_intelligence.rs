@@ -562,10 +562,11 @@ pub fn collect_commit_history(
             truncated: false,
         });
     }
-    let revision = represented
-        .revision
-        .as_deref()
-        .expect("present represented commit validated by parser");
+    let revision = represented.revision.as_deref().ok_or_else(|| {
+        EgolintError::Configuration(
+            "a present represented commit must include a full revision".to_owned(),
+        )
+    })?;
     let object = format!("{revision}^{{commit}}");
     let verify = Command::new("git")
         .arg("-c")
@@ -1169,7 +1170,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
                 self.emit(
                     context,
                     ADR_METADATA_RULE,
-                    Some(location(path, Some(error.line() as u32))),
+                    Some(location(
+                        path,
+                        Some(u32::try_from(error.line()).unwrap_or(u32::MAX)),
+                    )),
                     format!("ADR policy-reference JSON is invalid: {error}"),
                 )?;
                 return Ok(None);
@@ -1254,9 +1258,11 @@ impl RepositoryIntelligenceEvaluator<'_> {
         let metadata = match serde_yaml::from_str::<AdrMetadata>(front_matter) {
             Ok(metadata) => metadata,
             Err(error) => {
-                let line = error
-                    .location()
-                    .map_or(2, |location| location.line() as u32 + 1);
+                let line = error.location().map_or(2, |location| {
+                    u32::try_from(location.line())
+                        .unwrap_or(u32::MAX)
+                        .saturating_add(1)
+                });
                 self.emit(
                     context,
                     ADR_METADATA_RULE,
@@ -1365,6 +1371,7 @@ impl RepositoryIntelligenceEvaluator<'_> {
         Ok(())
     }
 
+    #[allow(clippy::too_many_lines)]
     fn validate_adr_lifecycle(
         &self,
         path: &Path,
@@ -1643,6 +1650,7 @@ impl RepositoryIntelligenceEvaluator<'_> {
         Ok(())
     }
 
+    #[allow(clippy::too_many_lines)]
     fn validate_adr_references(&self, context: &mut EvaluationContext) -> Result<()> {
         let records = context.adrs.values().cloned().collect::<Vec<_>>();
         let local_ids = context.adrs.keys().cloned().collect::<BTreeSet<_>>();
@@ -1850,6 +1858,7 @@ impl RepositoryIntelligenceEvaluator<'_> {
 }
 
 impl RepositoryIntelligenceEvaluator<'_> {
+    #[allow(clippy::too_many_lines)]
     fn validate_commit_trailers(
         &self,
         history: &CommitHistory,
@@ -2770,6 +2779,7 @@ impl RepositoryIntelligenceEvaluator<'_> {
         Ok(())
     }
 
+    #[allow(clippy::too_many_lines)]
     fn validate_roadmap_step(
         &self,
         path: &Path,
