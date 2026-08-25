@@ -84,6 +84,7 @@ egolint doctor --profile "holistic"
 egolint schema finding
 egolint schema repository-contract
 egolint schema repository-intelligence
+egolint schema repository-intelligence-report
 ```
 
 `validate` resolves every configuration layer, evaluates native portability

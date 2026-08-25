@@ -184,6 +184,7 @@ enum SchemaKind {
     Debt,
     RepositoryContract,
     RepositoryIntelligence,
+    RepositoryIntelligenceReport,
 }
 
 fn main() -> ExitCode {
@@ -963,6 +964,9 @@ fn print_schema(kind: SchemaKind) -> Result<(), EgolintError> {
         SchemaKind::RepositoryIntelligence => {
             schemars::schema_for!(RepositoryIntelligencePolicy)
         }
+        SchemaKind::RepositoryIntelligenceReport => {
+            schemars::schema_for!(RepositoryIntelligenceReport)
+        }
     };
     println!("{}", serde_json::to_string_pretty(&schema)?);
     Ok(())
@@ -1102,6 +1106,14 @@ mod tests {
                 .command,
             Command::Schema {
                 kind: SchemaKind::RepositoryIntelligence
+            }
+        ));
+        assert!(matches!(
+            Cli::try_parse_from(["egolint", "schema", "repository-intelligence-report"])
+                .expect("repository-intelligence report schema command")
+                .command,
+            Command::Schema {
+                kind: SchemaKind::RepositoryIntelligenceReport
             }
         ));
     }

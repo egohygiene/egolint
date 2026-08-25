@@ -106,6 +106,7 @@ tasks:
       - cargo run --quiet --locked -- schema debt > schemas/debt.schema.json
       - cargo run --quiet --locked -- schema repository-contract > schemas/repository-contract.schema.json
       - cargo run --quiet --locked -- schema repository-intelligence > schemas/repository-intelligence.schema.json
+      - cargo run --quiet --locked -- schema repository-intelligence-report > schemas/repository-intelligence-report.schema.json
 
   schemas:check:
     desc: "Fail when checked-in JSON Schemas differ from the Rust types"
@@ -124,7 +125,8 @@ tasks:
           report \
           debt \
           repository-contract \
-          repository-intelligence; do
+          repository-intelligence \
+          repository-intelligence-report; do
           cargo run --quiet --locked -- schema "$schema" > "$temporary_directory/$schema.schema.json"
           diff --unified \
             "schemas/$schema.schema.json" \

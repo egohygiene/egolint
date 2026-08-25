@@ -298,7 +298,7 @@ class IntegrationDistributionTests(unittest.TestCase):
         self.assertIn("subject-digest:", workflow)
         self.assertRegex(
             workflow,
-            r"\breport \\\n\s+debt \\\n\s+repository-contract \\\n\s+repository-intelligence; do",
+            r"\breport \\\n\s+debt \\\n\s+repository-contract \\\n\s+repository-intelligence \\\n\s+repository-intelligence-report; do",
         )
         self.assertNotRegex(workflow, r"tags:.*:(latest|edge)\s*$")
 

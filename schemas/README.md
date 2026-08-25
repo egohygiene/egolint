@@ -28,6 +28,8 @@ equivalent semantic validation.
   repository requirements after TOML-to-data decoding.
 - `repository-intelligence.schema.json` describes the offline semantic policy,
   exact Hygiene pins, enabled-rule profile, and incremental source coverage.
+- `repository-intelligence-report.schema.json` describes normalized semantic
+  validity, represented commit, coverage, diagnostics, and remediation.
 
 Every contract version is constrained to exactly `1` in its generated schema.
 The report declares whether it contains adapter-exit-only, partial, or complete
