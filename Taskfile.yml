@@ -105,6 +105,7 @@ tasks:
       - cargo run --quiet --locked -- schema report > schemas/report.schema.json
       - cargo run --quiet --locked -- schema debt > schemas/debt.schema.json
       - cargo run --quiet --locked -- schema repository-contract > schemas/repository-contract.schema.json
+      - cargo run --quiet --locked -- schema repository-intelligence > schemas/repository-intelligence.schema.json
 
   schemas:check:
     desc: "Fail when checked-in JSON Schemas differ from the Rust types"
@@ -122,7 +123,8 @@ tasks:
           plan \
           report \
           debt \
-          repository-contract; do
+          repository-contract \
+          repository-intelligence; do
           cargo run --quiet --locked -- schema "$schema" > "$temporary_directory/$schema.schema.json"
           diff --unified \
             "schemas/$schema.schema.json" \
@@ -158,6 +160,8 @@ tasks:
         --workspace "."
         --config ".config/dogfood/egolint.toml"
         validate
+        --repository-intelligence ".config/dogfood/repository-intelligence.toml"
+        --represented-commit "$(git rev-parse --verify HEAD)"
 
   dogfood:architecture:
     desc: "Run Egolint's architecture adapter with bounded self-consumer debt"

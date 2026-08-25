@@ -38,6 +38,14 @@ inputs:
     description: Optional workspace-relative repository-contract TOML path.
     required: false
     default: ""
+  repository-intelligence:
+    description: Optional workspace-relative Repository Intelligence policy TOML path.
+    required: false
+    default: ""
+  represented-commit:
+    description: Full represented Git commit; defaults to github.sha when Repository Intelligence validation is enabled.
+    required: false
+    default: ""
   suppression:
     description: Optional workspace-relative reviewed suppression JSON path.
     required: false
@@ -58,6 +66,9 @@ outputs:
   sarif-report:
     description: Workspace-relative canonical Egolint SARIF report.
     value: ${{ steps.check.outputs.sarif-report }}
+  repository-intelligence-report:
+    description: Workspace-relative normalized Repository Intelligence validation report.
+    value: ${{ steps.check.outputs.repository-intelligence-report }}
   debt-json:
     description: Workspace-relative dependency-debt JSON path; the file exists only for that profile.
     value: ${{ steps.check.outputs.debt-json }}
@@ -89,6 +100,8 @@ runs:
         INPUT_NETWORK: ${{ inputs.network }}
         INPUT_MEGALINTER_CONFIG: ${{ inputs.megalinter-config }}
         INPUT_REPOSITORY_CONTRACT: ${{ inputs.repository-contract }}
+        INPUT_REPOSITORY_INTELLIGENCE: ${{ inputs.repository-intelligence }}
+        INPUT_REPRESENTED_COMMIT: ${{ inputs.represented-commit }}
         INPUT_SUPPRESSION: ${{ inputs.suppression }}
         INPUT_EVALUATION_DATE: ${{ inputs.evaluation-date }}
         INPUT_CHANGED_ONLY: ${{ inputs.changed-only }}

@@ -1,0 +1,17 @@
+{
+  "schema": "egohygiene.architecture-decision-policy-reference/v1",
+  "repository": "egohygiene/egolint",
+  "policy": {
+    "contract": "egohygiene.architecture-decision/v1",
+    "version": "1.1.0",
+    "source": {
+      "repository": "egohygiene/hygiene",
+      "revision": "f598ed659a43dd759d4ede41c27f9e5daf991aa7",
+      "path": "docs/decisions/POLICY.md"
+    }
+  },
+  "decision_directory": "docs/decisions",
+  "index": "docs/decisions/README.md",
+  "extensions": [],
+  "exceptions": []
+}

@@ -1,0 +1,68 @@
+schema-version = 1
+id = "egolint.repository-intelligence-validation/v1"
+repository = "egohygiene/egolint"
+
+[profile]
+id = "blocking"
+enforcement = "blocking"
+enabled-rules = [
+  "EGO-INTEL-CONTRACT-001",
+  "EGO-INTEL-ADOPTION-001",
+  "EGO-INTEL-ADR-METADATA-001",
+  "EGO-INTEL-ADR-LIFECYCLE-001",
+  "EGO-INTEL-ADR-INDEX-001",
+  "EGO-INTEL-ADR-LINEAGE-001",
+  "EGO-INTEL-ROADMAP-STRUCTURE-001",
+  "EGO-INTEL-ROADMAP-STATE-001",
+  "EGO-INTEL-LINK-001",
+  "EGO-INTEL-TRAILER-001",
+  "EGO-INTEL-CYCLE-001",
+]
+
+[[contracts]]
+id = "egohygiene.architecture-decision/v1"
+version = "1.1.0"
+authority = "proposed"
+source-repository = "egohygiene/hygiene"
+source-revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
+source-path = "schemas/architecture-decision.v1.schema.json"
+
+[[contracts]]
+id = "egohygiene.architecture-decision-policy-reference/v1"
+version = "1.0.0"
+authority = "proposed"
+source-repository = "egohygiene/hygiene"
+source-revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
+source-path = "schemas/architecture-decision-policy-reference.v1.schema.json"
+
+[[contracts]]
+id = "hygiene.roadmap/v1alpha1"
+version = "0.1.0"
+authority = "proposed"
+source-repository = "egohygiene/hygiene"
+source-revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
+source-path = "docs/ecosystem/visual-roadmap-system.md"
+
+[[contracts]]
+id = "egohygiene.repository-intelligence/v1"
+version = "1.0.0-alpha.1"
+authority = "proposed"
+source-repository = "egohygiene/hygiene"
+source-revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
+source-path = "schemas/repository-intelligence.v1.schema.json"
+
+[adrs]
+state = "present"
+policy-reference = "docs/decisions/policy-reference.json"
+decision-directory = "docs/decisions"
+index = "docs/decisions/README.md"
+known-external-decisions = ["egohygiene/hygiene#ADR-002"]
+
+[roadmap]
+state = "present"
+path = "ROADMAP.md"
+known-external-steps = ["HYG-RM-001"]
+
+[commit-history]
+state = "present"
+maximum-commits = 100

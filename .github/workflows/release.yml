@@ -107,7 +107,8 @@ jobs:
             plan \
             report \
             debt \
-            repository-contract; do
+            repository-contract \
+            repository-intelligence; do
             cargo run --quiet --locked -- schema "${schema}" \
               > "${temporary_directory}/${schema}.schema.json"
             diff --unified \
