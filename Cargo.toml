@@ -15,6 +15,7 @@ categories = ["command-line-utilities", "development-tools"]
 include = [
   "/.config/megalinter/policy.yml",
   "/.config/rules/portability.toml",
+  "/.config/rules/repository-intelligence.v1.toml",
   "/.config/rules/javascript-architecture.v1.json",
   "/.config/megalinter/tool-matrix.json",
   "/.config/security/scanner-ownership.json",
@@ -28,6 +29,7 @@ include = [
   "/tests/fixtures/compatibility/**",
   "/tests/fixtures/contracts/**",
   "/tests/fixtures/javascript-architecture/**",
+  "/tests/fixtures/repository-intelligence/**",
   "/README.md",
   "/LICENSE",
   "/Cargo.toml",

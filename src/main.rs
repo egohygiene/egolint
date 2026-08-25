@@ -6,9 +6,12 @@ use std::process::ExitCode;
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use egolint::error::exit_code;
 use egolint::rules::{
-    PortabilityRuleSet, RepositoryContract, RepositoryContractEvaluator, RepositoryInventory,
-    apply_suppressions,
+    IntelligenceEnforcement, PortabilityRuleSet, RepositoryContract, RepositoryContractEvaluator,
+    RepositoryIntelligenceEvaluator, RepositoryIntelligencePolicy, RepositoryIntelligenceReport,
+    RepositoryInventory, RepresentedCommit, collect_commit_history,
+    write_intelligence_report_atomic,
 };
+use egolint::rules::{REPOSITORY_INTELLIGENCE_REPORT, apply_suppressions};
 use egolint::sarif::{EGOLINT_SARIF_REPORT, write_sarif_atomic};
 use egolint::{
     CONTRACT_VERSION, Enforcement, EvidenceKind, EvidenceReference, Finding, ReportCompleteness,
@@ -124,6 +127,14 @@ struct RunArgs {
     #[arg(long = "repository-contract")]
     repository_contracts: Vec<PathBuf>,
 
+    /// Versioned Repository Intelligence semantic policy.
+    #[arg(long, requires = "represented_commit")]
+    repository_intelligence: Option<PathBuf>,
+
+    /// Full represented Git commit, `unknown`, or `not-applicable`.
+    #[arg(long, requires = "repository_intelligence")]
+    represented_commit: Option<String>,
+
     /// One versioned suppression JSON document. Repeatable.
     #[arg(long = "suppression", requires = "evaluation_date")]
     suppressions: Vec<PathBuf>,
@@ -172,6 +183,8 @@ enum SchemaKind {
     Report,
     Debt,
     RepositoryContract,
+    RepositoryIntelligence,
+    RepositoryIntelligenceReport,
 }
 
 fn main() -> ExitCode {
@@ -317,6 +330,8 @@ fn execute_lint(
         .map_or_else(Vec::new, |normalized| normalized.tool_results.clone());
     let mut findings = native.findings;
     let mut evidence = native.evidence;
+    let intelligence_report = native.intelligence_report;
+    let intelligence_enforcement = native.intelligence_enforcement;
     let mut completeness = if let Some(normalized) = adapter {
         findings.extend(normalized.findings);
         evidence.extend(normalized.evidence);
@@ -337,13 +352,19 @@ fn execute_lint(
         &mut tool_results,
         &findings,
         !arguments.repository_contracts.is_empty(),
+        intelligence_enforcement,
         !suppressions.is_empty(),
     );
     reconcile_suppressed_tool_results(&mut tool_results, &findings);
 
     let mut report = RunReport::from_plan(&plan.view, status.code());
     report.set_normalized(tool_results, findings, suppressions, evidence, completeness)?;
-    write_run_outputs(&plan, &report, plan.view.profile == Profile::DependencyDebt)?;
+    write_run_outputs(
+        &plan,
+        &report,
+        plan.view.profile == Profile::DependencyDebt,
+        intelligence_report.as_ref(),
+    )?;
     print_findings(&report);
     Ok(report.status.exit_code())
 }
@@ -357,6 +378,8 @@ fn execute_validate(
     plan.prepare_report_directory()?;
     let native = evaluate_native(workspace, arguments)?;
     let mut findings = native.findings;
+    let intelligence_report = native.intelligence_report;
+    let intelligence_enforcement = native.intelligence_enforcement;
     let mut suppressions = load_suppressions(workspace, arguments)?;
     evaluate_suppressions(
         &mut findings,
@@ -368,6 +391,7 @@ fn execute_validate(
         &mut tool_results,
         &findings,
         !arguments.repository_contracts.is_empty(),
+        intelligence_enforcement,
         !suppressions.is_empty(),
     );
     let mut report = RunReport::from_plan(&plan.view, Some(exit_code::CLEAN));
@@ -378,7 +402,7 @@ fn execute_validate(
         native.evidence,
         ReportCompleteness::Partial,
     )?;
-    write_run_outputs(&plan, &report, false)?;
+    write_run_outputs(&plan, &report, false, intelligence_report.as_ref())?;
     print_findings(&report);
     Ok(report.status.exit_code())
 }
@@ -392,6 +416,8 @@ fn execute_fix_preview(
     let outcome = run_isolated_fix(workspace, &resolved, &plan_options(arguments))?;
     let native = evaluate_native(workspace, arguments)?;
     let mut findings = native.findings;
+    let intelligence_report = native.intelligence_report;
+    let intelligence_enforcement = native.intelligence_enforcement;
     let mut suppressions = load_suppressions(workspace, arguments)?;
     evaluate_suppressions(
         &mut findings,
@@ -403,6 +429,7 @@ fn execute_fix_preview(
         &mut tool_results,
         &findings,
         !arguments.repository_contracts.is_empty(),
+        intelligence_enforcement,
         !suppressions.is_empty(),
     );
     let mut report = RunReport::from_plan(&plan.view, outcome.adapter_exit_code);
@@ -423,7 +450,7 @@ fn execute_fix_preview(
         evidence,
         ReportCompleteness::Partial,
     )?;
-    write_run_outputs(&plan, &report, false)?;
+    write_run_outputs(&plan, &report, false, intelligence_report.as_ref())?;
     print_findings(&report);
     println!("Fix preview: {}", outcome.patch_path.display());
     println!("Patch SHA-256: {}", outcome.patch_sha256);
@@ -446,6 +473,8 @@ fn execute_fix_preview(
 struct NativeEvaluation {
     findings: Vec<Finding>,
     evidence: Vec<EvidenceReference>,
+    intelligence_report: Option<RepositoryIntelligenceReport>,
+    intelligence_enforcement: Option<IntelligenceEnforcement>,
 }
 
 fn evaluate_native(
@@ -481,8 +510,51 @@ fn evaluate_native(
             description: Some("Pinned local repository-contract projection.".to_owned()),
         });
     }
+    let mut intelligence_report = None;
+    let mut intelligence_enforcement = None;
+    if let Some(policy_path) = &arguments.repository_intelligence {
+        let (relative, contents) = read_workspace_file(workspace, policy_path, 4 * 1024 * 1024)?;
+        let contents = std::str::from_utf8(&contents).map_err(|_| {
+            EgolintError::Configuration(format!(
+                "repository-intelligence policy must contain UTF-8: {}",
+                relative.display()
+            ))
+        })?;
+        let policy = RepositoryIntelligencePolicy::from_toml(contents, &relative)?;
+        let represented = RepresentedCommit::parse(
+            arguments
+                .represented_commit
+                .as_deref()
+                .expect("clap requires represented commit with intelligence policy"),
+        )?;
+        let history = collect_commit_history(
+            workspace,
+            &represented,
+            policy.commit_history.maximum_commits,
+        )?;
+        let evaluator = RepositoryIntelligenceEvaluator::new(&policy, &relative, represented)?;
+        let evaluation = evaluator.evaluate(&inventory, &history)?;
+        findings.extend(evaluation.findings);
+        intelligence_enforcement = Some(policy.profile.enforcement);
+        intelligence_report = Some(evaluation.report);
+        evidence.push(EvidenceReference {
+            schema_version: CONTRACT_VERSION,
+            kind: EvidenceKind::Configuration,
+            path: relative,
+            sha256: None,
+            description: Some(
+                "Versioned Repository Intelligence semantic policy and adoption profile."
+                    .to_owned(),
+            ),
+        });
+    }
     findings.sort_by(finding_order);
-    Ok(NativeEvaluation { findings, evidence })
+    Ok(NativeEvaluation {
+        findings,
+        evidence,
+        intelligence_report,
+        intelligence_enforcement,
+    })
 }
 
 fn load_suppressions(
@@ -521,7 +593,10 @@ fn evaluate_suppressions(
         if rule.tool_id == "EGOLINT_PORTABILITY" {
             portability.is_suppressible(&rule.rule_id)
         } else {
-            rule.tool_id != "EGOLINT_SUPPRESSIONS"
+            !matches!(
+                rule.tool_id.as_str(),
+                "EGOLINT_SUPPRESSIONS" | "EGOLINT_REPOSITORY_INTELLIGENCE"
+            )
         }
     })
 }
@@ -625,19 +700,42 @@ fn add_native_tool_results(
     tool_results: &mut Vec<ToolResult>,
     findings: &[Finding],
     contracts_evaluated: bool,
+    intelligence_enforcement: Option<IntelligenceEnforcement>,
     suppressions_evaluated: bool,
 ) {
-    tool_results.push(native_tool_result("EGOLINT_PORTABILITY", findings));
+    tool_results.push(native_tool_result(
+        "EGOLINT_PORTABILITY",
+        findings,
+        Enforcement::Blocking,
+    ));
     if contracts_evaluated {
-        tool_results.push(native_tool_result("EGOLINT_REPOSITORY_CONTRACT", findings));
+        tool_results.push(native_tool_result(
+            "EGOLINT_REPOSITORY_CONTRACT",
+            findings,
+            Enforcement::Blocking,
+        ));
+    }
+    if let Some(enforcement) = intelligence_enforcement {
+        tool_results.push(native_tool_result(
+            "EGOLINT_REPOSITORY_INTELLIGENCE",
+            findings,
+            match enforcement {
+                IntelligenceEnforcement::Blocking => Enforcement::Blocking,
+                IntelligenceEnforcement::Advisory => Enforcement::Advisory,
+            },
+        ));
     }
     if suppressions_evaluated {
-        tool_results.push(native_tool_result("EGOLINT_SUPPRESSIONS", findings));
+        tool_results.push(native_tool_result(
+            "EGOLINT_SUPPRESSIONS",
+            findings,
+            Enforcement::Blocking,
+        ));
     }
     tool_results.sort_by(|left, right| left.tool_id.cmp(&right.tool_id));
 }
 
-fn native_tool_result(tool_id: &str, findings: &[Finding]) -> ToolResult {
+fn native_tool_result(tool_id: &str, findings: &[Finding], enforcement: Enforcement) -> ToolResult {
     let relevant = findings
         .iter()
         .filter(|finding| finding.rule.tool_id == tool_id)
@@ -665,12 +763,13 @@ fn native_tool_result(tool_id: &str, findings: &[Finding]) -> ToolResult {
         policy_source: match tool_id {
             "EGOLINT_PORTABILITY" => ".config/rules/portability.toml",
             "EGOLINT_REPOSITORY_CONTRACT" => "docs/repository-contracts.md",
+            "EGOLINT_REPOSITORY_INTELLIGENCE" => ".config/rules/repository-intelligence.v1.toml",
             "EGOLINT_SUPPRESSIONS" => "docs/suppressions.md",
             _ => "README.md",
         }
         .to_owned(),
         status,
-        enforcement: Enforcement::Blocking,
+        enforcement,
         finding_count,
         warning_count,
         duration_ms: None,
@@ -698,11 +797,19 @@ fn write_run_outputs(
     plan: &ExecutionPlan,
     report: &RunReport,
     include_debt: bool,
+    intelligence_report: Option<&RepositoryIntelligenceReport>,
 ) -> Result<(), EgolintError> {
     plan.validate_report_path()?;
     report.write_atomic(&plan.report_path().join("run.json"))?;
     plan.validate_report_path()?;
     write_sarif_atomic(report, &plan.view.workspace.join(EGOLINT_SARIF_REPORT))?;
+    if let Some(intelligence_report) = intelligence_report {
+        plan.validate_report_path()?;
+        write_intelligence_report_atomic(
+            intelligence_report,
+            &plan.view.workspace.join(REPOSITORY_INTELLIGENCE_REPORT),
+        )?;
+    }
     if include_debt {
         plan.validate_report_path()?;
         let debt = egolint::debt::DebtReport::from_run(report)?;
@@ -854,6 +961,12 @@ fn print_schema(kind: SchemaKind) -> Result<(), EgolintError> {
         SchemaKind::Report => schemars::schema_for!(RunReport),
         SchemaKind::Debt => schemars::schema_for!(egolint::debt::DebtReport),
         SchemaKind::RepositoryContract => schemars::schema_for!(RepositoryContract),
+        SchemaKind::RepositoryIntelligence => {
+            schemars::schema_for!(RepositoryIntelligencePolicy)
+        }
+        SchemaKind::RepositoryIntelligenceReport => {
+            schemars::schema_for!(RepositoryIntelligenceReport)
+        }
     };
     println!("{}", serde_json::to_string_pretty(&schema)?);
     Ok(())
@@ -961,6 +1074,46 @@ mod tests {
                 .command,
             Command::Schema {
                 kind: SchemaKind::RepositoryContract
+            }
+        ));
+    }
+
+    #[test]
+    fn repository_intelligence_requires_explicit_represented_commit() {
+        assert!(
+            Cli::try_parse_from([
+                "egolint",
+                "validate",
+                "--repository-intelligence",
+                "intelligence.toml",
+            ])
+            .is_err()
+        );
+        assert!(
+            Cli::try_parse_from([
+                "egolint",
+                "validate",
+                "--repository-intelligence",
+                "intelligence.toml",
+                "--represented-commit",
+                "unknown",
+            ])
+            .is_ok()
+        );
+        assert!(matches!(
+            Cli::try_parse_from(["egolint", "schema", "repository-intelligence"])
+                .expect("repository-intelligence schema command")
+                .command,
+            Command::Schema {
+                kind: SchemaKind::RepositoryIntelligence
+            }
+        ));
+        assert!(matches!(
+            Cli::try_parse_from(["egolint", "schema", "repository-intelligence-report"])
+                .expect("repository-intelligence report schema command")
+                .command,
+            Command::Schema {
+                kind: SchemaKind::RepositoryIntelligenceReport
             }
         ));
     }

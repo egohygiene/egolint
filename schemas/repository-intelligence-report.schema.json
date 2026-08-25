@@ -1,0 +1,414 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RepositoryIntelligenceReport",
+  "description": "Versioned evidence artifact consumed directly by Relay and Observatory.",
+  "type": "object",
+  "properties": {
+    "adrs": {
+      "description": "Declared ADR evidence coverage.",
+      "$ref": "#/$defs/AdoptionState"
+    },
+    "catalog_version": {
+      "description": "Bundled rule-catalog version.",
+      "type": "string"
+    },
+    "commit_history": {
+      "description": "Declared commit-history evidence coverage.",
+      "$ref": "#/$defs/AdoptionState"
+    },
+    "commit_history_truncated": {
+      "description": "Whether the commit-history collector hit its explicit bound.",
+      "type": "boolean"
+    },
+    "contract": {
+      "description": "Exact report contract identifier.",
+      "type": "string"
+    },
+    "contracts": {
+      "description": "Exact Hygiene contract pins used for meaning.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/IntelligenceContractPin"
+      }
+    },
+    "diagnostics": {
+      "description": "Stable ordered machine diagnostics with remediation.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/IntelligenceDiagnostic"
+      }
+    },
+    "policy_path": {
+      "description": "Repository policy path.",
+      "type": "string"
+    },
+    "profile": {
+      "description": "Selected rule profile.",
+      "$ref": "#/$defs/IntelligenceProfile"
+    },
+    "repository": {
+      "description": "Repository whose records were inspected.",
+      "type": "string"
+    },
+    "represented_commit": {
+      "description": "Exact represented commit or explicit absence state.",
+      "$ref": "#/$defs/RepresentedCommit"
+    },
+    "roadmap": {
+      "description": "Declared roadmap evidence coverage.",
+      "$ref": "#/$defs/AdoptionState"
+    },
+    "schema_version": {
+      "description": "Report contract version.",
+      "type": "integer",
+      "const": 1
+    },
+    "status": {
+      "description": "Semantic validity independent of advisory/blocking enforcement.",
+      "$ref": "#/$defs/IntelligenceValidationStatus"
+    },
+    "summary": {
+      "description": "Exact normalized counts.",
+      "$ref": "#/$defs/IntelligenceValidationSummary"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract",
+    "catalog_version",
+    "repository",
+    "policy_path",
+    "profile",
+    "contracts",
+    "represented_commit",
+    "adrs",
+    "roadmap",
+    "commit_history",
+    "commit_history_truncated",
+    "status",
+    "summary",
+    "diagnostics"
+  ],
+  "$defs": {
+    "AdoptionState": {
+      "description": "Whether a Repository Intelligence source surface is available.",
+      "oneOf": [
+        {
+          "description": "The source is declared and must validate.",
+          "type": "string",
+          "const": "present"
+        },
+        {
+          "description": "Migration has not yet established whether the source is available.",
+          "type": "string",
+          "const": "unknown"
+        },
+        {
+          "description": "The source is intentionally irrelevant to this repository.",
+          "type": "string",
+          "const": "not-applicable"
+        }
+      ]
+    },
+    "IntelligenceContractPin": {
+      "description": "One exact upstream contract supported by the bundled rule catalog.",
+      "type": "object",
+      "properties": {
+        "authority": {
+          "description": "Current authority state, such as `proposed` or `approved`.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Versioned contract identifier.",
+          "type": "string"
+        },
+        "source-path": {
+          "description": "Repository-relative canonical source path.",
+          "type": "string"
+        },
+        "source-repository": {
+          "description": "Canonical source repository.",
+          "type": "string"
+        },
+        "source-revision": {
+          "description": "Immutable 40-character Git revision.",
+          "type": "string"
+        },
+        "version": {
+          "description": "Exact semantic contract or policy version.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "authority",
+        "source-repository",
+        "source-revision",
+        "source-path"
+      ]
+    },
+    "IntelligenceDiagnostic": {
+      "description": "One structured semantic diagnostic in the dedicated report.",
+      "type": "object",
+      "properties": {
+        "contracts": {
+          "description": "Hygiene contracts that define the validated meaning.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "id": {
+          "description": "Stable diagnostic identifier.",
+          "type": "string"
+        },
+        "location": {
+          "description": "Exact source location when available.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceLocation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "message": {
+          "description": "Concise local diagnostic.",
+          "type": "string"
+        },
+        "remediation": {
+          "description": "Structured actionable repair guidance.",
+          "type": "string"
+        },
+        "rule_id": {
+          "description": "Stable Egolint rule identifier.",
+          "type": "string"
+        },
+        "severity": {
+          "description": "Effective severity after profile enforcement.",
+          "$ref": "#/$defs/Severity"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "rule_id",
+        "severity",
+        "message",
+        "remediation",
+        "contracts"
+      ]
+    },
+    "IntelligenceEnforcement": {
+      "description": "Quality-gate behavior for the declared Repository Intelligence profile.",
+      "oneOf": [
+        {
+          "description": "Error-level enabled rules fail the Egolint run.",
+          "type": "string",
+          "const": "blocking"
+        },
+        {
+          "description": "Enabled rules remain visible as warnings without failing the run.",
+          "type": "string",
+          "const": "advisory"
+        }
+      ]
+    },
+    "IntelligenceProfile": {
+      "description": "Exact rules and enforcement selected by a repository.",
+      "type": "object",
+      "properties": {
+        "enabled-rules": {
+          "description": "Stable Egolint rule IDs evaluated by this profile.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enforcement": {
+          "description": "Whether enabled rule failures block CI.",
+          "$ref": "#/$defs/IntelligenceEnforcement"
+        },
+        "id": {
+          "description": "Stable repository-owned profile name.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "enforcement",
+        "enabled-rules"
+      ]
+    },
+    "IntelligenceValidationStatus": {
+      "description": "Semantic validity independent of whether the profile blocks CI.",
+      "oneOf": [
+        {
+          "description": "Every declared present surface passed enabled rules.",
+          "type": "string",
+          "const": "valid"
+        },
+        {
+          "description": "At least one enabled semantic rule found invalid source data.",
+          "type": "string",
+          "const": "invalid"
+        },
+        {
+          "description": "Unknown or truncated evidence prevents a conformance claim.",
+          "type": "string",
+          "const": "incomplete"
+        },
+        {
+          "description": "Every source surface was explicitly not applicable.",
+          "type": "string",
+          "const": "not_applicable"
+        }
+      ]
+    },
+    "IntelligenceValidationSummary": {
+      "description": "Exact counts for the dedicated semantic report.",
+      "type": "object",
+      "properties": {
+        "adrs_inspected": {
+          "description": "Number of canonical ADR records inspected.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "blocking_diagnostics": {
+          "description": "Number of effective error/critical diagnostics.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "commits_inspected": {
+          "description": "Number of commits inspected for optional trailers.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "diagnostics": {
+          "description": "Number of structured diagnostics.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "roadmap_steps_inspected": {
+          "description": "Number of canonical roadmap steps inspected.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "diagnostics",
+        "blocking_diagnostics",
+        "commits_inspected",
+        "adrs_inspected",
+        "roadmap_steps_inspected"
+      ]
+    },
+    "RepresentedCommit": {
+      "description": "Explicit represented-commit evidence included in every validation report.",
+      "type": "object",
+      "properties": {
+        "revision": {
+          "description": "Full lowercase Git commit when `state` is `present`.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state": {
+          "description": "Whether a commit is available, unknown, or not applicable.",
+          "$ref": "#/$defs/AdoptionState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "state"
+      ]
+    },
+    "Severity": {
+      "description": "Normalized finding severity.",
+      "oneOf": [
+        {
+          "description": "Informational observation.",
+          "type": "string",
+          "const": "info"
+        },
+        {
+          "description": "Nonblocking warning.",
+          "type": "string",
+          "const": "warning"
+        },
+        {
+          "description": "Blocking correctness or policy failure.",
+          "type": "string",
+          "const": "error"
+        },
+        {
+          "description": "Urgent high-impact security or safety failure.",
+          "type": "string",
+          "const": "critical"
+        }
+      ]
+    },
+    "SourceLocation": {
+      "description": "Workspace-relative source location.",
+      "type": "object",
+      "properties": {
+        "end_column": {
+          "description": "One-based ending column.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "end_line": {
+          "description": "One-based ending line.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "path": {
+          "description": "Normalized path relative to the inspected workspace.",
+          "type": "string"
+        },
+        "start_column": {
+          "description": "One-based starting column.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "start_line": {
+          "description": "One-based starting line.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ]
+    }
+  }
+}

@@ -1,8 +1,8 @@
 # Machine-readable contracts
 
 Egolint owns versioned contracts for profiles, findings, suppressions, evidence,
-per-tool results, execution plans, run reports, and the repository-contract
-validation envelope. The checked-in JSON Schemas in
+per-tool results, execution plans, run reports, the repository-contract
+validation envelope, and Repository Intelligence semantic policy. The checked-in JSON Schemas in
 [`schemas/`](../schemas/) are generated from the Rust types used by the CLI; CI
 rejects schema drift.
 
@@ -83,10 +83,13 @@ egolint explain --format "json"
 egolint doctor --profile "holistic"
 egolint schema finding
 egolint schema repository-contract
+egolint schema repository-intelligence
+egolint schema repository-intelligence-report
 ```
 
 `validate` resolves every configuration layer, evaluates native portability
-policy plus requested repository contracts and suppressions, and writes
+policy plus requested repository contracts, Repository Intelligence sources,
+and suppressions, and writes
 `.reports/egolint/run.json` and canonical SARIF without starting a container.
 `plan` prints the redacted execution plan. `doctor` additionally requires and
 probes Docker or Podman before printing that plan. `check` is a compatibility

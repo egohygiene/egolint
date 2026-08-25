@@ -8,7 +8,7 @@ status: provisional
 owners:
   - egohygiene
 created: 2026-08-19
-updated: 2026-08-24
+updated: 2026-08-25
 governed_by:
   - architecture-roadmap
 depends_on:
@@ -33,14 +33,14 @@ repository: egohygiene/egolint
 visibility: public
 publication: central
 route: /roadmap/egolint/
-updated: 2026-08-24
+updated: 2026-08-25
 -->
-## 2026-08-24 execution snapshot
+## 2026-08-25 execution snapshot
 
 > This evidence-reconciled snapshot is the issue-generation and visual-roadmap handoff. The longer-horizon strategy below remains canonical context; generated HTML, JSON, progress, issue plans, and commit lists are projections.
 
 **Lifecycle:** early alpha, pre-release  
-**Current gate:** Turn the red self-dogfood run and its 119 findings into an owned, green baseline through issues #20 and #21.  
+**Current gate:** Preserve the owned self-dogfood baseline while adding semantic Repository Intelligence validation through issue #24.
 **North-star outcome:** A portable, evidence-backed lint platform for organization contracts, roadmaps, repositories, and generated artifacts.
 
 ### Visual roadmap publication
@@ -84,7 +84,7 @@ issues: [20, 21]
 -->
 #### EGL-Q02 — Classify the dogfood findings
 
-**State:** `active`  
+**State:** `active`
 **Depends on:** `EGL-Q01`
 
 **Outcome:** Every self-dogfood finding is either fixed, accepted with rationale, or identified as a rule defect.
@@ -97,7 +97,7 @@ issues: [20, 21]
 **Current evidence:**
 
 - Dogfood run 32774944039 failed with 119 findings.
-- Issues #20 and #21 track the current gate.
+- PRs #23 and #25 resolved the shebang and Node package-export rule defects tracked by issues #20 and #21; the remaining observed findings still require explicit disposition.
 
 <!-- roadmap-step
 id: EGL-Q03
@@ -186,6 +186,29 @@ issues: []
 **Current evidence:**
 
 - Roadmap-graph validation is assigned to Egolint by the 2026-08-24 visual-roadmap specification.
+
+<!-- roadmap-step
+id: EGL-Q07
+status: active
+depends_on: [EGL-Q01]
+issues: [24]
+-->
+#### EGL-Q07 — Validate Repository Intelligence source linkage
+
+**State:** `active`
+**Depends on:** `EGL-Q01`
+
+**Outcome:** Versioned Egolint rules validate ADR metadata and lineage, roadmap execution graphs, declared GitHub links, and optional commit trailers without network access.
+
+**Exit criteria:**
+
+- [ ] Positive and hostile fixtures cover ADR lifecycle, supersession, roadmap state, dangling links, trailers, and cycles.
+- [ ] Relay and Observatory can consume source locations, represented commit, rule IDs, coverage state, and remediation without parsing prose.
+- [ ] Incremental profiles expose unknown and not-applicable sources without claiming false conformance or failing disabled rules.
+
+**Current evidence:**
+
+- Issue #24 defines the validator boundary; the current implementation remains under review.
 
 ### Roadmap-to-issue handoff
 

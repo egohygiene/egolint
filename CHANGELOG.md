@@ -29,6 +29,9 @@ stabilize.
   integrations.
 - Immutable-tree fix previews plus digest/base/post-tree-gated, index-aware
   reviewed patch application.
+- Versioned offline Repository Intelligence validation for ADR contracts and
+  lineage, roadmap graphs, declared links, and optional commit trailers, with
+  incremental adoption profiles and normalized remediation evidence.
 
 ### Changed
 

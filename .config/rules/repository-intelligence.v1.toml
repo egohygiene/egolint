@@ -1,0 +1,126 @@
+schema-version = 1
+catalog-version = "0.1.0-alpha.1"
+owner = "egohygiene/egolint"
+tool-id = "EGOLINT_REPOSITORY_INTELLIGENCE"
+policy-source = ".config/rules/repository-intelligence.v1.toml"
+
+[[upstream-contracts]]
+id = "egohygiene.architecture-decision/v1"
+version = "1.1.0"
+authority = "proposed"
+source-repository = "egohygiene/hygiene"
+source-revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
+source-path = "schemas/architecture-decision.v1.schema.json"
+
+[[upstream-contracts]]
+id = "egohygiene.architecture-decision-policy-reference/v1"
+version = "1.0.0"
+authority = "proposed"
+source-repository = "egohygiene/hygiene"
+source-revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
+source-path = "schemas/architecture-decision-policy-reference.v1.schema.json"
+
+[[upstream-contracts]]
+id = "hygiene.roadmap/v1alpha1"
+version = "0.1.0"
+authority = "proposed"
+source-repository = "egohygiene/hygiene"
+source-revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
+source-path = "docs/ecosystem/visual-roadmap-system.md"
+
+[[upstream-contracts]]
+id = "egohygiene.repository-intelligence/v1"
+version = "1.0.0-alpha.1"
+authority = "proposed"
+source-repository = "egohygiene/hygiene"
+source-revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
+source-path = "schemas/repository-intelligence.v1.schema.json"
+
+[[rules]]
+id = "EGO-INTEL-CONTRACT-001"
+title = "Repository Intelligence contracts use supported immutable pins"
+default-severity = "error"
+contracts = [
+  "egohygiene.architecture-decision/v1",
+  "egohygiene.architecture-decision-policy-reference/v1",
+  "hygiene.roadmap/v1alpha1",
+  "egohygiene.repository-intelligence/v1",
+]
+remediation = "Replace moving or unsupported contract references with the exact Egolint-supported Hygiene revision and version."
+
+[[rules]]
+id = "EGO-INTEL-ADOPTION-001"
+title = "Adoption and evidence availability remain explicit"
+default-severity = "warning"
+contracts = ["egohygiene.repository-intelligence/v1"]
+remediation = "Declare each surface present, unknown, or not-applicable; provide a represented commit before claiming complete evidence."
+
+[[rules]]
+id = "EGO-INTEL-ADR-METADATA-001"
+title = "ADR metadata and document anatomy match the inherited contract"
+default-severity = "error"
+contracts = ["egohygiene.architecture-decision/v1"]
+remediation = "Repair the first YAML front matter document, filename/ID agreement, required fields, or required section order."
+
+[[rules]]
+id = "EGO-INTEL-ADR-LIFECYCLE-001"
+title = "ADR lifecycle claims preserve human disposition authority"
+default-severity = "error"
+contracts = ["egohygiene.architecture-decision/v1"]
+remediation = "Keep new records proposed or attach durable human approval evidence required by the declared terminal state."
+
+[[rules]]
+id = "EGO-INTEL-ADR-INDEX-001"
+title = "The ADR index has exactly one canonical entry per record"
+default-severity = "error"
+contracts = ["egohygiene.architecture-decision/v1"]
+remediation = "Add or repair the canonical relative index link and remove duplicate entries without deleting historical records."
+
+[[rules]]
+id = "EGO-INTEL-ADR-LINEAGE-001"
+title = "ADR references and supersession remain resolvable and bidirectional"
+default-severity = "error"
+contracts = ["egohygiene.architecture-decision/v1"]
+remediation = "Resolve dangling decision references, add the reciprocal supersession link, and remove lineage cycles."
+
+[[rules]]
+id = "EGO-INTEL-ROADMAP-STRUCTURE-001"
+title = "Roadmap manifests and steps use stable versioned structure"
+default-severity = "error"
+contracts = ["hygiene.roadmap/v1alpha1"]
+remediation = "Repair the roadmap manifest or step metadata, use a unique stable ID, and keep one outcome plus checklist exit criteria."
+
+[[rules]]
+id = "EGO-INTEL-ROADMAP-STATE-001"
+title = "Roadmap states agree with exit criteria and dependencies"
+default-severity = "error"
+contracts = ["hygiene.roadmap/v1alpha1"]
+remediation = "Reconcile the declared state with checklist completion and ensure active or ready work has complete dependencies."
+
+[[rules]]
+id = "EGO-INTEL-LINK-001"
+title = "Declared issue, pull request, commit, and cross-record links are structural"
+default-severity = "error"
+contracts = [
+  "egohygiene.architecture-decision/v1",
+  "hygiene.roadmap/v1alpha1",
+  "egohygiene.repository-intelligence/v1",
+]
+remediation = "Use a canonical HTTPS GitHub URL or a declared local/fully-qualified stable reference."
+
+[[rules]]
+id = "EGO-INTEL-TRAILER-001"
+title = "Optional Repository Intelligence commit trailers resolve"
+default-severity = "error"
+contracts = ["egohygiene.repository-intelligence/v1"]
+remediation = "Use one resolvable Roadmap-Step or ADR-Ref value per trailer line, or remove the malformed optional trailer."
+
+[[rules]]
+id = "EGO-INTEL-CYCLE-001"
+title = "Roadmap dependencies and ADR supersession are acyclic"
+default-severity = "error"
+contracts = [
+  "egohygiene.architecture-decision/v1",
+  "hygiene.roadmap/v1alpha1",
+]
+remediation = "Remove at least one dependency or supersession edge so the declared graph is acyclic."

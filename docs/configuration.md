@@ -83,6 +83,11 @@ form in consumer policy. A future native policy-overlay contract can add
 persistent inheritance from embedded profiles without relying on this upstream
 path behavior.
 
+`--repository-intelligence` selects one versioned semantic policy and requires
+`--represented-commit` as a full Git SHA, `unknown`, or `not-applicable`. The
+policy declares its own incremental source coverage and enabled-rule profile;
+see [Repository Intelligence validation](repository-intelligence.md).
+
 `--changed-only`, repeatable `--enable-linter`, and repeatable
 `--disable-linter` apply to one invocation and are not persistent TOML fields.
 Repeatable `--suppression` inputs each name one versioned suppression JSON

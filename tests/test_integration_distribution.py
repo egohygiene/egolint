@@ -59,6 +59,7 @@ class IntegrationDistributionTests(unittest.TestCase):
             {
                 "run-report",
                 "sarif-report",
+                "repository-intelligence-report",
                 "debt-json",
                 "debt-markdown",
                 "raw-megalinter-json",
@@ -67,7 +68,13 @@ class IntegrationDistributionTests(unittest.TestCase):
             },
         )
         script = (REPOSITORY_ROOT / "scripts/github-action.sh").read_text(encoding="utf-8")
-        for report in ("run.json", "egolint.sarif", "debt.json", "debt.md"):
+        for report in (
+            "run.json",
+            "egolint.sarif",
+            "repository-intelligence.json",
+            "debt.json",
+            "debt.md",
+        ):
             self.assertIn(report, script)
         for raw_report in ("mega-linter-report.json", "mega-linter-report.sarif"):
             self.assertIn(raw_report, script)
@@ -188,6 +195,10 @@ class IntegrationDistributionTests(unittest.TestCase):
             )
             self.assertEqual(action_outputs["run-report"], ".reports/egolint/run.json")
             self.assertEqual(action_outputs["sarif-report"], ".reports/egolint/egolint.sarif")
+            self.assertEqual(
+                action_outputs["repository-intelligence-report"],
+                ".reports/egolint/repository-intelligence.json",
+            )
             self.assertEqual(action_outputs["debt-json"], ".reports/egolint/debt.json")
             self.assertEqual(action_outputs["debt-markdown"], ".reports/egolint/debt.md")
             self.assertEqual(action_outputs["exit-code"], "0")
@@ -287,7 +298,7 @@ class IntegrationDistributionTests(unittest.TestCase):
         self.assertIn("subject-digest:", workflow)
         self.assertRegex(
             workflow,
-            r"\breport \\\n\s+debt \\\n\s+repository-contract; do",
+            r"\breport \\\n\s+debt \\\n\s+repository-contract \\\n\s+repository-intelligence \\\n\s+repository-intelligence-report; do",
         )
         self.assertNotRegex(workflow, r"tags:.*:(latest|edge)\s*$")
 
