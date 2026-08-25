@@ -51,6 +51,8 @@ stabilize.
 
 - Distinguished absolute interpreter shebangs from Rust crate-level inner
   attributes when enforcing executable Git modes.
+- Resolved Node package export maps and subpath exports in the JavaScript
+  architecture adapter without package-specific exceptions.
 
 ## [0.1.0-alpha.1] - Unreleased
 

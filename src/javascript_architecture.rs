@@ -584,6 +584,10 @@ fn dependency_cruiser_config(rules: &[ArchitectureRule]) -> Value {
         "required": [],
         "options": {
             "doNotFollow": {"path": "node_modules"},
+            "enhancedResolveOptions": {
+                "exportsFields": ["exports"],
+                "conditionNames": ["import", "require", "node", "default"]
+            },
             "exclude": "(^|/)node_modules(/|$)",
             "skipAnalysisNotInRules": true
         }
@@ -1076,6 +1080,15 @@ mod tests {
         assert_eq!(first, second);
         assert_eq!(first["forbidden"][0]["name"], "no-deep-import");
         assert_eq!(first["options"]["skipAnalysisNotInRules"], true);
+        assert_eq!(
+            first["options"]["enhancedResolveOptions"],
+            json!({
+                "exportsFields": ["exports"],
+                "conditionNames": ["import", "require", "node", "default"]
+            })
+        );
+        assert!(first["options"]["enhancedResolveOptions"]["mainFields"].is_null());
+        assert!(first["options"]["enhancedResolveOptions"]["extensions"].is_null());
     }
 
     #[test]
