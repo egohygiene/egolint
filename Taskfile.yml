@@ -158,8 +158,6 @@ tasks:
         --workspace "."
         --config ".config/dogfood/egolint.toml"
         validate
-        --suppression ".config/dogfood/rust-inner-attribute.suppression.json"
-        --evaluation-date "{{.DOGFOOD_EVALUATION_DATE}}"
 
   dogfood:architecture:
     desc: "Run Egolint's architecture adapter with bounded self-consumer debt"
@@ -191,8 +189,6 @@ tasks:
         --workspace "."
         --config ".config/dogfood/egolint.toml"
         lint
-        --suppression ".config/dogfood/rust-inner-attribute.suppression.json"
-        --evaluation-date "{{.DOGFOOD_EVALUATION_DATE}}"
 
   dogfood:
     desc: "Dogfood Egolint as its own reference consumer"

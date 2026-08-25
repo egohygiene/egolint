@@ -17,16 +17,20 @@ catalog path, and deterministic fingerprint.
 | `EGO-PORT-PATH-001`     | Error    | Windows device names, reserved characters, and trailing dot/space |
 | `EGO-PORT-EOL-001`      | Error    | Mixed LF/CRLF or lone carriage returns                            |
 | `EGO-PORT-EOL-002`      | Error    | CRLF in portable automation files                                 |
-| `EGO-PORT-EXEC-001`     | Error    | Tracked shebang scripts without Git mode `100755`                 |
+| `EGO-PORT-EXEC-001`     | Error    | Tracked interpreter shebangs without Git mode `100755`            |
 | `EGO-PORT-HOME-001`     | Warning  | Literal workstation home directories in automation                |
 | `EGO-PORT-CMD-001`      | Warning  | Reviewed GNU/BSD command-form differences                         |
 | `EGO-PORT-WORKFLOW-001` | Warning  | Multi-OS GitHub Actions steps without an explicit shell           |
 
 The path and executable checks use Git's NUL-delimited inventory and index mode,
 not newline parsing or the current host's filesystem permission bits. This keeps
-results deterministic on Windows. The case-collision check deliberately uses
-ASCII folding: it catches the common Git/Windows failure without pretending to
-implement every filesystem's locale- and Unicode-specific comparison behavior.
+results deterministic on Windows. Executable-mode enforcement requires the
+first line to begin with `#!` followed by an absolute interpreter path (with
+optional horizontal whitespace), so language syntax such as Rust's `#![...]`
+inner attributes is not classified as a script. The case-collision check
+deliberately uses ASCII folding: it catches the common Git/Windows failure
+without pretending to implement every filesystem's locale- and Unicode-specific
+comparison behavior.
 
 The GNU/BSD rule is advisory because a lexical command match cannot prove the
 surrounding runtime guard. Use an expiring suppression when a script performs an

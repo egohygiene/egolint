@@ -282,7 +282,7 @@ impl PortabilityRuleSet {
 
     fn executable_mode(&self, entry: &RepositoryEntry, findings: &mut Vec<Finding>) -> Result<()> {
         if entry.kind == RepositoryEntryKind::File
-            && entry.content.starts_with(b"#!")
+            && has_interpreter_shebang(&entry.content)
             && entry.git_mode.is_some()
             && entry.git_mode != Some(100_755)
         {
@@ -452,6 +452,15 @@ impl PortabilityRuleSet {
             suppressed_by: None,
         }
     }
+}
+
+fn has_interpreter_shebang(content: &[u8]) -> bool {
+    content.strip_prefix(b"#!").and_then(|remainder| {
+        remainder
+            .iter()
+            .copied()
+            .find(|byte| !matches!(byte, b' ' | b'\t'))
+    }) == Some(b'/')
 }
 
 fn windows_segment_problem(segment: &str) -> Option<&'static str> {
@@ -860,6 +869,31 @@ mod tests {
         assert!(ids.contains(&AUTOMATION_EOL));
         assert!(ids.contains(&EXECUTABLE_MODE));
         assert_eq!(findings.len(), 3);
+    }
+
+    #[test]
+    fn executable_mode_distinguishes_rust_inner_attributes_from_shebangs() {
+        let findings = evaluate(vec![
+            RepositoryEntry::file(
+                "src/lib.rs",
+                Some(100_644),
+                b"#![forbid(unsafe_code)]\npub fn example() {}\n".to_vec(),
+            ),
+            RepositoryEntry::file(
+                "scripts/check.sh",
+                Some(100_644),
+                b"#!/usr/bin/env sh\nprintf '%s\\n' \"ok\"\n".to_vec(),
+            ),
+        ]);
+
+        assert_eq!(rule_ids(&findings), vec![EXECUTABLE_MODE]);
+        assert_eq!(
+            findings[0]
+                .location
+                .as_ref()
+                .map(|location| location.path.as_path()),
+            Some(Path::new("scripts/check.sh"))
+        );
     }
 
     #[test]

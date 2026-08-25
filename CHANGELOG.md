@@ -47,6 +47,11 @@ stabilize.
 - Removed generated Empathy evidence, operating-system metadata, and language
   caches from version control.
 
+### Fixed
+
+- Distinguished absolute interpreter shebangs from Rust crate-level inner
+  attributes when enforcing executable Git modes.
+
 ## [0.1.0-alpha.1] - Unreleased
 
 Reserved for the first reviewed alpha release. No artifact is asserted to have

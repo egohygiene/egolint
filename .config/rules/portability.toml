@@ -50,11 +50,11 @@ evidence = [
 
 [[rules]]
 id = "EGO-PORT-EXEC-001"
-title = "Shebang scripts must be executable in the Git index"
+title = "Interpreter shebang scripts must be executable in the Git index"
 category = "executable"
 severity = "error"
 suppressible = true
-description = "Use the tracked Git mode rather than host filesystem metadata so checks agree on Linux, macOS, and Windows."
+description = "Require executable Git mode when a file starts with an absolute interpreter shebang; language syntax such as Rust inner attributes is excluded."
 evidence = [
   "https://git-scm.com/docs/git-update-index#Documentation/git-update-index.txt---chmod-x",
 ]
