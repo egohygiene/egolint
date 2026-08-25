@@ -31,6 +31,20 @@ The canonical profile is `.config/rules/javascript-architecture.v1.json` and is 
 
 Complexity thresholds such as maximum fan-out/depth are intentionally absent from v1 until evidence justifies them.
 
+## Node package resolution
+
+The generated dependency-cruiser configuration resolves modern Node package
+export maps, including subpath exports. It reviews the `exports` manifest field
+under the `import`, `require`, `node`, and `default` conditions so the canonical
+adapter works across Egolint's supported JavaScript and TypeScript module
+surface without package-specific ignores.
+
+The adapter intentionally retains dependency-cruiser's environment-derived
+extension ordering and enhanced-resolve's default `main` handling. Consumer
+toolchains determine the supported parser extensions, while packages that
+publish type-only entry points can opt into additional `mainFields` through a
+future reviewed profile contract if evidence requires it.
+
 ## Run locally
 
 Install the locked Node toolchain, then run:

@@ -36,7 +36,7 @@ jobs:
           pnpm install --frozen-lockfile --ignore-scripts
           test "$(pnpm exec depcruise --version)" = "18.2.0"
 
-      - name: Prove clean React/Vite architecture
+      - name: Prove clean architecture and Node package exports
         run: |
           set -euo pipefail
           cargo run --quiet --locked --bin egolint-architecture -- \
@@ -44,6 +44,18 @@ jobs:
             --evaluation-date "2026-08-23" \
             --graph ".reports/egolint/javascript-architecture.dot"
           test -s "tests/fixtures/javascript-architecture/clean/.reports/egolint/javascript-architecture.dot"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("tests/fixtures/javascript-architecture/clean/.reports/egolint/javascript-architecture.json").read_text())
+          unresolved_targets = {
+              item["target_module"]
+              for item in report["findings"]
+              if item["rule"]["rule_id"] == "not-to-unresolvable"
+          }
+          assert "publint" not in unresolved_targets, unresolved_targets
+          assert "publint/utils" not in unresolved_targets, unresolved_targets
+          PY
 
       - name: Prove React/Vite boundary findings
         run: |
@@ -63,6 +75,12 @@ jobs:
           assert "no-app-to-app" in rules, rules
           assert "no-browser-to-node-core" in rules, rules
           assert "no-package-deep-import" in rules, rules
+          assert "not-to-unresolvable" in rules, rules
+          assert any(
+              item["rule"]["rule_id"] == "not-to-unresolvable"
+              and item["target_module"] == "package-that-does-not-exist"
+              for item in report["findings"]
+          ), report["findings"]
           assert report["dependency_cruiser_version"] == "18.2.0"
           PY
 
