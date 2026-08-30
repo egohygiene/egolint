@@ -1,1 +1,7 @@
-{"repositoryType":"tool","visibility":"private","lifecycle":"active","expectedStatus":"valid","mutation":"private visibility makes banner and badge optional"}
+{
+  "repositoryType": "tool",
+  "visibility": "private",
+  "lifecycle": "active",
+  "expectedStatus": "valid",
+  "mutation": "private visibility makes banner and badge optional"
+}

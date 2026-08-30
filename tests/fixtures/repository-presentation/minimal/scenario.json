@@ -1,1 +1,7 @@
-{"repositoryType":"tool","visibility":"public","lifecycle":"incubating","expectedStatus":"incomplete","mutation":"required slots and package not adopted"}
+{
+  "repositoryType": "tool",
+  "visibility": "public",
+  "lifecycle": "incubating",
+  "expectedStatus": "incomplete",
+  "mutation": "required slots and package not adopted"
+}

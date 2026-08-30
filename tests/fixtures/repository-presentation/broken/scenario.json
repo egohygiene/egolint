@@ -1,1 +1,7 @@
-{"repositoryType":"tool","visibility":"public","lifecycle":"active","expectedStatus":"invalid","mutation":"duplicate markers stale manifest broken local link and false passing badge"}
+{
+  "repositoryType": "tool",
+  "visibility": "public",
+  "lifecycle": "active",
+  "expectedStatus": "invalid",
+  "mutation": "duplicate markers stale manifest broken local link and false passing badge"
+}
