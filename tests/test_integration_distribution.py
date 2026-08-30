@@ -60,6 +60,7 @@ class IntegrationDistributionTests(unittest.TestCase):
                 "run-report",
                 "sarif-report",
                 "repository-intelligence-report",
+                "repository-presentation-report",
                 "debt-json",
                 "debt-markdown",
                 "raw-megalinter-json",
@@ -72,6 +73,7 @@ class IntegrationDistributionTests(unittest.TestCase):
             "run.json",
             "egolint.sarif",
             "repository-intelligence.json",
+            "repository-presentation.json",
             "debt.json",
             "debt.md",
         ):
@@ -199,6 +201,10 @@ class IntegrationDistributionTests(unittest.TestCase):
                 action_outputs["repository-intelligence-report"],
                 ".reports/egolint/repository-intelligence.json",
             )
+            self.assertEqual(
+                action_outputs["repository-presentation-report"],
+                ".reports/egolint/repository-presentation.json",
+            )
             self.assertEqual(action_outputs["debt-json"], ".reports/egolint/debt.json")
             self.assertEqual(action_outputs["debt-markdown"], ".reports/egolint/debt.md")
             self.assertEqual(action_outputs["exit-code"], "0")
@@ -298,7 +304,7 @@ class IntegrationDistributionTests(unittest.TestCase):
         self.assertIn("subject-digest:", workflow)
         self.assertRegex(
             workflow,
-            r"\breport \\\n\s+debt \\\n\s+repository-contract \\\n\s+repository-intelligence \\\n\s+repository-intelligence-report; do",
+            r"\breport \\\n\s+debt \\\n\s+repository-contract \\\n\s+repository-intelligence \\\n\s+repository-intelligence-report \\\n\s+repository-presentation \\\n\s+repository-presentation-report; do",
         )
         self.assertNotRegex(workflow, r"tags:.*:(latest|edge)\s*$")
 

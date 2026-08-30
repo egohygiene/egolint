@@ -32,6 +32,9 @@ stabilize.
 - Versioned offline Repository Intelligence validation for ADR contracts and
   lineage, roadmap graphs, declared links, and optional commit trailers, with
   incremental adoption profiles and normalized remediation evidence.
+- Versioned offline repository-presentation validation that consumes the pinned
+  Hygiene profile and Identity manifest, resolves visibility/lifecycle
+  applicability, fails badge claims closed, and emits privacy-safe evidence.
 
 ### Changed
 

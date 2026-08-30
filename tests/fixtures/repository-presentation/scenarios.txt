@@ -1,0 +1,7 @@
+minimal
+customized
+private
+archived
+partial
+broken
+fully-conformant

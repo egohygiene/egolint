@@ -1,0 +1,35 @@
+schema-version = 1
+id = "egolint.repository-presentation-validation/v1"
+repository = "egohygiene/example"
+mode = "advisory"
+repository-type = "tool"
+visibility = "public"
+lifecycle = "incubating"
+readme = "README.md"
+profile-path = "vendor/hygiene/repository-presentation-profile.json"
+evidence-path = "evidence/repository-presentation.json"
+package-path = "assets/identity/repository-presentation.json"
+manifest-path = "assets/identity/repository-presentation-manifest.json"
+# exceptions-path = ".config/egolint/repository-presentation-exceptions.json"
+
+[profile-lock]
+id = "egohygiene.repository-presentation-profile/v1"
+version = "1.0.0-alpha.1"
+status = "proposed"
+owner = "egohygiene/hygiene"
+source-repository = "egohygiene/hygiene"
+source-revision = "cb2ed63425d29abada2d2bbb43a3b3e59d11aeb8"
+source-path = "catalog/repository-presentation-profile.json"
+digest = "44e0881519350e6747723995939c79c6fb4659e38a74b2c32e409866e7a186ba"
+
+[identity-lock]
+package-schema = "identity.repository-presentation-package/v1"
+manifest-schema = "identity.repository-presentation-package-manifest/v1"
+version = "1.0.0"
+source-repository = "egohygiene/identity"
+source-revision = "3c2fd3141371b355628e81f66f63159f19d63338"
+
+[markers]
+owner = "egohygiene/identity"
+begin = "<!-- repository-presentation:begin owner=egohygiene/identity profile=1.0.0-alpha.1 -->"
+end = "<!-- repository-presentation:end -->"

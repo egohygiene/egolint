@@ -1,0 +1,302 @@
+{
+  "schema": "egohygiene.repository-presentation-profile/v1",
+  "version": "1.0.0-alpha.1",
+  "status": "proposed",
+  "owner": "egohygiene/hygiene",
+  "updated": "2026-08-30",
+  "purpose": "Define the minimum honest, accessible, evidence-backed public presentation of an Ego Hygiene repository.",
+  "claim_policy": {
+    "badge_label": "Hygienic",
+    "state_messages": {
+      "unknown": "evidence unknown",
+      "evaluating": "evaluation in progress",
+      "advisory": "repository profile advisory",
+      "passing": "repository profile passing",
+      "failing": "repository profile failing",
+      "partial": "repository profile partial",
+      "stale": "evidence stale",
+      "exempt": "profile exemption",
+      "not_applicable": "profile not applicable",
+      "blocked": "evaluation blocked"
+    },
+    "prohibited_claim_terms": [
+      "certified",
+      "compliant",
+      "guaranteed",
+      "secure"
+    ],
+    "represented_commit_required": true,
+    "evidence_url_required": true,
+    "unknown_fails_closed": true
+  },
+  "requirements": [
+    "required",
+    "recommended",
+    "optional",
+    "not_applicable"
+  ],
+  "evidence_states": [
+    "unknown",
+    "evaluating",
+    "advisory",
+    "passing",
+    "failing",
+    "partial",
+    "stale",
+    "exempt",
+    "not_applicable",
+    "blocked"
+  ],
+  "repository_types": [
+    "application",
+    "collection",
+    "control_plane",
+    "documentation",
+    "infrastructure",
+    "library",
+    "publication",
+    "template",
+    "tool",
+    "website"
+  ],
+  "visibilities": [
+    "public",
+    "internal",
+    "private"
+  ],
+  "lifecycles": [
+    "active",
+    "incubating",
+    "archived"
+  ],
+  "slots": [
+    {
+      "id": "identity_banner",
+      "title": "Repository identity banner",
+      "default_requirement": "required",
+      "authority": "egohygiene/identity",
+      "description": "A repository-owned, checksum-bound banner projection with meaningful alt text and a readable textual fallback.",
+      "checks": [
+        "asset is repository-owned or pinned to a released Identity package",
+        "alt text identifies the repository rather than describing decoration",
+        "narrow, light, dark, high-contrast, no-image, and no-network behavior remain readable"
+      ]
+    },
+    {
+      "id": "purpose",
+      "title": "Purpose",
+      "default_requirement": "required",
+      "authority": "repository",
+      "description": "A concise statement of what the repository is for and who it serves.",
+      "checks": [
+        "purpose is repository-authored",
+        "purpose does not claim capabilities absent from the represented revision"
+      ]
+    },
+    {
+      "id": "maturity_status",
+      "title": "Maturity and status",
+      "default_requirement": "required",
+      "authority": "repository",
+      "description": "A visible, truthful lifecycle and support status.",
+      "checks": [
+        "experimental, incubating, archived, unsupported, or pre-release status is not hidden"
+      ]
+    },
+    {
+      "id": "support_boundary",
+      "title": "Support boundary",
+      "default_requirement": "required",
+      "authority": "repository",
+      "description": "The support path, support limitations, and security-reporting boundary.",
+      "checks": [
+        "support and security destinations resolve or limitations are stated honestly"
+      ]
+    },
+    {
+      "id": "canonical_navigation",
+      "title": "Canonical navigation",
+      "default_requirement": "required",
+      "authority": "repository",
+      "description": "Stable links to the canonical documentation, architecture, contributing, security, license, and release surfaces that apply.",
+      "checks": [
+        "links are repository-relative or canonical HTTPS destinations",
+        "missing destinations are omitted rather than fabricated"
+      ]
+    },
+    {
+      "id": "evidence_badges",
+      "title": "Evidence-backed badges",
+      "default_requirement": "recommended",
+      "authority": "egohygiene/hygiene",
+      "description": "Badges link to evidence for a specific workflow, release, package, license, documentation, or Hygiene profile state.",
+      "checks": [
+        "each badge has a useful text fallback and evidence destination",
+        "absence or stale evidence never renders as passing",
+        "badge labels do not imply legal certification or universal compliance"
+      ]
+    },
+    {
+      "id": "installation",
+      "title": "Installation or access",
+      "default_requirement": "required",
+      "authority": "repository",
+      "description": "The shortest truthful path to install, consume, read, or access the repository output.",
+      "checks": [
+        "commands and destinations match the represented revision"
+      ]
+    },
+    {
+      "id": "development",
+      "title": "Local development",
+      "default_requirement": "recommended",
+      "authority": "repository",
+      "description": "Prerequisites and canonical local setup commands.",
+      "checks": [
+        "commands are repository-owned and do not rely on undocumented personal state"
+      ]
+    },
+    {
+      "id": "documentation",
+      "title": "Documentation",
+      "default_requirement": "recommended",
+      "authority": "repository",
+      "description": "The canonical user and reference documentation entry point.",
+      "checks": [
+        "documentation links resolve or the README honestly defines the complete supported surface"
+      ]
+    },
+    {
+      "id": "validation",
+      "title": "Validation",
+      "default_requirement": "recommended",
+      "authority": "repository",
+      "description": "Canonical quality commands and linked CI evidence.",
+      "checks": [
+        "validation claims resolve to commands or immutable evidence"
+      ]
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture",
+      "default_requirement": "recommended",
+      "authority": "repository",
+      "description": "A concise architecture entry point and ownership boundary.",
+      "checks": [
+        "generated orientation is distinguished from canonical architecture source"
+      ]
+    },
+    {
+      "id": "contributing",
+      "title": "Contributing",
+      "default_requirement": "recommended",
+      "authority": "repository",
+      "description": "Contribution expectations or an explicit statement that contributions are not currently accepted.",
+      "checks": [
+        "the contribution path reflects the repository's actual policy"
+      ]
+    },
+    {
+      "id": "license",
+      "title": "License and notices",
+      "default_requirement": "required",
+      "authority": "repository",
+      "description": "The repository license and applicable third-party notice boundary.",
+      "checks": [
+        "license claims match checked-in or released material"
+      ]
+    },
+    {
+      "id": "security",
+      "title": "Security reporting",
+      "default_requirement": "required",
+      "authority": "repository",
+      "description": "The applicable security-reporting path or an explicit statement that private reporting is unavailable.",
+      "checks": [
+        "security guidance does not promise an unsupported response or expose private contact data"
+      ]
+    },
+    {
+      "id": "generated_ownership",
+      "title": "Generated content ownership",
+      "default_requirement": "optional",
+      "authority": "repository",
+      "description": "Generated sections identify their canonical source, generator, update path, and safe manual-edit boundary.",
+      "checks": [
+        "generated content does not silently become canonical truth"
+      ]
+    }
+  ],
+  "type_overrides": {
+    "application": {},
+    "collection": {
+      "installation": "optional",
+      "development": "optional"
+    },
+    "control_plane": {},
+    "documentation": {
+      "installation": "optional"
+    },
+    "infrastructure": {},
+    "library": {},
+    "publication": {
+      "documentation": "required",
+      "installation": "not_applicable",
+      "development": "optional",
+      "validation": "recommended"
+    },
+    "template": {},
+    "tool": {},
+    "website": {
+      "installation": "not_applicable"
+    }
+  },
+  "visibility_overrides": {
+    "public": {},
+    "internal": {
+      "identity_banner": "recommended",
+      "evidence_badges": "optional",
+      "license": "recommended"
+    },
+    "private": {
+      "identity_banner": "optional",
+      "evidence_badges": "optional",
+      "license": "optional"
+    }
+  },
+  "lifecycle_overrides": {
+    "active": {},
+    "incubating": {
+      "evidence_badges": "optional",
+      "maturity_status": "required"
+    },
+    "archived": {
+      "installation": "not_applicable",
+      "development": "not_applicable",
+      "validation": "not_applicable",
+      "contributing": "not_applicable",
+      "maturity_status": "required"
+    }
+  },
+  "composition": {
+    "override_order": [
+      "default",
+      "repository_type",
+      "visibility",
+      "lifecycle"
+    ],
+    "generated_regions_only": true,
+    "preserve_repository_authored_prose": true,
+    "full_file_replacement_forbidden": true
+  },
+  "ownership": {
+    "hygiene": "policy, applicability, slot semantics, evidence states, and badge claim limits",
+    "identity": "approved banner and badge visual assets, variants, manifests, checksums, and renderer-neutral descriptors",
+    "holon": "new-repository README blueprint and generated-region composition",
+    "egolint": "lint rules, applicability evaluation, diagnostics, and normalized conformance reports",
+    "relay": "reusable CI orchestration and evidence transport",
+    "pace": "reviewable, reversible adoption plans and pull requests for existing repositories",
+    "observatory": "read-only fleet aggregation, freshness, and conformance presentation",
+    "repository": "purpose, status, commands, links, licenses, support state, exceptions, and final review"
+  }
+}

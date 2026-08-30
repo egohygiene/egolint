@@ -146,6 +146,22 @@ jobs:
               "$temporary_directory/$schema.schema.json"
           done
 
+      - name: Generate repository-presentation schemas
+        run: |
+          mkdir --parents "generated-schemas"
+          cargo run --quiet --locked -- schema repository-presentation \
+            > "generated-schemas/repository-presentation.schema.json"
+          cargo run --quiet --locked -- schema repository-presentation-report \
+            > "generated-schemas/repository-presentation-report.schema.json"
+
+      - name: Upload repository-presentation schemas
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: repository-presentation-schemas
+          path: generated-schemas
+          if-no-files-found: error
+          retention-days: 1
+
   cli-image:
     name: CLI image
     runs-on: ubuntu-24.04

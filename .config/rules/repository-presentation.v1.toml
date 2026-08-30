@@ -1,0 +1,99 @@
+schema-version = 1
+catalog-version = "0.1.0-alpha.1"
+owner = "egohygiene/egolint"
+tool-id = "EGOLINT_REPOSITORY_PRESENTATION"
+policy-source = ".config/rules/repository-presentation.v1.toml"
+
+[[upstream-contracts]]
+id = "egohygiene.repository-presentation-profile/v1"
+version = "1.0.0-alpha.1"
+authority = "proposed"
+source-repository = "egohygiene/hygiene"
+source-revision = "cb2ed63425d29abada2d2bbb43a3b3e59d11aeb8"
+source-path = "catalog/repository-presentation-profile.json"
+digest = "44e0881519350e6747723995939c79c6fb4659e38a74b2c32e409866e7a186ba"
+
+[[upstream-contracts]]
+id = "identity.repository-presentation-package-manifest/v1"
+version = "1.0.0"
+authority = "approved"
+source-repository = "egohygiene/identity"
+source-revision = "3c2fd3141371b355628e81f66f63159f19d63338"
+source-path = "contracts/v1/repository-presentation-package-manifest.schema.json"
+
+[[rules]]
+id = "EGO-PRESENT-CONTRACT-001"
+title = "Presentation inputs use supported immutable contract pins"
+default-severity = "error"
+contracts = ["egohygiene.repository-presentation-profile/v1", "identity.repository-presentation-package-manifest/v1"]
+remediation = "Vendor the exact released profile bytes and use the supported Identity package-manifest contract and immutable source revisions."
+
+[[rules]]
+id = "EGO-PRESENT-APPLICABILITY-001"
+title = "Repository axes resolve slot applicability from Hygiene"
+default-severity = "error"
+contracts = ["egohygiene.repository-presentation-profile/v1"]
+remediation = "Declare a supported repository type, visibility, and lifecycle, then align slot evidence with Hygiene override order."
+
+[[rules]]
+id = "EGO-PRESENT-README-001"
+title = "README exposes every applicable required semantic slot"
+default-severity = "error"
+contracts = ["egohygiene.repository-presentation-profile/v1"]
+remediation = "Add the missing semantic marker or equivalent heading while preserving repository-authored prose."
+
+[[rules]]
+id = "EGO-PRESENT-BANNER-001"
+title = "Banner is local, accessible, and bound to Identity metadata"
+default-severity = "error"
+contracts = ["egohygiene.repository-presentation-profile/v1", "identity.repository-presentation-package-manifest/v1"]
+remediation = "Reference a manifest-bound local banner variant with meaningful alt text and a readable fallback."
+
+[[rules]]
+id = "EGO-PRESENT-BADGE-001"
+title = "Hygienic badge claim is evidence-bound and fails closed"
+default-severity = "error"
+contracts = ["egohygiene.repository-presentation-profile/v1"]
+remediation = "Use the exact Hygiene label, state message, profile version, represented commit, and evidence destination; never render an unavailable state as passing."
+
+[[rules]]
+id = "EGO-PRESENT-EVIDENCE-001"
+title = "Evidence states and slot assertions are internally consistent"
+default-severity = "error"
+contracts = ["egohygiene.repository-presentation-profile/v1"]
+remediation = "Regenerate evidence for the represented commit and record every applicable slot with the resolved requirement and honest state."
+
+[[rules]]
+id = "EGO-PRESENT-LINK-001"
+title = "Required local navigation and presentation references resolve"
+default-severity = "error"
+contracts = ["egohygiene.repository-presentation-profile/v1"]
+remediation = "Repair the repository-relative destination or remove a fabricated link; hosted reachability is evaluated separately."
+
+[[rules]]
+id = "EGO-PRESENT-MANIFEST-001"
+title = "Identity manifest checksums and bindings remain current"
+default-severity = "error"
+contracts = ["identity.repository-presentation-package-manifest/v1"]
+remediation = "Regenerate the Identity package from reviewed source and commit the exact manifest-bound files without manual edits."
+
+[[rules]]
+id = "EGO-PRESENT-GENERATED-001"
+title = "Generated README regions are unique and ownership-marked"
+default-severity = "error"
+contracts = ["egohygiene.repository-presentation-profile/v1"]
+remediation = "Keep exactly one balanced generated region with source, owner, and profile metadata; edit prose outside that region."
+
+[[rules]]
+id = "EGO-PRESENT-EXCEPTION-001"
+title = "Presentation exceptions are explicit, bounded, and evidenced"
+default-severity = "error"
+contracts = ["egohygiene.repository-presentation-profile/v1"]
+remediation = "Use the versioned exception document, name one profile slot, give a durable reason and evidence, and remove expired or unknown exceptions."
+
+[[rules]]
+id = "EGO-PRESENT-EXTERNAL-001"
+title = "External reachability remains a distinct nondeterministic surface"
+default-severity = "warning"
+contracts = ["egohygiene.repository-presentation-profile/v1"]
+remediation = "Evaluate hosted destinations in a separately authorized network job; do not treat deterministic local validation as proof of reachability."

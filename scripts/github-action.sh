@@ -76,6 +76,7 @@ network="${INPUT_NETWORK:-none}"
 megalinter_config="${INPUT_MEGALINTER_CONFIG:-}"
 repository_contract="${INPUT_REPOSITORY_CONTRACT:-}"
 repository_intelligence="${INPUT_REPOSITORY_INTELLIGENCE:-}"
+repository_presentation="${INPUT_REPOSITORY_PRESENTATION:-}"
 represented_commit="${INPUT_REPRESENTED_COMMIT:-}"
 suppression="${INPUT_SUPPRESSION:-}"
 evaluation_date="${INPUT_EVALUATION_DATE:-}"
@@ -93,6 +94,7 @@ reject_controls "workspace" "${workspace_input}"
 reject_controls "megalinter-config" "${megalinter_config}"
 reject_controls "repository-contract" "${repository_contract}"
 reject_controls "repository-intelligence" "${repository_intelligence}"
+reject_controls "repository-presentation" "${repository_presentation}"
 reject_controls "represented-commit" "${represented_commit}"
 reject_controls "suppression" "${suppression}"
 reject_controls "evaluation-date" "${evaluation_date}"
@@ -115,7 +117,7 @@ case "${workspace}" in
 esac
 [[ -d ${workspace} ]] || fail "workspace is not a directory"
 
-for policy_path in "${megalinter_config}" "${repository_contract}" "${repository_intelligence}" "${suppression}"; do
+for policy_path in "${megalinter_config}" "${repository_contract}" "${repository_intelligence}" "${repository_presentation}" "${suppression}"; do
   if [[ -n ${policy_path} ]]; then
     case "${policy_path}" in
       /* | ../* | */../* | */..) fail "policy inputs must be workspace-relative and may not traverse upward" ;;
@@ -128,16 +130,16 @@ if [[ -n ${suppression} || -n ${evaluation_date} ]]; then
   [[ ${evaluation_date} =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] ||
     fail "evaluation-date must use YYYY-MM-DD"
 fi
-if [[ -n ${repository_intelligence} ]]; then
+if [[ -n ${repository_intelligence} || -n ${repository_presentation} ]]; then
   represented_commit="${represented_commit:-${GITHUB_SHA:-}}"
   [[ -n ${represented_commit} ]] ||
-    fail "represented-commit or GITHUB_SHA is required with repository-intelligence"
+    fail "represented-commit or GITHUB_SHA is required with semantic repository validation"
   if [[ ${represented_commit} != "unknown" && ${represented_commit} != "not-applicable" ]]; then
     [[ ${represented_commit} =~ ^[0-9a-f]{40}$ ]] ||
       fail "represented-commit must be a full lowercase Git SHA, unknown, or not-applicable"
   fi
 elif [[ -n ${represented_commit} ]]; then
-  fail "represented-commit requires repository-intelligence"
+  fail "represented-commit requires repository-intelligence or repository-presentation"
 fi
 
 if [[ ${allow_unpinned} != "true" && ! ${image} =~ ^[A-Za-z0-9][A-Za-z0-9._/:@+-]*@sha256:[0-9a-f]{64}$ ]]; then
@@ -161,6 +163,7 @@ report_prefix="${relative_workspace%/}/${REPORT_ROOT}"
   printf "run-report=%s/run.json\n" "${report_prefix}"
   printf "sarif-report=%s/egolint.sarif\n" "${report_prefix}"
   printf "repository-intelligence-report=%s/repository-intelligence.json\n" "${report_prefix}"
+  printf "repository-presentation-report=%s/repository-presentation.json\n" "${report_prefix}"
   printf "debt-json=%s/debt.json\n" "${report_prefix}"
   printf "debt-markdown=%s/debt.md\n" "${report_prefix}"
   printf "raw-megalinter-json=%s/mega-linter-report.json\n" "${report_prefix}"
@@ -204,11 +207,13 @@ command=(
 [[ -z ${megalinter_config} ]] || command+=("--megalinter-config" "${megalinter_config}")
 [[ -z ${repository_contract} ]] || command+=("--repository-contract" "${repository_contract}")
 if [[ -n ${repository_intelligence} ]]; then
-  command+=(
-    "--repository-intelligence" "${repository_intelligence}"
-    "--represented-commit" "${represented_commit}"
-  )
+  command+=("--repository-intelligence" "${repository_intelligence}")
 fi
+if [[ -n ${repository_presentation} ]]; then
+  command+=("--repository-presentation" "${repository_presentation}")
+fi
+[[ -z ${repository_intelligence} && -z ${repository_presentation} ]] ||
+  command+=("--represented-commit" "${represented_commit}")
 if [[ -n ${suppression} ]]; then
   command+=("--suppression" "${suppression}" "--evaluation-date" "${evaluation_date}")
 fi
