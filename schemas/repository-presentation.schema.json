@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RepositoryPresentationPolicy",
+  "description": "Repository-owned, versioned presentation validation policy.",
+  "type": "object",
+  "properties": {
+    "evidence-path": {
+      "type": "string"
+    },
+    "exceptions-path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "identity-lock": {
+      "$ref": "#/$defs/PresentationIdentityLock"
+    },
+    "lifecycle": {
+      "type": "string"
+    },
+    "manifest-path": {
+      "type": "string"
+    },
+    "markers": {
+      "$ref": "#/$defs/PresentationMarkers"
+    },
+    "mode": {
+      "$ref": "#/$defs/PresentationMode"
+    },
+    "package-path": {
+      "type": "string"
+    },
+    "profile-lock": {
+      "$ref": "#/$defs/PresentationProfileLock"
+    },
+    "profile-path": {
+      "type": "string"
+    },
+    "readme": {
+      "type": "string"
+    },
+    "repository": {
+      "type": "string"
+    },
+    "repository-type": {
+      "type": "string"
+    },
+    "schema-version": {
+      "type": "integer",
+      "const": 1
+    },
+    "visibility": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema-version",
+    "id",
+    "repository",
+    "mode",
+    "repository-type",
+    "visibility",
+    "lifecycle",
+    "readme",
+    "profile-path",
+    "evidence-path",
+    "package-path",
+    "manifest-path",
+    "profile-lock",
+    "identity-lock",
+    "markers"
+  ],
+  "$defs": {
+    "PresentationIdentityLock": {
+      "description": "Exact Identity package contract selected by the repository.",
+      "type": "object",
+      "properties": {
+        "manifest-schema": {
+          "type": "string"
+        },
+        "package-schema": {
+          "type": "string"
+        },
+        "source-repository": {
+          "type": "string"
+        },
+        "source-revision": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "package-schema",
+        "manifest-schema",
+        "version",
+        "source-repository",
+        "source-revision"
+      ]
+    },
+    "PresentationMarkers": {
+      "description": "Generated-region ownership markers. Egolint validates but never inserts them.",
+      "type": "object",
+      "properties": {
+        "begin": {
+          "type": "string"
+        },
+        "end": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "begin",
+        "end"
+      ]
+    },
+    "PresentationMode": {
+      "description": "Whether presentation findings fail the enclosing Egolint run.",
+      "oneOf": [
+        {
+          "description": "Error-level diagnostics remain blocking.",
+          "type": "string",
+          "const": "blocking"
+        },
+        {
+          "description": "All diagnostics are capped at warning severity.",
+          "type": "string",
+          "const": "advisory"
+        }
+      ]
+    },
+    "PresentationProfileLock": {
+      "description": "Exact Hygiene profile lock selected by the repository.",
+      "type": "object",
+      "properties": {
+        "digest": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "source-path": {
+          "type": "string"
+        },
+        "source-repository": {
+          "type": "string"
+        },
+        "source-revision": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "status",
+        "owner",
+        "source-repository",
+        "source-revision",
+        "source-path",
+        "digest"
+      ]
+    }
+  }
+}
