@@ -511,6 +511,7 @@ struct NativeEvaluation {
     presentation_mode: Option<PresentationMode>,
 }
 
+#[allow(clippy::too_many_lines)]
 fn evaluate_native(
     workspace: &Path,
     arguments: &RunArgs,
