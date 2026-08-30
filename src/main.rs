@@ -8,10 +8,14 @@ use egolint::error::exit_code;
 use egolint::rules::{
     IntelligenceEnforcement, PortabilityRuleSet, RepositoryContract, RepositoryContractEvaluator,
     RepositoryIntelligenceEvaluator, RepositoryIntelligencePolicy, RepositoryIntelligenceReport,
-    RepositoryInventory, RepresentedCommit, collect_commit_history,
-    write_intelligence_report_atomic,
+    RepositoryInventory, RepositoryPresentationEvaluator, RepositoryPresentationPolicy,
+    RepositoryPresentationReport, RepresentedCommit, collect_commit_history,
+    write_intelligence_report_atomic, write_presentation_report_atomic,
 };
-use egolint::rules::{REPOSITORY_INTELLIGENCE_REPORT, apply_suppressions};
+use egolint::rules::{
+    PresentationMode, REPOSITORY_INTELLIGENCE_REPORT, REPOSITORY_PRESENTATION_REPORT,
+    apply_suppressions,
+};
 use egolint::sarif::{EGOLINT_SARIF_REPORT, write_sarif_atomic};
 use egolint::{
     CONTRACT_VERSION, Enforcement, EvidenceKind, EvidenceReference, Finding, ReportCompleteness,
@@ -131,8 +135,12 @@ struct RunArgs {
     #[arg(long, requires = "represented_commit")]
     repository_intelligence: Option<PathBuf>,
 
+    /// Versioned repository-presentation validation policy.
+    #[arg(long, requires = "represented_commit")]
+    repository_presentation: Option<PathBuf>,
+
     /// Full represented Git commit, `unknown`, or `not-applicable`.
-    #[arg(long, requires = "repository_intelligence")]
+    #[arg(long)]
     represented_commit: Option<String>,
 
     /// One versioned suppression JSON document. Repeatable.
@@ -185,6 +193,8 @@ enum SchemaKind {
     RepositoryContract,
     RepositoryIntelligence,
     RepositoryIntelligenceReport,
+    RepositoryPresentation,
+    RepositoryPresentationReport,
 }
 
 fn main() -> ExitCode {
@@ -332,6 +342,8 @@ fn execute_lint(
     let mut evidence = native.evidence;
     let intelligence_report = native.intelligence_report;
     let intelligence_enforcement = native.intelligence_enforcement;
+    let presentation_report = native.presentation_report;
+    let presentation_mode = native.presentation_mode;
     let mut completeness = if let Some(normalized) = adapter {
         findings.extend(normalized.findings);
         evidence.extend(normalized.evidence);
@@ -353,6 +365,7 @@ fn execute_lint(
         &findings,
         !arguments.repository_contracts.is_empty(),
         intelligence_enforcement,
+        presentation_mode,
         !suppressions.is_empty(),
     );
     reconcile_suppressed_tool_results(&mut tool_results, &findings);
@@ -364,6 +377,7 @@ fn execute_lint(
         &report,
         plan.view.profile == Profile::DependencyDebt,
         intelligence_report.as_ref(),
+        presentation_report.as_ref(),
     )?;
     print_findings(&report);
     Ok(report.status.exit_code())
@@ -380,6 +394,8 @@ fn execute_validate(
     let mut findings = native.findings;
     let intelligence_report = native.intelligence_report;
     let intelligence_enforcement = native.intelligence_enforcement;
+    let presentation_report = native.presentation_report;
+    let presentation_mode = native.presentation_mode;
     let mut suppressions = load_suppressions(workspace, arguments)?;
     evaluate_suppressions(
         &mut findings,
@@ -392,6 +408,7 @@ fn execute_validate(
         &findings,
         !arguments.repository_contracts.is_empty(),
         intelligence_enforcement,
+        presentation_mode,
         !suppressions.is_empty(),
     );
     let mut report = RunReport::from_plan(&plan.view, Some(exit_code::CLEAN));
@@ -402,7 +419,13 @@ fn execute_validate(
         native.evidence,
         ReportCompleteness::Partial,
     )?;
-    write_run_outputs(&plan, &report, false, intelligence_report.as_ref())?;
+    write_run_outputs(
+        &plan,
+        &report,
+        false,
+        intelligence_report.as_ref(),
+        presentation_report.as_ref(),
+    )?;
     print_findings(&report);
     Ok(report.status.exit_code())
 }
@@ -418,6 +441,8 @@ fn execute_fix_preview(
     let mut findings = native.findings;
     let intelligence_report = native.intelligence_report;
     let intelligence_enforcement = native.intelligence_enforcement;
+    let presentation_report = native.presentation_report;
+    let presentation_mode = native.presentation_mode;
     let mut suppressions = load_suppressions(workspace, arguments)?;
     evaluate_suppressions(
         &mut findings,
@@ -430,6 +455,7 @@ fn execute_fix_preview(
         &findings,
         !arguments.repository_contracts.is_empty(),
         intelligence_enforcement,
+        presentation_mode,
         !suppressions.is_empty(),
     );
     let mut report = RunReport::from_plan(&plan.view, outcome.adapter_exit_code);
@@ -450,7 +476,13 @@ fn execute_fix_preview(
         evidence,
         ReportCompleteness::Partial,
     )?;
-    write_run_outputs(&plan, &report, false, intelligence_report.as_ref())?;
+    write_run_outputs(
+        &plan,
+        &report,
+        false,
+        intelligence_report.as_ref(),
+        presentation_report.as_ref(),
+    )?;
     print_findings(&report);
     println!("Fix preview: {}", outcome.patch_path.display());
     println!("Patch SHA-256: {}", outcome.patch_sha256);
@@ -475,8 +507,11 @@ struct NativeEvaluation {
     evidence: Vec<EvidenceReference>,
     intelligence_report: Option<RepositoryIntelligenceReport>,
     intelligence_enforcement: Option<IntelligenceEnforcement>,
+    presentation_report: Option<RepositoryPresentationReport>,
+    presentation_mode: Option<PresentationMode>,
 }
 
+#[allow(clippy::too_many_lines)]
 fn evaluate_native(
     workspace: &Path,
     arguments: &RunArgs,
@@ -548,12 +583,56 @@ fn evaluate_native(
             ),
         });
     }
+    let mut presentation_report = None;
+    let mut presentation_mode = None;
+    if let Some(policy_path) = &arguments.repository_presentation {
+        let (relative, contents) = read_workspace_file(workspace, policy_path, 4 * 1024 * 1024)?;
+        let contents = std::str::from_utf8(&contents).map_err(|_| {
+            EgolintError::Configuration(format!(
+                "repository-presentation policy must contain UTF-8: {}",
+                relative.display()
+            ))
+        })?;
+        let policy = RepositoryPresentationPolicy::from_toml(contents, &relative)?;
+        let represented = RepresentedCommit::parse(
+            arguments
+                .represented_commit
+                .as_deref()
+                .expect("clap requires represented commit with presentation policy"),
+        )?;
+        let evaluator = RepositoryPresentationEvaluator::new(&policy, &relative, represented)?;
+        let evaluation = evaluator.evaluate(&inventory)?;
+        findings.extend(evaluation.findings);
+        presentation_mode = Some(policy.mode);
+        presentation_report = Some(evaluation.report);
+        evidence.push(EvidenceReference {
+            schema_version: CONTRACT_VERSION,
+            kind: EvidenceKind::Configuration,
+            path: relative,
+            sha256: None,
+            description: Some(
+                "Versioned repository-presentation policy with pinned Hygiene and Identity inputs."
+                    .to_owned(),
+            ),
+        });
+    }
+    if arguments.represented_commit.is_some()
+        && arguments.repository_intelligence.is_none()
+        && arguments.repository_presentation.is_none()
+    {
+        return Err(EgolintError::Configuration(
+            "represented-commit requires repository-intelligence or repository-presentation"
+                .to_owned(),
+        ));
+    }
     findings.sort_by(finding_order);
     Ok(NativeEvaluation {
         findings,
         evidence,
         intelligence_report,
         intelligence_enforcement,
+        presentation_report,
+        presentation_mode,
     })
 }
 
@@ -701,6 +780,7 @@ fn add_native_tool_results(
     findings: &[Finding],
     contracts_evaluated: bool,
     intelligence_enforcement: Option<IntelligenceEnforcement>,
+    presentation_mode: Option<PresentationMode>,
     suppressions_evaluated: bool,
 ) {
     tool_results.push(native_tool_result(
@@ -722,6 +802,16 @@ fn add_native_tool_results(
             match enforcement {
                 IntelligenceEnforcement::Blocking => Enforcement::Blocking,
                 IntelligenceEnforcement::Advisory => Enforcement::Advisory,
+            },
+        ));
+    }
+    if let Some(mode) = presentation_mode {
+        tool_results.push(native_tool_result(
+            "EGOLINT_REPOSITORY_PRESENTATION",
+            findings,
+            match mode {
+                PresentationMode::Blocking => Enforcement::Blocking,
+                PresentationMode::Advisory => Enforcement::Advisory,
             },
         ));
     }
@@ -764,6 +854,7 @@ fn native_tool_result(tool_id: &str, findings: &[Finding], enforcement: Enforcem
             "EGOLINT_PORTABILITY" => ".config/rules/portability.toml",
             "EGOLINT_REPOSITORY_CONTRACT" => "docs/repository-contracts.md",
             "EGOLINT_REPOSITORY_INTELLIGENCE" => ".config/rules/repository-intelligence.v1.toml",
+            "EGOLINT_REPOSITORY_PRESENTATION" => ".config/rules/repository-presentation.v1.toml",
             "EGOLINT_SUPPRESSIONS" => "docs/suppressions.md",
             _ => "README.md",
         }
@@ -798,6 +889,7 @@ fn write_run_outputs(
     report: &RunReport,
     include_debt: bool,
     intelligence_report: Option<&RepositoryIntelligenceReport>,
+    presentation_report: Option<&RepositoryPresentationReport>,
 ) -> Result<(), EgolintError> {
     plan.validate_report_path()?;
     report.write_atomic(&plan.report_path().join("run.json"))?;
@@ -808,6 +900,13 @@ fn write_run_outputs(
         write_intelligence_report_atomic(
             intelligence_report,
             &plan.view.workspace.join(REPOSITORY_INTELLIGENCE_REPORT),
+        )?;
+    }
+    if let Some(presentation_report) = presentation_report {
+        plan.validate_report_path()?;
+        write_presentation_report_atomic(
+            presentation_report,
+            &plan.view.workspace.join(REPOSITORY_PRESENTATION_REPORT),
         )?;
     }
     if include_debt {
@@ -967,6 +1066,12 @@ fn print_schema(kind: SchemaKind) -> Result<(), EgolintError> {
         SchemaKind::RepositoryIntelligenceReport => {
             schemars::schema_for!(RepositoryIntelligenceReport)
         }
+        SchemaKind::RepositoryPresentation => {
+            schemars::schema_for!(RepositoryPresentationPolicy)
+        }
+        SchemaKind::RepositoryPresentationReport => {
+            schemars::schema_for!(RepositoryPresentationReport)
+        }
     };
     println!("{}", serde_json::to_string_pretty(&schema)?);
     Ok(())
@@ -1114,6 +1219,46 @@ mod tests {
                 .command,
             Command::Schema {
                 kind: SchemaKind::RepositoryIntelligenceReport
+            }
+        ));
+    }
+
+    #[test]
+    fn repository_presentation_requires_commit_and_exposes_schemas() {
+        assert!(
+            Cli::try_parse_from([
+                "egolint",
+                "validate",
+                "--repository-presentation",
+                "presentation.toml",
+            ])
+            .is_err()
+        );
+        assert!(
+            Cli::try_parse_from([
+                "egolint",
+                "validate",
+                "--repository-presentation",
+                "presentation.toml",
+                "--represented-commit",
+                "unknown",
+            ])
+            .is_ok()
+        );
+        assert!(matches!(
+            Cli::try_parse_from(["egolint", "schema", "repository-presentation"])
+                .expect("repository-presentation schema command")
+                .command,
+            Command::Schema {
+                kind: SchemaKind::RepositoryPresentation
+            }
+        ));
+        assert!(matches!(
+            Cli::try_parse_from(["egolint", "schema", "repository-presentation-report"])
+                .expect("repository-presentation report schema command")
+                .command,
+            Command::Schema {
+                kind: SchemaKind::RepositoryPresentationReport
             }
         ));
     }

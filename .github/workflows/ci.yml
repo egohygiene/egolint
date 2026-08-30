@@ -138,7 +138,9 @@ jobs:
             debt \
             repository-contract \
             repository-intelligence \
-            repository-intelligence-report; do
+            repository-intelligence-report \
+            repository-presentation \
+            repository-presentation-report; do
             cargo run --quiet --locked -- schema "$schema" \
               > "$temporary_directory/$schema.schema.json"
             diff --unified \

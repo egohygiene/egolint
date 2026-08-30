@@ -85,11 +85,13 @@ egolint schema finding
 egolint schema repository-contract
 egolint schema repository-intelligence
 egolint schema repository-intelligence-report
+egolint schema repository-presentation
+egolint schema repository-presentation-report
 ```
 
 `validate` resolves every configuration layer, evaluates native portability
 policy plus requested repository contracts, Repository Intelligence sources,
-and suppressions, and writes
+repository-presentation structure and evidence, and suppressions, and writes
 `.reports/egolint/run.json` and canonical SARIF without starting a container.
 `plan` prints the redacted execution plan. `doctor` additionally requires and
 probes Docker or Podman before printing that plan. `check` is a compatibility

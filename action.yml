@@ -42,8 +42,12 @@ inputs:
     description: Optional workspace-relative Repository Intelligence policy TOML path.
     required: false
     default: ""
+  repository-presentation:
+    description: Optional workspace-relative repository-presentation policy TOML path.
+    required: false
+    default: ""
   represented-commit:
-    description: Full represented Git commit; defaults to github.sha when Repository Intelligence validation is enabled.
+    description: Full represented Git commit; defaults to github.sha when semantic validation is enabled.
     required: false
     default: ""
   suppression:
@@ -69,6 +73,9 @@ outputs:
   repository-intelligence-report:
     description: Workspace-relative normalized Repository Intelligence validation report.
     value: ${{ steps.check.outputs.repository-intelligence-report }}
+  repository-presentation-report:
+    description: Workspace-relative privacy-safe repository-presentation validation report.
+    value: ${{ steps.check.outputs.repository-presentation-report }}
   debt-json:
     description: Workspace-relative dependency-debt JSON path; the file exists only for that profile.
     value: ${{ steps.check.outputs.debt-json }}
@@ -101,6 +108,7 @@ runs:
         INPUT_MEGALINTER_CONFIG: ${{ inputs.megalinter-config }}
         INPUT_REPOSITORY_CONTRACT: ${{ inputs.repository-contract }}
         INPUT_REPOSITORY_INTELLIGENCE: ${{ inputs.repository-intelligence }}
+        INPUT_REPOSITORY_PRESENTATION: ${{ inputs.repository-presentation }}
         INPUT_REPRESENTED_COMMIT: ${{ inputs.represented-commit }}
         INPUT_SUPPRESSION: ${{ inputs.suppression }}
         INPUT_EVALUATION_DATE: ${{ inputs.evaluation-date }}

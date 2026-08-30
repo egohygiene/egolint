@@ -1,0 +1,374 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RepositoryPresentationReport",
+  "description": "Versioned, privacy-safe evidence artifact for Relay and Observatory.",
+  "type": "object",
+  "properties": {
+    "catalog_version": {
+      "type": "string"
+    },
+    "contract": {
+      "type": "string"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/PresentationDiagnostic"
+      }
+    },
+    "evidence_state": {
+      "type": "string"
+    },
+    "external_reachability": {
+      "type": "string"
+    },
+    "lifecycle": {
+      "type": "string"
+    },
+    "mode": {
+      "$ref": "#/$defs/PresentationMode"
+    },
+    "policy_path": {
+      "type": "string"
+    },
+    "profile": {
+      "$ref": "#/$defs/PresentationProfileLock"
+    },
+    "repository": {
+      "type": "string"
+    },
+    "repository_type": {
+      "type": "string"
+    },
+    "represented_commit": {
+      "$ref": "#/$defs/RepresentedCommit"
+    },
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "status": {
+      "$ref": "#/$defs/PresentationValidationStatus"
+    },
+    "summary": {
+      "$ref": "#/$defs/PresentationValidationSummary"
+    },
+    "visibility": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract",
+    "catalog_version",
+    "repository",
+    "policy_path",
+    "mode",
+    "profile",
+    "represented_commit",
+    "repository_type",
+    "visibility",
+    "lifecycle",
+    "evidence_state",
+    "external_reachability",
+    "status",
+    "summary",
+    "diagnostics"
+  ],
+  "$defs": {
+    "AdoptionState": {
+      "description": "Whether a Repository Intelligence source surface is available.",
+      "oneOf": [
+        {
+          "description": "The source is declared and must validate.",
+          "type": "string",
+          "const": "present"
+        },
+        {
+          "description": "Migration has not yet established whether the source is available.",
+          "type": "string",
+          "const": "unknown"
+        },
+        {
+          "description": "The source is intentionally irrelevant to this repository.",
+          "type": "string",
+          "const": "not-applicable"
+        }
+      ]
+    },
+    "PresentationDiagnostic": {
+      "description": "One privacy-safe diagnostic. No source excerpts are retained.",
+      "type": "object",
+      "properties": {
+        "actual_state": {
+          "type": "string"
+        },
+        "contracts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "expected_state": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceLocation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "remediation": {
+          "type": "string"
+        },
+        "rule_id": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "rule_id",
+        "severity",
+        "expected_state",
+        "actual_state",
+        "message",
+        "remediation",
+        "contracts"
+      ]
+    },
+    "PresentationMode": {
+      "description": "Whether presentation findings fail the enclosing Egolint run.",
+      "oneOf": [
+        {
+          "description": "Error-level diagnostics remain blocking.",
+          "type": "string",
+          "const": "blocking"
+        },
+        {
+          "description": "All diagnostics are capped at warning severity.",
+          "type": "string",
+          "const": "advisory"
+        }
+      ]
+    },
+    "PresentationProfileLock": {
+      "description": "Exact Hygiene profile lock selected by the repository.",
+      "type": "object",
+      "properties": {
+        "digest": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "source-path": {
+          "type": "string"
+        },
+        "source-repository": {
+          "type": "string"
+        },
+        "source-revision": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "status",
+        "owner",
+        "source-repository",
+        "source-revision",
+        "source-path",
+        "digest"
+      ]
+    },
+    "PresentationValidationStatus": {
+      "description": "Semantic validity independent of advisory/blocking enforcement.",
+      "type": "string",
+      "enum": [
+        "valid",
+        "invalid",
+        "incomplete",
+        "not_applicable"
+      ]
+    },
+    "PresentationValidationSummary": {
+      "description": "Exact bounded counts for Observatory and Repository Intelligence consumers.",
+      "type": "object",
+      "properties": {
+        "blocking_diagnostics": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "diagnostics": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "exceptions_applied": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "external_references_not_checked": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "local_references_checked": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "manifest_files_checked": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "present_required_slots": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "required_slots": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "diagnostics",
+        "blocking_diagnostics",
+        "required_slots",
+        "present_required_slots",
+        "exceptions_applied",
+        "local_references_checked",
+        "external_references_not_checked",
+        "manifest_files_checked"
+      ]
+    },
+    "RepresentedCommit": {
+      "description": "Explicit represented-commit evidence included in every validation report.",
+      "type": "object",
+      "properties": {
+        "revision": {
+          "description": "Full lowercase Git commit when `state` is `present`.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state": {
+          "description": "Whether a commit is available, unknown, or not applicable.",
+          "$ref": "#/$defs/AdoptionState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "state"
+      ]
+    },
+    "Severity": {
+      "description": "Normalized finding severity.",
+      "oneOf": [
+        {
+          "description": "Informational observation.",
+          "type": "string",
+          "const": "info"
+        },
+        {
+          "description": "Nonblocking warning.",
+          "type": "string",
+          "const": "warning"
+        },
+        {
+          "description": "Blocking correctness or policy failure.",
+          "type": "string",
+          "const": "error"
+        },
+        {
+          "description": "Urgent high-impact security or safety failure.",
+          "type": "string",
+          "const": "critical"
+        }
+      ]
+    },
+    "SourceLocation": {
+      "description": "Workspace-relative source location.",
+      "type": "object",
+      "properties": {
+        "end_column": {
+          "description": "One-based ending column.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "end_line": {
+          "description": "One-based ending line.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "path": {
+          "description": "Normalized path relative to the inspected workspace.",
+          "type": "string"
+        },
+        "start_column": {
+          "description": "One-based starting column.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "start_line": {
+          "description": "One-based starting line.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ]
+    }
+  }
+}

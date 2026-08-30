@@ -45,8 +45,9 @@ four selections are versioned in the policy catalog.
 
 Successful lint runs write normalized `.reports/egolint/run.json` and
 `.reports/egolint/egolint.sarif`. Repository Intelligence validation also
-writes `.reports/egolint/repository-intelligence.json` with represented source,
-coverage, rule IDs, locations, and remediation. Dependency-debt runs write compact JSON
+writes `.reports/egolint/repository-intelligence.json`; repository-presentation
+validation writes the privacy-safe `.reports/egolint/repository-presentation.json`.
+Both include represented source, rule IDs, locations, and remediation. Dependency-debt runs write compact JSON
 and Markdown debt summaries; raw MegaLinter reports remain private adapter
 artifacts.
 
@@ -61,6 +62,8 @@ cargo run --locked -- schema config
 cargo run --locked -- schema repository-contract
 cargo run --locked -- schema repository-intelligence
 cargo run --locked -- schema repository-intelligence-report
+cargo run --locked -- schema repository-presentation
+cargo run --locked -- schema repository-presentation-report
 cargo run --locked -- explain --format "json"
 cargo run --locked -- validate --repository-contract \
   "tests/fixtures/contracts/empathy-universal-v1.toml"
@@ -127,6 +130,7 @@ the exact rules.
 - [Dogfooding and self-consumer proof](docs/dogfooding.md)
 - [Machine-readable contracts](docs/contracts.md)
 - [Repository Intelligence validation](docs/repository-intelligence.md)
+- [Repository presentation validation](docs/repository-presentation.md)
 - [Containers and image boundaries](docs/containers.md)
 - [Security model](docs/security.md)
 - [Release design](docs/releasing.md)
