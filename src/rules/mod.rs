@@ -22,8 +22,8 @@ pub use repository_intelligence::{
 };
 pub use repository_presentation::{
     PresentationEvaluation, PresentationIdentityLock, PresentationMarkers, PresentationMode,
-    PresentationProfileLock, PresentationValidationStatus, RepositoryPresentationEvaluator,
-    RepositoryPresentationPolicy, RepositoryPresentationReport,
-    REPORT_PATH as REPOSITORY_PRESENTATION_REPORT, write_presentation_report_atomic,
+    PresentationProfileLock, PresentationValidationStatus,
+    REPORT_PATH as REPOSITORY_PRESENTATION_REPORT, RepositoryPresentationEvaluator,
+    RepositoryPresentationPolicy, RepositoryPresentationReport, write_presentation_report_atomic,
 };
 pub use suppressions::apply_suppressions;

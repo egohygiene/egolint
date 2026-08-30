@@ -173,7 +173,10 @@ impl RepositoryPresentationPolicy {
         }
         if self.markers.owner.trim().is_empty()
             || self.markers.begin == self.markers.end
-            || !self.markers.begin.contains(&format!("owner={}", self.markers.owner))
+            || !self
+                .markers
+                .begin
+                .contains(&format!("owner={}", self.markers.owner))
             || !self
                 .markers
                 .begin
@@ -347,13 +350,18 @@ impl BundledCatalog {
                 "bundled repository-presentation catalog is invalid: {error}"
             ))
         })?;
-        let rule_ids = source.rules.iter().map(|rule| rule.id.as_str()).collect::<BTreeSet<_>>();
+        let rule_ids = source
+            .rules
+            .iter()
+            .map(|rule| rule.id.as_str())
+            .collect::<BTreeSet<_>>();
         if source.schema_version != CONTRACT_VERSION
             || source.tool_id != TOOL_ID
             || rule_ids != EXPECTED_RULE_IDS.into_iter().collect()
         {
             return Err(EgolintError::Configuration(
-                "bundled repository-presentation catalog identity or rule set is invalid".to_owned(),
+                "bundled repository-presentation catalog identity or rule set is invalid"
+                    .to_owned(),
             ));
         }
         Ok(Self {
@@ -362,7 +370,11 @@ impl BundledCatalog {
             tool_id: source.tool_id,
             policy_source: source.policy_source,
             contracts: source.upstream_contracts,
-            rules: source.rules.into_iter().map(|rule| (rule.id.clone(), rule)).collect(),
+            rules: source
+                .rules
+                .into_iter()
+                .map(|rule| (rule.id.clone(), rule))
+                .collect(),
         })
     }
 }
@@ -425,10 +437,30 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
         let mut context = EvaluationContext::default();
         self.validate_catalog_pins(&mut context)?;
 
-        let profile = self.json_entry(inventory, &self.policy.profile_path, CONTRACT_RULE, &mut context);
-        let evidence = self.json_entry(inventory, &self.policy.evidence_path, EVIDENCE_RULE, &mut context);
-        let package = self.json_entry(inventory, &self.policy.package_path, MANIFEST_RULE, &mut context);
-        let manifest = self.json_entry(inventory, &self.policy.manifest_path, MANIFEST_RULE, &mut context);
+        let profile = self.json_entry(
+            inventory,
+            &self.policy.profile_path,
+            CONTRACT_RULE,
+            &mut context,
+        );
+        let evidence = self.json_entry(
+            inventory,
+            &self.policy.evidence_path,
+            EVIDENCE_RULE,
+            &mut context,
+        );
+        let package = self.json_entry(
+            inventory,
+            &self.policy.package_path,
+            MANIFEST_RULE,
+            &mut context,
+        );
+        let manifest = self.json_entry(
+            inventory,
+            &self.policy.manifest_path,
+            MANIFEST_RULE,
+            &mut context,
+        );
         let readme = self.utf8_entry(inventory, &self.policy.readme, README_RULE, &mut context);
         let exceptions = self.load_exceptions(inventory, &mut context)?;
 
@@ -451,7 +483,13 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
             )?;
         }
         if let (Some(package), Some(manifest)) = (package.as_ref(), manifest.as_ref()) {
-            self.validate_identity_package(package, manifest, inventory, readme.as_deref(), &mut context)?;
+            self.validate_identity_package(
+                package,
+                manifest,
+                inventory,
+                readme.as_deref(),
+                &mut context,
+            )?;
         }
 
         context.diagnostics.sort_by(diagnostic_order);
@@ -578,7 +616,8 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
     ) -> BTreeMap<String, String> {
         let entry = inventory.get(&self.policy.profile_path);
         let digest = entry.map_or_else(String::new, |entry| normalized_digest(&entry.content));
-        let metadata_matches = string(profile, "schema") == Some(self.policy.profile_lock.id.as_str())
+        let metadata_matches = string(profile, "schema")
+            == Some(self.policy.profile_lock.id.as_str())
             && string(profile, "version") == Some(self.policy.profile_lock.version.as_str())
             && string(profile, "status") == Some(self.policy.profile_lock.status.as_str())
             && string(profile, "owner") == Some(self.policy.profile_lock.owner.as_str())
@@ -597,7 +636,11 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
         let visibilities = string_array(profile.get("visibilities"));
         let lifecycles = string_array(profile.get("lifecycles"));
         for (name, value, allowed) in [
-            ("repository type", self.policy.repository_type.as_str(), &repository_types),
+            (
+                "repository type",
+                self.policy.repository_type.as_str(),
+                &repository_types,
+            ),
             ("visibility", self.policy.visibility.as_str(), &visibilities),
             ("lifecycle", self.policy.lifecycle.as_str(), &lifecycles),
         ] {
@@ -640,8 +683,7 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
             }
         }
         let policy = profile.get("claim_policy");
-        let claim_contract_supported = policy
-            .and_then(|value| string(value, "badge_label"))
+        let claim_contract_supported = policy.and_then(|value| string(value, "badge_label"))
             == Some("Hygienic")
             && policy
                 .and_then(|value| value.get("represented_commit_required"))
@@ -683,7 +725,9 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
                 self.push(
                     context,
                     EXCEPTION_RULE,
-                    Some(location(&self.policy.exceptions_path.clone().unwrap_or_default())),
+                    Some(location(
+                        &self.policy.exceptions_path.clone().unwrap_or_default(),
+                    )),
                     "exception names a slot in the pinned profile",
                     "unknown slot",
                     "An exception names a slot that the pinned Hygiene profile does not define.",
@@ -802,20 +846,34 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
         let represented = self.represented_commit.revision.as_deref();
         let expected_message = messages.get(state).map(String::as_str);
         let valid = string(evidence, "schema") == Some(EVIDENCE_ID)
-            && profile.and_then(|value| string(value, "id")) == Some(self.policy.profile_lock.id.as_str())
-            && profile.and_then(|value| string(value, "version")) == Some(self.policy.profile_lock.version.as_str())
-            && profile.and_then(|value| string(value, "status")) == Some(self.policy.profile_lock.status.as_str())
-            && repository.and_then(|value| string(value, "name")) == Some(self.policy.repository.as_str())
-            && repository.and_then(|value| string(value, "type")) == Some(self.policy.repository_type.as_str())
-            && repository.and_then(|value| string(value, "visibility")) == Some(self.policy.visibility.as_str())
-            && repository.and_then(|value| string(value, "lifecycle")) == Some(self.policy.lifecycle.as_str())
-            && represented.is_none_or(|revision| repository.and_then(|value| string(value, "represented_commit")) == Some(revision))
+            && profile.and_then(|value| string(value, "id"))
+                == Some(self.policy.profile_lock.id.as_str())
+            && profile.and_then(|value| string(value, "version"))
+                == Some(self.policy.profile_lock.version.as_str())
+            && profile.and_then(|value| string(value, "status"))
+                == Some(self.policy.profile_lock.status.as_str())
+            && repository.and_then(|value| string(value, "name"))
+                == Some(self.policy.repository.as_str())
+            && repository.and_then(|value| string(value, "type"))
+                == Some(self.policy.repository_type.as_str())
+            && repository.and_then(|value| string(value, "visibility"))
+                == Some(self.policy.visibility.as_str())
+            && repository.and_then(|value| string(value, "lifecycle"))
+                == Some(self.policy.lifecycle.as_str())
+            && represented.is_none_or(|revision| {
+                repository.and_then(|value| string(value, "represented_commit")) == Some(revision)
+            })
             && assessment.and_then(|value| string(value, "state")) == Some(state)
             && badge.and_then(|value| string(value, "label")) == Some("Hygienic")
             && badge.and_then(|value| string(value, "message")) == expected_message
-            && badge.and_then(|value| string(value, "profile_version")) == Some(self.policy.profile_lock.version.as_str())
-            && represented.is_none_or(|revision| badge.and_then(|value| string(value, "represented_commit")) == Some(revision))
-            && badge.and_then(|value| string(value, "evidence_url")).is_some_and(valid_reference);
+            && badge.and_then(|value| string(value, "profile_version"))
+                == Some(self.policy.profile_lock.version.as_str())
+            && represented.is_none_or(|revision| {
+                badge.and_then(|value| string(value, "represented_commit")) == Some(revision)
+            })
+            && badge
+                .and_then(|value| string(value, "evidence_url"))
+                .is_some_and(valid_reference);
         if !valid {
             self.push(
                 context,
@@ -827,7 +885,11 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
             )?;
         }
         if state == "passing" {
-            let slots = evidence.get("slots").and_then(Value::as_array).cloned().unwrap_or_default();
+            let slots = evidence
+                .get("slots")
+                .and_then(Value::as_array)
+                .cloned()
+                .unwrap_or_default();
             for (slot, requirement) in requirements {
                 if requirement != "required" || exceptions.contains_key(slot) {
                     continue;
@@ -836,9 +898,15 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
                 let current = item.is_some_and(|item| {
                     string(item, "requirement") == Some(requirement)
                         && string(item, "state") == Some("passing")
-                        && item.get("evidence")
+                        && item
+                            .get("evidence")
                             .and_then(Value::as_array)
-                            .is_some_and(|records| !records.is_empty() && records.iter().all(|record| string(record, "freshness") == Some("current")))
+                            .is_some_and(|records| {
+                                !records.is_empty()
+                                    && records.iter().all(|record| {
+                                        string(record, "freshness") == Some("current")
+                                    })
+                            })
                 });
                 if !current {
                     self.push(
@@ -875,25 +943,50 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
             && string(manifest, "schema") == Some(MANIFEST_ID)
             && string(manifest, "version") == Some(self.policy.identity_lock.version.as_str())
             && string(manifest, "projectionSchema") == Some(PACKAGE_ID)
-            && project.and_then(|value| string(value, "visibility")) == Some(self.policy.visibility.as_str())
-            && profile.and_then(|value| string(value, "id")) == Some(self.policy.profile_lock.id.as_str())
-            && profile.and_then(|value| string(value, "version")) == Some(self.policy.profile_lock.version.as_str())
-            && profile.and_then(|value| string(value, "status")) == Some(self.policy.profile_lock.status.as_str())
-            && profile.and_then(|value| string(value, "commit")) == Some(self.policy.profile_lock.source_revision.as_str())
-            && profile.and_then(|value| string(value, "sha256")) == Some(self.policy.profile_lock.digest.as_str())
-            && manifest_profile.and_then(|value| string(value, "digest")) == Some(self.policy.profile_lock.digest.as_str())
+            && project.and_then(|value| string(value, "visibility"))
+                == Some(self.policy.visibility.as_str())
+            && profile.and_then(|value| string(value, "id"))
+                == Some(self.policy.profile_lock.id.as_str())
+            && profile.and_then(|value| string(value, "version"))
+                == Some(self.policy.profile_lock.version.as_str())
+            && profile.and_then(|value| string(value, "status"))
+                == Some(self.policy.profile_lock.status.as_str())
+            && profile.and_then(|value| string(value, "commit"))
+                == Some(self.policy.profile_lock.source_revision.as_str())
+            && profile.and_then(|value| string(value, "sha256"))
+                == Some(self.policy.profile_lock.digest.as_str())
+            && manifest_profile.and_then(|value| string(value, "digest"))
+                == Some(self.policy.profile_lock.digest.as_str())
             && badge.and_then(|value| string(value, "label")) == Some("Hygienic")
-            && badge.and_then(|value| string(value, "profileVersion")) == Some(self.policy.profile_lock.version.as_str())
+            && badge.and_then(|value| string(value, "profileVersion"))
+                == Some(self.policy.profile_lock.version.as_str())
             && badge.and_then(|value| string(value, "state"))
                 == manifest_evidence.and_then(|value| string(value, "state"))
             && badge.and_then(|value| string(value, "evidenceUrl"))
                 == manifest_evidence.and_then(|value| string(value, "url"))
-            && represented.is_none_or(|revision| badge.and_then(|value| string(value, "representedCommit")) == Some(revision))
-            && represented.is_none_or(|revision| manifest_evidence.and_then(|value| string(value, "representedCommit")) == Some(revision))
-            && boundary.and_then(|value| value.get("editsReadme")).and_then(Value::as_bool) == Some(false)
-            && boundary.and_then(|value| value.get("evaluatesEvidence")).and_then(Value::as_bool) == Some(false)
-            && boundary.and_then(|value| value.get("networkRequired")).and_then(Value::as_bool) == Some(false)
-            && boundary.and_then(|value| value.get("generatedRegionsOnly")).and_then(Value::as_bool) == Some(true);
+            && represented.is_none_or(|revision| {
+                badge.and_then(|value| string(value, "representedCommit")) == Some(revision)
+            })
+            && represented.is_none_or(|revision| {
+                manifest_evidence.and_then(|value| string(value, "representedCommit"))
+                    == Some(revision)
+            })
+            && boundary
+                .and_then(|value| value.get("editsReadme"))
+                .and_then(Value::as_bool)
+                == Some(false)
+            && boundary
+                .and_then(|value| value.get("evaluatesEvidence"))
+                .and_then(Value::as_bool)
+                == Some(false)
+            && boundary
+                .and_then(|value| value.get("networkRequired"))
+                .and_then(Value::as_bool)
+                == Some(false)
+            && boundary
+                .and_then(|value| value.get("generatedRegionsOnly"))
+                .and_then(Value::as_bool)
+                == Some(true);
         if !structurally_bound {
             self.push(
                 context,
@@ -905,18 +998,30 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
             )?;
         }
 
-        let package_directory = self.policy.manifest_path.parent().unwrap_or_else(|| Path::new(""));
+        let package_directory = self
+            .policy
+            .manifest_path
+            .parent()
+            .unwrap_or_else(|| Path::new(""));
         if let Some(files) = manifest.get("files").and_then(Value::as_object) {
             for (relative, metadata) in files {
                 let Some(path) = safe_join(package_directory, relative) else {
-                    self.push(context, MANIFEST_RULE, Some(location(&self.policy.manifest_path)), "safe package-relative manifest path", "unsafe path", "Identity manifest contains an unsafe file path.")?;
+                    self.push(
+                        context,
+                        MANIFEST_RULE,
+                        Some(location(&self.policy.manifest_path)),
+                        "safe package-relative manifest path",
+                        "unsafe path",
+                        "Identity manifest contains an unsafe file path.",
+                    )?;
                     continue;
                 };
                 context.manifest_files_checked += 1;
                 let matches = inventory.get(&path).is_some_and(|entry| {
                     let digest = sha256(&entry.content);
                     string(metadata, "sha256") == Some(digest.as_str())
-                        && metadata.get("bytes").and_then(Value::as_u64) == Some(entry.content.len() as u64)
+                        && metadata.get("bytes").and_then(Value::as_u64)
+                            == Some(entry.content.len() as u64)
                 });
                 if !matches {
                     self.push(
@@ -930,7 +1035,14 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
                 }
             }
         } else {
-            self.push(context, MANIFEST_RULE, Some(location(&self.policy.manifest_path)), "non-empty manifest file map", "missing", "Identity manifest does not enumerate generated files.")?;
+            self.push(
+                context,
+                MANIFEST_RULE,
+                Some(location(&self.policy.manifest_path)),
+                "non-empty manifest file map",
+                "missing",
+                "Identity manifest does not enumerate generated files.",
+            )?;
         }
 
         if let (Some(readme), Some(banner), Some(badge)) = (readme, package.get("banner"), badge) {
@@ -940,13 +1052,16 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
                 .and_then(|variants| variants.first())
                 .and_then(|variant| string(variant, "svg"))
                 .and_then(|path| safe_join(package_directory, path));
-            let badge_path = string(badge, "svg").and_then(|path| safe_join(package_directory, path));
+            let badge_path =
+                string(badge, "svg").and_then(|path| safe_join(package_directory, path));
             let alt_ok = string(banner, "altText").is_some_and(|value| !value.trim().is_empty());
-            let fallback_ok = string(banner, "fallbackText").is_some_and(|value| !value.trim().is_empty());
+            let fallback_ok =
+                string(banner, "fallbackText").is_some_and(|value| !value.trim().is_empty());
             let banner_used = banner_path.as_ref().is_some_and(|path| {
                 markdown_images(readme).iter().any(|(alt, destination)| {
                     !alt.trim().is_empty()
-                        && resolve_reference(&self.policy.readme, destination).as_ref() == Some(path)
+                        && resolve_reference(&self.policy.readme, destination).as_ref()
+                            == Some(path)
                 })
             });
             if !alt_ok || !fallback_ok || !banner_used {
@@ -958,7 +1073,8 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
                 })
             });
             let badge_bound = string(badge, "label") == Some("Hygienic")
-                && string(badge, "profileVersion") == Some(self.policy.profile_lock.version.as_str())
+                && string(badge, "profileVersion")
+                    == Some(self.policy.profile_lock.version.as_str())
                 && string(badge, "evidenceUrl").is_some_and(valid_reference);
             if !badge_used || !badge_bound {
                 self.push(context, BADGE_RULE, Some(location(&self.policy.readme)), "local Identity badge bound to profile and evidence", "missing or inconsistent badge binding", "README badge presentation is not tied to the Identity descriptor and Hygiene evidence.")?;
@@ -976,28 +1092,63 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
             return Ok(BTreeMap::new());
         };
         let Some(entry) = inventory.get(path) else {
-            self.push(context, EXCEPTION_RULE, Some(location(path)), "declared versioned exception document", "missing", "The policy names an exception document that is absent.")?;
+            self.push(
+                context,
+                EXCEPTION_RULE,
+                Some(location(path)),
+                "declared versioned exception document",
+                "missing",
+                "The policy names an exception document that is absent.",
+            )?;
             return Ok(BTreeMap::new());
         };
         let document: ExceptionDocument = match serde_json::from_slice(&entry.content) {
             Ok(document) => document,
             Err(_) => {
-                self.push(context, EXCEPTION_RULE, Some(location(path)), "valid privacy-safe exception JSON", "malformed", "The exception document does not match the supported structure.")?;
+                self.push(
+                    context,
+                    EXCEPTION_RULE,
+                    Some(location(path)),
+                    "valid privacy-safe exception JSON",
+                    "malformed",
+                    "The exception document does not match the supported structure.",
+                )?;
                 return Ok(BTreeMap::new());
             }
         };
-        let represented_matches = self.represented_commit.revision.as_deref().is_none_or(|revision| document.represented_commit == revision);
+        let represented_matches = self
+            .represented_commit
+            .revision
+            .as_deref()
+            .is_none_or(|revision| document.represented_commit == revision);
         if document.schema != "egolint.repository-presentation-exceptions/v1"
             || document.profile_version != self.policy.profile_lock.version
             || !represented_matches
         {
-            self.push(context, EXCEPTION_RULE, Some(location(path)), "exception document bound to profile and represented commit", "stale or unsupported", "The exception envelope does not bind the current validation inputs.")?;
+            self.push(
+                context,
+                EXCEPTION_RULE,
+                Some(location(path)),
+                "exception document bound to profile and represented commit",
+                "stale or unsupported",
+                "The exception envelope does not bind the current validation inputs.",
+            )?;
             return Ok(BTreeMap::new());
         }
         let mut exceptions = BTreeMap::new();
         for exception in document.exceptions {
-            if exception.reason.trim().len() < 8 || !valid_reference(&exception.evidence) || exceptions.contains_key(&exception.slot) {
-                self.push(context, EXCEPTION_RULE, Some(location(path)), "unique slot exception with durable reason and evidence", "invalid exception", "An exception is duplicated, unevidenced, or lacks a meaningful reason.")?;
+            if exception.reason.trim().len() < 8
+                || !valid_reference(&exception.evidence)
+                || exceptions.contains_key(&exception.slot)
+            {
+                self.push(
+                    context,
+                    EXCEPTION_RULE,
+                    Some(location(path)),
+                    "unique slot exception with durable reason and evidence",
+                    "invalid exception",
+                    "An exception is duplicated, unevidenced, or lacks a meaningful reason.",
+                )?;
             } else {
                 exceptions.insert(exception.slot.clone(), exception);
             }
@@ -1013,17 +1164,38 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
         context: &mut EvaluationContext,
     ) -> Option<String> {
         let Some(entry) = inventory.get(path) else {
-            let _ = self.push(context, rule, Some(location(path)), "existing UTF-8 file", "missing", "A required presentation input is absent.");
+            let _ = self.push(
+                context,
+                rule,
+                Some(location(path)),
+                "existing UTF-8 file",
+                "missing",
+                "A required presentation input is absent.",
+            );
             return None;
         };
         if entry.kind != RepositoryEntryKind::File {
-            let _ = self.push(context, rule, Some(location(path)), "regular file", "symbolic link", "Presentation policy inputs must be repository-owned regular files.");
+            let _ = self.push(
+                context,
+                rule,
+                Some(location(path)),
+                "regular file",
+                "symbolic link",
+                "Presentation policy inputs must be repository-owned regular files.",
+            );
             return None;
         }
         match std::str::from_utf8(&entry.content) {
             Ok(value) => Some(value.to_owned()),
             Err(_) => {
-                let _ = self.push(context, rule, Some(location(path)), "UTF-8 file", "non-UTF-8 bytes", "Presentation metadata and README files must be UTF-8.");
+                let _ = self.push(
+                    context,
+                    rule,
+                    Some(location(path)),
+                    "UTF-8 file",
+                    "non-UTF-8 bytes",
+                    "Presentation metadata and README files must be UTF-8.",
+                );
                 None
             }
         }
@@ -1040,7 +1212,14 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
         match serde_json::from_str(&value) {
             Ok(value) => Some(value),
             Err(_) => {
-                let _ = self.push(context, rule, Some(location(path)), "valid JSON document", "malformed JSON", "The presentation input cannot be decoded safely.");
+                let _ = self.push(
+                    context,
+                    rule,
+                    Some(location(path)),
+                    "valid JSON document",
+                    "malformed JSON",
+                    "The presentation input cannot be decoded safely.",
+                );
                 None
             }
         }
@@ -1068,7 +1247,8 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
         let expected_state = expected_state.into();
         let actual_state = actual_state.into();
         let message = message.into();
-        let fingerprint = stable_fingerprint(rule_id, location.as_ref(), &expected_state, &actual_state);
+        let fingerprint =
+            stable_fingerprint(rule_id, location.as_ref(), &expected_state, &actual_state);
         context.diagnostics.push(PresentationDiagnostic {
             id: format!("{rule_id}-{fingerprint}"),
             rule_id: rule_id.to_owned(),
@@ -1092,7 +1272,10 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
                 rule_id: diagnostic.rule_id.clone(),
             },
             severity: diagnostic.severity,
-            message: format!("{} Remediation: {}", diagnostic.message, diagnostic.remediation),
+            message: format!(
+                "{} Remediation: {}",
+                diagnostic.message, diagnostic.remediation
+            ),
             location: diagnostic.location.clone(),
             ownership: RuleOwnership {
                 owner: self.catalog.owner.clone(),
@@ -1149,7 +1332,9 @@ fn profile_state_messages(profile: &Value) -> BTreeMap<String, String> {
 }
 
 fn normalized_digest(bytes: &[u8]) -> String {
-    let text = String::from_utf8_lossy(bytes).replace("\r\n", "\n").replace('\r', "\n");
+    let text = String::from_utf8_lossy(bytes)
+        .replace("\r\n", "\n")
+        .replace('\r', "\n");
     sha256(text.as_bytes())
 }
 
@@ -1158,11 +1343,17 @@ fn sha256(bytes: &[u8]) -> String {
 }
 
 fn valid_commit(value: &str) -> bool {
-    value.len() == 40 && value.bytes().all(|byte| byte.is_ascii_hexdigit() && !byte.is_ascii_uppercase())
+    value.len() == 40
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_hexdigit() && !byte.is_ascii_uppercase())
 }
 
 fn valid_digest(value: &str) -> bool {
-    value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit() && !byte.is_ascii_uppercase())
+    value.len() == 64
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_hexdigit() && !byte.is_ascii_uppercase())
 }
 
 fn valid_repository(value: &str) -> bool {
@@ -1170,15 +1361,24 @@ fn valid_repository(value: &str) -> bool {
     parts.next().is_some_and(|part| !part.is_empty())
         && parts.next().is_some_and(|part| !part.is_empty())
         && parts.next().is_none()
-        && value.bytes().all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.' | b'/'))
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.' | b'/'))
 }
 
 fn validate_relative_path(path: &Path, name: &str) -> Result<()> {
     if path.as_os_str().is_empty() || path.is_absolute() || path.to_string_lossy().contains('\\') {
-        return Err(EgolintError::Configuration(format!("{name} must be a safe repository-relative path")));
+        return Err(EgolintError::Configuration(format!(
+            "{name} must be a safe repository-relative path"
+        )));
     }
-    if path.components().any(|component| !matches!(component, Component::Normal(_))) {
-        return Err(EgolintError::Configuration(format!("{name} must not contain traversal or dot components")));
+    if path
+        .components()
+        .any(|component| !matches!(component, Component::Normal(_)))
+    {
+        return Err(EgolintError::Configuration(format!(
+            "{name} must not contain traversal or dot components"
+        )));
     }
     Ok(())
 }
@@ -1241,7 +1441,11 @@ fn markdown_references(readme: &str) -> Vec<String> {
     while let Some(start) = rest.find("](") {
         rest = &rest[start + 2..];
         let Some(end) = rest.find(')') else { break };
-        let destination = rest[..end].split_ascii_whitespace().next().unwrap_or("").trim_matches(['<', '>']);
+        let destination = rest[..end]
+            .split_ascii_whitespace()
+            .next()
+            .unwrap_or("")
+            .trim_matches(['<', '>']);
         if !destination.is_empty() {
             values.push(destination.to_owned());
         }
@@ -1255,11 +1459,20 @@ fn markdown_images(readme: &str) -> Vec<(String, String)> {
     let mut rest = readme;
     while let Some(start) = rest.find("![") {
         rest = &rest[start + 2..];
-        let Some(alt_end) = rest.find("](") else { break };
+        let Some(alt_end) = rest.find("](") else {
+            break;
+        };
         let alt = rest[..alt_end].to_owned();
         rest = &rest[alt_end + 2..];
-        let Some(destination_end) = rest.find(')') else { break };
-        let destination = rest[..destination_end].split_ascii_whitespace().next().unwrap_or("").trim_matches(['<', '>']).to_owned();
+        let Some(destination_end) = rest.find(')') else {
+            break;
+        };
+        let destination = rest[..destination_end]
+            .split_ascii_whitespace()
+            .next()
+            .unwrap_or("")
+            .trim_matches(['<', '>'])
+            .to_owned();
         images.push((alt, destination));
         rest = &rest[destination_end + 1..];
     }
@@ -1270,7 +1483,13 @@ fn markdown_headings(readme: &str) -> BTreeSet<String> {
     readme
         .lines()
         .filter_map(|line| line.trim_start().strip_prefix('#'))
-        .map(|line| line.trim_start_matches('#').trim().trim_end_matches('#').trim().to_ascii_lowercase())
+        .map(|line| {
+            line.trim_start_matches('#')
+                .trim()
+                .trim_end_matches('#')
+                .trim()
+                .to_ascii_lowercase()
+        })
         .filter(|line| !line.is_empty())
         .collect()
 }
@@ -1314,7 +1533,10 @@ fn stable_fingerprint(
     format!("repository-presentation-v1-{hash:016x}")
 }
 
-fn diagnostic_order(left: &PresentationDiagnostic, right: &PresentationDiagnostic) -> std::cmp::Ordering {
+fn diagnostic_order(
+    left: &PresentationDiagnostic,
+    right: &PresentationDiagnostic,
+) -> std::cmp::Ordering {
     left.location
         .as_ref()
         .map(|value| &value.path)
@@ -1382,15 +1604,37 @@ end = "<!-- repository-presentation:end -->"
         .expect("evaluator");
         let inventory = RepositoryInventory::from_entries(Vec::new()).expect("inventory");
         let evaluation = evaluator.evaluate(&inventory).expect("evaluation");
-        assert_eq!(evaluation.report.status, PresentationValidationStatus::Invalid);
-        assert!(evaluation.findings.iter().all(|finding| !matches!(finding.severity, Severity::Error | Severity::Critical)));
-        assert!(evaluation.report.diagnostics.iter().all(|diagnostic| diagnostic.message.len() < 512));
+        assert_eq!(
+            evaluation.report.status,
+            PresentationValidationStatus::Invalid
+        );
+        assert!(
+            evaluation
+                .findings
+                .iter()
+                .all(|finding| !matches!(finding.severity, Severity::Error | Severity::Critical))
+        );
+        assert!(
+            evaluation
+                .report
+                .diagnostics
+                .iter()
+                .all(|diagnostic| diagnostic.message.len() < 512)
+        );
     }
 
     #[test]
     fn fixture_names_cover_required_rollout_profiles() {
         let names = include_str!("../../tests/fixtures/repository-presentation/scenarios.txt");
-        for expected in ["minimal", "customized", "private", "archived", "partial", "broken", "fully-conformant"] {
+        for expected in [
+            "minimal",
+            "customized",
+            "private",
+            "archived",
+            "partial",
+            "broken",
+            "fully-conformant",
+        ] {
             assert!(names.lines().any(|line| line == expected));
         }
     }
