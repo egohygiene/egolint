@@ -126,6 +126,11 @@ pub struct RepositoryPresentationPolicy {
 
 impl RepositoryPresentationPolicy {
     /// Decode and structurally validate a repository policy.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when TOML decoding fails or the policy contains an
+    /// unsafe path, unsupported identifier, or malformed immutable pin.
     pub fn from_toml(contents: &str, path: &Path) -> Result<Self> {
         let policy: Self = toml::from_str(contents).map_err(|source| EgolintError::Toml {
             path: path.to_path_buf(),
@@ -259,6 +264,11 @@ pub struct PresentationEvaluation {
 }
 
 /// Atomically write the dedicated presentation report in Egolint's report boundary.
+///
+/// # Errors
+///
+/// Returns an error when the destination escapes the report boundary or the
+/// report cannot be serialized, synchronized, or persisted.
 pub fn write_presentation_report_atomic(
     report: &RepositoryPresentationReport,
     path: &Path,
@@ -418,6 +428,11 @@ pub struct RepositoryPresentationEvaluator<'a> {
 
 impl<'a> RepositoryPresentationEvaluator<'a> {
     /// Construct an evaluator. Contract drift remains a reportable diagnostic.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when the policy path is unsafe or the bundled catalog
+    /// cannot be decoded and verified.
     pub fn new(
         policy: &'a RepositoryPresentationPolicy,
         policy_path: &Path,
@@ -433,6 +448,12 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
     }
 
     /// Validate README structure, local references, Hygiene evidence, and Identity integrity.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error when a configured input cannot be evaluated safely or
+    /// a normalized finding/report cannot satisfy its machine contract.
+    #[allow(clippy::too_many_lines)]
     pub fn evaluate(&self, inventory: &RepositoryInventory) -> Result<PresentationEvaluation> {
         let mut context = EvaluationContext::default();
         self.validate_catalog_pins(&mut context)?;
@@ -469,7 +490,7 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
         });
         let state_messages = profile
             .as_ref()
-            .map_or_else(BTreeMap::new, |profile| profile_state_messages(profile));
+            .map_or_else(BTreeMap::new, profile_state_messages);
         if let Some(readme) = readme.as_deref() {
             self.validate_readme(readme, inventory, &requirements, &exceptions, &mut context)?;
         }
@@ -711,6 +732,7 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
         requirements
     }
 
+    #[allow(clippy::too_many_lines)]
     fn validate_readme(
         &self,
         readme: &str,
@@ -842,7 +864,7 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
         let assessment = evidence.get("assessment");
         let badge = evidence.get("badge");
         let state = badge.and_then(|value| string(value, "state")).unwrap_or("");
-        context.evidence_state = state.to_owned();
+        state.clone_into(&mut context.evidence_state);
         let represented = self.represented_commit.revision.as_deref();
         let expected_message = messages.get(state).map(String::as_str);
         let valid = string(evidence, "schema") == Some(EVIDENCE_ID)
@@ -923,6 +945,7 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
         Ok(())
     }
 
+    #[allow(clippy::too_many_lines)]
     fn validate_identity_package(
         &self,
         package: &Value,
@@ -1102,19 +1125,16 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
             )?;
             return Ok(BTreeMap::new());
         };
-        let document: ExceptionDocument = match serde_json::from_slice(&entry.content) {
-            Ok(document) => document,
-            Err(_) => {
-                self.push(
-                    context,
-                    EXCEPTION_RULE,
-                    Some(location(path)),
-                    "valid privacy-safe exception JSON",
-                    "malformed",
-                    "The exception document does not match the supported structure.",
-                )?;
-                return Ok(BTreeMap::new());
-            }
+        let Ok(document) = serde_json::from_slice::<ExceptionDocument>(&entry.content) else {
+            self.push(
+                context,
+                EXCEPTION_RULE,
+                Some(location(path)),
+                "valid privacy-safe exception JSON",
+                "malformed",
+                "The exception document does not match the supported structure.",
+            )?;
+            return Ok(BTreeMap::new());
         };
         let represented_matches = self
             .represented_commit
@@ -1185,20 +1205,18 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
             );
             return None;
         }
-        match std::str::from_utf8(&entry.content) {
-            Ok(value) => Some(value.to_owned()),
-            Err(_) => {
-                let _ = self.push(
-                    context,
-                    rule,
-                    Some(location(path)),
-                    "UTF-8 file",
-                    "non-UTF-8 bytes",
-                    "Presentation metadata and README files must be UTF-8.",
-                );
-                None
-            }
-        }
+        let Ok(value) = std::str::from_utf8(&entry.content) else {
+            let _ = self.push(
+                context,
+                rule,
+                Some(location(path)),
+                "UTF-8 file",
+                "non-UTF-8 bytes",
+                "Presentation metadata and README files must be UTF-8.",
+            );
+            return None;
+        };
+        Some(value.to_owned())
     }
 
     fn json_entry(
@@ -1209,20 +1227,18 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
         context: &mut EvaluationContext,
     ) -> Option<Value> {
         let value = self.utf8_entry(inventory, path, rule, context)?;
-        match serde_json::from_str(&value) {
-            Ok(value) => Some(value),
-            Err(_) => {
-                let _ = self.push(
-                    context,
-                    rule,
-                    Some(location(path)),
-                    "valid JSON document",
-                    "malformed JSON",
-                    "The presentation input cannot be decoded safely.",
-                );
-                None
-            }
-        }
+        let Ok(value) = serde_json::from_str(&value) else {
+            let _ = self.push(
+                context,
+                rule,
+                Some(location(path)),
+                "valid JSON document",
+                "malformed JSON",
+                "The presentation input cannot be decoded safely.",
+            );
+            return None;
+        };
+        Some(value)
     }
 
     fn push(
