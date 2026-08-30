@@ -8,7 +8,9 @@
       "!**/build/**",
       "!**/coverage/**",
       "!**/generated/**",
-      "!**/.reports/**"
+      "!**/.reports/**",
+      "!schemas/repository-presentation.schema.json",
+      "!schemas/repository-presentation-report.schema.json"
     ]
   },
   "formatter": {
