@@ -1467,6 +1467,25 @@ fn markdown_references(readme: &str) -> Vec<String> {
         }
         rest = &rest[end + 1..];
     }
+    let mut rest = readme;
+    while let Some(start) = rest.find('<') {
+        rest = &rest[start..];
+        let Some(end) = rest.find('>') else { break };
+        let tag = &rest[..=end];
+        let lower = tag.to_ascii_lowercase();
+        let attribute = if lower.starts_with("<a ") {
+            "href"
+        } else if lower.starts_with("<img ") {
+            "src"
+        } else {
+            rest = &rest[end + 1..];
+            continue;
+        };
+        if let Some(value) = html_attribute(tag, attribute) {
+            values.push(value);
+        }
+        rest = &rest[end + 1..];
+    }
     values
 }
 
@@ -1492,7 +1511,36 @@ fn markdown_images(readme: &str) -> Vec<(String, String)> {
         images.push((alt, destination));
         rest = &rest[destination_end + 1..];
     }
+    let mut rest = readme;
+    while let Some(start) = rest.find('<') {
+        rest = &rest[start..];
+        let Some(end) = rest.find('>') else { break };
+        let tag = &rest[..=end];
+        if tag.to_ascii_lowercase().starts_with("<img ") {
+            if let Some(destination) = html_attribute(tag, "src") {
+                images.push((html_attribute(tag, "alt").unwrap_or_default(), destination));
+            }
+        }
+        rest = &rest[end + 1..];
+    }
     images
+}
+
+fn html_attribute(tag: &str, name: &str) -> Option<String> {
+    let lower = tag.to_ascii_lowercase();
+    let pattern = format!("{name}=");
+    let start = lower.find(&pattern)? + pattern.len();
+    let value = &tag[start..];
+    let first = value.chars().next()?;
+    if matches!(first, '"' | '\'') {
+        let quoted = &value[first.len_utf8()..];
+        let end = quoted.find(first)?;
+        return Some(quoted[..end].to_owned());
+    }
+    let end = value
+        .find(|character: char| character.is_ascii_whitespace() || character == '>')
+        .unwrap_or(value.len());
+    (end > 0).then(|| value[..end].to_owned())
 }
 
 fn markdown_headings(readme: &str) -> BTreeSet<String> {
@@ -1653,5 +1701,26 @@ end = "<!-- repository-presentation:end -->"
         ] {
             assert!(names.lines().any(|line| line == expected));
         }
+    }
+
+    #[test]
+    fn html_picture_and_link_markup_expose_accessible_local_references() {
+        let readme = r#"<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
+    <img src="assets/banner-light.svg" alt="Example repository banner" width="640">
+  </picture>
+  <a href="evidence/presentation.json"><img src="assets/badge.svg" alt="Hygienic: evidence unknown"></a>
+</p>"#;
+        assert!(markdown_images(readme).contains(&(
+            "Example repository banner".to_owned(),
+            "assets/banner-light.svg".to_owned(),
+        )));
+        assert!(markdown_images(readme).contains(&(
+            "Hygienic: evidence unknown".to_owned(),
+            "assets/badge.svg".to_owned(),
+        )));
+        assert!(markdown_references(readme).contains(&"assets/banner-light.svg".to_owned()));
+        assert!(markdown_references(readme).contains(&"evidence/presentation.json".to_owned()));
     }
 }
