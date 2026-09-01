@@ -40,6 +40,10 @@ No changes yet.
 - Versioned offline repository-presentation validation that consumes the pinned Hygiene profile and
   Identity manifest, resolves visibility/lifecycle applicability, fails badge claims closed, and
   emits privacy-safe evidence.
+- Governed EgoLint Brand Kit source and deterministic repository-presentation, social-preview,
+  token, metadata, guidance, checksum, and archive projections.
+- Reviewed release-input contract binding every base-image variable to an exact registry digest and
+  each published image product to the platforms its complete dependency chain supports.
 
 ### Changed
 
@@ -84,6 +88,8 @@ No changes yet.
   executable Git modes.
 - Resolved Node package export maps and subpath exports in the JavaScript architecture adapter
   without package-specific exceptions.
+- Prevented the release workflow from claiming ARM64 support for the complete MegaLinter-based image
+  while retaining AMD64 and ARM64 publication for the standalone EgoLint CLI image.
 
 [Unreleased]: https://github.com/egohygiene/egolint/compare/v0.1.0-alpha.1...HEAD
 [0.1.0-alpha.1]: https://github.com/egohygiene/egolint/releases/tag/v0.1.0-alpha.1

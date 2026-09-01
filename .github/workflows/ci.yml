@@ -89,6 +89,8 @@ jobs:
             "scripts/validate_megalinter_policy.py" --check
           "/tmp/egolint-ci-python/bin/python" \
             "scripts/complementary_tools.py" --check
+          "/tmp/egolint-ci-python/bin/python" \
+            "scripts/validate_release_inputs.py"
 
       - name: Run Python contract tests
         run: |

@@ -25,9 +25,10 @@ digests, attestations, and post-push smoke evidence remain observed closure gate
 4. Confirm crate contents with `cargo package --list` and a dry run.
 5. Use a crates.io trusted publisher rather than a long-lived API token if that distribution channel
    is approved later. The current workflow does not publish to crates.io.
-6. Build OCI manifests for `linux/amd64` and `linux/arm64` from the same commit.
-7. Pin every container base, including MegaLinter and Node, by reviewed multi-architecture manifest
-   digest.
+6. Build the CLI OCI manifest for `linux/amd64` and `linux/arm64`, and the full-engine image for its
+   honestly supported `linux/amd64` platform, from the same commit.
+7. Pin every container base, including MegaLinter and Node, to the exact references reviewed in
+   `.config/release/base-images.v1.json`.
 8. Generate CycloneDX/SPDX SBOMs and build provenance for binaries and images.
 9. Sign image digests with keyless Sigstore/Cosign after provenance succeeds.
 10. Publish only a write-once version tag. `latest`, `edge`, moving action tags, and crates.io
@@ -79,8 +80,8 @@ time-of-check/time-of-use race. Consumers must pin digests. A draft GitHub relea
 after all of those checks pass.
 
 Before any tag is pushed, configure the `release` environment with required reviewers, add a
-repository tag ruleset, and set these repository variables to reviewed multi-architecture manifest
-digests:
+repository tag ruleset, and set these repository variables to the exact immutable references in the
+checked-in release-input contract:
 
 | Variable                     | Image boundary                 |
 | ---------------------------- | ------------------------------ |
@@ -89,8 +90,17 @@ digests:
 | `EGOLINT_NODE_POLICY_IMAGE`  | Node policy dependency stage   |
 | `EGOLINT_MEGALINTER_IMAGE`   | MegaLinter v10 full-image base |
 
-The workflow rejects missing, tag-only, or syntactically invalid values and freezes the four
-accepted digest references as candidate outputs for the multi-architecture publish jobs.
+The workflow rejects missing, tag-only, merely well-formed, or drifted values. It freezes only the
+four references that match `.config/release/base-images.v1.json` byte-for-byte.
+
+MegaLinter `v10.0.0` publishes its full image as a single `linux/amd64` manifest. Version 10 adds
+ARM64 support for compatible custom and standalone-linter builds, but does not make the complete
+124-tool image multi-architecture; upstream tracks complete-image support in
+[MegaLinter #1180](https://github.com/oxsecurity/megalinter/issues/1180). EgoLint therefore
+publishes its lightweight CLI image for AMD64 and ARM64 while advertising `egolint-full` as
+AMD64-only. The product-platform matrix is derived from the intersection of its reviewed base images
+and fails closed if the contract overclaims a platform. ARM64 full-engine publication remains
+blocked on an upstream-compatible base or a separately reviewed reduced flavor.
 
 GitHub Actions used by generated or handwritten workflows are pinned to reviewed immutable commit
 SHAs. `.github/workflows/ci.yml` checks the Rust MSRV, package contents, generated schemas, policy

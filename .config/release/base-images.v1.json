@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-09-01",
+  "products": {
+    "egolint": {
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "base_images": ["RUST_BUILDER_IMAGE", "CLI_RUNTIME_IMAGE"]
+    },
+    "egolint-full": {
+      "platforms": ["linux/amd64"],
+      "base_images": ["NODE_POLICY_IMAGE", "MEGALINTER_IMAGE"],
+      "limitation": "MegaLinter v10.0.0 publishes its full image as a single linux/amd64 manifest; ARM64 support is limited to compatible custom and standalone-linter builds."
+    }
+  },
+  "images": {
+    "RUST_BUILDER_IMAGE": {
+      "reference": "docker.io/library/rust:1.85-bookworm",
+      "digest": "sha256:e51d0265072d2d9d5d320f6a44dde6b9ef13653b035098febd68cce8fa7c0bc4",
+      "media_type": "application/vnd.oci.image.index.v1+json",
+      "platforms": ["linux/amd64", "linux/arm64"]
+    },
+    "CLI_RUNTIME_IMAGE": {
+      "reference": "docker.io/library/debian:bookworm-slim",
+      "digest": "sha256:88200866dfff7ea7f5cbcb6ec7c8a701889efe6fe859fe64d6990e4b07ea4171",
+      "media_type": "application/vnd.oci.image.index.v1+json",
+      "platforms": ["linux/amd64", "linux/arm64"]
+    },
+    "NODE_POLICY_IMAGE": {
+      "reference": "docker.io/library/node:24-alpine3.24",
+      "digest": "sha256:e67514e5d0f6c46656005e1b693b2ec9d52e80b641307de684d4a015ba7a4eaf",
+      "media_type": "application/vnd.oci.image.index.v1+json",
+      "platforms": ["linux/amd64", "linux/arm64"]
+    },
+    "MEGALINTER_IMAGE": {
+      "reference": "ghcr.io/oxsecurity/megalinter:v10.0.0",
+      "digest": "sha256:bed638e2aaa435859fff8ef5a90c20272c505ef95661cbaac793038ed28b08a0",
+      "media_type": "application/vnd.docker.distribution.manifest.v2+json",
+      "platforms": ["linux/amd64"],
+      "upstream_platform_evidence": "https://github.com/oxsecurity/megalinter/issues/1180"
+    }
+  }
+}
