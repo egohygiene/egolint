@@ -1345,10 +1345,9 @@ PYTHON_RUFF_PRE_COMMANDS:
 REPOSITORY_SECRETLINT_RULES_PATH: .config/security/secretlint # pragma: allowlist secret
 REPOSITORY_SECRETLINT_CONFIG_FILE: .secretlintrc.json
 
-# MegaLinter v10 forwards repository exclusions through a temporary
-# workspace-root .secretlintignore. Do not pass the packaged ignore file here:
-# Secretlint v13 interprets an absolute ignore path as a cascading file name,
-# silently misses it, and scans excluded fixtures and generated directories.
+# Scan MegaLinter's complete, already-filtered file set rather than asking
+# project mode to generate an ignore file inside the read-only workspace.
+REPOSITORY_SECRETLINT_CLI_LINT_MODE: list_of_files # pragma: allowlist secret
 
 # ==============================================================================
 # Semantic and complementary secret analysis

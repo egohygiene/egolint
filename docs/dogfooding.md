@@ -57,9 +57,9 @@ bounded offline selection directly in its public execution plan. Rust formatting
 remain blocking in the dedicated Rust core CI lane.
 
 The generic Mypy contract keeps first-party strictness while accepting installed third-party
-packages that do not publish type stubs. Secretlint exclusions are forwarded through a temporary
-ignore file rooted in the analyzed workspace; packaged absolute ignore paths are intentionally not
-used because Secretlint v13 treats them as cascading file names rather than portable policy paths.
+packages that do not publish type stubs. Secretlint consumes MegaLinter's complete filtered file
+list instead of project mode, so the scanner honors the same exclusions without generating an ignore
+file inside the read-only consumer workspace.
 
 That distinction matters: the dogfood proof must evaluate the current checkout, not a previously
 published or mutable remote image.
