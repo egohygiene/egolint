@@ -28,7 +28,8 @@ supersedes: []
 
 ## Declaration
 
-We believe turn organization quality expectations into reproducible, explainable, and extensible validation is worth doing carefully, openly, and with respect for the people affected by the system.
+We believe turn organization quality expectations into reproducible, explainable, and extensible
+validation is worth doing carefully, openly, and with respect for the people affected by the system.
 
 ## We stand for
 
@@ -48,11 +49,17 @@ We believe turn organization quality expectations into reproducible, explainable
 
 ## Commitment
 
-We will keep Egolint independently understandable, honestly incomplete when evidence is missing, and open to revision when better evidence or lived experience contradicts current assumptions.
+We will keep Egolint independently understandable, honestly incomplete when evidence is missing, and
+open to revision when better evidence or lived experience contradicts current assumptions.
 
 ## Evidence and uncertainty
 
-- **Observed:** The repository README establishes the intended boundary as a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; significant implementation remains incomplete.
-- **Decided for this draft:** The repository owns the bounded concern described here and participates through versioned contracts.
-- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and implemented.
-- **Open question:** Which parts of this draft should become active in the first independently versioned release?
+- **Observed:** The repository README establishes the intended boundary as a universal linting
+  platform and extensible MegaLinter wrapper for consistent repository quality; significant
+  implementation remains incomplete.
+- **Decided for this draft:** The repository owns the bounded concern described here and
+  participates through versioned contracts.
+- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and
+  implemented.
+- **Open question:** Which parts of this draft should become active in the first independently
+  versioned release?

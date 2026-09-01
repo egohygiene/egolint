@@ -2,7 +2,8 @@
 
 Egolint is its own reference consumer.
 
-The dogfood gate deliberately crosses the same public boundaries that a downstream repository uses instead of calling implementation-only helpers.
+The dogfood gate deliberately crosses the same public boundaries that a downstream repository uses
+instead of calling implementation-only helpers.
 
 ```text
 Egolint repository
@@ -20,13 +21,11 @@ MegaLinter + native Egolint adapters
 normalized .reports/egolint evidence
 ```
 
-The repository also declares `egolint.javascript-package-quality.json`, so its
-real JavaScript tooling is checked through the same package-quality manifest
-contract as external consumers. The JavaScript architecture profile includes
-`scripts/` as a first-class production root. The repository-owned manifest
-scope keeps generated contracts and deliberately hostile fixtures under their
-focused generators and tests instead of treating them as production package
-source.
+The repository also declares `egolint.javascript-package-quality.json`, so its real JavaScript
+tooling is checked through the same package-quality manifest contract as external consumers. The
+JavaScript architecture profile includes `scripts/` as a first-class production root. The
+repository-owned manifest scope keeps generated contracts and deliberately hostile fixtures under
+their focused generators and tests instead of treating them as production package source.
 
 ## Canonical command
 
@@ -39,12 +38,24 @@ task dogfood
 The composed task performs three checks in order:
 
 1. `dogfood:native` invokes the public `egolint validate` CLI against this repository.
-2. `dogfood:javascript` runs the public dependency-architecture and JavaScript package-quality adapters against Egolint's own production tooling.
-3. `dogfood:holistic` builds the current checkout's `Dockerfile.full` and invokes the public `egolint lint` CLI with the holistic profile.
+2. `dogfood:javascript` runs the public dependency-architecture and JavaScript package-quality
+   adapters against Egolint's own production tooling.
+3. `dogfood:holistic` builds the current checkout's `Dockerfile.full` and invokes the public
+   `egolint lint` CLI with the holistic profile.
 
-The holistic self-consumer configuration is `.config/dogfood/egolint.toml`. It pins the runtime to Docker, the image to the locally built `egolint-full:dogfood` tag, the pull policy to `never`, and the lint container network to `none`.
+The holistic self-consumer configuration is `.config/dogfood/egolint.toml`. It pins the runtime to
+Docker, the image to the locally built `egolint-full:dogfood` tag, the pull policy to `never`, and
+the lint container network to `none`. It also selects the image's preinstalled stable Rust
+toolchain, avoiding an implicit rustup network check during the offline run.
 
-That distinction matters: the dogfood proof must evaluate the current checkout, not a previously published or mutable remote image.
+The offline reference-consumer task explicitly disables SchemaStore validation, remote-link
+checking, package-registry takeover checks, and vulnerability-database scanners. Those analyzers
+require network access or reviewed pre-seeded data, so an offline failure cannot establish their
+quality or freshness. Their policy remains active in the corresponding network-enabled profiles; the
+dogfood gate records the bounded offline selection directly in its public execution plan.
+
+That distinction matters: the dogfood proof must evaluate the current checkout, not a previously
+published or mutable remote image.
 
 ## What the gate proves
 
@@ -60,17 +71,20 @@ A green dogfood run proves that the current repository can:
 - normalize results into the public `.reports/egolint` evidence surface; and
 - do all of that without granting lint execution broad repository writes or network access.
 
-The GitHub Actions `Dogfood` workflow runs this same `task dogfood` entrypoint
-and uploads `.reports/egolint/` as diagnostic evidence even when the gate
-fails. That private evidence includes a bounded `mega-linter-adapter.log`, so
-startup and configuration failures remain diagnosable without forwarding raw
-container output into workflow command channels.
+The GitHub Actions `Dogfood` workflow runs this same `task dogfood` entrypoint and uploads
+`.reports/egolint/` as diagnostic evidence even when the gate fails. That private evidence includes
+a bounded `mega-linter-adapter.log`, so startup and configuration failures remain diagnosable
+without forwarding raw container output into workflow command channels.
 
 ## What the gate does not replace
 
-Dogfooding complements rather than replaces component-level verification. Unit tests, schema drift checks, fixture tests, platform-specific rule tests, and policy-image tests remain necessary because a self-consumer run cannot force every error branch or compatibility case.
+Dogfooding complements rather than replaces component-level verification. Unit tests, schema drift
+checks, fixture tests, platform-specific rule tests, and policy-image tests remain necessary because
+a self-consumer run cannot force every error branch or compatibility case.
 
-The self-run also does not dynamically fetch Hygiene, Empathy, or another sibling repository. Cross-repository contracts remain reviewed, locally materialized inputs so lint execution stays offline and reproducible.
+The self-run also does not dynamically fetch Hygiene, Empathy, or another sibling repository.
+Cross-repository contracts remain reviewed, locally materialized inputs so lint execution stays
+offline and reproducible.
 
 ## Findings and exceptions
 
@@ -81,4 +95,6 @@ A dogfood finding is treated as product feedback first. Prefer, in order:
 3. narrow a rule when the previous rule was objectively over-broad; or
 4. use an explicit owned, reasoned, time-bounded exception when migration genuinely requires one.
 
-Do not add Egolint-specific blanket exclusions merely to keep the self-run green. A dogfood exception that downstream users could not reasonably justify is evidence that the policy or architecture still needs work.
+Do not add Egolint-specific blanket exclusions merely to keep the self-run green. A dogfood
+exception that downstream users could not reasonably justify is evidence that the policy or
+architecture still needs work.

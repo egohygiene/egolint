@@ -47,7 +47,8 @@ inputs:
     required: false
     default: ""
   represented-commit:
-    description: Full represented Git commit; defaults to github.sha when semantic validation is enabled.
+    description:
+      Full represented Git commit; defaults to github.sha when semantic validation is enabled.
     required: false
     default: ""
   suppression:
@@ -77,10 +78,12 @@ outputs:
     description: Workspace-relative privacy-safe repository-presentation validation report.
     value: ${{ steps.check.outputs.repository-presentation-report }}
   debt-json:
-    description: Workspace-relative dependency-debt JSON path; the file exists only for that profile.
+    description:
+      Workspace-relative dependency-debt JSON path; the file exists only for that profile.
     value: ${{ steps.check.outputs.debt-json }}
   debt-markdown:
-    description: Workspace-relative dependency-debt Markdown path; the file exists only for that profile.
+    description:
+      Workspace-relative dependency-debt Markdown path; the file exists only for that profile.
     value: ${{ steps.check.outputs.debt-markdown }}
   raw-megalinter-json:
     description: Workspace-relative private MegaLinter JSON; never publish without sanitizing.

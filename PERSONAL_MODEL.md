@@ -29,7 +29,9 @@ supersedes: []
 
 ## Purpose
 
-Egolint is designed for and operated by people even when it is primarily a library or automation surface. This document makes its limited human assumptions explicit; it is not a persona catalog, diagnosis, identity model, or prediction engine.
+Egolint is designed for and operated by people even when it is primarily a library or automation
+surface. This document makes its limited human assumptions explicit; it is not a persona catalog,
+diagnosis, identity model, or prediction engine.
 
 ## People in scope
 
@@ -38,7 +40,8 @@ Egolint is designed for and operated by people even when it is primarily a libra
 - automation authors
 - agents validating changes
 
-Maintainers, contributors, reviewers, and people indirectly affected by generated or published outputs are also in scope.
+Maintainers, contributors, reviewers, and people indirectly affected by generated or published
+outputs are also in scope.
 
 ## Human assumptions
 
@@ -50,15 +53,24 @@ Maintainers, contributors, reviewers, and people indirectly affected by generate
 
 ## Agency and consent boundaries
 
-Consequential operations require understandable scope, current authorization, and an appropriate preview or confirmation. Personal inference must be optional, purpose-limited, labeled, correctable, and removable.
+Consequential operations require understandable scope, current authorization, and an appropriate
+preview or confirmation. Personal inference must be optional, purpose-limited, labeled, correctable,
+and removable.
 
 ## Accessibility and dignity
 
-Primary journeys should remain keyboard-accessible, screen-reader legible, reduced-motion compatible, and understandable without expert vocabulary. Error messages describe recovery without blame.
+Primary journeys should remain keyboard-accessible, screen-reader legible, reduced-motion
+compatible, and understandable without expert vocabulary. Error messages describe recovery without
+blame.
 
 ## Evidence and uncertainty
 
-- **Observed:** The repository README establishes the intended boundary as a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; significant implementation remains incomplete.
-- **Decided for this draft:** The repository owns the bounded concern described here and participates through versioned contracts.
-- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and implemented.
-- **Open question:** Which parts of this draft should become active in the first independently versioned release?
+- **Observed:** The repository README establishes the intended boundary as a universal linting
+  platform and extensible MegaLinter wrapper for consistent repository quality; significant
+  implementation remains incomplete.
+- **Decided for this draft:** The repository owns the bounded concern described here and
+  participates through versioned contracts.
+- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and
+  implemented.
+- **Open question:** Which parts of this draft should become active in the first independently
+  versioned release?

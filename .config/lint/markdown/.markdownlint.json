@@ -69,7 +69,7 @@
 
   "MD025": {
     "level": 1,
-    "front_matter_title": "^\\s*title\\s*[:=]"
+    "front_matter_title": ""
   },
 
   "MD026": {
@@ -80,7 +80,7 @@
   "MD028": true,
 
   "MD029": {
-    "style": "one"
+    "style": "ordered"
   },
 
   "MD030": {
@@ -114,7 +114,7 @@
 
   "MD041": {
     "level": 1,
-    "front_matter_title": "^\\s*title\\s*[:=]"
+    "front_matter_title": ""
   },
 
   "MD042": true,
@@ -136,7 +136,7 @@
   },
 
   "MD049": {
-    "style": "asterisk"
+    "style": "underscore"
   },
 
   "MD050": {

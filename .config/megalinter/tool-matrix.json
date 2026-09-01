@@ -1475,12 +1475,12 @@
     {
       "applicability": [],
       "cli_lint_mode": "project",
-      "configuration_path": null,
+      "configuration_path": ".config/lint/json/.npmpackagejsonlintrc.json",
       "configuration_state": "enabled",
       "descriptor": "JSON",
       "enforcement": "blocking",
       "evidence": {
-        "configuration": null,
+        "configuration": ".config/lint/json/.npmpackagejsonlintrc.json",
         "fixtures": {},
         "runtime_report": ".reports/egolint/linters_logs/JSON_NPM_PACKAGE_JSON_LINT.log"
       },

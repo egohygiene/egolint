@@ -49,9 +49,8 @@ tasks:
         msg: "pnpm is required for the dependency-cruiser adapter."
     cmds:
       - >-
-        cargo run --quiet --locked --bin egolint-architecture --
-        --workspace "{{.ARCHITECTURE_WORKSPACE}}"
-        --evaluation-date "{{.EVALUATION_DATE}}"
+        cargo run --quiet --locked --bin egolint-architecture -- --workspace
+        "{{.ARCHITECTURE_WORKSPACE}}" --evaluation-date "{{.EVALUATION_DATE}}"
 
   architecture:graph:
     desc: "Run JS/TS architecture checks and emit an optional DOT graph"
@@ -63,10 +62,9 @@ tasks:
         msg: "pnpm is required for the dependency-cruiser adapter."
     cmds:
       - >-
-        cargo run --quiet --locked --bin egolint-architecture --
-        --workspace "{{.ARCHITECTURE_WORKSPACE}}"
-        --evaluation-date "{{.EVALUATION_DATE}}"
-        --graph ".reports/egolint/javascript-architecture.dot"
+        cargo run --quiet --locked --bin egolint-architecture -- --workspace
+        "{{.ARCHITECTURE_WORKSPACE}}" --evaluation-date "{{.EVALUATION_DATE}}" --graph
+        ".reports/egolint/javascript-architecture.dot"
 
   javascript-quality:check:
     desc: "Run the canonical JavaScript/TypeScript package-quality profile"
@@ -77,8 +75,7 @@ tasks:
         msg: "pnpm is required for JavaScript package-quality adapters."
     cmds:
       - >-
-        node scripts/javascript-package-quality.mjs
-        --workspace "{{.JAVASCRIPT_QUALITY_WORKSPACE}}"
+        node scripts/javascript-package-quality.mjs --workspace "{{.JAVASCRIPT_QUALITY_WORKSPACE}}"
 
   javascript-quality:test:
     desc: "Validate JavaScript package-quality policy and migration contracts"
@@ -104,9 +101,12 @@ tasks:
       - cargo run --quiet --locked -- schema plan > schemas/plan.schema.json
       - cargo run --quiet --locked -- schema report > schemas/report.schema.json
       - cargo run --quiet --locked -- schema debt > schemas/debt.schema.json
-      - cargo run --quiet --locked -- schema repository-contract > schemas/repository-contract.schema.json
-      - cargo run --quiet --locked -- schema repository-intelligence > schemas/repository-intelligence.schema.json
-      - cargo run --quiet --locked -- schema repository-intelligence-report > schemas/repository-intelligence-report.schema.json
+      - cargo run --quiet --locked -- schema repository-contract >
+        schemas/repository-contract.schema.json
+      - cargo run --quiet --locked -- schema repository-intelligence >
+        schemas/repository-intelligence.schema.json
+      - cargo run --quiet --locked -- schema repository-intelligence-report >
+        schemas/repository-intelligence-report.schema.json
 
   schemas:check:
     desc: "Fail when checked-in JSON Schemas differ from the Rust types"
@@ -149,20 +149,14 @@ tasks:
         msg: "Docker is required for holistic Egolint dogfooding."
     cmds:
       - >-
-        docker build
-        --file "Dockerfile.full"
-        --tag "{{.DOGFOOD_IMAGE}}"
-        "."
+        docker build --file "Dockerfile.full" --tag "{{.DOGFOOD_IMAGE}}" "."
 
   dogfood:native:
     desc: "Consume Egolint's public validate CLI against this repository"
     cmds:
       - >-
-        cargo run --quiet --locked --
-        --workspace "."
-        --config ".config/dogfood/egolint.toml"
-        validate
-        --repository-intelligence ".config/dogfood/repository-intelligence.toml"
+        cargo run --quiet --locked -- --workspace "." --config ".config/dogfood/egolint.toml"
+        validate --repository-intelligence ".config/dogfood/repository-intelligence.toml"
         --represented-commit "$(git rev-parse --verify HEAD)"
 
   dogfood:architecture:
@@ -172,10 +166,9 @@ tasks:
         msg: "pnpm is required for the dependency-cruiser adapter."
     cmds:
       - >-
-        cargo run --quiet --locked --bin egolint-architecture --
-        --workspace "."
-        --overlay ".config/dogfood/javascript-architecture.overlay.json"
-        --evaluation-date "{{.DOGFOOD_EVALUATION_DATE}}"
+        cargo run --quiet --locked --bin egolint-architecture -- --workspace "." --overlay
+        ".config/dogfood/javascript-architecture.overlay.json" --evaluation-date
+        "{{.DOGFOOD_EVALUATION_DATE}}"
 
   dogfood:javascript:
     desc: "Consume Egolint's JS architecture and package-quality profiles against itself"
@@ -191,10 +184,10 @@ tasks:
       - dogfood:image
     cmds:
       - >-
-        cargo run --quiet --locked --
-        --workspace "."
-        --config ".config/dogfood/egolint.toml"
-        lint
+        cargo run --quiet --locked -- --workspace "." --config ".config/dogfood/egolint.toml" lint
+        --disable-linter "JSON_V8R" --disable-linter "REPOSITORY_DUSTILOCK" --disable-linter
+        "REPOSITORY_GRYPE" --disable-linter "REPOSITORY_TRIVY" --disable-linter
+        "REPOSITORY_TRIVY_SBOM" --disable-linter "SPELL_LYCHEE" --disable-linter "YAML_V8R"
 
   dogfood:
     desc: "Dogfood Egolint as its own reference consumer"

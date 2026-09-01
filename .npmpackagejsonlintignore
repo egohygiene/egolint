@@ -1,0 +1,2 @@
+# Deliberately incomplete and hostile package manifests are owned by focused tests.
+tests/fixtures/**

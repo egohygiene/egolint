@@ -41,15 +41,13 @@ tasks:
     desc: "Install the locked complementary Python lint environment"
     cmds:
       - >-
-        uv sync --directory "{{.ROOT_DIR}}" --locked
-        --no-default-groups --group lint
+        uv sync --directory "{{.ROOT_DIR}}" --locked --no-default-groups --group lint
 
   dependencies:security:
     desc: "Install the separately locked Python security group"
     cmds:
       - >-
-        uv sync --directory "{{.ROOT_DIR}}" --locked
-        --no-default-groups --group security
+        uv sync --directory "{{.ROOT_DIR}}" --locked --no-default-groups --group security
 
   tombi:
     desc: "Lint TOML with Tombi"

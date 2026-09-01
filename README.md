@@ -2,23 +2,20 @@
 
 Portable, policy-driven lint orchestration for repositories and CI.
 
-> [!IMPORTANT]
-> Egolint is an early alpha. The CLI is source-buildable, but no Cargo package,
-> GitHub release, or GHCR image is claimed to be published yet. Interfaces and
-> policy defaults may change before the first stable release.
+> [!IMPORTANT] Egolint is an early alpha. The CLI is source-buildable, but no Cargo package, GitHub
+> release, or GHCR image is claimed to be published yet. Interfaces and policy defaults may change
+> before the first stable release.
 
 Egolint separates orchestration from the lint engine:
 
-- The Rust CLI resolves layered configuration, produces inspectable execution
-  plans, and launches a hardened Docker or Podman host process as direct argv
-  without host-shell interpolation.
-- `ghcr.io/egohygiene/egolint` is the planned lightweight CLI image. It is useful
-  for `plan`, `schema`, and configuration inspection; it does not contain a
-  container runtime or require access to a Docker socket.
-- `ghcr.io/egohygiene/egolint-full` is the planned lint-engine image. It extends
-  MegaLinter and embeds the fast, holistic, security, and dependency-debt Ego
-  Hygiene policies. The native CLI launches this image and intentionally
-  preserves MegaLinter's entrypoint.
+- The Rust CLI resolves layered configuration, produces inspectable execution plans, and launches a
+  hardened Docker or Podman host process as direct argv without host-shell interpolation.
+- `ghcr.io/egohygiene/egolint` is the planned lightweight CLI image. It is useful for `plan`,
+  `schema`, and configuration inspection; it does not contain a container runtime or require access
+  to a Docker socket.
+- `ghcr.io/egohygiene/egolint-full` is the planned lint-engine image. It extends MegaLinter and
+  embeds the fast, holistic, security, and dependency-debt Ego Hygiene policies. The native CLI
+  launches this image and intentionally preserves MegaLinter's entrypoint.
 
 ## Current alpha surface
 
@@ -33,23 +30,21 @@ Egolint separates orchestration from the lint engine:
 | `egolint explain`   | Show effective configuration and ordered sources.                                                        |
 | `egolint schema`    | Emit a checked-in machine contract as JSON Schema.                                                       |
 
-`check` remains an alias for `lint`, and `config explain` remains available for
-compatibility with the first alpha surface.
+`check` remains an alias for `lint`, and `config explain` remains available for compatibility with
+the first alpha surface.
 
-The `fast` profile gives short changed-file MegaLinter feedback while native
-portability and repository-policy checks still inspect the complete repository.
-`holistic` performs the broader scheduled, manual, and trusted-branch
-inspection. `security` focuses secret, static-analysis, and infrastructure
-checks. `dependency-debt` focuses vulnerability and inventory evidence. All
-four selections are versioned in the policy catalog.
+The `fast` profile gives short changed-file MegaLinter feedback while native portability and
+repository-policy checks still inspect the complete repository. `holistic` performs the broader
+scheduled, manual, and trusted-branch inspection. `security` focuses secret, static-analysis, and
+infrastructure checks. `dependency-debt` focuses vulnerability and inventory evidence. All four
+selections are versioned in the policy catalog.
 
 Successful lint runs write normalized `.reports/egolint/run.json` and
-`.reports/egolint/egolint.sarif`. Repository Intelligence validation also
-writes `.reports/egolint/repository-intelligence.json`; repository-presentation
-validation writes the privacy-safe `.reports/egolint/repository-presentation.json`.
-Both include represented source, rule IDs, locations, and remediation. Dependency-debt runs write compact JSON
-and Markdown debt summaries; raw MegaLinter reports remain private adapter
-artifacts.
+`.reports/egolint/egolint.sarif`. Repository Intelligence validation also writes
+`.reports/egolint/repository-intelligence.json`; repository-presentation validation writes the
+privacy-safe `.reports/egolint/repository-presentation.json`. Both include represented source, rule
+IDs, locations, and remediation. Dependency-debt runs write compact JSON and Markdown debt
+summaries; raw MegaLinter reports remain private adapter artifacts.
 
 ## Try it from source
 
@@ -83,30 +78,28 @@ cargo run --locked -- lint \
   --pull-policy "never"
 ```
 
-The second command runs the native CLI, which launches the local full image.
-Do not mount a host Docker socket into the lightweight CLI image. An in-container
-local MegaLinter adapter is a future capability, not part of this alpha.
+The second command runs the native CLI, which launches the local full image. Do not mount a host
+Docker socket into the lightweight CLI image. An in-container local MegaLinter adapter is a future
+capability, not part of this alpha.
 
 ## Dogfood the complete architecture
 
-Egolint is also its own reference consumer. With Docker, Node.js, pnpm, Rust,
-and Task available, run:
+Egolint is also its own reference consumer. With Docker, Node.js, pnpm, Rust, and Task available,
+run:
 
 ```sh
 task dogfood
 ```
 
-That single developer entrypoint exercises the public `egolint validate` CLI,
-Egolint's JavaScript dependency-architecture and package-quality adapters, then
-the public `egolint lint` CLI using a full policy image built from the current
-checkout. The lint image uses `pull-policy = "never"` and `network = "none"`, so
-the proof cannot silently fall back to a previously published image or networked
-lint execution.
+That single developer entrypoint exercises the public `egolint validate` CLI, Egolint's JavaScript
+dependency-architecture and package-quality adapters, then the public `egolint lint` CLI using a
+full policy image built from the current checkout. The lint image uses `pull-policy = "never"` and
+`network = "none"`, so the proof cannot silently fall back to a previously published image or
+networked lint execution.
 
-The same task runs in the read-only `Dogfood` GitHub Actions workflow and emits
-normalized evidence under `.reports/egolint`. See
-[dogfooding](docs/dogfooding.md) for the exact proof boundary and exception
-policy.
+The same task runs in the read-only `Dogfood` GitHub Actions workflow and emits normalized evidence
+under `.reports/egolint`. See [dogfooding](docs/dogfooding.md) for the exact proof boundary and
+exception policy.
 
 ## Configuration
 
@@ -117,11 +110,10 @@ egolint explain
 egolint plan --format "json"
 ```
 
-Configuration is deterministic and explainable. Later sources override earlier
-ones: compiled defaults, user config, repository config, local config, explicit
-config, `EGOLINT_*` environment variables, and CLI options. User and local files
-are skipped when `CI` is truthy. See [configuration](docs/configuration.md) for
-the exact rules.
+Configuration is deterministic and explainable. Later sources override earlier ones: compiled
+defaults, user config, repository config, local config, explicit config, `EGOLINT_*` environment
+variables, and CLI options. User and local files are skipped when `CI` is truthy. See
+[configuration](docs/configuration.md) for the exact rules.
 
 ## Documentation
 
@@ -141,8 +133,7 @@ the exact rules.
 
 ## License boundary
 
-Egolint's Rust code and first-party policy are licensed under the [MIT
-License](LICENSE). The full image extends and contains MegaLinter, which is
-licensed under AGPL-3.0-only, and also contains third-party linters under their
-own licenses. Building or distributing the full image does not relicense those
-components as MIT. See [NOTICE](NOTICE) and [containers](docs/containers.md).
+Egolint's Rust code and first-party policy are licensed under the [MIT License](LICENSE). The full
+image extends and contains MegaLinter, which is licensed under AGPL-3.0-only, and also contains
+third-party linters under their own licenses. Building or distributing the full image does not
+relicense those components as MIT. See [NOTICE](NOTICE) and [containers](docs/containers.md).

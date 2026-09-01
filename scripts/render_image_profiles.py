@@ -71,16 +71,13 @@ def flatten_overlay_profile(holistic: str, overlay_contents: str, *, name: str) 
 
     flattened = dict(base)
     for key, value in overlay.items():
-        if (
-            key in append_properties
-            and isinstance(flattened.get(key), list)
-            and isinstance(value, list)
-        ):
-            flattened[key] = [*flattened[key], *value]
+        base_value = flattened.get(key)
+        if key in append_properties and isinstance(base_value, list) and isinstance(value, list):
+            flattened[key] = [*base_value, *value]
         else:
             flattened[key] = value
 
-    return "---\n" + yaml.safe_dump(flattened, sort_keys=False)
+    return "---\n" + str(yaml.safe_dump(flattened, sort_keys=False))
 
 
 def flatten_fast_profile(holistic: str, fast: str) -> str:

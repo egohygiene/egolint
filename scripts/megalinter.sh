@@ -390,6 +390,7 @@ validate_report_directory() {
   case "${REPORT_DIRECTORY}" in
   /*) die "Report directory must be relative to the workspace." ;;
   */../* | ../* | */..) die "Report directory may not contain a '..' segment: ${REPORT_DIRECTORY}" ;;
+  *) ;;
   esac
   REPORT_DIRECTORY="${REPORT_DIRECTORY#./}"
   [[ ${REPORT_DIRECTORY} == "${DEFAULT_REPORT_DIRECTORY}" ]] ||
@@ -410,6 +411,8 @@ prepare_report_directory() {
     die "Unable to resolve report directory: ${reports_path}"
   path_is_within_workspace "${REPORT_HOST_DIRECTORY}" ||
     die "Report directory resolves outside the workspace."
+  chmod 0777 "${REPORT_HOST_DIRECTORY}" ||
+    die "Unable to make the report directory writable across container user IDs."
 }
 
 # @description Validate enumerated options and option-dependent prerequisites.
@@ -507,6 +510,7 @@ build_run_command() {
       RUN_COMMAND+=("--interactive" "--tty")
     fi
     ;;
+  *) ;;
   esac
 
   RUN_COMMAND+=("--volume" "${WORKSPACE}:${CONTAINER_WORKSPACE}:ro")
@@ -572,7 +576,7 @@ print_redacted_command() {
   local redact_next="false"
 
   while [[ ${index} -lt ${#RUN_COMMAND[@]} ]]; do
-    argument="${RUN_COMMAND[$index]}"
+    argument="${RUN_COMMAND[${index}]}"
     if [[ ${redact_next} == "true" ]]; then
       if [[ ${argument} == *=* ]]; then
         shell_quote "${argument%%=*}=<redacted>"

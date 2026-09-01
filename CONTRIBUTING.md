@@ -1,7 +1,7 @@
 # Contributing
 
-Egolint is in active alpha development. Open an issue before a large change so
-contracts and policy ownership can be agreed before implementation.
+Egolint is in active alpha development. Open an issue before a large change so contracts and policy
+ownership can be agreed before implementation.
 
 ## Local checks
 
@@ -23,11 +23,10 @@ docker build --file "Dockerfile.full" --tag "egolint-full:local" "."
 docker run --rm "egolint:local" schema config
 ```
 
-Keep orchestration typed and shell-free. New persistent settings require schema,
-precedence, validation, and provenance tests. New policy behavior requires both
-positive and negative fixtures. Document any license added to the full-image
-boundary and update `REUSE.toml` when files have different terms.
+Keep orchestration typed and shell-free. New persistent settings require schema, precedence,
+validation, and provenance tests. New policy behavior requires both positive and negative fixtures.
+Document any license added to the full-image boundary and update `REUSE.toml` when files have
+different terms.
 
-Do not commit generated reports, credentials, local configuration, or unreviewed
-release workflows. Contributions are accepted under the repository's applicable
-licenses.
+Do not commit generated reports, credentials, local configuration, or unreviewed release workflows.
+Contributions are accepted under the repository's applicable licenses.

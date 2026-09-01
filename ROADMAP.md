@@ -35,13 +35,17 @@ publication: central
 route: /roadmap/egolint/
 updated: 2026-08-25
 -->
+
 ## 2026-08-25 execution snapshot
 
-> This evidence-reconciled snapshot is the issue-generation and visual-roadmap handoff. The longer-horizon strategy below remains canonical context; generated HTML, JSON, progress, issue plans, and commit lists are projections.
+> This evidence-reconciled snapshot is the issue-generation and visual-roadmap handoff. The
+> longer-horizon strategy below remains canonical context; generated HTML, JSON, progress, issue
+> plans, and commit lists are projections.
 
 **Lifecycle:** early alpha, pre-release  
-**Current gate:** Preserve the owned self-dogfood baseline while adding semantic Repository Intelligence validation through issue #24.
-**North-star outcome:** A portable, evidence-backed lint platform for organization contracts, roadmaps, repositories, and generated artifacts.
+**Current gate:** Preserve the owned self-dogfood baseline while adding semantic Repository
+Intelligence validation through issue #24. **North-star outcome:** A portable, evidence-backed lint
+platform for organization contracts, roadmaps, repositories, and generated artifacts.
 
 ### Visual roadmap publication
 
@@ -49,7 +53,8 @@ updated: 2026-08-25
 **Route:** `/roadmap/egolint/`  
 **Current publication evidence:** Source and CI reports on GitHub; no public release observed.
 
-Publish the public-safe projection through egohygiene.io at /roadmap/egolint/. This repository owns intent and acceptance evidence; it does not add a second site deployment.
+Publish the public-safe projection through egohygiene.io at /roadmap/egolint/. This repository owns
+intent and acceptance evidence; it does not add a second site deployment.
 
 ### Quest line
 
@@ -59,6 +64,7 @@ status: complete
 depends_on: []
 issues: []
 -->
+
 #### EGL-Q01 — Establish the core lint engine
 
 **State:** `complete`  
@@ -82,12 +88,13 @@ status: active
 depends_on: [EGL-Q01]
 issues: [20, 21]
 -->
+
 #### EGL-Q02 — Classify the dogfood findings
 
-**State:** `active`
-**Depends on:** `EGL-Q01`
+**State:** `active` **Depends on:** `EGL-Q01`
 
-**Outcome:** Every self-dogfood finding is either fixed, accepted with rationale, or identified as a rule defect.
+**Outcome:** Every self-dogfood finding is either fixed, accepted with rationale, or identified as a
+rule defect.
 
 **Exit criteria:**
 
@@ -97,7 +104,8 @@ issues: [20, 21]
 **Current evidence:**
 
 - Dogfood run 32774944039 failed with 119 findings.
-- PRs #23 and #25 resolved the shebang and Node package-export rule defects tracked by issues #20 and #21; the remaining observed findings still require explicit disposition.
+- PRs #23 and #25 resolved the shebang and Node package-export rule defects tracked by issues #20
+  and #21; the remaining observed findings still require explicit disposition.
 
 <!-- roadmap-step
 id: EGL-Q03
@@ -105,6 +113,7 @@ status: blocked
 depends_on: [EGL-Q02]
 issues: []
 -->
+
 #### EGL-Q03 — Make self-dogfood green
 
 **State:** `blocked`  
@@ -127,6 +136,7 @@ status: planned
 depends_on: [EGL-Q03]
 issues: []
 -->
+
 #### EGL-Q04 — Version the evidence report contract
 
 **State:** `planned`  
@@ -149,6 +159,7 @@ status: planned
 depends_on: [EGL-Q03, EGL-Q04]
 issues: []
 -->
+
 #### EGL-Q05 — Publish and adopt the first release
 
 **State:** `planned`  
@@ -171,12 +182,14 @@ status: planned
 depends_on: [HYG-Q06, EGL-Q05]
 issues: []
 -->
+
 #### EGL-Q06 — Validate roadmap execution graphs
 
 **State:** `planned`  
 **Depends on:** `HYG-Q06`, `EGL-Q05`
 
-**Outcome:** A pinned Egolint release validates roadmap IDs, states, dependencies, issue references, and completion evidence without network writes.
+**Outcome:** A pinned Egolint release validates roadmap IDs, states, dependencies, issue references,
+and completion evidence without network writes.
 
 **Exit criteria:**
 
@@ -193,18 +206,22 @@ status: active
 depends_on: [EGL-Q01]
 issues: [24]
 -->
+
 #### EGL-Q07 — Validate Repository Intelligence source linkage
 
-**State:** `active`
-**Depends on:** `EGL-Q01`
+**State:** `active` **Depends on:** `EGL-Q01`
 
-**Outcome:** Versioned Egolint rules validate ADR metadata and lineage, roadmap execution graphs, declared GitHub links, and optional commit trailers without network access.
+**Outcome:** Versioned Egolint rules validate ADR metadata and lineage, roadmap execution graphs,
+declared GitHub links, and optional commit trailers without network access.
 
 **Exit criteria:**
 
-- [ ] Positive and hostile fixtures cover ADR lifecycle, supersession, roadmap state, dangling links, trailers, and cycles.
-- [ ] Relay and Observatory can consume source locations, represented commit, rule IDs, coverage state, and remediation without parsing prose.
-- [ ] Incremental profiles expose unknown and not-applicable sources without claiming false conformance or failing disabled rules.
+- [ ] Positive and hostile fixtures cover ADR lifecycle, supersession, roadmap state, dangling
+      links, trailers, and cycles.
+- [ ] Relay and Observatory can consume source locations, represented commit, rule IDs, coverage
+      state, and remediation without parsing prose.
+- [ ] Incremental profiles expose unknown and not-applicable sources without claiming false
+      conformance or failing disabled rules.
 
 **Current evidence:**
 
@@ -212,21 +229,29 @@ issues: [24]
 
 ### Roadmap-to-issue handoff
 
-- A step is complete only when its exit criteria and required evidence are satisfied; commit count never determines progress.
-- Ready steps without an issue are candidates for the private, duplicate-aware roadmap.issue-plan.json dry run. Planned steps remain preview-only unless a reviewer explicitly opts them in with issue_policy: propose.
-- Issue creation or reconciliation requires human approval or an explicitly authorized Pace operation and returns issue references through a reviewable roadmap pull request.
-- Pull requests and commits should include Roadmap-Step: <ID>; historical evidence may be linked through existing issue and pull-request relationships.
-- Public rendering uses only allowlisted build-time evidence and never places a GitHub token or private issue plan in the browser artifact.
+- A step is complete only when its exit criteria and required evidence are satisfied; commit count
+  never determines progress.
+- Ready steps without an issue are candidates for the private, duplicate-aware
+  roadmap.issue-plan.json dry run. Planned steps remain preview-only unless a reviewer explicitly
+  opts them in with issue_policy: propose.
+- Issue creation or reconciliation requires human approval or an explicitly authorized Pace
+  operation and returns issue references through a reviewable roadmap pull request.
+- Pull requests and commits should include Roadmap-Step: <ID>; historical evidence may be linked
+  through existing issue and pull-request relationships.
+- Public rendering uses only allowlisted build-time evidence and never places a GitHub token or
+  private issue plan in the browser artifact.
 
 <!-- END ROADMAP EXECUTION SNAPSHOT -->
 
 ## Strategic context
 
-This roadmap describes capability evolution, not promised dates or an issue queue. Sequence follows architecture dependencies and may change when evidence or risk changes.
+This roadmap describes capability evolution, not promised dates or an issue queue. Sequence follows
+architecture dependencies and may change when evidence or risk changes.
 
 ## Phase 1: Define profile and finding contracts
 
-**Outcome:** A bounded capability advances from documented intent to validated, independently usable behavior.
+**Outcome:** A bounded capability advances from documented intent to validated, independently usable
+behavior.
 
 **Exit signals:**
 
@@ -238,7 +263,8 @@ This roadmap describes capability evolution, not promised dates or an issue queu
 
 ## Phase 2: Extract the proven Empathy implementation
 
-**Outcome:** A bounded capability advances from documented intent to validated, independently usable behavior.
+**Outcome:** A bounded capability advances from documented intent to validated, independently usable
+behavior.
 
 **Exit signals:**
 
@@ -250,7 +276,8 @@ This roadmap describes capability evolution, not promised dates or an issue queu
 
 ## Phase 3: Publish reusable releases
 
-**Outcome:** A bounded capability advances from documented intent to validated, independently usable behavior.
+**Outcome:** A bounded capability advances from documented intent to validated, independently usable
+behavior.
 
 **Exit signals:**
 
@@ -262,7 +289,8 @@ This roadmap describes capability evolution, not promised dates or an issue queu
 
 ## Phase 4: Integrate organization conformance and reporting
 
-**Outcome:** A bounded capability advances from documented intent to validated, independently usable behavior.
+**Outcome:** A bounded capability advances from documented intent to validated, independently usable
+behavior.
 
 **Exit signals:**
 
@@ -282,11 +310,18 @@ This roadmap describes capability evolution, not promised dates or an issue queu
 
 ## Deferred direction
 
-Optional managed services, enterprise controls, marketplaces, and the conversational organization compiler remain later architecture work. Current choices should preserve portability and avoid foreclosing them.
+Optional managed services, enterprise controls, marketplaces, and the conversational organization
+compiler remain later architecture work. Current choices should preserve portability and avoid
+foreclosing them.
 
 ## Evidence and uncertainty
 
-- **Observed:** The repository README establishes the intended boundary as a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; significant implementation remains incomplete.
-- **Decided for this draft:** The repository owns the bounded concern described here and participates through versioned contracts.
-- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and implemented.
-- **Open question:** Which parts of this draft should become active in the first independently versioned release?
+- **Observed:** The repository README establishes the intended boundary as a universal linting
+  platform and extensible MegaLinter wrapper for consistent repository quality; significant
+  implementation remains incomplete.
+- **Decided for this draft:** The repository owns the bounded concern described here and
+  participates through versioned contracts.
+- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and
+  implemented.
+- **Open question:** Which parts of this draft should become active in the first independently
+  versioned release?
