@@ -80,7 +80,7 @@
   "MD028": true,
 
   "MD029": {
-    "style": "ordered"
+    "style": "one_or_ordered"
   },
 
   "MD030": {

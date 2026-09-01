@@ -49,10 +49,12 @@ the lint container network to `none`. It also selects the image's preinstalled s
 toolchain, avoiding an implicit rustup network check during the offline run.
 
 The offline reference-consumer task explicitly disables SchemaStore validation, remote-link
-checking, package-registry takeover checks, and vulnerability-database scanners. Those analyzers
-require network access or reviewed pre-seeded data, so an offline failure cannot establish their
-quality or freshness. Their policy remains active in the corresponding network-enabled profiles; the
-dogfood gate records the bounded offline selection directly in its public execution plan.
+checking, package-registry takeover checks, vulnerability-database scanners, and dependency-backed
+compiler analysis. Those analyzers require network access, reviewed pre-seeded data, or vendored
+consumer dependencies, so an offline failure cannot establish their quality or freshness. Their
+policy remains active in the corresponding network-enabled profiles; the dogfood gate records the
+bounded offline selection directly in its public execution plan. Rust formatting, Clippy, and tests
+remain blocking in the dedicated Rust core CI lane.
 
 That distinction matters: the dogfood proof must evaluate the current checkout, not a previously
 published or mutable remote image.

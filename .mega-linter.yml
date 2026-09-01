@@ -1290,6 +1290,11 @@ PYTHON_MYPY_CONFIG_FILE: .mypy.ini
 # Mypy is a project type checker rather than an isolated-file checker.
 PYTHON_MYPY_CLI_LINT_MODE: project
 
+# The full image has no authority to install type stubs during an offline run.
+# Missing third-party types follow the reviewed policy in .mypy.ini instead.
+PYTHON_MYPY_ARGUMENTS: >-
+  --no-install-types --interactive
+
 PYTHON_MYPY_PRE_COMMANDS:
   - command: >-
       mkdir -p ".reports/egolint/cache/mypy"

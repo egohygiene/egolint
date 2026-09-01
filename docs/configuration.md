@@ -53,7 +53,8 @@ linter. Use the CI platform's secret mechanism and grant only the minimum requir
 `megalinter-config` and the CLI override `--megalinter-config` must point to a file inside the
 workspace. Supplying one replaces the selected embedded profile for that invocation. For small
 changes to an embedded profile, prefer the repeatable `--enable-linter` and `--disable-linter`
-options.
+options. Check operations apply those options as an overlay on the complete built-in selection; they
+do not discard the profile's existing disabled-tool decisions.
 
 Repository configurations can inherit other repository files. MegaLinter v10 resolves every local
 `EXTENDS` entry from the workspace root, regardless of the including file's directory. For example,

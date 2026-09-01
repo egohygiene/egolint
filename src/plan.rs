@@ -3,7 +3,7 @@
 
 //! Safe container execution-plan construction.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::env;
 use std::ffi::OsString;
 use std::io::{Read, Write};
@@ -62,6 +62,11 @@ pub struct PlanOptions {
     pub enable_linters: Vec<String>,
     /// Explicit `MegaLinter` linter exclusions.
     pub disable_linters: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct BuiltInProfileSnapshot {
+    selected: Vec<String>,
 }
 
 /// Public, redacted execution plan suitable for JSON output.
@@ -396,13 +401,33 @@ fn build_environment(
         }
         .to_owned(),
     );
-    if !options.enable_linters.is_empty() {
+    let has_linter_overrides =
+        !options.enable_linters.is_empty() || !options.disable_linters.is_empty();
+    let overlays_built_in_selection = operation == Operation::Check
+        && resolved.config.megalinter_config.is_none()
+        && has_linter_overrides;
+    if overlays_built_in_selection {
+        let mut selected = built_in_profile_selection(resolved.config.profile)?;
+        selected.extend(normalize_linter_values(&options.enable_linters)?);
+        for linter in normalize_linter_values(&options.disable_linters)? {
+            selected.remove(&linter);
+        }
+        if selected.is_empty() {
+            return Err(EgolintError::Configuration(
+                "per-run linter overrides cannot disable every built-in profile tool".to_owned(),
+            ));
+        }
+        environment.insert(
+            "ENABLE_LINTERS".to_owned(),
+            selected.into_iter().collect::<Vec<_>>().join(","),
+        );
+    } else if !options.enable_linters.is_empty() {
         environment.insert(
             "ENABLE_LINTERS".to_owned(),
             normalize_linter_list(&options.enable_linters)?,
         );
     }
-    if !options.disable_linters.is_empty() {
+    if !overlays_built_in_selection && !options.disable_linters.is_empty() {
         environment.insert(
             "DISABLE_LINTERS".to_owned(),
             normalize_linter_list(&options.disable_linters)?,
@@ -714,7 +739,14 @@ fn bind_mount(source: &Path, target: &str, read_only: bool) -> Result<OsString> 
 }
 
 fn normalize_linter_list(values: &[String]) -> Result<String> {
-    let mut normalized = Vec::new();
+    Ok(normalize_linter_values(values)?
+        .into_iter()
+        .collect::<Vec<_>>()
+        .join(","))
+}
+
+fn normalize_linter_values(values: &[String]) -> Result<BTreeSet<String>> {
+    let mut normalized = BTreeSet::new();
     for value in values {
         let value = value.trim().to_ascii_uppercase();
         if value.is_empty()
@@ -726,11 +758,22 @@ fn normalize_linter_list(values: &[String]) -> Result<String> {
                 "invalid MegaLinter identifier: {value}"
             )));
         }
-        normalized.push(value);
+        normalized.insert(value);
     }
-    normalized.sort();
-    normalized.dedup();
-    Ok(normalized.join(","))
+    Ok(normalized)
+}
+
+fn built_in_profile_selection(profile: Profile) -> Result<BTreeSet<String>> {
+    let contents = match profile {
+        Profile::Fast => include_str!("../.config/megalinter/snapshots/fast.json"),
+        Profile::Holistic => include_str!("../.config/megalinter/snapshots/holistic.json"),
+        Profile::Security => include_str!("../.config/megalinter/snapshots/security.json"),
+        Profile::DependencyDebt => {
+            include_str!("../.config/megalinter/snapshots/dependency-debt.json")
+        }
+    };
+    let snapshot: BuiltInProfileSnapshot = serde_json::from_str(contents)?;
+    normalize_linter_values(&snapshot.selected)
 }
 
 fn redact_argv(argv: &[OsString]) -> Vec<String> {
@@ -805,6 +848,42 @@ mod tests {
                 .iter()
                 .any(|part| part == "MEGALINTER_CONFIG=<redacted>")
         );
+    }
+
+    #[test]
+    fn check_overrides_preserve_the_built_in_profile_selection() {
+        let directory = tempfile::tempdir().expect("temporary directory");
+        let mut resolved = resolved();
+        resolved.config.profile = Profile::Holistic;
+        let options = PlanOptions {
+            enable_linters: vec!["action_zizmor".to_owned()],
+            disable_linters: vec!["json_v8r".to_owned()],
+            ..PlanOptions::default()
+        };
+
+        let plan = ExecutionPlan::build(
+            directory.path(),
+            &resolved,
+            Operation::Check,
+            &options,
+            false,
+        )
+        .expect("execution plan");
+        let selected = environment_value(&plan, "ENABLE_LINTERS")
+            .trim_start_matches("ENABLE_LINTERS=")
+            .split(',')
+            .collect::<BTreeSet<_>>();
+
+        assert!(selected.contains("ACTION_ZIZMOR"));
+        assert!(selected.contains("RUST_CLIPPY"));
+        assert!(!selected.contains("JSON_V8R"));
+        assert!(!selected.contains("PYTHON_FLAKE8"));
+        assert!(!selected.contains("REPOSITORY_SEMGREP"));
+        assert!(!plan.argv.iter().any(|argument| {
+            argument
+                .to_str()
+                .is_some_and(|value| value.starts_with("DISABLE_LINTERS="))
+        }));
     }
 
     #[test]

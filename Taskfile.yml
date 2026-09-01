@@ -187,7 +187,8 @@ tasks:
         cargo run --quiet --locked -- --workspace "." --config ".config/dogfood/egolint.toml" lint
         --disable-linter "JSON_V8R" --disable-linter "REPOSITORY_DUSTILOCK" --disable-linter
         "REPOSITORY_GRYPE" --disable-linter "REPOSITORY_TRIVY" --disable-linter
-        "REPOSITORY_TRIVY_SBOM" --disable-linter "SPELL_LYCHEE" --disable-linter "YAML_V8R"
+        "REPOSITORY_TRIVY_SBOM" --disable-linter "RUST_CLIPPY" --disable-linter "SPELL_LYCHEE"
+        --disable-linter "YAML_V8R"
 
   dogfood:
     desc: "Dogfood Egolint as its own reference consumer"

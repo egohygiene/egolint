@@ -56,6 +56,9 @@ use Semantic Versioning once its public contracts stabilize.
 - Resolved the repository-owned holistic baseline across Markdown, Python, package metadata, shell,
   YAML, repository naming, and secret-scan policy while preserving advisory findings for explicit
   follow-up.
+- Made per-run linter overrides additive to built-in profile selection, preventing one
+  `--disable-linter` from replacing the profile's canonical quarantine list and re-enabling tools
+  that have not completed baseline review.
 - Made offline dogfooding reproducible by selecting the preinstalled Rust toolchain and explicitly
   omitting analyzers that require SchemaStore, link, package-registry, or vulnerability-database
   network access.
