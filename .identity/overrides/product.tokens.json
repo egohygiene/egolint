@@ -1,0 +1,91 @@
+{
+  "$schema": "https://egohygiene.github.io/identity/contracts/v1/tokens.schema.json",
+  "$description": "EgoLint's evidence-led, capability-aware product expression.",
+  "$extensions": {
+    "org.egohygiene.identity": {
+      "schema": "identity.tokens/v1",
+      "layer": {
+        "id": "egolint-product",
+        "kind": "product-override",
+        "priority": 10
+      }
+    }
+  },
+  "color": {
+    "$type": "color",
+    "brand": {
+      "primary": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.176, 0.831, 0.749],
+          "alpha": 1
+        },
+        "$description": "Evidence teal for inspection, reports, and primary emphasis.",
+        "$extensions": {
+          "org.egohygiene.identity": {
+            "override": {
+              "reason": "EgoLint needs a precise inspection signal distinct from the shared family accent.",
+              "approval": "approve-egolint-primary"
+            },
+            "contrast": {
+              "intent": "decorative",
+              "pairedWith": [],
+              "minimumRatio": 1
+            }
+          }
+        }
+      },
+      "clean": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.639, 0.89, 0.208],
+          "alpha": 1
+        },
+        "$description": "Lime for verified clean signals, never as the only state carrier."
+      },
+      "orchestration": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.545, 0.361, 0.965],
+          "alpha": 1
+        },
+        "$description": "Violet for composed tools, capability layers, and family connection."
+      }
+    },
+    "inspection": {
+      "canvas": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.008, 0.024, 0.09],
+          "alpha": 1
+        },
+        "$extensions": {
+          "org.egohygiene.identity": {
+            "contrast": {
+              "intent": "background",
+              "pairedWith": ["color.inspection.text"],
+              "minimumRatio": 7
+            }
+          }
+        }
+      },
+      "text": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.945, 0.961, 0.976],
+          "alpha": 1
+        },
+        "$extensions": {
+          "org.egohygiene.identity": {
+            "contrast": {
+              "intent": "foreground",
+              "pairedWith": ["color.inspection.canvas"],
+              "minimumRatio": 7
+            }
+          }
+        }
+      }
+    },
+    "action": { "primary": { "$value": "{color.brand.primary}" } }
+  }
+}

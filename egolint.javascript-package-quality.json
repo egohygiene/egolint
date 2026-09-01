@@ -7,6 +7,8 @@
   "ignore": [
     ".venv/**",
     "venv/**",
+    "assets/identity/**",
+    "vendor/hygiene/**",
     "schemas/*.schema.json",
     ".config/megalinter/tool-matrix.json",
     ".config/megalinter/v10-catalog.json",

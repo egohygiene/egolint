@@ -1,0 +1,212 @@
+{
+  "badge": {
+    "evidenceUrl": "evidence/repository-presentation.json",
+    "hostedProviderRequired": false,
+    "label": "Hygienic",
+    "message": "repository profile partial",
+    "profileVersion": "1.0.0-alpha.1",
+    "raster": "assets/hygienic-partial.png",
+    "representedCommit": "ed9f6d2c67db7a46df5172f0737479ef5051fcfa",
+    "state": "partial",
+    "svg": "assets/hygienic-partial.svg",
+    "textFallback": "Hygienic: repository profile partial",
+    "visualProfile": {
+      "id": "hygienic-evidence-v1",
+      "states": [
+        {
+          "color": "#667085",
+          "message": "evidence unknown",
+          "passing": false,
+          "state": "unknown"
+        },
+        {
+          "color": "#6941c6",
+          "message": "evaluation in progress",
+          "passing": false,
+          "state": "evaluating"
+        },
+        {
+          "color": "#b54708",
+          "message": "repository profile advisory",
+          "passing": false,
+          "state": "advisory"
+        },
+        {
+          "color": "#067647",
+          "message": "repository profile passing",
+          "passing": true,
+          "state": "passing"
+        },
+        {
+          "color": "#b42318",
+          "message": "repository profile failing",
+          "passing": false,
+          "state": "failing"
+        },
+        {
+          "color": "#b54708",
+          "message": "repository profile partial",
+          "passing": false,
+          "state": "partial"
+        },
+        {
+          "color": "#475467",
+          "message": "evidence stale",
+          "passing": false,
+          "state": "stale"
+        },
+        {
+          "color": "#344054",
+          "message": "profile exemption",
+          "passing": false,
+          "state": "exempt"
+        },
+        {
+          "color": "#475467",
+          "message": "profile not applicable",
+          "passing": false,
+          "state": "not_applicable"
+        },
+        {
+          "color": "#b42318",
+          "message": "evaluation blocked",
+          "passing": false,
+          "state": "blocked"
+        }
+      ],
+      "textColor": "#ffffff"
+    }
+  },
+  "banner": {
+    "altText": "EgoLint repository banner with source lines passing through an inspection lens and check.",
+    "destinationUrl": "https://github.com/egohygiene/egolint",
+    "fallbackText": "EgoLint — One adaptive quality control plane for every repository.",
+    "license": {
+      "attribution": "Copyright 2026 Ego Hygiene",
+      "spdx": "MIT"
+    },
+    "variants": [
+      {
+        "height": 160,
+        "id": "light-640",
+        "narrow": true,
+        "raster": "assets/banner-light-640.png",
+        "svg": "assets/banner-light-640.svg",
+        "theme": "light",
+        "width": 640
+      },
+      {
+        "height": 250,
+        "id": "light-1000",
+        "narrow": false,
+        "raster": "assets/banner-light-1000.png",
+        "svg": "assets/banner-light-1000.svg",
+        "theme": "light",
+        "width": 1000
+      },
+      {
+        "height": 400,
+        "id": "light-1600",
+        "narrow": false,
+        "raster": "assets/banner-light-1600.png",
+        "svg": "assets/banner-light-1600.svg",
+        "theme": "light",
+        "width": 1600
+      },
+      {
+        "height": 160,
+        "id": "dark-640",
+        "narrow": true,
+        "raster": "assets/banner-dark-640.png",
+        "svg": "assets/banner-dark-640.svg",
+        "theme": "dark",
+        "width": 640
+      },
+      {
+        "height": 250,
+        "id": "dark-1000",
+        "narrow": false,
+        "raster": "assets/banner-dark-1000.png",
+        "svg": "assets/banner-dark-1000.svg",
+        "theme": "dark",
+        "width": 1000
+      },
+      {
+        "height": 400,
+        "id": "dark-1600",
+        "narrow": false,
+        "raster": "assets/banner-dark-1600.png",
+        "svg": "assets/banner-dark-1600.svg",
+        "theme": "dark",
+        "width": 1600
+      },
+      {
+        "height": 160,
+        "id": "high-contrast-640",
+        "narrow": true,
+        "raster": "assets/banner-high-contrast-640.png",
+        "svg": "assets/banner-high-contrast-640.svg",
+        "theme": "high-contrast",
+        "width": 640
+      },
+      {
+        "height": 250,
+        "id": "high-contrast-1000",
+        "narrow": false,
+        "raster": "assets/banner-high-contrast-1000.png",
+        "svg": "assets/banner-high-contrast-1000.svg",
+        "theme": "high-contrast",
+        "width": 1000
+      },
+      {
+        "height": 400,
+        "id": "high-contrast-1600",
+        "narrow": false,
+        "raster": "assets/banner-high-contrast-1600.png",
+        "svg": "assets/banner-high-contrast-1600.svg",
+        "theme": "high-contrast",
+        "width": 1600
+      }
+    ]
+  },
+  "consumerBoundary": {
+    "editsReadme": false,
+    "evaluatesEvidence": false,
+    "generatedRegionsOnly": true,
+    "networkRequired": false
+  },
+  "profile": {
+    "activationClaimed": false,
+    "commit": "28f9d6c7519d820644572634ba4476614f418d83",
+    "id": "egohygiene.repository-presentation-profile/v1",
+    "owner": "egohygiene/hygiene",
+    "path": "vendor/hygiene/repository-presentation-profile.v1.json",
+    "repository": "https://github.com/egohygiene/hygiene",
+    "sha256": "44e0881519350e6747723995939c79c6fb4659e38a74b2c32e409866e7a186ba",
+    "status": "proposed",
+    "version": "1.0.0-alpha.1"
+  },
+  "project": {
+    "displayName": "EgoLint",
+    "id": "egolint",
+    "repository": "https://github.com/egohygiene/egolint",
+    "visibility": "public"
+  },
+  "schema": "identity.repository-presentation-package/v1",
+  "source": {
+    "approval": {
+      "badgeProfile": "approve-egolint-hygienic-badge",
+      "organizationBanner": "approve-egolint-repository-banner",
+      "projectOverride": null
+    },
+    "bannerAsset": {
+      "id": "mark",
+      "inheritedFromOrganization": true,
+      "path": ".identity/sources/mark.svg",
+      "sha256": "0abf8e88c9570eee83912c4de9fd7b035167869217aa93b46a76dd048b7e9e0b"
+    },
+    "path": ".identity/guidance/repository-presentation.json",
+    "sha256": "252bd6a9e69e7a8c9adfdca7ca58f61252c351c309682b17c3bed42b9d87a3b9"
+  },
+  "version": "1.0.0"
+}

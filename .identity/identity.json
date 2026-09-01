@@ -1,0 +1,44 @@
+{
+  "$schema": "https://egohygiene.github.io/identity/contracts/v1/project.schema.json",
+  "schema": "identity.project/v1",
+  "project": {
+    "id": "egolint",
+    "displayName": "EgoLint",
+    "repository": "https://github.com/egohygiene/egolint",
+    "tagline": "One adaptive quality control plane for every repository.",
+    "kind": "product"
+  },
+  "layers": [
+    {
+      "id": "egohygiene-organization",
+      "kind": "organization-defaults",
+      "priority": 0,
+      "tokens": ".identity/defaults/organization.tokens.json",
+      "sha256": "4e467b48fbd6e99a580a5385f5dd16de0e4e5bb82c6aa4f8d526c6ff602b3c11"
+    },
+    {
+      "id": "egolint-product",
+      "kind": "product-override",
+      "priority": 10,
+      "tokens": ".identity/overrides/product.tokens.json",
+      "sha256": "da8b8c82586c3a4325d889c949c89b3c7ec220aeb9b8b6f2697faef7dc2e5dc3"
+    }
+  ],
+  "documents": {
+    "brief": ".identity/brief.md",
+    "targets": ".identity/targets/profiles.json",
+    "provenance": ".identity/governance/provenance.json",
+    "approvals": ".identity/governance/approvals.json",
+    "guidance": {
+      "voice": ".identity/guidance/voice.json",
+      "usage": ".identity/guidance/usage.json"
+    },
+    "repositoryPresentation": ".identity/guidance/repository-presentation.json"
+  },
+  "directories": {
+    "sources": ".identity/sources",
+    "candidates": ".identity/candidates",
+    "references": ".identity/references"
+  },
+  "compatibility": { "acceptedSchemaMajor": 1, "migrationFrom": [] }
+}

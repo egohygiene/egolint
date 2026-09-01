@@ -1,0 +1,78 @@
+{
+  "schema": "identity.brand-kit-package/v1",
+  "version": "1.0.0",
+  "projectId": "egolint",
+  "sourceDigest": "bd7e2a4d52d0f54dfd46a93ad32b74c90c61dfa0fe4f9f13e757c9582ad3b280",
+  "profiles": [
+    "core",
+    "web",
+    "pwa",
+    "github",
+    "docs",
+    "social",
+    "tokens",
+    "metadata"
+  ],
+  "files": {
+    "brand/mark.svg": {
+      "sha256": "0abf8e88c9570eee83912c4de9fd7b035167869217aa93b46a76dd048b7e9e0b",
+      "bytes": 959
+    },
+    "docs/document.css": {
+      "sha256": "d0a2f219c5cb8f13e8442bf35df1afa5b7aa10d89cdf82cd477ac4c617f5fdd7",
+      "bytes": 837
+    },
+    "github/social-preview.png": {
+      "sha256": "9a906d90dd0428198c1320dc0329ffc7529b8d17e59da633ffa8cfb2e6863200",
+      "bytes": 18911
+    },
+    "guidance/README.md": {
+      "sha256": "b961b92d05c4b7848f701fda59ed806f296174ec941157b6a8a09bdf5c521c79",
+      "bytes": 13183
+    },
+    "metadata/metadata.json": {
+      "sha256": "7cd97070b40c0b854ec846af8f7716e36391c55a0ef9814b8321a450f491462b",
+      "bytes": 230
+    },
+    "metadata/open-graph.html": {
+      "sha256": "e9e34d3676d2235dc0f22ddf98cfecd5ee050ce3e1d96b4e2c5f64a8aee278c2",
+      "bytes": 415
+    },
+    "pwa/icon-192.png": {
+      "sha256": "71ce84799e10ecb03a164ea43f7099438424849d7a2e0691de29cb5ad446e62e",
+      "bytes": 8172
+    },
+    "pwa/icon-512.png": {
+      "sha256": "563ab6fb1dd30486f7d7ebce3c7150abd23ad09cac2fcb9189ac17f8cbe76f0b",
+      "bytes": 24123
+    },
+    "pwa/icon-maskable-512.png": {
+      "sha256": "e99dbf87c12168afb145dedcc7aff7022a84d9e134c73106e781a0d82ae6e3d9",
+      "bytes": 15884
+    },
+    "social/card-1200x630.png": {
+      "sha256": "9ad82eb8d67aa0987bd7e63bacad7b82eaef7e031d4505b8e253e011105efe99",
+      "bytes": 18272
+    },
+    "tokens/tailwind.theme.json": {
+      "sha256": "06de70794431545eb99f17070ddfc587cc04b09612189b03cdf66c5be268ac95",
+      "bytes": 517
+    },
+    "tokens/tokens.css": {
+      "sha256": "01fb7d4d037a92b72ce4c7934d35e5f3e34b63ba158660127915fcad2f461097",
+      "bytes": 558
+    },
+    "tokens/tokens.d.ts": {
+      "sha256": "74e2927bdb53c398f9f554fe3d1cdfe09720732aa755899f58b3cffc089c6587",
+      "bytes": 450
+    },
+    "tokens/tokens.js": {
+      "sha256": "69722f91f920705eedb8471c3d59980aa19870fa54e43a8736ed266b1667813a",
+      "bytes": 1434
+    },
+    "tokens/tokens.json": {
+      "sha256": "6fc843ca361e0618230b0d96de63cf56c289be13f8c95de5142c80efcda657b4",
+      "bytes": 5141
+    }
+  }
+}

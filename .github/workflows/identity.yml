@@ -1,0 +1,87 @@
+name: Verify Identity Brand Kit
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Validate and verify generated identity
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install pinned Identity tools
+        shell: bash
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          identity_release="v1.0.0"
+          identity_commit="3c2fd3141371b355628e81f66f63159f19d63338"
+          tools_directory="${RUNNER_TEMP}/identity-tools"
+          mkdir -p "${tools_directory}"
+
+          curl --fail --location --silent --show-error \
+            --output "${tools_directory}/identity.tar.gz" \
+            "https://github.com/egohygiene/identity/releases/download/${identity_release}/identity-1.0.0-linux-x86_64-gnu.tar.gz"
+          printf '%s  %s\n' \
+            "f8a961790b959fc683b215729c20c743399c7b1d4d8aadf8b1a30e8c3663532a" \
+            "${tools_directory}/identity.tar.gz" | sha256sum --check
+          tar --extract --gzip \
+            --file "${tools_directory}/identity.tar.gz" \
+            --directory "${tools_directory}"
+
+          for script_name in validate_identity.py render_repository_presentation.py; do
+            curl --fail --location --silent --show-error \
+              --output "${tools_directory}/${script_name}" \
+              "https://raw.githubusercontent.com/egohygiene/identity/${identity_commit}/scripts/${script_name}"
+          done
+          printf '%s  %s\n' \
+            "eb0c7f9df31b2bd3eb618d830c5d11d76c750d0ef51b9b79092aa72ccfdcbb4f" \
+            "${tools_directory}/validate_identity.py" | sha256sum --check
+          printf '%s  %s\n' \
+            "5d73593ab3e04baf60d577119defd4049cf2da571f00a9d033d7a7d9430b7396" \
+            "${tools_directory}/render_repository_presentation.py" | sha256sum --check
+
+          printf 'IDENTITY_TOOLS=%s\n' "${tools_directory}" >>"${GITHUB_ENV}"
+
+      - name: Validate canonical source
+        run: |
+          python3 "${IDENTITY_TOOLS}/validate_identity.py" \
+            --repository-root "." \
+            --format "human"
+
+      - name: Verify generated Brand Kit
+        run: |
+          "${IDENTITY_TOOLS}/identity" v1-verify --repository-root "."
+
+      - name: Verify repository presentation is reproducible
+        shell: bash
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          check_directory="$(mktemp -d)"
+          PYTHONPATH="${IDENTITY_TOOLS}" \
+            python3 "${IDENTITY_TOOLS}/render_repository_presentation.py" \
+              --repository-root "." \
+              --evidence "evidence/repository-presentation.json" \
+              --output "${check_directory}"
+          diff --recursive \
+            "assets/identity/repository-presentation" \
+            "${check_directory}"

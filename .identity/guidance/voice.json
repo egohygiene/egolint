@@ -1,0 +1,232 @@
+{
+  "$schema": "https://egohygiene.github.io/identity/contracts/v1/voice.schema.json",
+  "schema": "identity.voice/v1",
+  "foundation": {
+    "purpose": "Help maintainers apply deep, consistent repository quality standards through one inspectable control plane.",
+    "positioning": "An adaptive quality distribution that composes MegaLinter, complementary tools, and first-party policy without hiding applicability or evidence.",
+    "audience": [
+      "developers",
+      "maintainers",
+      "contributors",
+      "platform engineers"
+    ],
+    "personality": ["precise", "evidence-led", "adaptive", "non-punitive"],
+    "governance": {
+      "subject": "voice:egolint",
+      "state": "approved",
+      "visibility": "public",
+      "provenance": {
+        "method": "human-authored",
+        "source": ".identity/brief.md",
+        "capturedAt": "2026-09-01T17:40:00Z"
+      },
+      "approval": "approve-egolint-voice"
+    }
+  },
+  "characteristics": [
+    {
+      "id": "evidence-led",
+      "label": "Evidence-led",
+      "description": "Name the rule, location, observed state, tool version, and remediation instead of relying on aggregate scores.",
+      "governance": {
+        "subject": "voice:egolint",
+        "state": "approved",
+        "visibility": "public",
+        "provenance": {
+          "method": "human-authored",
+          "source": "METHODOLOGY.md",
+          "capturedAt": "2026-09-01T17:40:00Z"
+        },
+        "approval": "approve-egolint-voice"
+      }
+    },
+    {
+      "id": "state-explicit",
+      "label": "State-explicit",
+      "description": "Distinguish findings, invalid configuration, unavailable tools, skipped capabilities, execution failures, and verified clean results.",
+      "governance": {
+        "subject": "voice:egolint",
+        "state": "approved",
+        "visibility": "public",
+        "provenance": {
+          "method": "human-authored",
+          "source": "docs/contracts.md",
+          "capturedAt": "2026-09-01T17:40:00Z"
+        },
+        "approval": "approve-egolint-voice"
+      }
+    },
+    {
+      "id": "maintainer-respecting",
+      "label": "Maintainer-respecting",
+      "description": "Explain consequence and recovery without shame, moral judgment, or hidden mutation.",
+      "governance": {
+        "subject": "voice:egolint",
+        "state": "approved",
+        "visibility": "public",
+        "provenance": {
+          "method": "human-authored",
+          "source": "PRINCIPLES.md",
+          "capturedAt": "2026-09-01T17:40:00Z"
+        },
+        "approval": "approve-egolint-voice"
+      }
+    }
+  ],
+  "contexts": [
+    {
+      "id": "finding",
+      "label": "Finding and remediation",
+      "audience": "A developer deciding whether and how to resolve a reported issue.",
+      "intent": "Make the observed problem, evidence, severity, and safest next action clear.",
+      "tone": "Direct, technical, and non-judgmental.",
+      "characteristics": ["evidence-led", "maintainer-respecting"],
+      "preferredVocabulary": [
+        "finding",
+        "evidence",
+        "rule",
+        "location",
+        "remediation"
+      ],
+      "avoidedLanguage": ["bad code", "dirty", "obviously", "just fix"],
+      "naming": "Use EgoLint for the product and egolint for CLI literals.",
+      "capitalization": "Use sentence case.",
+      "punctuation": "Use complete sentences for consequences and remediation.",
+      "examples": [
+        {
+          "id": "finding-actionable",
+          "text": "EGL-PORT-001 found a non-portable path in scripts/build.sh:18. Use the repository root supplied by the runner.",
+          "rationale": "It identifies the rule, exact evidence, location, and corrective direction.",
+          "governance": {
+            "subject": "voice:egolint",
+            "state": "approved",
+            "visibility": "public",
+            "provenance": {
+              "method": "human-authored",
+              "source": ".identity/brief.md",
+              "capturedAt": "2026-09-01T17:40:00Z"
+            },
+            "approval": "approve-egolint-voice"
+          }
+        }
+      ],
+      "antiExamples": [
+        {
+          "id": "finding-shaming",
+          "text": "Your repository is dirty and failed quality.",
+          "rationale": "It moralizes the result and omits evidence, scope, and remediation.",
+          "governance": {
+            "subject": "voice:egolint",
+            "state": "approved",
+            "visibility": "public",
+            "provenance": {
+              "method": "human-authored",
+              "source": ".identity/brief.md",
+              "capturedAt": "2026-09-01T17:40:00Z"
+            },
+            "approval": "approve-egolint-voice"
+          }
+        }
+      ],
+      "governance": {
+        "subject": "voice:egolint",
+        "state": "approved",
+        "visibility": "public",
+        "provenance": {
+          "method": "human-authored",
+          "source": ".identity/brief.md",
+          "capturedAt": "2026-09-01T17:40:00Z"
+        },
+        "approval": "approve-egolint-voice"
+      }
+    },
+    {
+      "id": "capability-state",
+      "label": "Capability decision",
+      "audience": "A maintainer inspecting why a tool did or did not run.",
+      "intent": "Expose the applicability predicate, selected profile, and exact activation or skip reason.",
+      "tone": "Factual and inspectable.",
+      "characteristics": ["evidence-led", "state-explicit"],
+      "preferredVocabulary": [
+        "applicable",
+        "selected",
+        "skipped",
+        "unavailable",
+        "predicate"
+      ],
+      "avoidedLanguage": ["everything passed", "not needed somehow", "magic"],
+      "naming": "Name the capability and underlying tool separately.",
+      "capitalization": "Use sentence case.",
+      "punctuation": "Use compact declarative statements.",
+      "examples": [
+        {
+          "id": "capability-skipped",
+          "text": "The Ruby schema capability was skipped because no Ruby project or schema mapping was detected.",
+          "rationale": "It reports the state and the deterministic predicate without implying success.",
+          "governance": {
+            "subject": "voice:egolint",
+            "state": "approved",
+            "visibility": "public",
+            "provenance": {
+              "method": "human-authored",
+              "source": "https://github.com/egohygiene/egolint/issues/35",
+              "capturedAt": "2026-09-01T17:40:00Z"
+            },
+            "approval": "approve-egolint-voice"
+          }
+        }
+      ],
+      "antiExamples": [
+        {
+          "id": "capability-overclaim",
+          "text": "All languages are clean.",
+          "rationale": "It collapses skipped, unavailable, and evaluated capabilities into an unsupported claim.",
+          "governance": {
+            "subject": "voice:egolint",
+            "state": "approved",
+            "visibility": "public",
+            "provenance": {
+              "method": "human-authored",
+              "source": "https://github.com/egohygiene/egolint/issues/35",
+              "capturedAt": "2026-09-01T17:40:00Z"
+            },
+            "approval": "approve-egolint-voice"
+          }
+        }
+      ],
+      "governance": {
+        "subject": "voice:egolint",
+        "state": "approved",
+        "visibility": "public",
+        "provenance": {
+          "method": "human-authored",
+          "source": "https://github.com/egohygiene/egolint/issues/35",
+          "capturedAt": "2026-09-01T17:40:00Z"
+        },
+        "approval": "approve-egolint-voice"
+      }
+    }
+  ],
+  "localization": {
+    "sourceLanguage": "en-US",
+    "supportedLanguages": [
+      {
+        "tag": "en-US",
+        "coverage": "reviewed",
+        "notes": "Canonical EgoLint guidance."
+      }
+    ],
+    "fallback": "Keep product, CLI, rule, capability, and tool identifiers unchanged; request human review for uncovered locales.",
+    "governance": {
+      "subject": "voice:egolint",
+      "state": "approved",
+      "visibility": "public",
+      "provenance": {
+        "method": "human-authored",
+        "source": ".identity/brief.md",
+        "capturedAt": "2026-09-01T17:40:00Z"
+      },
+      "approval": "approve-egolint-voice"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "identity.tailwind-theme/v1",
+  "theme": {
+    "extend": {
+      "colors": {
+        "action-primary": "#2dd4bf",
+        "brand-clean": "#a3e335",
+        "brand-orchestration": "#8b5cf6",
+        "brand-primary": "#2dd4bf",
+        "canvas": "#f8f8fc",
+        "inspection-canvas": "#020617",
+        "inspection-text": "#f1f5f9",
+        "text": "#111526"
+      },
+      "fontFamily": {
+        "body": [
+          "Inter",
+          "system-ui",
+          "sans-serif"
+        ]
+      }
+    }
+  }
+}

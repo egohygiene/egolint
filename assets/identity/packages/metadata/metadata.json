@@ -1,0 +1,11 @@
+{
+  "displayName": "EgoLint",
+  "projectId": "egolint",
+  "repository": "https://github.com/egohygiene/egolint",
+  "schema": "identity.public-metadata/v1",
+  "social": {
+    "defaultCard": "social/card-1200x630.png",
+    "githubPreview": "github/social-preview.png"
+  },
+  "tagline": "One adaptive quality control plane for every repository."
+}

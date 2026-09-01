@@ -1,0 +1,72 @@
+{
+  "$schema": "https://egohygiene.github.io/identity/contracts/v1/approvals.schema.json",
+  "schema": "identity.approvals/v1",
+  "decisions": [
+    {
+      "id": "approve-egolint-mark",
+      "subject": "mark",
+      "candidate": ".identity/sources/mark.svg",
+      "status": "approved",
+      "reviewedBy": "Ego Hygiene maintainer",
+      "reviewedAt": "2026-09-01T17:40:00Z",
+      "evidence": "https://github.com/egohygiene/egolint/issues/34",
+      "supersedes": null,
+      "notes": "Approved the first-party source inspection mark for EgoLint's governed Brand Kit proposal."
+    },
+    {
+      "id": "approve-egolint-primary",
+      "subject": "token:color.brand.primary",
+      "candidate": "token:color.brand.primary@egolint-product",
+      "status": "approved",
+      "reviewedBy": "Ego Hygiene maintainer",
+      "reviewedAt": "2026-09-01T17:40:00Z",
+      "evidence": "https://github.com/egohygiene/egolint/issues/34",
+      "supersedes": null,
+      "notes": "Approved evidence teal with lime clean-signal and violet orchestration accents."
+    },
+    {
+      "id": "approve-egolint-voice",
+      "subject": "voice:egolint",
+      "candidate": "guidance:egolint-voice/v1",
+      "status": "approved",
+      "reviewedBy": "Ego Hygiene maintainer",
+      "reviewedAt": "2026-09-01T17:40:00Z",
+      "evidence": "https://github.com/egohygiene/egolint/issues/34",
+      "supersedes": null,
+      "notes": "Approved precise, evidence-led, maintainer-respecting product voice."
+    },
+    {
+      "id": "approve-egolint-usage",
+      "subject": "usage:egolint",
+      "candidate": "guidance:egolint-usage/v1",
+      "status": "approved",
+      "reviewedBy": "Ego Hygiene maintainer",
+      "reviewedAt": "2026-09-01T17:40:00Z",
+      "evidence": "https://github.com/egohygiene/egolint/issues/34",
+      "supersedes": null,
+      "notes": "Approved truthful quality-state and accessible mark usage guidance."
+    },
+    {
+      "id": "approve-egolint-repository-banner",
+      "subject": "repository-presentation-banner-default",
+      "candidate": "repository-presentation:egolint-banner/v1",
+      "status": "approved",
+      "reviewedBy": "Ego Hygiene maintainer",
+      "reviewedAt": "2026-09-01T17:40:00Z",
+      "evidence": "https://github.com/egohygiene/egolint/issues/34",
+      "supersedes": null,
+      "notes": "Approved the EgoLint mark as the repository-banner source."
+    },
+    {
+      "id": "approve-egolint-hygienic-badge",
+      "subject": "repository-presentation-badge-profile",
+      "candidate": "egohygiene.repository-presentation-profile/v1@1.0.0-alpha.1",
+      "status": "approved",
+      "reviewedBy": "Ego Hygiene maintainer",
+      "reviewedAt": "2026-09-01T17:40:00Z",
+      "evidence": "https://github.com/egohygiene/egolint/issues/34",
+      "supersedes": null,
+      "notes": "Approved the proposed digest-pinned Hygiene presentation profile without claiming certification."
+    }
+  ]
+}

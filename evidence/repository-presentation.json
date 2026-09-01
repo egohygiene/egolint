@@ -1,0 +1,74 @@
+{
+  "schema": "egohygiene.repository-presentation-evidence/v1",
+  "profile": {
+    "id": "egohygiene.repository-presentation-profile/v1",
+    "version": "1.0.0-alpha.1",
+    "status": "proposed",
+    "source": "vendor/hygiene/repository-presentation-profile.v1.json"
+  },
+  "repository": {
+    "name": "egohygiene/egolint",
+    "type": "tool",
+    "visibility": "public",
+    "lifecycle": "incubating",
+    "represented_commit": "ed9f6d2c67db7a46df5172f0737479ef5051fcfa"
+  },
+  "assessment": {
+    "state": "partial",
+    "observed_at": "2026-09-01T17:40:00Z",
+    "assessor": "egohygiene/identity",
+    "assessor_version": "1.0.0"
+  },
+  "slots": [
+    {
+      "id": "identity_banner",
+      "requirement": "required",
+      "state": "evaluating",
+      "evidence": [
+        {
+          "kind": "manifest",
+          "location": "assets/identity/repository-presentation/repository-presentation-manifest.json",
+          "assertion": "planned",
+          "freshness": "current"
+        }
+      ],
+      "reason": "The governed EgoLint banner package is being introduced by issue #34."
+    },
+    {
+      "id": "maturity_status",
+      "requirement": "required",
+      "state": "passing",
+      "evidence": [
+        {
+          "kind": "documentation",
+          "location": "README.md",
+          "assertion": "The README identifies EgoLint as early alpha and does not claim unpublished releases or images.",
+          "freshness": "current"
+        }
+      ],
+      "reason": "The product maturity and publication boundary are visible at the repository entry point."
+    },
+    {
+      "id": "validation",
+      "requirement": "recommended",
+      "state": "passing",
+      "evidence": [
+        {
+          "kind": "workflow",
+          "location": "https://github.com/egohygiene/egolint/actions",
+          "assertion": "Core CI and complete self-dogfood workflows pass on the represented default branch.",
+          "freshness": "current"
+        }
+      ],
+      "reason": "The represented default branch has repository-owned validation and dogfood evidence."
+    }
+  ],
+  "badge": {
+    "label": "Hygienic",
+    "message": "repository profile partial",
+    "state": "partial",
+    "profile_version": "1.0.0-alpha.1",
+    "represented_commit": "ed9f6d2c67db7a46df5172f0737479ef5051fcfa",
+    "evidence_url": "evidence/repository-presentation.json"
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "$schema": "https://egohygiene.github.io/identity/contracts/v1/usage.schema.json",
+  "schema": "identity.usage/v1",
+  "sections": [
+    {
+      "id": "inspection-mark",
+      "title": "Inspection mark",
+      "description": "Use the mark to express multiple source layers passing through one evidence-backed inspection control plane.",
+      "rules": [
+        {
+          "id": "mark-with-name",
+          "kind": "do",
+          "category": "mark",
+          "instruction": "Pair the mark with the EgoLint name on first-use repository, documentation, release, and package surfaces.",
+          "rationale": "The inspection lens communicates function, while the name establishes the product.",
+          "details": [
+            "Minimum standalone size: 16 CSS pixels",
+            "Preserve the defined safe zone"
+          ],
+          "contexts": ["repository", "documentation", "release", "package"],
+          "governance": {
+            "subject": "usage:egolint",
+            "state": "approved",
+            "visibility": "public",
+            "provenance": {
+              "method": "human-authored",
+              "source": ".identity/brief.md",
+              "capturedAt": "2026-09-01T17:40:00Z"
+            },
+            "approval": "approve-egolint-usage"
+          }
+        },
+        {
+          "id": "mark-no-certification",
+          "kind": "dont",
+          "category": "mark",
+          "instruction": "Do not use the mark or lime accent as proof that a repository is certified, secure, universally compliant, or completely evaluated.",
+          "rationale": "A visual identity cannot replace scoped, represented evidence.",
+          "details": [
+            "Link quality claims to versioned reports",
+            "Show skipped and unavailable capability states truthfully"
+          ],
+          "contexts": ["repository", "documentation", "release", "badge"],
+          "governance": {
+            "subject": "usage:egolint",
+            "state": "approved",
+            "visibility": "public",
+            "provenance": {
+              "method": "human-authored",
+              "source": ".identity/brief.md",
+              "capturedAt": "2026-09-01T17:40:00Z"
+            },
+            "approval": "approve-egolint-usage"
+          }
+        }
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "mark",
+      "label": "EgoLint inspection mark",
+      "kind": "mark",
+      "path": ".identity/sources/mark.svg",
+      "status": "active",
+      "availability": "public",
+      "replacement": null,
+      "downloadName": "egolint-mark.svg",
+      "notes": "Use only the approved source or verified generated projections.",
+      "governance": {
+        "subject": "usage:egolint",
+        "state": "approved",
+        "visibility": "public",
+        "provenance": {
+          "method": "human-authored",
+          "source": ".identity/governance/provenance.json#mark",
+          "capturedAt": "2026-09-01T17:40:00Z"
+        },
+        "approval": "approve-egolint-usage"
+      }
+    }
+  ],
+  "accessibility": {
+    "summary": "Findings, capability state, severity, evidence, and remediation must remain understandable without color, motion, imagery, or aggregate scores.",
+    "rules": [
+      "Honor reduced motion",
+      "Provide contextual alternative text",
+      "Never use color as the only quality-state signal",
+      "Keep document and terminal text at WCAG AA contrast or better"
+    ],
+    "governance": {
+      "subject": "usage:egolint",
+      "state": "approved",
+      "visibility": "public",
+      "provenance": {
+        "method": "human-authored",
+        "source": "DESIGN_SYSTEM.md",
+        "capturedAt": "2026-09-01T17:40:00Z"
+      },
+      "approval": "approve-egolint-usage"
+    }
+  },
+  "legal": {
+    "trademark": "EgoLint names and marks identify this project without certifying repositories or implying third-party endorsement.",
+    "copyright": "Copyright 2026 Ego Hygiene.",
+    "attribution": "Preserve the governed attribution when distributing the mark.",
+    "thirdPartyLicenses": [
+      {
+        "name": "EgoLint mark",
+        "spdx": "MIT",
+        "attribution": "Copyright 2026 Ego Hygiene"
+      }
+    ],
+    "governance": {
+      "subject": "usage:egolint",
+      "state": "approved",
+      "visibility": "public",
+      "provenance": {
+        "method": "human-authored",
+        "source": ".identity/governance/provenance.json#mark",
+        "capturedAt": "2026-09-01T17:40:00Z"
+      },
+      "approval": "approve-egolint-usage"
+    }
+  }
+}

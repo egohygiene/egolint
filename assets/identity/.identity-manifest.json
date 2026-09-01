@@ -1,0 +1,430 @@
+{
+  "schema": "identity.compiler-manifest/v1",
+  "projectId": "egolint",
+  "sourceDigest": "bd7e2a4d52d0f54dfd46a93ad32b74c90c61dfa0fe4f9f13e757c9582ad3b280",
+  "planDigest": "e061b797856920e08d2bb6b2a30292531aee0072ceb2895e695edf51f7e2ce9d",
+  "outputs": [
+    {
+      "targetId": "core-mark-svg",
+      "profile": "core",
+      "path": "assets/identity/brand/mark.svg",
+      "mediaType": "image/svg+xml",
+      "adapterId": "identity-source-svg",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "076ae5a2246f0e36680cbe2a659a9015f1458914f00b397e66e3993dff767266",
+      "sha256": "0abf8e88c9570eee83912c4de9fd7b035167869217aa93b46a76dd048b7e9e0b",
+      "bytes": 959
+    },
+    {
+      "targetId": "docs-document-css",
+      "profile": "docs",
+      "path": "assets/identity/docs/document.css",
+      "mediaType": "text/css",
+      "adapterId": "identity-tokens",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "8485251e47ee44b2f27b183a6b7080ef070acb6101c0127eeca0338be830756d",
+      "sha256": "d0a2f219c5cb8f13e8442bf35df1afa5b7aa10d89cdf82cd477ac4c617f5fdd7",
+      "bytes": 837
+    },
+    {
+      "targetId": "github-social-preview",
+      "profile": "github",
+      "path": "assets/identity/github/social-preview.png",
+      "mediaType": "image/png",
+      "adapterId": "identity-raster",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "ae1d0a1ec6f9f04f0af01608f00ec8c84e7aab837e685324d94a7f4c56b6a9ac",
+      "sha256": "9a906d90dd0428198c1320dc0329ffc7529b8d17e59da633ffa8cfb2e6863200",
+      "bytes": 18911
+    },
+    {
+      "targetId": "brand-kit-archive",
+      "profile": "archive",
+      "path": "assets/identity/packages/brand-kit/brand-kit.zip",
+      "mediaType": "application/zip",
+      "adapterId": "identity-package",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "9289bc4cd9fc5cf96f5ec00a2e8a3faf8d6f71ff7d82f64c76268ae558e77c0f",
+      "sha256": "9be32b672f8b03259f48b6e849f2f6ec3e2ca07c782b0a6b36aa84ec0b8dc54e",
+      "bytes": 110840
+    },
+    {
+      "targetId": "brand-kit-checksums",
+      "profile": "archive",
+      "path": "assets/identity/packages/brand-kit/checksums.json",
+      "mediaType": "application/json",
+      "adapterId": "identity-package",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "a62d26f303ed671ba6de09fc294f7813025f23455d49d7015b8c4dcf12a8c094",
+      "sha256": "7ed8636d0c40fc8c1760c68b4aee291bb8f9370e8e483a1797bfd35c29f2cd77",
+      "bytes": 2201
+    },
+    {
+      "targetId": "brand-kit-package-index",
+      "profile": "archive",
+      "path": "assets/identity/packages/brand-kit/index.json",
+      "mediaType": "application/json",
+      "adapterId": "identity-package",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "7c61bb51d1ef128563b669db7021cd7e1ba6ab636d7159697fe653bce85d3a67",
+      "sha256": "7cc1e5a9c1511e9202812476b512868e5550cd95e603eff7e4ffbb2979f2b245",
+      "bytes": 2432
+    },
+    {
+      "targetId": "guidance-markdown",
+      "profile": "metadata",
+      "path": "assets/identity/packages/guidance/README.md",
+      "mediaType": "text/markdown",
+      "adapterId": "identity-guidance",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "b19c1b34da4275aeace9c0871a1aa590d5bebb3dc514988bc2288bcf4aaa3901",
+      "sha256": "b961b92d05c4b7848f701fda59ed806f296174ec941157b6a8a09bdf5c521c79",
+      "bytes": 13183
+    },
+    {
+      "targetId": "guidance-json",
+      "profile": "metadata",
+      "path": "assets/identity/packages/guidance/voice-and-usage.json",
+      "mediaType": "application/json",
+      "adapterId": "identity-guidance",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "a5bffece3df83587edf629579a7cbeed0361038732a37d494db70c2fded1e998",
+      "sha256": "3d625ebbb78a99a71ac2e1cd57537e401a1f5f6ff5e9f64c706264ace7dde4de",
+      "bytes": 13961
+    },
+    {
+      "targetId": "metadata-json",
+      "profile": "metadata",
+      "path": "assets/identity/packages/metadata/metadata.json",
+      "mediaType": "application/json",
+      "adapterId": "identity-metadata",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "137f51514ae0b61ef63c66dba7f3068f2b6e45e5419aa55e3914c20662d36aea",
+      "sha256": "9272656f97c0543c805d9a6c1f6f58ec3f28671f3f8eee293de088586948c541",
+      "bytes": 345
+    },
+    {
+      "targetId": "metadata-open-graph",
+      "profile": "metadata",
+      "path": "assets/identity/packages/metadata/open-graph.html",
+      "mediaType": "text/html",
+      "adapterId": "identity-metadata",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "e0f0cca7dd65585338d5c96113f91f963a7d486e7172c35433be7cdb91f96f31",
+      "sha256": "e9e34d3676d2235dc0f22ddf98cfecd5ee050ce3e1d96b4e2c5f64a8aee278c2",
+      "bytes": 415
+    },
+    {
+      "targetId": "metadata-package-json",
+      "profile": "metadata",
+      "path": "assets/identity/packages/metadata/package.json",
+      "mediaType": "application/json",
+      "adapterId": "identity-metadata",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "59fa86a062f2f3b240dd340cad7b181875a4c02ea0b3203e1ba99127d0b86091",
+      "sha256": "5d1f5a5db300379fa7fafe7845311b1d5796f0bffb083ed6a44cd3cc51dd528f",
+      "bytes": 342
+    },
+    {
+      "targetId": "reference-renderer-view-model",
+      "profile": "renderer",
+      "path": "assets/identity/packages/renderer/brand-kit.view-model.json",
+      "mediaType": "application/json",
+      "adapterId": "identity-reference-renderer-model",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "ca5a64c4eba41a01e7ccc63de4cb8628ad22c44f954e0ee061bd272c9399bb02",
+      "sha256": "65301970fd199b786ef828fe9e5b170d95992de1b5e2c018f1d804bf7e0ce20d",
+      "bytes": 22706
+    },
+    {
+      "targetId": "tokens-package-json",
+      "profile": "tokens",
+      "path": "assets/identity/packages/tokens/package.json",
+      "mediaType": "application/json",
+      "adapterId": "identity-tokens",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "71b51b37ef5e50fd62b929a13df89b8815700b1f31f4bcfef1fb32c43d154803",
+      "sha256": "d37c7947f8662c1c970b03d2bdfb05e5e4a629f2c9156edee0bf217d1ec27843",
+      "bytes": 414
+    },
+    {
+      "targetId": "tokens-tailwind-theme",
+      "profile": "tokens",
+      "path": "assets/identity/packages/tokens/tailwind.theme.json",
+      "mediaType": "application/json",
+      "adapterId": "identity-tokens",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "60269bb334ee1bcadab03ac412854020776bf8e61ad74980751a6436d0a9ad38",
+      "sha256": "06de70794431545eb99f17070ddfc587cc04b09612189b03cdf66c5be268ac95",
+      "bytes": 517
+    },
+    {
+      "targetId": "tokens-css",
+      "profile": "tokens",
+      "path": "assets/identity/packages/tokens/tokens.css",
+      "mediaType": "text/css",
+      "adapterId": "identity-tokens",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "dc18b3f99dbeaa525595327dae9be2d31104cd262f3e3440b7de396f0f68799f",
+      "sha256": "01fb7d4d037a92b72ce4c7934d35e5f3e34b63ba158660127915fcad2f461097",
+      "bytes": 558
+    },
+    {
+      "targetId": "tokens-typescript",
+      "profile": "tokens",
+      "path": "assets/identity/packages/tokens/tokens.d.ts",
+      "mediaType": "text/plain",
+      "adapterId": "identity-tokens",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "292b257d596979f3076c16b6c24e6c8336dd7884ee1b3aeeec29c7bb6a1e874a",
+      "sha256": "74e2927bdb53c398f9f554fe3d1cdfe09720732aa755899f58b3cffc089c6587",
+      "bytes": 450
+    },
+    {
+      "targetId": "tokens-javascript",
+      "profile": "tokens",
+      "path": "assets/identity/packages/tokens/tokens.js",
+      "mediaType": "text/javascript",
+      "adapterId": "identity-tokens",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "d5d38eee7b8db36745dd33caad017a1e3cc975c6f62497e124652592c94075f8",
+      "sha256": "69722f91f920705eedb8471c3d59980aa19870fa54e43a8736ed266b1667813a",
+      "bytes": 1434
+    },
+    {
+      "targetId": "tokens-dtcg-json",
+      "profile": "tokens",
+      "path": "assets/identity/packages/tokens/tokens.json",
+      "mediaType": "application/json",
+      "adapterId": "identity-tokens",
+      "adapterVersion": "1.0.0",
+      "inputFingerprint": "9ed0a36ad6d0a67e3648bc930aa05d500691244cd92d974cad5f433741e37f09",
+      "sha256": "6fc843ca361e0618230b0d96de63cf56c289be13f8c95de5142c80efcda657b4",
+      "bytes": 5141
+    }
+  ],
+  "adapters": [
+    {
+      "id": "identity-guidance",
+      "version": "1.0.0",
+      "kind": "token-transformer",
+      "compilerApiMajor": 1,
+      "deterministic": true,
+      "offline": true,
+      "capabilities": [
+        "markdown",
+        "usage",
+        "voice"
+      ]
+    },
+    {
+      "id": "identity-metadata",
+      "version": "1.0.0",
+      "kind": "metadata",
+      "compilerApiMajor": 1,
+      "deterministic": true,
+      "offline": true,
+      "capabilities": [
+        "open-graph",
+        "public-metadata",
+        "web-app-manifest"
+      ]
+    },
+    {
+      "id": "identity-package",
+      "version": "1.0.0",
+      "kind": "archive",
+      "compilerApiMajor": 1,
+      "deterministic": true,
+      "offline": true,
+      "capabilities": [
+        "checksums",
+        "package-index",
+        "zip"
+      ]
+    },
+    {
+      "id": "identity-raster",
+      "version": "1.0.0",
+      "kind": "raster-renderer",
+      "compilerApiMajor": 1,
+      "deterministic": true,
+      "offline": true,
+      "capabilities": [
+        "favicon",
+        "github-preview",
+        "maskable",
+        "png",
+        "social-card"
+      ]
+    },
+    {
+      "id": "identity-reference-renderer-model",
+      "version": "1.0.0",
+      "kind": "metadata",
+      "compilerApiMajor": 1,
+      "deterministic": true,
+      "offline": true,
+      "capabilities": [
+        "brand-kit-view-model",
+        "static-renderer-input"
+      ]
+    },
+    {
+      "id": "identity-source-svg",
+      "version": "1.0.0",
+      "kind": "vector-renderer",
+      "compilerApiMajor": 1,
+      "deterministic": true,
+      "offline": true,
+      "capabilities": [
+        "approved-svg",
+        "source-digest"
+      ]
+    },
+    {
+      "id": "identity-tokens",
+      "version": "1.0.0",
+      "kind": "token-transformer",
+      "compilerApiMajor": 1,
+      "deterministic": true,
+      "offline": true,
+      "capabilities": [
+        "css",
+        "document-css",
+        "dtcg",
+        "javascript",
+        "tailwind",
+        "typescript"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "targetId": "brand-kit-archive",
+      "adapterId": "identity-package",
+      "check": "archive-structure",
+      "status": "verified",
+      "message": "Brand Kit archive contains deterministic ZIP32 headers and a central directory"
+    },
+    {
+      "targetId": "brand-kit-checksums",
+      "adapterId": "identity-package",
+      "check": "deterministic-format",
+      "status": "verified",
+      "message": "identity-package projection is valid UTF-8 and matches its declared media contract"
+    },
+    {
+      "targetId": "brand-kit-package-index",
+      "adapterId": "identity-package",
+      "check": "deterministic-format",
+      "status": "verified",
+      "message": "identity-package projection is valid UTF-8 and matches its declared media contract"
+    },
+    {
+      "targetId": "core-mark-svg",
+      "adapterId": "identity-source-svg",
+      "check": "source-digest",
+      "status": "verified",
+      "message": "generated SVG is byte-identical to the approved canonical source"
+    },
+    {
+      "targetId": "docs-document-css",
+      "adapterId": "identity-tokens",
+      "check": "deterministic-format",
+      "status": "verified",
+      "message": "identity-tokens projection is valid UTF-8 and matches its declared media contract"
+    },
+    {
+      "targetId": "github-social-preview",
+      "adapterId": "identity-raster",
+      "check": "dimensions",
+      "status": "verified",
+      "message": "generated PNG is exactly 1280x640"
+    },
+    {
+      "targetId": "guidance-json",
+      "adapterId": "identity-guidance",
+      "check": "deterministic-format",
+      "status": "verified",
+      "message": "identity-guidance projection is valid UTF-8 and matches its declared media contract"
+    },
+    {
+      "targetId": "guidance-markdown",
+      "adapterId": "identity-guidance",
+      "check": "deterministic-format",
+      "status": "verified",
+      "message": "identity-guidance projection is valid UTF-8 and matches its declared media contract"
+    },
+    {
+      "targetId": "metadata-json",
+      "adapterId": "identity-metadata",
+      "check": "deterministic-format",
+      "status": "verified",
+      "message": "identity-metadata projection is valid UTF-8 and matches its declared media contract"
+    },
+    {
+      "targetId": "metadata-open-graph",
+      "adapterId": "identity-metadata",
+      "check": "deterministic-format",
+      "status": "verified",
+      "message": "identity-metadata projection is valid UTF-8 and matches its declared media contract"
+    },
+    {
+      "targetId": "metadata-package-json",
+      "adapterId": "identity-metadata",
+      "check": "deterministic-format",
+      "status": "verified",
+      "message": "identity-metadata projection is valid UTF-8 and matches its declared media contract"
+    },
+    {
+      "targetId": "reference-renderer-view-model",
+      "adapterId": "identity-reference-renderer-model",
+      "check": "immutable-view-model",
+      "status": "verified",
+      "message": "renderer input conforms to identity.brand-kit-view-model/v1 and source digest bd7e2a4d52d0f54dfd46a93ad32b74c90c61dfa0fe4f9f13e757c9582ad3b280"
+    },
+    {
+      "targetId": "tokens-css",
+      "adapterId": "identity-tokens",
+      "check": "deterministic-format",
+      "status": "verified",
+      "message": "identity-tokens projection is valid UTF-8 and matches its declared media contract"
+    },
+    {
+      "targetId": "tokens-dtcg-json",
+      "adapterId": "identity-tokens",
+      "check": "deterministic-format",
+      "status": "verified",
+      "message": "identity-tokens projection is valid UTF-8 and matches its declared media contract"
+    },
+    {
+      "targetId": "tokens-javascript",
+      "adapterId": "identity-tokens",
+      "check": "deterministic-format",
+      "status": "verified",
+      "message": "identity-tokens projection is valid UTF-8 and matches its declared media contract"
+    },
+    {
+      "targetId": "tokens-package-json",
+      "adapterId": "identity-tokens",
+      "check": "deterministic-format",
+      "status": "verified",
+      "message": "identity-tokens projection is valid UTF-8 and matches its declared media contract"
+    },
+    {
+      "targetId": "tokens-tailwind-theme",
+      "adapterId": "identity-tokens",
+      "check": "deterministic-format",
+      "status": "verified",
+      "message": "identity-tokens projection is valid UTF-8 and matches its declared media contract"
+    },
+    {
+      "targetId": "tokens-typescript",
+      "adapterId": "identity-tokens",
+      "check": "deterministic-format",
+      "status": "verified",
+      "message": "identity-tokens projection is valid UTF-8 and matches its declared media contract"
+    }
+  ]
+}
