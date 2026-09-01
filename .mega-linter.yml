@@ -630,6 +630,9 @@ JAVA_PMD_CONFIG_FILE: java-pmd-ruleset.xml
 # https://npmpackagejsonlint.org/
 JSON_NPM_PACKAGE_JSON_LINT_RULES_PATH: .config/lint/json
 JSON_NPM_PACKAGE_JSON_LINT_CONFIG_FILE: .npmpackagejsonlintrc.json
+# Identity owns and deterministically verifies its generated package projections.
+# Keep npm-package-json-lint focused on authored package manifests.
+JSON_NPM_PACKAGE_JSON_LINT_FILTER_REGEX_EXCLUDE: "(^|/)assets/identity/"
 
 # jsonlint
 # https://github.com/prantlf/jsonlint

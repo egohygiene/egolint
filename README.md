@@ -1,5 +1,9 @@
 <p>
-  <img src="assets/identity/repository-presentation/assets/banner-dark-1600.svg" alt="EgoLint repository banner with source lines passing through an inspection lens and check" width="100%" />
+  <img
+    src="assets/identity/repository-presentation/assets/banner-dark-1600.svg"
+    alt="EgoLint repository banner with source lines passing through an inspection lens and check"
+    width="100%"
+  />
 </p>
 
 # EgoLint
@@ -7,7 +11,12 @@
 Portable, policy-driven lint orchestration for repositories and CI.
 
 <p>
-  <a href="evidence/repository-presentation.json"><img src="assets/identity/repository-presentation/assets/hygienic-partial.svg" alt="Hygienic repository presentation profile: partial; open the linked evidence" /></a>
+  <a href="evidence/repository-presentation.json">
+    <img
+      src="assets/identity/repository-presentation/assets/hygienic-partial.svg"
+      alt="Hygienic repository presentation profile: partial; open the linked evidence"
+    />
+  </a>
 </p>
 
 > [!IMPORTANT] Egolint is an early alpha. The CLI is source-buildable, but no Cargo package, GitHub

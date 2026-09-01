@@ -112,10 +112,7 @@
 
   "MD040": true,
 
-  "MD041": {
-    "level": 1,
-    "front_matter_title": ""
-  },
+  "MD041": false,
 
   "MD042": true,
 
