@@ -554,12 +554,11 @@ fn make_report_directory_container_writable(workspace: &Path, report_path: &Path
             source,
         })?;
     let matches_open_directory = || -> Result<bool> {
-        let current = std::fs::symlink_metadata(report_path).map_err(|source| {
-            EgolintError::Filesystem {
+        let current =
+            std::fs::symlink_metadata(report_path).map_err(|source| EgolintError::Filesystem {
                 path: report_path.to_path_buf(),
                 source,
-            }
-        })?;
+            })?;
         Ok(current.is_dir() && current.dev() == opened.dev() && current.ino() == opened.ino())
     };
     if !matches_open_directory()? {

@@ -45,10 +45,19 @@ jobs:
       - name: Dogfood Egolint
         run: task dogfood
 
-      - name: Upload normalized dogfood evidence
+      - name: Upload dogfood evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: egolint-dogfood-${{ github.run_id }}
-          path: .reports/egolint/
+          # Tool caches can contain container-UID-private directories. Upload
+          # the reviewable evidence surface explicitly instead of recursively
+          # traversing disposable caches.
+          path: |
+            .reports/egolint/*.json
+            .reports/egolint/*.sarif
+            .reports/egolint/*.md
+            .reports/egolint/*.log
+            .reports/egolint/linters_logs/
+            .reports/egolint/IDE-config/
           if-no-files-found: warn
