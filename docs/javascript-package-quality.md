@@ -5,14 +5,14 @@ Oxlint, Biome, and publint as replaceable analysis adapters.
 
 ## Ownership
 
-| Surface | Canonical owner | Adapter |
-| --- | --- | --- |
-| JavaScript/TypeScript semantic lint | Egolint | Oxlint 1.79.0 |
-| Type-aware lint rules | Egolint | oxlint-tsgolint 7.0.2001 through Oxlint |
-| Formatting | Egolint | Biome 2.5.9 |
-| Import/export organization | Egolint | Biome `organizeImports` |
-| npm package publishability | Egolint | publint 0.3.24 |
-| Dependency architecture | Egolint | dependency-cruiser profile from issue #12 |
+| Surface                             | Canonical owner | Adapter                                   |
+| ----------------------------------- | --------------- | ----------------------------------------- |
+| JavaScript/TypeScript semantic lint | Egolint         | Oxlint 1.79.0                             |
+| Type-aware lint rules               | Egolint         | oxlint-tsgolint 7.0.2001 through Oxlint   |
+| Formatting                          | Egolint         | Biome 2.5.9                               |
+| Import/export organization          | Egolint         | Biome `organizeImports`                   |
+| npm package publishability          | Egolint         | publint 0.3.24                            |
+| Dependency architecture             | Egolint         | dependency-cruiser profile from issue #12 |
 
 Biome's linter is disabled by policy. Oxlint therefore owns semantic linting,
 while Biome owns deterministic formatting and safe import organization. Legacy
@@ -45,7 +45,8 @@ A repository opts into the profile with
   "schema_version": 1,
   "profile": "react-library",
   "package_path": ".",
-  "publication": "npm"
+  "publication": "npm",
+  "ignore": ["generated/**", "tests/fixtures/**"]
 }
 ```
 
@@ -58,6 +59,21 @@ A repository opts into the profile with
   `not_applicable`.
 
 Egolint does not infer publication intent from incidental package metadata.
+
+### Repository-owned analysis scope
+
+The optional manifest `ignore` array gives each consumer one reviewable place
+to exclude generated artifacts and intentionally hostile fixtures without
+weakening the shared rule profile. Egolint validates every entry as a bounded,
+portable, workspace-relative glob and projects the same scope into Oxlint and
+Biome. Egolint also excludes conventional tool output such as `target/`,
+`node_modules/`, `dist/`, `build/`, `coverage/`, `generated/`, and its own
+`.reports/` directory before either adapter evaluates production source.
+
+Use narrow paths with an explicit owner. Generated contracts should remain
+under the byte-formatting authority of their generator, and negative fixtures
+should remain under their focused test harness. Do not exclude production
+source merely to make a finding disappear.
 
 ## Canonical command
 
@@ -86,11 +102,7 @@ surface:
   "label": "egolint: javascript package quality",
   "type": "process",
   "command": "node",
-  "args": [
-    "scripts/javascript-package-quality.mjs",
-    "--workspace",
-    "${workspaceFolder}"
-  ],
+  "args": ["scripts/javascript-package-quality.mjs", "--workspace", "${workspaceFolder}"],
   "problemMatcher": []
 }
 ```

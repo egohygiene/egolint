@@ -4,12 +4,7 @@
   "title": "Egolint JavaScript package-quality manifest",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "schema_version",
-    "profile",
-    "package_path",
-    "publication"
-  ],
+  "required": ["schema_version", "profile", "package_path", "publication"],
   "properties": {
     "$schema": {
       "type": "string"
@@ -18,10 +13,7 @@
       "const": 1
     },
     "profile": {
-      "enum": [
-        "base",
-        "react-library"
-      ]
+      "enum": ["base", "react-library"]
     },
     "package_path": {
       "type": "string",
@@ -29,10 +21,17 @@
       "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
     },
     "publication": {
-      "enum": [
-        "npm",
-        "private"
-      ]
+      "enum": ["npm", "private"]
+    },
+    "ignore": {
+      "type": "array",
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^(?!/)(?!!)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+      }
     }
   }
 }

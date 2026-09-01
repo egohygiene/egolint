@@ -8,6 +8,8 @@ stabilize.
 
 ### Added
 
+- Repository-owned JavaScript package-quality ignore scopes projected
+  consistently into Oxlint and Biome.
 - Initial Rust CLI for configuration resolution, planning, runtime checks, and
   Docker/Podman orchestration.
 - Fast, holistic, security, and dependency-debt MegaLinter policy profiles.
@@ -55,6 +57,12 @@ stabilize.
 
 ### Fixed
 
+- Restored a clean self-dogfood package-quality baseline by excluding generated
+  contracts, build output, and hostile fixtures from production-source checks;
+  Biome SARIF is also forced color-free for deterministic JSON parsing.
+- Routed the local commit hook through the canonical package-quality adapter
+  instead of legacy flat-ESLint and abandoned Prettier-mirror invocations with
+  incompatible path semantics and divergent tool pins.
 - Distinguished absolute interpreter shebangs from Rust crate-level inner
   attributes when enforcing executable Git modes.
 - Resolved Node package export maps and subpath exports in the JavaScript

@@ -7,4 +7,5 @@ repository_root="$(git rev-parse --show-toplevel)"
 cd "${repository_root}"
 
 sh scripts/pnpm.sh --dir . run lint-staged
+sh scripts/pnpm.sh --dir . run javascript-quality:check
 scripts/precommit.sh staged

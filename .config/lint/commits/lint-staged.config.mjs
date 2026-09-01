@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MIT
 
 const prettierConfiguration = ".config/lint/javascript/prettier.config.mjs";
-const eslintConfiguration = ".config/lint/javascript/eslint.config.mjs";
 const stylelintConfiguration = ".config/lint/css/stylelint.json";
 
 function shellQuote(value) {
@@ -23,16 +22,6 @@ function prettierCommand(filenames) {
     ].join(" ");
 }
 
-function eslintCommand(filenames) {
-    return [
-        "eslint",
-        `--config ${shellQuote(eslintConfiguration)}`,
-        "--fix",
-        "--max-warnings 0",
-        joinFilenames(filenames),
-    ].join(" ");
-}
-
 function stylelintCommand(filenames) {
     return [
         "stylelint",
@@ -43,7 +32,6 @@ function stylelintCommand(filenames) {
 }
 
 export default {
-    "*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}": [eslintCommand, prettierCommand],
     "*.{css,less,pcss,postcss,scss,sass}": [stylelintCommand, prettierCommand],
     "*.{graphql,html,json,json5,jsonc,md,mdx,yaml,yml}": prettierCommand,
 };

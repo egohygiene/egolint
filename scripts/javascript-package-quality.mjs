@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 
+// Copyright 2026 Ego Hygiene
+// SPDX-License-Identifier: MIT
+
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
-import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 
@@ -16,6 +19,19 @@ const DEFAULT_MANIFEST = "egolint.javascript-package-quality.json";
 const DEFAULT_JSON_REPORT = ".reports/egolint/javascript-package-quality.json";
 const DEFAULT_SARIF_REPORT = ".reports/egolint/javascript-package-quality.sarif";
 const OWNER = "egohygiene/egolint";
+const DEFAULT_IGNORE_PATTERNS = [
+    ".git/**",
+    ".reports/**",
+    ".egolint-biome-*.json",
+    "build/**",
+    "coverage/**",
+    "dist/**",
+    "generated/**",
+    "node_modules/**",
+    "target/**",
+];
+const ANSI_ESCAPE_PATTERN = new RegExp(`${String.fromCodePoint(27)}\\[[0-9;]*m`, "g");
+const CONTROL_CHARACTER_PATTERN = /\p{Cc}/gu;
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(scriptDirectory, "..");
@@ -41,8 +57,8 @@ function portablePath(value) {
 
 function boundedText(value, maximum = 4096) {
     return String(value)
-        .replaceAll(/\u001b\[[0-9;]*m/g, "")
-        .replaceAll(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, " ")
+        .replaceAll(ANSI_ESCAPE_PATTERN, "")
+        .replaceAll(CONTROL_CHARACTER_PATTERN, " ")
         .replaceAll(/\s+/g, " ")
         .trim()
         .slice(0, maximum);
@@ -51,11 +67,7 @@ function boundedText(value, maximum = 4096) {
 function containedPath(root, requested, label) {
     const resolved = resolve(root, requested);
     const relativePath = relative(root, resolved);
-    if (
-        relativePath === ".." ||
-        relativePath.startsWith(`..${sep}`) ||
-        isAbsolute(relativePath)
-    ) {
+    if (relativePath === ".." || relativePath.startsWith(`..${sep}`) || isAbsolute(relativePath)) {
         throw configurationError(`${label} must remain inside the workspace: ${requested}`);
     }
     return resolved;
@@ -64,10 +76,7 @@ function containedPath(root, requested, label) {
 function validateReportPath(workspace, requested, label) {
     const resolved = containedPath(workspace, requested, label);
     const relativePath = portablePath(relative(workspace, resolved));
-    if (
-        relativePath !== ".reports/egolint" &&
-        !relativePath.startsWith(".reports/egolint/")
-    ) {
+    if (relativePath !== ".reports/egolint" && !relativePath.startsWith(".reports/egolint/")) {
         throw configurationError(`${label} must remain under .reports/egolint`);
     }
     return resolved;
@@ -98,10 +107,31 @@ function validateManifest(manifest) {
         throw configurationError("manifest package_path must be a nonempty relative path");
     }
     if (manifest.package_path.includes("\\") || isAbsolute(manifest.package_path)) {
-        throw configurationError("manifest package_path must use portable workspace-relative syntax");
+        throw configurationError(
+            "manifest package_path must use portable workspace-relative syntax",
+        );
     }
     if (!new Set(["npm", "private"]).has(manifest.publication)) {
         throw configurationError("manifest publication must be npm or private");
+    }
+    if (manifest.ignore !== undefined) {
+        if (!Array.isArray(manifest.ignore) || manifest.ignore.length > 128) {
+            throw configurationError("manifest ignore must contain at most 128 relative patterns");
+        }
+        for (const pattern of manifest.ignore) {
+            if (
+                typeof pattern !== "string" ||
+                pattern.trim() === "" ||
+                pattern.startsWith("!") ||
+                pattern.includes("\\") ||
+                isAbsolute(pattern) ||
+                pattern.split("/").includes("..")
+            ) {
+                throw configurationError(
+                    "manifest ignore patterns must be nonempty, portable, workspace-relative globs",
+                );
+            }
+        }
     }
 }
 
@@ -121,7 +151,12 @@ function validateProfile(profile, manifest) {
 }
 
 async function installedPackageVersion(packageName) {
-    const packagePath = resolve(repositoryRoot, "node_modules", ...packageName.split("/"), "package.json");
+    const packagePath = resolve(
+        repositoryRoot,
+        "node_modules",
+        ...packageName.split("/"),
+        "package.json",
+    );
     const manifest = await readJson(packagePath, `${packageName} package manifest`);
     if (typeof manifest.version !== "string") {
         throw runtimeError(`${packageName} package manifest does not contain a version`);
@@ -141,7 +176,9 @@ async function verifyAdapterVersions(profile) {
         const expected = profile.adapters[profileKey].version;
         const actual = await installedPackageVersion(packageName);
         if (actual !== expected) {
-            throw runtimeError(`${packageName} version ${actual} does not match reviewed pin ${expected}`);
+            throw runtimeError(
+                `${packageName} version ${actual} does not match reviewed pin ${expected}`,
+            );
         }
         observed[profileKey] = actual;
     }
@@ -290,7 +327,7 @@ function normalizeOxlint(raw, context) {
             severity: severity(diagnostic.severity),
             message: diagnostic.help
                 ? `${diagnostic.message} ${diagnostic.help}`
-                : diagnostic.message ?? ruleId,
+                : (diagnostic.message ?? ruleId),
             path,
             startLine: span.line,
             startColumn: span.column,
@@ -381,7 +418,7 @@ async function runPublint(context) {
             toolId: "PUBLINT",
             toolName: "publint",
             toolVersion: context.versions.publint,
-            ruleId: String(message.code ?? "publint/unknown"),
+            ruleId: message.code ?? "publint/unknown",
             severity: severity(message.type),
             message: rendered,
             path: location.path,
@@ -476,7 +513,12 @@ function toSarif(report) {
         }
         const result = {
             ruleId,
-            level: finding.severity === "error" ? "error" : finding.severity === "warning" ? "warning" : "note",
+            level:
+                finding.severity === "error"
+                    ? "error"
+                    : finding.severity === "warning"
+                      ? "warning"
+                      : "note",
             message: { text: finding.message },
             partialFingerprints: { "egolint/v1": finding.fingerprint },
             properties: {
@@ -532,6 +574,24 @@ async function writeAtomic(path, value) {
     await rename(temporaryPath, path);
 }
 
+async function materializeBiomeConfig(configurationPath, workspace, ignorePatterns) {
+    const config = await readJson(configurationPath, "Biome configuration");
+    delete config.$schema;
+    config.formatter = config.formatter ?? {};
+    config.formatter.useEditorconfig = false;
+    config.files = config.files ?? {};
+    config.files.includes = [
+        ...(config.files.includes ?? []),
+        ...[...DEFAULT_IGNORE_PATTERNS, ...ignorePatterns].map((pattern) => `!${pattern}`),
+    ];
+    const path = join(workspace, `.egolint-biome-${process.pid}-${Date.now()}.json`);
+    await writeFile(path, `${JSON.stringify(config, null, 2)}\n`, {
+        encoding: "utf8",
+        flag: "wx",
+    });
+    return path;
+}
+
 function printFindings(report) {
     for (const item of report.findings) {
         const finding = item.finding;
@@ -571,7 +631,10 @@ async function main() {
     validateProfile(profile, manifest);
     const variant = profile.variants[manifest.profile];
     const packageDirectory = containedPath(workspace, manifest.package_path, "package_path");
-    const packageManifest = await readJson(resolve(packageDirectory, "package.json"), "package.json");
+    const packageManifest = await readJson(
+        resolve(packageDirectory, "package.json"),
+        "package.json",
+    );
     if (manifest.publication === "npm" && packageManifest.private === true) {
         throw configurationError("publication npm cannot target a package.json with private=true");
     }
@@ -583,39 +646,52 @@ async function main() {
     const context = { workspace, packageDirectory, manifest, profile, variant, versions };
     const oxlintConfig = resolve(repositoryRoot, variant.oxlint_config);
     const biomeConfig = resolve(repositoryRoot, variant.biome_config);
+    const ignorePatterns = manifest.ignore ?? [];
 
-    const oxlintRaw = runAdapter(
-        [
-            "--dir",
-            repositoryRoot,
-            "exec",
-            "oxlint",
-            "--config",
-            oxlintConfig,
-            "--format",
-            "json",
-            "--disable-nested-config",
-            packageDirectory,
-        ],
-        new Set([0, 1]),
-        "Oxlint",
+    const oxlintArguments = [
+        "--dir",
+        repositoryRoot,
+        "exec",
+        "oxlint",
+        "--config",
+        oxlintConfig,
+        "--format",
+        "json",
+        "--disable-nested-config",
+    ];
+    for (const pattern of ignorePatterns) {
+        oxlintArguments.push("--ignore-pattern", pattern);
+    }
+    oxlintArguments.push(packageDirectory);
+
+    const oxlintRaw = runAdapter(oxlintArguments, new Set([0, 1]), "Oxlint");
+    const temporaryBiomeConfig = await materializeBiomeConfig(
+        biomeConfig,
+        workspace,
+        ignorePatterns,
     );
-    const biomeRaw = runAdapter(
-        [
-            "--dir",
-            repositoryRoot,
-            "exec",
-            "biome",
-            "ci",
-            "--config-path",
-            biomeConfig,
-            "--reporter=sarif",
-            "--max-diagnostics=none",
-            packageDirectory,
-        ],
-        new Set([0, 1]),
-        "Biome",
-    );
+    let biomeRaw;
+    try {
+        biomeRaw = runAdapter(
+            [
+                "--dir",
+                repositoryRoot,
+                "exec",
+                "biome",
+                "ci",
+                "--colors=off",
+                "--config-path",
+                temporaryBiomeConfig,
+                "--reporter=sarif",
+                "--max-diagnostics=none",
+                packageDirectory,
+            ],
+            new Set([0, 1]),
+            "Biome",
+        );
+    } finally {
+        await rm(temporaryBiomeConfig, { force: true });
+    }
     const publintResult = await runPublint(context);
 
     const findings = [

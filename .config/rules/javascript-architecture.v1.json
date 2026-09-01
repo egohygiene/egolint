@@ -7,12 +7,7 @@
     "name": "dependency-cruiser",
     "version": "18.2.0"
   },
-  "roots": [
-    "src",
-    "scripts",
-    "apps",
-    "packages"
-  ],
+  "roots": ["src", "scripts", "apps", "packages"],
   "rules": [
     {
       "id": "no-app-to-app",
@@ -82,7 +77,9 @@
       "description": "Unreferenced JavaScript/TypeScript modules require review",
       "from": {
         "path": ["^(src|scripts|apps|packages)/"],
-        "path_not": ["(?:^|/)(index|main|entry|vite\\.config|vitest\\.config)\\.[cm]?[jt]sx?$"],
+        "path_not": [
+          "(?:^|/)(index|main|entry|vite\\.config|vitest\\.config)\\.[cm]?[jt]sx?$"
+        ],
         "orphan": true
       },
       "to": {},

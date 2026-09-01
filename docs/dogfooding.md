@@ -20,7 +20,13 @@ MegaLinter + native Egolint adapters
 normalized .reports/egolint evidence
 ```
 
-The repository also declares `egolint.javascript-package-quality.json`, so its real JavaScript tooling is checked through the same package-quality manifest contract as external consumers. The JavaScript architecture profile includes `scripts/` as a first-class production root.
+The repository also declares `egolint.javascript-package-quality.json`, so its
+real JavaScript tooling is checked through the same package-quality manifest
+contract as external consumers. The JavaScript architecture profile includes
+`scripts/` as a first-class production root. The repository-owned manifest
+scope keeps generated contracts and deliberately hostile fixtures under their
+focused generators and tests instead of treating them as production package
+source.
 
 ## Canonical command
 
