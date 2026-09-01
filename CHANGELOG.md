@@ -5,6 +5,10 @@ use Semantic Versioning once its public contracts stabilize.
 
 ## [Unreleased]
 
+No changes yet.
+
+## [0.1.0-alpha.1] - 2026-09-01
+
 ### Added
 
 - Repository-owned JavaScript package-quality ignore scopes projected consistently into Oxlint and
@@ -81,9 +85,5 @@ use Semantic Versioning once its public contracts stabilize.
 - Resolved Node package export maps and subpath exports in the JavaScript architecture adapter
   without package-specific exceptions.
 
-## [0.1.0-alpha.1] - Unreleased
-
-Reserved for the first reviewed alpha release. No artifact is asserted to have been published under
-this version.
-
-[Unreleased]: https://github.com/egohygiene/egolint/compare/main...HEAD
+[Unreleased]: https://github.com/egohygiene/egolint/compare/v0.1.0-alpha.1...HEAD
+[0.1.0-alpha.1]: https://github.com/egohygiene/egolint/releases/tag/v0.1.0-alpha.1

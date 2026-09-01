@@ -394,6 +394,13 @@ class IntegrationDistributionTests(unittest.TestCase):
             self.assertRegex(reference, r"^[^@\s]+@[0-9a-f]{40}$")
 
         self.assertIn('tags:\n      - "v*.*.*"', workflow)
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertIn("Exact Cargo package version to rehearse without publishing", workflow)
+        self.assertIn(
+            'test "${GITHUB_SHA}" = "$(git rev-parse refs/remotes/origin/main)"',
+            workflow,
+        )
+        self.assertIn("This run built and tested the candidate without signing", workflow)
         self.assertIn("cosign verify", workflow)
         self.assertIn("gh attestation verify", workflow)
         self.assertIn("linux/amd64,linux/arm64", workflow)
@@ -403,6 +410,24 @@ class IntegrationDistributionTests(unittest.TestCase):
             r"\breport \\\n\s+debt \\\n\s+repository-contract \\\n\s+repository-intelligence \\\n\s+repository-intelligence-report \\\n\s+repository-presentation \\\n\s+repository-presentation-report; do",
         )
         self.assertNotRegex(workflow, r"tags:.*:(latest|edge)\s*$")
+
+    def test_release_metadata_binds_the_exact_package_version(self) -> None:
+        with (REPOSITORY_ROOT / "Cargo.toml").open("rb") as stream:
+            version = tomllib.load(stream)["package"]["version"]
+        changelog = (REPOSITORY_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+
+        self.assertRegex(
+            changelog,
+            rf"(?m)^## \[{re.escape(version)}\] - \d{{4}}-\d{{2}}-\d{{2}}$",
+        )
+        self.assertIn(
+            f"[Unreleased]: https://github.com/egohygiene/egolint/compare/v{version}...HEAD",
+            changelog,
+        )
+        self.assertIn(
+            f"[{version}]: https://github.com/egohygiene/egolint/releases/tag/v{version}",
+            changelog,
+        )
 
     def test_release_separates_candidate_build_from_trusted_promotion(  # noqa: PLR0915
         self,
@@ -418,6 +443,10 @@ class IntegrationDistributionTests(unittest.TestCase):
         self.assertNotIn("cosign", candidate_text.lower())
 
         signer = jobs["sign-candidate"]
+        self.assertEqual(
+            signer["if"],
+            "github.event_name == 'push' && github.ref_type == 'tag'",
+        )
         self.assertEqual(signer["environment"], "release")
         self.assertEqual(signer["permissions"]["id-token"], "write")
         self.assertEqual(signer["permissions"]["attestations"], "write")
