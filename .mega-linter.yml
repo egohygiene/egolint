@@ -1348,6 +1348,8 @@ REPOSITORY_SECRETLINT_CONFIG_FILE: .secretlintrc.json
 # Scan MegaLinter's complete, already-filtered file set rather than asking
 # project mode to generate an ignore file inside the read-only workspace.
 REPOSITORY_SECRETLINT_CLI_LINT_MODE: list_of_files # pragma: allowlist secret
+REPOSITORY_SECRETLINT_FILE_EXTENSIONS: # pragma: allowlist secret
+  - "*"
 
 # ==============================================================================
 # Semantic and complementary secret analysis

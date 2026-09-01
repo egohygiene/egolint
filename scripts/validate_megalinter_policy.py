@@ -300,6 +300,15 @@ def infer_tool_configuration(tool_id: str, configuration: Mapping[str, Any]) -> 
         return resolved.as_posix()
 
 
+def is_generic_tool_variable(key: str, supported_linters: set[str]) -> bool:
+    """Recognize generic Linter overrides omitted from project-mode docs."""
+    return any(
+        key == f"{linter_id}{suffix}"
+        for linter_id in supported_linters
+        for suffix in ("_FILE_EXTENSIONS", "_FILE_NAMES_REGEX")
+    )
+
+
 def validate_configuration(
     path: Path,
     configuration: Mapping[str, Any],
@@ -315,7 +324,7 @@ def validate_configuration(
     removed_descriptors = set(catalog["removed_descriptors"])
 
     for key in configuration:
-        if key not in allowed_variables:
+        if key not in allowed_variables and not is_generic_tool_variable(key, supported_linters):
             findings.append(f"{path}: unknown MegaLinter v10 variable {key}")
         elif key in deprecated_variables:
             findings.append(f"{path}: removed/deprecated MegaLinter variable {key}")
