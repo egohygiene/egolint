@@ -7,12 +7,12 @@
 from __future__ import annotations
 
 import argparse
+from datetime import date
 import json
 import os
+from pathlib import Path
 import re
 import sys
-from datetime import date
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -89,16 +89,11 @@ def validate_image(name: str, image: Any) -> list[str]:
             for item in platforms
         )
     ):
-        findings.append(
-            f"{name}.platforms must contain unique supported Linux platforms"
-        )
+        findings.append(f"{name}.platforms must contain unique supported Linux platforms")
     elif (
-        media_type == "application/vnd.docker.distribution.manifest.v2+json"
-        and len(platforms) != 1
+        media_type == "application/vnd.docker.distribution.manifest.v2+json" and len(platforms) != 1
     ):
-        findings.append(
-            f"{name}.platforms must contain one platform for a single manifest"
-        )
+        findings.append(f"{name}.platforms must contain one platform for a single manifest")
     return findings
 
 
@@ -117,8 +112,7 @@ def validate_product(
     platforms = product.get("platforms")
     if not isinstance(bases, list) or set(bases) != expected_bases:
         findings.append(
-            f"{product_name}.base_images must contain exactly: "
-            f"{', '.join(sorted(expected_bases))}"
+            f"{product_name}.base_images must contain exactly: {', '.join(sorted(expected_bases))}"
         )
         return findings
     if (
@@ -130,16 +124,12 @@ def validate_product(
             for item in platforms
         )
     ):
-        findings.append(
-            f"{product_name}.platforms must contain unique supported Linux platforms"
-        )
+        findings.append(f"{product_name}.platforms must contain unique supported Linux platforms")
         return findings
     base_platforms = []
     for name in bases:
         image = images.get(name)
-        base_platforms.append(
-            set(image.get("platforms", [])) if isinstance(image, dict) else set()
-        )
+        base_platforms.append(set(image.get("platforms", [])) if isinstance(image, dict) else set())
     available_platforms = set.intersection(*base_platforms)
     if set(platforms) != available_platforms:
         findings.append(
@@ -162,9 +152,7 @@ def validate_contract(contract: Mapping[str, Any]) -> list[str]:
 
     images = contract.get("images")
     if not isinstance(images, dict) or set(images) != IMAGE_NAMES:
-        findings.append(
-            f"images must contain exactly: {', '.join(sorted(IMAGE_NAMES))}"
-        )
+        findings.append(f"images must contain exactly: {', '.join(sorted(IMAGE_NAMES))}")
         images = {}
     for name in sorted(IMAGE_NAMES):
         findings.extend(validate_image(name, images.get(name)))
@@ -175,16 +163,12 @@ def validate_contract(contract: Mapping[str, Any]) -> list[str]:
         products = {}
     for product_name, expected_bases in PRODUCT_BASES.items():
         findings.extend(
-            validate_product(
-                product_name, expected_bases, products.get(product_name), images
-            )
+            validate_product(product_name, expected_bases, products.get(product_name), images)
         )
     return findings
 
 
-def validate_environment(
-    contract: Mapping[str, Any], environment: Mapping[str, str]
-) -> list[str]:
+def validate_environment(contract: Mapping[str, Any], environment: Mapping[str, str]) -> list[str]:
     """Require release variables to equal the checked-in immutable references."""
 
     findings = validate_contract(contract)
@@ -193,11 +177,7 @@ def validate_environment(
         return findings
     for name in sorted(IMAGE_NAMES):
         image = images.get(name)
-        if (
-            not isinstance(image, dict)
-            or "reference" not in image
-            or "digest" not in image
-        ):
+        if not isinstance(image, dict) or "reference" not in image or "digest" not in image:
             continue
         expected = immutable_reference(image)
         observed = environment.get(name, "")
