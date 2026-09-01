@@ -5,6 +5,12 @@ on:
   push:
     tags:
       - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Exact Cargo package version to rehearse without publishing"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -46,6 +52,8 @@ jobs:
 
       - id: release-inputs
         name: Validate and freeze the release identity and base images
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
         shell: bash
         run: |
           set -o errexit
@@ -57,10 +65,20 @@ jobs:
               print(tomllib.load(stream)["package"]["version"])
           PY
           )"
-          test "${GITHUB_REF_NAME}" = "v${version}"
           git fetch --no-tags origin \
             "+refs/heads/main:refs/remotes/origin/main"
           git merge-base --is-ancestor "${GITHUB_SHA}" "refs/remotes/origin/main"
+          if [[ ${GITHUB_EVENT_NAME} == "push" ]]; then
+            test "${GITHUB_REF_TYPE}" = "tag"
+            test "${GITHUB_REF_NAME}" = "v${version}"
+          elif [[ ${GITHUB_EVENT_NAME} == "workflow_dispatch" ]]; then
+            test "${GITHUB_REF_TYPE}" = "branch"
+            test "${GITHUB_SHA}" = "$(git rev-parse refs/remotes/origin/main)"
+            test "${REQUESTED_VERSION}" = "${version}"
+          else
+            printf "Unsupported release event: %s\n" "${GITHUB_EVENT_NAME}" >&2
+            exit 1
+          fi
           for variable in \
             RUST_BUILDER_IMAGE \
             CLI_RUNTIME_IMAGE \
@@ -164,7 +182,7 @@ jobs:
           set -o errexit
           set -o nounset
           set -o pipefail
-          version="${GITHUB_REF_NAME#v}"
+          version="${{ steps.release-inputs.outputs.version }}"
           source_date_epoch="$(git show -s --format=%ct HEAD)"
           mkdir -p "dist" "archive/egolint-${version}-x86_64-unknown-linux-gnu"
           install -m 0755 "target/release/egolint" \
@@ -183,7 +201,7 @@ jobs:
         shell: bash
         run: |
           python3 scripts/package_integrations.py \
-            --version "${GITHUB_REF_NAME#v}" \
+            --version "${{ steps.release-inputs.outputs.version }}" \
             --source-date-epoch "$(git show -s --format=%ct HEAD)" \
             --output-directory "dist"
 
@@ -197,7 +215,7 @@ jobs:
             --file "Dockerfile" \
             --build-arg "RUST_BUILDER_IMAGE=${RUST_BUILDER_IMAGE}" \
             --build-arg "CLI_RUNTIME_IMAGE=${CLI_RUNTIME_IMAGE}" \
-            --build-arg "VERSION=${GITHUB_REF_NAME#v}" \
+            --build-arg "VERSION=${{ steps.release-inputs.outputs.version }}" \
             --build-arg "REVISION=${GITHUB_SHA}" \
             --build-arg "BUILD_DATE=$(git show -s --format=%cI HEAD)" \
             --tag "egolint:candidate" \
@@ -206,7 +224,7 @@ jobs:
             --file "Dockerfile.full" \
             --build-arg "NODE_POLICY_IMAGE=${NODE_POLICY_IMAGE}" \
             --build-arg "MEGALINTER_IMAGE=${MEGALINTER_IMAGE}" \
-            --build-arg "VERSION=${GITHUB_REF_NAME#v}" \
+            --build-arg "VERSION=${{ steps.release-inputs.outputs.version }}" \
             --build-arg "REVISION=${GITHUB_SHA}" \
             --build-arg "BUILD_DATE=$(git show -s --format=%cI HEAD)" \
             --tag "egolint-full:candidate" \
@@ -266,8 +284,20 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      - name: Record non-publishing rehearsal result
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          {
+            printf "## Release rehearsal passed\n\n"
+            printf "Version: %s\n\n" "${{ steps.release-inputs.outputs.version }}"
+            printf "This run built and tested the candidate without signing, "
+            printf "pushing images, creating tags, or publishing a release.\n"
+          } >>"${GITHUB_STEP_SUMMARY}"
+
   sign-candidate:
     name: Authorize, sign, and attest candidate bytes
+    if: github.event_name == 'push' && github.ref_type == 'tag'
     needs: candidate
     runs-on: ubuntu-24.04
     timeout-minutes: 20

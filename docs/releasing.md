@@ -16,20 +16,38 @@ digests, attestations, and post-push smoke evidence remain observed closure gate
 ## Promotion checklist
 
 1. Update the version and changelog from one reviewed commit.
-2. Run formatting, tests, policy validation, the reusable action, and clean and findings consumer
+2. Merge that commit to `main`, then run the **Release** workflow manually with the exact Cargo
+   version. This rehearsal must pass from the current `main` commit before a tag is created. It has
+   read-only repository permission and does not sign bytes, push images, create tags, or publish a
+   GitHub release.
+3. Run formatting, tests, policy validation, the reusable action, and clean and findings consumer
    smoke tests against both local images.
-3. Confirm crate contents with `cargo package --list` and a dry run.
-4. Use a crates.io trusted publisher rather than a long-lived API token if that distribution channel
+4. Confirm crate contents with `cargo package --list` and a dry run.
+5. Use a crates.io trusted publisher rather than a long-lived API token if that distribution channel
    is approved later. The current workflow does not publish to crates.io.
-5. Build OCI manifests for `linux/amd64` and `linux/arm64` from the same commit.
-6. Pin every container base, including MegaLinter and Node, by reviewed multi-architecture manifest
+6. Build OCI manifests for `linux/amd64` and `linux/arm64` from the same commit.
+7. Pin every container base, including MegaLinter and Node, by reviewed multi-architecture manifest
    digest.
-7. Generate CycloneDX/SPDX SBOMs and build provenance for binaries and images.
-8. Sign image digests with keyless Sigstore/Cosign after provenance succeeds.
-9. Publish only a write-once version tag. `latest`, `edge`, moving action tags, and crates.io
-   publication require separate approval after adoption evidence.
-10. Verify downloaded archives and `oci://` images against the repository's attestations before
+8. Generate CycloneDX/SPDX SBOMs and build provenance for binaries and images.
+9. Sign image digests with keyless Sigstore/Cosign after provenance succeeds.
+10. Publish only a write-once version tag. `latest`, `edge`, moving action tags, and crates.io
+    publication require separate approval after adoption evidence.
+11. Verify downloaded archives and `oci://` images against the repository's attestations before
     announcing the release.
+
+The manual rehearsal is intentionally the only branch-mode execution path. It rejects any selected
+ref that is not the current `main` commit, requires its version input to equal `Cargo.toml`, and
+validates the same digest-qualified base-image variables used by tag promotion. A rehearsal artifact
+is temporary candidate evidence, not a release and not an approved consumer pin.
+
+An authorized maintainer can start the rehearsal after the release-preparation pull request merges:
+
+```sh
+gh workflow run "Release" --ref "main" --field "version=0.1.0-alpha.1"
+```
+
+Only after that run is green should the protected `v0.1.0-alpha.1` tag be created from the rehearsed
+commit. The tag run rebuilds from source; it never promotes the rehearsal's temporary artifacts.
 
 The release workflow fails closed unless the Rust, Debian, Node, and MegaLinter base images are
 supplied as reviewed manifest digests. Its unprivileged candidate job has no OIDC or attestation
