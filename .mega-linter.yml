@@ -275,6 +275,12 @@ FILTER_REGEX_EXCLUDE: |-
     # Generated repository trees.
     ^\.reports/egolint/
     |
+    ^assets/identity/
+    |
+    # Immutable third-party policy snapshots are verified by digest rather than
+    # reformatted by the consumer repository.
+    ^vendor/hygiene/
+    |
     # Fixture behavior is owned by the explicit policy contract tests. Keeping
     # the tree out of the holistic pass prevents one linter's valid fixture
     # from being interpreted as production input by unrelated linters.

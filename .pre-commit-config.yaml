@@ -63,6 +63,7 @@ repos:
           - "2026"
         files: >-
           \.(bash|c|cc|cjs|cpp|cs|css|go|h|hpp|java|js|jsx|mjs|php|py|rb|rs|sh|ts|tsx|zsh)$
+        exclude: ^assets/identity/
         stages:
           - manual
           - pre-commit

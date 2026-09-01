@@ -1,6 +1,14 @@
-# egolint
+<p>
+  <img src="assets/identity/repository-presentation/assets/banner-dark-1600.svg" alt="EgoLint repository banner with source lines passing through an inspection lens and check" width="100%" />
+</p>
+
+# EgoLint
 
 Portable, policy-driven lint orchestration for repositories and CI.
+
+<p>
+  <a href="evidence/repository-presentation.json"><img src="assets/identity/repository-presentation/assets/hygienic-partial.svg" alt="Hygienic repository presentation profile: partial; open the linked evidence" /></a>
+</p>
 
 > [!IMPORTANT] Egolint is an early alpha. The CLI is source-buildable, but no Cargo package, GitHub
 > release, or GHCR image is claimed to be published yet. Interfaces and policy defaults may change
@@ -118,6 +126,7 @@ variables, and CLI options. User and local files are skipped when `CI` is truthy
 ## Documentation
 
 - [Architecture](docs/architecture.md)
+- [Identity Brand Kit](docs/identity.md)
 - [Configuration](docs/configuration.md)
 - [Dogfooding and self-consumer proof](docs/dogfooding.md)
 - [Versioned consumer integrations](integrations/README.md)
