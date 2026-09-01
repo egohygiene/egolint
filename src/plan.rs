@@ -243,8 +243,7 @@ impl ExecutionPlan {
                 path: path.clone(),
                 source,
             })?;
-        let (revalidated_path, revalidated_parent) =
-            crate::sarif::validated_report_target(&path)?;
+        let (revalidated_path, revalidated_parent) = crate::sarif::validated_report_target(&path)?;
         if revalidated_path != path || revalidated_parent != parent {
             return Err(EgolintError::RuntimeExecution(
                 "adapter log destination changed before persistence".to_owned(),
@@ -345,9 +344,7 @@ fn join_capture(
     reader
         .join()
         .map_err(|_| {
-            EgolintError::RuntimeExecution(format!(
-                "adapter {stream_name} capture thread panicked"
-            ))
+            EgolintError::RuntimeExecution(format!("adapter {stream_name} capture thread panicked"))
         })?
         .map_err(|error| {
             EgolintError::RuntimeExecution(format!(
