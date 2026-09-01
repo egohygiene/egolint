@@ -1518,10 +1518,7 @@ fn markdown_images(readme: &str) -> Vec<(String, String)> {
         let tag = &rest[..=end];
         if tag.to_ascii_lowercase().starts_with("<img ") {
             if let Some(destination) = html_attribute(tag, "src") {
-                images.push((
-                    html_attribute(tag, "alt").unwrap_or_default(),
-                    destination,
-                ));
+                images.push((html_attribute(tag, "alt").unwrap_or_default(), destination));
             }
         }
         rest = &rest[end + 1..];
@@ -1727,4 +1724,3 @@ end = "<!-- repository-presentation:end -->"
         assert!(markdown_references(readme).contains(&"evidence/presentation.json".to_owned()));
     }
 }
-
