@@ -1,10 +1,15 @@
+// Copyright 2026 Ego Hygiene
+// SPDX-License-Identifier: MIT
+
 //! Safe container execution-plan construction.
 
 use std::collections::BTreeMap;
 use std::env;
 use std::ffi::OsString;
+use std::io::{Read, Write};
 use std::path::{Component, Path, PathBuf};
 use std::process::{Command, ExitStatus, Stdio};
+use std::thread;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -16,6 +21,10 @@ use crate::error::{EgolintError, Result};
 const CONTAINER_WORKSPACE: &str = "/tmp/lint";
 /// Fixed workspace-relative location for all engine and Egolint reports.
 pub const REPORT_DIRECTORY: &str = ".reports/egolint";
+/// Private, bounded adapter output retained for runtime diagnostics.
+pub const ADAPTER_LOG: &str = "mega-linter-adapter.log";
+
+const MAX_ADAPTER_STREAM_BYTES: usize = 512 * 1024;
 
 /// Fixed run-owned artifacts that must never survive into a later execution.
 ///
@@ -23,6 +32,7 @@ pub const REPORT_DIRECTORY: &str = ".reports/egolint";
 /// evidence and may be retained. These names feed Egolint's normalized public
 /// contracts, so every adapter execution starts by removing them.
 const RUN_OWNED_ARTIFACTS: &[&str] = &[
+    ADAPTER_LOG,
     "mega-linter-report.json",
     "mega-linter-report.sarif",
     "run.json",
@@ -183,12 +193,70 @@ impl ExecutionPlan {
         process.args(&self.argv[1..]);
         // Adapter output is untrusted. In particular, GitHub Actions treats
         // specially formatted stdout as workflow commands. MegaLinter's raw
-        // diagnostics remain available under the private report boundary;
+        // diagnostics are captured into a bounded private artifact instead;
         // Egolint emits only normalized findings from the parent process.
-        process.stdout(Stdio::null()).stderr(Stdio::null());
-        process
-            .status()
-            .map_err(|error| EgolintError::RuntimeExecution(error.to_string()))
+        process.stdout(Stdio::piped()).stderr(Stdio::piped());
+        let mut child = process
+            .spawn()
+            .map_err(|error| EgolintError::RuntimeExecution(error.to_string()))?;
+        let stdout = child.stdout.take().ok_or_else(|| {
+            EgolintError::RuntimeExecution("adapter stdout pipe was unavailable".to_owned())
+        })?;
+        let stderr = child.stderr.take().ok_or_else(|| {
+            EgolintError::RuntimeExecution("adapter stderr pipe was unavailable".to_owned())
+        })?;
+        let stdout_reader = thread::spawn(move || capture_stream(stdout));
+        let stderr_reader = thread::spawn(move || capture_stream(stderr));
+        let status = child
+            .wait()
+            .map_err(|error| EgolintError::RuntimeExecution(error.to_string()))?;
+        let stdout = join_capture(stdout_reader, "stdout")?;
+        let stderr = join_capture(stderr_reader, "stderr")?;
+        self.write_adapter_log(&status, &stdout, &stderr)?;
+        Ok(status)
+    }
+
+    fn write_adapter_log(
+        &self,
+        status: &ExitStatus,
+        stdout: &CapturedStream,
+        stderr: &CapturedStream,
+    ) -> Result<()> {
+        self.validate_report_path()?;
+        let path = self.report_path.join(ADAPTER_LOG);
+        let (path, parent) = crate::sarif::validated_report_target(&path)?;
+        let mut temporary = tempfile::NamedTempFile::new_in(&parent).map_err(|source| {
+            EgolintError::Filesystem {
+                path: parent.clone(),
+                source,
+            }
+        })?;
+        writeln!(temporary, "adapter_exit_status: {status}")
+            .and_then(|()| writeln!(temporary, "stdout_truncated: {}", stdout.truncated))
+            .and_then(|()| writeln!(temporary, "stderr_truncated: {}", stderr.truncated))
+            .and_then(|()| writeln!(temporary, "\n--- stdout ---"))
+            .and_then(|()| temporary.write_all(&stdout.bytes))
+            .and_then(|()| writeln!(temporary, "\n--- stderr ---"))
+            .and_then(|()| temporary.write_all(&stderr.bytes))
+            .and_then(|()| temporary.as_file_mut().sync_all())
+            .map_err(|source| EgolintError::Filesystem {
+                path: path.clone(),
+                source,
+            })?;
+        let (revalidated_path, revalidated_parent) =
+            crate::sarif::validated_report_target(&path)?;
+        if revalidated_path != path || revalidated_parent != parent {
+            return Err(EgolintError::RuntimeExecution(
+                "adapter log destination changed before persistence".to_owned(),
+            ));
+        }
+        temporary
+            .persist(&path)
+            .map_err(|error| EgolintError::Filesystem {
+                path,
+                source: error.error,
+            })?;
+        Ok(())
     }
 
     /// Prepare a fresh fixed writable evidence boundary without starting a
@@ -245,6 +313,47 @@ impl ExecutionPlan {
             )))
         }
     }
+}
+
+#[derive(Debug)]
+struct CapturedStream {
+    bytes: Vec<u8>,
+    truncated: bool,
+}
+
+fn capture_stream(mut stream: impl Read) -> std::io::Result<CapturedStream> {
+    let mut bytes = Vec::with_capacity(MAX_ADAPTER_STREAM_BYTES);
+    let mut buffer = [0_u8; 8 * 1024];
+    let mut truncated = false;
+    loop {
+        let count = stream.read(&mut buffer)?;
+        if count == 0 {
+            break;
+        }
+        let remaining = MAX_ADAPTER_STREAM_BYTES.saturating_sub(bytes.len());
+        let retained = remaining.min(count);
+        bytes.extend_from_slice(&buffer[..retained]);
+        truncated |= retained < count;
+    }
+    Ok(CapturedStream { bytes, truncated })
+}
+
+fn join_capture(
+    reader: thread::JoinHandle<std::io::Result<CapturedStream>>,
+    stream_name: &str,
+) -> Result<CapturedStream> {
+    reader
+        .join()
+        .map_err(|_| {
+            EgolintError::RuntimeExecution(format!(
+                "adapter {stream_name} capture thread panicked"
+            ))
+        })?
+        .map_err(|error| {
+            EgolintError::RuntimeExecution(format!(
+                "could not capture adapter {stream_name}: {error}"
+            ))
+        })
 }
 
 fn build_environment(
