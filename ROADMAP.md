@@ -84,74 +84,75 @@ issues: []
 
 <!-- roadmap-step
 id: EGL-Q02
-status: active
+status: complete
 depends_on: [EGL-Q01]
-issues: [20, 21]
+issues: [20, 21, 31]
 -->
 
 #### EGL-Q02 — Classify the dogfood findings
 
-**State:** `active` **Depends on:** `EGL-Q01`
+**State:** `complete` **Depends on:** `EGL-Q01`
 
 **Outcome:** Every self-dogfood finding is either fixed, accepted with rationale, or identified as a
 rule defect.
 
 **Exit criteria:**
 
-- [ ] All 119 observed findings have an owner and disposition.
-- [ ] The baseline does not silently suppress unexplained failures.
+- [x] All 119 observed findings have an owner and disposition.
+- [x] The baseline does not silently suppress unexplained failures.
 
 **Current evidence:**
 
-- Dogfood run 32774944039 failed with 119 findings.
 - PRs #23 and #25 resolved the shebang and Node package-export rule defects tracked by issues #20
-  and #21; the remaining observed findings still require explicit disposition.
+  and #21.
+- PR #31 resolved or explicitly classified the remaining baseline without blanket suppression.
 
 <!-- roadmap-step
 id: EGL-Q03
-status: blocked
+status: complete
 depends_on: [EGL-Q02]
-issues: []
+issues: [31]
 -->
 
 #### EGL-Q03 — Make self-dogfood green
 
-**State:** `blocked`  
-**Depends on:** `EGL-Q02`
+**State:** `complete` **Depends on:** `EGL-Q02`
 
 **Outcome:** Egolint passes its own accepted policy and proves rule/report stability.
 
 **Exit criteria:**
 
-- [ ] The default-branch dogfood workflow is green.
-- [ ] Known exceptions are explicit, reviewed, and expiring where appropriate.
+- [x] The default-branch dogfood workflow is green.
+- [x] Known exceptions are explicit, reviewed, and expiring where appropriate.
 
 **Current evidence:**
 
-- The latest audited dogfood run was red.
+- PR #31 restored a green default-branch dogfood workflow while preserving explicit policy and
+  fixture boundaries.
 
 <!-- roadmap-step
 id: EGL-Q04
-status: planned
+status: complete
 depends_on: [EGL-Q03]
-issues: []
+issues: [4]
 -->
 
 #### EGL-Q04 — Version the evidence report contract
 
-**State:** `planned`  
-**Depends on:** `EGL-Q03`
+**State:** `complete` **Depends on:** `EGL-Q03`
 
 **Outcome:** Other tools can consume stable lint findings and link them to roadmap gates.
 
 **Exit criteria:**
 
-- [ ] A versioned machine-readable report schema is documented.
-- [ ] A fixture proves backward-compatible parsing.
+- [x] A versioned machine-readable report schema is documented.
+- [x] A fixture proves backward-compatible parsing.
 
 **Current evidence:**
 
-- A stable cross-tool evidence contract was not observed.
+- `schemas/report.schema.json`, `docs/contracts.md`, and the Empathy v1 compatibility fixture prove
+  the stable report boundary; the versioned integration contract binds that evidence to every
+  supported consumer surface.
 
 <!-- roadmap-step
 id: EGL-Q05

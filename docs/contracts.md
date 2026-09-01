@@ -5,6 +5,12 @@ execution plans, run reports, the repository-contract validation envelope, and R
 Intelligence semantic policy. The checked-in JSON Schemas in [`schemas/`](../schemas/) are generated
 from the Rust types used by the CLI; CI rejects schema drift.
 
+Consumer delivery is separately bound by
+[`integrations/contract.json`](../integrations/contract.json). That contract versions the GitHub
+Action, MegaLinter adapter image, pre-commit hook, VS Code task, canonical report paths, and fix
+authority as one release-compatible surface. The deterministic integration archive adds a generated
+manifest with the Cargo package version and SHA-256 for every bundled file.
+
 All current contracts use version `1`, and every generated schema constrains its version field to
 exactly `1`. Contract changes must update the Rust type, checked-in schema, compatibility fixtures,
 documentation, and changelog in one review.

@@ -120,6 +120,7 @@ variables, and CLI options. User and local files are skipped when `CI` is truthy
 - [Architecture](docs/architecture.md)
 - [Configuration](docs/configuration.md)
 - [Dogfooding and self-consumer proof](docs/dogfooding.md)
+- [Versioned consumer integrations](integrations/README.md)
 - [Machine-readable contracts](docs/contracts.md)
 - [Repository Intelligence validation](docs/repository-intelligence.md)
 - [Repository presentation validation](docs/repository-presentation.md)

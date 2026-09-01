@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "version_source": "Cargo.toml#package.version",
+  "bundle_name": "egolint-integrations",
+  "surfaces": {
+    "github_action": {
+      "entrypoint": "action.yml",
+      "example": "integrations/github/action.example.yml",
+      "problem_matcher": "integrations/github/egolint-problem-matcher.json",
+      "platforms": ["linux"],
+      "pin": "full_commit_sha",
+      "engine_pin": "oci_manifest_digest",
+      "check_only": true
+    },
+    "megalinter_adapter": {
+      "contract": "integrations/megalinter/adapter.json",
+      "image": "ghcr.io/egohygiene/egolint-full",
+      "pin": "oci_manifest_digest",
+      "check_only": true
+    },
+    "pre_commit": {
+      "hook_manifest": ".pre-commit-hooks.yaml",
+      "example": "integrations/pre-commit.example.yaml",
+      "pin": "full_commit_sha",
+      "check_only": true
+    },
+    "vscode": {
+      "tasks": "integrations/vscode/tasks.json",
+      "check_only": true
+    }
+  },
+  "canonical_reports": {
+    "json": ".reports/egolint/run.json",
+    "sarif": ".reports/egolint/egolint.sarif"
+  },
+  "private_adapter_reports": [
+    ".reports/egolint/mega-linter-report.json",
+    ".reports/egolint/mega-linter-report.sarif",
+    ".reports/egolint/mega-linter-adapter.log"
+  ],
+  "autofix": {
+    "default": "disabled",
+    "preview": "egolint fix",
+    "apply": "egolint apply-fix --patch-sha256 <sha256> --base-commit <commit> --post-tree <tree>",
+    "reverse": "git apply --reverse --index .reports/egolint/fixes.patch",
+    "source_worktree_write_during_preview": false
+  },
+  "bundle_files": [
+    ".pre-commit-hooks.yaml",
+    "action.yml",
+    "integrations/README.md",
+    "integrations/contract.json",
+    "integrations/github/action.example.yml",
+    "integrations/github/egolint-problem-matcher.json",
+    "integrations/megalinter/adapter.json",
+    "integrations/pre-commit.example.yaml",
+    "integrations/vscode/tasks.json",
+    "scripts/github-action.sh"
+  ]
+}

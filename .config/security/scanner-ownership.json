@@ -73,6 +73,7 @@
   },
   "evidence": {
     "private_raw_paths": [
+      ".reports/egolint/mega-linter-adapter.log",
       ".reports/egolint/linters_logs/",
       ".reports/egolint/mega-linter-report.json",
       ".reports/egolint/mega-linter-report.sarif",

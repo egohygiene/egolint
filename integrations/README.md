@@ -3,6 +3,13 @@
 Every integration is check-only by default. It does not forward GitHub tokens, publish reports,
 mount the container-engine socket, or invoke `egolint fix`.
 
+All supported surfaces are bound by [`contract.json`](contract.json). Releases package that
+contract, the Action, the MegaLinter adapter description, the pre-commit hook, and the VS Code task
+as `egolint-integrations-<version>.tar.gz`. Its generated `MANIFEST.json` records the exact package
+version and SHA-256 of every member. The integration version always equals the Cargo package
+version; a consumer must still pin the Action by full commit SHA and the full engine image by OCI
+manifest digest.
+
 ## GitHub Action
 
 Pin both trust boundaries: use this action at a reviewed full commit SHA and set `image` to an
@@ -35,6 +42,18 @@ reviewed full commit SHA, and configure a digest-pinned image in `egolint.toml`.
 no filenames because Egolint and MegaLinter own changed-file discovery. Run
 `pre-commit run egolint --hook-stage manual` for an explicit check.
 
+## MegaLinter adapter
+
+[`megalinter/adapter.json`](megalinter/adapter.json) is the versioned boundary between the native
+Egolint CLI and `egolint-full`. The CLI owns safe host orchestration, read-only source mounts,
+profile selection, and normalized JSON/SARIF. The full image inherits MegaLinter's entrypoint and
+owns raw engine execution. Raw adapter reports remain private and are never treated as canonical
+Egolint evidence.
+
+The adapter is not a MegaLinter plugin and must not invoke Egolint recursively from inside the full
+image. Local tasks, editors, pre-commit, and GitHub Actions all enter through the native CLI; this
+keeps lint semantics and fix authority in one place.
+
 ## Editors
 
 Copy [`vscode/tasks.json`](vscode/tasks.json) to `.vscode/tasks.json`. The task uses the image
@@ -53,3 +72,9 @@ location remain available in `run.json` and canonical SARIF.
 Egolint does not claim an LSP. The task is a deterministic batch check; `egolint: inspect plan` is
 the safe way to inspect runtime, mounts, image, and policy before execution. Apply fixes only from
 an intentional terminal run after reviewing the plan and worktree.
+
+## Fix authority
+
+No published integration invokes autofix. `egolint fix` creates a patch from an immutable isolated
+copy; `egolint apply-fix` requires its exact patch SHA-256, base commit, and expected post-tree.
+Reviewers can reverse the staged application with the command recorded in `contract.json`.
