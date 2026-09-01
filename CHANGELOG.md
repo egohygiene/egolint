@@ -62,6 +62,9 @@ use Semantic Versioning once its public contracts stabilize.
 - Made offline dogfooding reproducible by selecting the preinstalled Rust toolchain and explicitly
   omitting analyzers that require SchemaStore, link, package-registry, or vulnerability-database
   network access.
+- Kept generic offline type checking strict without requiring consumer-specific third-party stubs,
+  and delegated Secretlint exclusions to MegaLinter's workspace-root forwarding contract so packaged
+  policy paths cannot bypass reviewed fixture and generated-file exclusions.
 - Made the fixed report boundary writable across differing host and container user IDs, and retained
   bounded private adapter output so pre-reporter engine failures remain diagnosable without exposing
   raw workflow output.
