@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "adapter_id": "megalinter-v10",
+  "upstream": {
+    "product": "MegaLinter",
+    "version": "10.0.0",
+    "entrypoint": "inherited"
+  },
+  "image_product": "ghcr.io/egohygiene/egolint-full",
+  "profiles": {
+    "fast": "/opt/egolint/profiles/fast.yml",
+    "holistic": "/opt/egolint/profiles/holistic.yml",
+    "security": "/opt/egolint/profiles/security.yml",
+    "dependency-debt": "/opt/egolint/profiles/dependency-debt.yml"
+  },
+  "invocation": {
+    "owner": "egolint-cli",
+    "workspace_mount": "/tmp/lint",
+    "report_mount": "/tmp/lint/.reports/egolint",
+    "source_read_only_for_check": true,
+    "network_default": "none",
+    "shell_interpolation": false
+  },
+  "normalization": {
+    "input_json": ".reports/egolint/mega-linter-report.json",
+    "input_sarif": ".reports/egolint/mega-linter-report.sarif",
+    "output_json": ".reports/egolint/run.json",
+    "output_sarif": ".reports/egolint/egolint.sarif",
+    "raw_inputs_private": true
+  },
+  "autofix": {
+    "megalinter_apply_fixes": "none",
+    "supported_path": "isolated-egolint-fix-preview-only"
+  }
+}

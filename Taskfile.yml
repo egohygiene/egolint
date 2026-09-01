@@ -85,6 +85,7 @@ tasks:
   contracts:
     desc: "Validate imported MegaLinter and complementary-tool contracts"
     cmds:
+      - python3 scripts/package_integrations.py --check
       - task: lint:contracts
       - task: complementary:contracts
       - task: javascript-quality:test

@@ -26,6 +26,8 @@ use Semantic Versioning once its public contracts stabilize.
   image.
 - Native portability/repository-contract rules, expiring suppressions, normalized SARIF, compact
   dependency-debt evidence, and editor/pre-commit integrations.
+- Deterministic, checksum-bound consumer integration bundle covering the GitHub Action, MegaLinter
+  engine adapter, pre-commit, VS Code, canonical reports, and reviewed fix authority.
 - Immutable-tree fix previews plus digest/base/post-tree-gated, index-aware reviewed patch
   application.
 - Versioned offline Repository Intelligence validation for ADR contracts and lineage, roadmap

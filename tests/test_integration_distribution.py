@@ -3,13 +3,17 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from pathlib import Path
 import re
 import subprocess
+import sys
+import tarfile
 import tempfile
 import textwrap
+import tomllib
 from typing import Any
 import unittest
 
@@ -51,6 +55,95 @@ class IntegrationDistributionTests(unittest.TestCase):
         self.assertTrue(hook["require_serial"])
         self.assertIn(" lint ", f" {hook['entry']} ")
         self.assertNotIn(" fix ", f" {hook['entry']} ")
+
+    def test_versioned_contract_binds_every_consumer_surface(self) -> None:
+        contract = json.loads(
+            (REPOSITORY_ROOT / "integrations/contract.json").read_text(encoding="utf-8")
+        )
+        adapter = json.loads(
+            (REPOSITORY_ROOT / "integrations/megalinter/adapter.json").read_text(encoding="utf-8")
+        )
+
+        self.assertEqual(contract["schema_version"], 1)
+        self.assertEqual(contract["version_source"], "Cargo.toml#package.version")
+        self.assertEqual(
+            set(contract["surfaces"]),
+            {"github_action", "megalinter_adapter", "pre_commit", "vscode"},
+        )
+        self.assertTrue(all(surface["check_only"] for surface in contract["surfaces"].values()))
+        self.assertEqual(contract["surfaces"]["github_action"]["pin"], "full_commit_sha")
+        self.assertEqual(
+            contract["surfaces"]["megalinter_adapter"]["pin"],
+            "oci_manifest_digest",
+        )
+        self.assertEqual(adapter["schema_version"], 1)
+        self.assertEqual(adapter["upstream"]["version"], "10.0.0")
+        self.assertEqual(
+            set(adapter["profiles"]),
+            {"fast", "holistic", "security", "dependency-debt"},
+        )
+        self.assertTrue(adapter["invocation"]["source_read_only_for_check"])
+        self.assertEqual(adapter["invocation"]["network_default"], "none")
+        self.assertEqual(adapter["autofix"]["megalinter_apply_fixes"], "none")
+        self.assertEqual(
+            adapter["normalization"]["output_json"],
+            contract["canonical_reports"]["json"],
+        )
+        self.assertEqual(
+            adapter["normalization"]["output_sarif"],
+            contract["canonical_reports"]["sarif"],
+        )
+
+    def test_integration_bundle_is_deterministic_and_checksum_bound(self) -> None:
+        with (REPOSITORY_ROOT / "Cargo.toml").open("rb") as stream:
+            version = tomllib.load(stream)["package"]["version"]
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            temporary_root = Path(temporary_directory)
+            first = temporary_root / "first"
+            second = temporary_root / "second"
+            command = [
+                sys.executable,
+                str(REPOSITORY_ROOT / "scripts/package_integrations.py"),
+                "--source-date-epoch",
+                "1788211200",
+            ]
+            subprocess.run(  # noqa: S603
+                [*command, "--output-directory", str(first)],
+                check=True,
+                cwd=REPOSITORY_ROOT,
+            )
+            subprocess.run(  # noqa: S603
+                [*command, "--output-directory", str(second)],
+                check=True,
+                cwd=REPOSITORY_ROOT,
+            )
+
+            archive_name = f"egolint-integrations-{version}.tar.gz"
+            first_archive = first / archive_name
+            second_archive = second / archive_name
+            self.assertEqual(first_archive.read_bytes(), second_archive.read_bytes())
+
+            with tarfile.open(first_archive, mode="r:gz") as archive:
+                root = f"egolint-integrations-{version}"
+                manifest_member = archive.extractfile(f"{root}/MANIFEST.json")
+                self.assertIsNotNone(manifest_member)
+                manifest = json.loads(manifest_member.read())
+                self.assertEqual(manifest["schema_version"], 1)
+                self.assertEqual(manifest["bundle_version"], version)
+                self.assertEqual(
+                    set(manifest["files"]),
+                    set(
+                        json.loads(
+                            (REPOSITORY_ROOT / "integrations/contract.json").read_text(
+                                encoding="utf-8"
+                            )
+                        )["bundle_files"]
+                    ),
+                )
+                for relative_path, expected_sha256 in manifest["files"].items():
+                    member = archive.extractfile(f"{root}/{relative_path}")
+                    self.assertIsNotNone(member)
+                    self.assertEqual(hashlib.sha256(member.read()).hexdigest(), expected_sha256)
 
     def test_action_exposes_canonical_and_private_evidence_separately(self) -> None:
         action = self.load_yaml("action.yml")
@@ -329,7 +422,7 @@ class IntegrationDistributionTests(unittest.TestCase):
         signer_text = json.dumps(signer)
         self.assertNotIn("actions/checkout", signer_text)
         self.assertNotIn("scripts/", signer_text)
-        self.assertIn("dist/*.tar.gz", signer_text)
+        self.assertIn("dist/egolint-*-x86_64-unknown-linux-gnu.tar.gz", signer_text)
         self.assertIn("dist/*.crate", signer_text)
 
         image_builder = jobs["build-images"]
@@ -426,6 +519,7 @@ class IntegrationDistributionTests(unittest.TestCase):
         self.assertEqual(
             set(ownership["evidence"]["private_raw_paths"]),
             {
+                ".reports/egolint/mega-linter-adapter.log",
                 ".reports/egolint/linters_logs/",
                 ".reports/egolint/mega-linter-report.json",
                 ".reports/egolint/mega-linter-report.sarif",

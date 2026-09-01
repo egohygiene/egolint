@@ -179,6 +179,14 @@ jobs:
             "egolint-${version}-x86_64-unknown-linux-gnu"
           cp "target/package/egolint-${version}.crate" "dist/"
 
+      - name: Assemble the deterministic consumer integration bundle
+        shell: bash
+        run: |
+          python3 scripts/package_integrations.py \
+            --version "${GITHUB_REF_NAME#v}" \
+            --source-date-epoch "$(git show -s --format=%ct HEAD)" \
+            --output-directory "dist"
+
       - name: Build candidate container images
         shell: bash
         run: |
@@ -302,7 +310,7 @@ jobs:
       - name: Associate the SBOM with the binary archive
         uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
         with:
-          subject-path: dist/*.tar.gz
+          subject-path: dist/egolint-*-x86_64-unknown-linux-gnu.tar.gz
           sbom-path: dist/egolint-linux-x86_64.spdx.json
 
       - name: Upload the authorized release candidate
@@ -364,6 +372,30 @@ jobs:
             --directory "${extraction_directory}"
           "${extraction_directory}/egolint-${version}-x86_64-unknown-linux-gnu/egolint" \
             --version
+
+      - name: Verify the authenticated integration bundle
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          extraction_directory="$(mktemp -d)"
+          trap 'rm -rf "${extraction_directory}"' EXIT
+          tar --extract --gzip \
+            --file "dist/egolint-integrations-${version}.tar.gz" \
+            --directory "${extraction_directory}"
+          python3 - "${extraction_directory}/egolint-integrations-${version}" "${version}" <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          import sys
+
+          root = Path(sys.argv[1])
+          version = sys.argv[2]
+          manifest = json.loads((root / "MANIFEST.json").read_text(encoding="utf-8"))
+          assert manifest["schema_version"] == 1
+          assert manifest["bundle_version"] == version
+          for relative_path, expected in manifest["files"].items():
+              assert hashlib.sha256((root / relative_path).read_bytes()).hexdigest() == expected
+          PY
 
   build-images:
     name: Build and smoke ${{ matrix.product }} candidate
