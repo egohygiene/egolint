@@ -202,27 +202,6 @@ repos:
         stages:
           - manual
 
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.9.6
-    hooks:
-      - id: prettier
-        name: "formatting · enforce prettier code style"
-        args:
-          - --config=.config/lint/javascript/prettier.config.mjs
-        stages:
-          - manual
-          - pre-commit
-
-  - repo: https://github.com/biomejs/pre-commit
-    rev: v0.6.1
-    hooks:
-      - id: biome-check
-        name: "web · lint and format with Biome"
-        additional_dependencies:
-          - "@biomejs/biome@2.5.5"
-        stages:
-          - manual
-
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.49.1
     hooks:
@@ -312,6 +291,14 @@ repos:
 
   - repo: local
     hooks:
+      - id: javascript-package-quality
+        name: "web · validate canonical package quality"
+        entry: >-
+          sh scripts/pnpm.sh --dir . run javascript-quality:check
+        language: system
+        pass_filenames: false
+        stages:
+          - manual
       - id: commitlint
         name: "git · validate commit message"
         entry: >-

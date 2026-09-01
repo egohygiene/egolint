@@ -25,7 +25,8 @@ supersedes: []
 
 ## Vision statement
 
-every repository can adopt a right-sized quality profile whose results are consistent locally, in containers, and in automation.
+every repository can adopt a right-sized quality profile whose results are consistent locally, in
+containers, and in automation.
 
 ## Desired future state
 
@@ -33,11 +34,13 @@ every repository can adopt a right-sized quality profile whose results are consi
 - Interfaces are versioned, inspectable, and replaceable.
 - Local, self-hosted, and managed contexts can compose the capability without hidden lock-in.
 - People can understand consequential behavior before approving it.
-- Organization integrations strengthen the standalone product rather than making it dependent on the suite.
+- Organization integrations strengthen the standalone product rather than making it dependent on the
+  suite.
 
 ## Intended transformation
 
-The project moves its domain from fragmented, implicit, and manually coordinated behavior toward explicit contracts, reusable automation, and evidence-backed operation.
+The project moves its domain from fragmented, implicit, and manually coordinated behavior toward
+explicit contracts, reusable automation, and evidence-backed operation.
 
 ## Anti-vision
 
@@ -52,7 +55,12 @@ one enormous mandatory lint profile that ignores repository context or hides too
 
 ## Evidence and uncertainty
 
-- **Observed:** The repository README establishes the intended boundary as a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; significant implementation remains incomplete.
-- **Decided for this draft:** The repository owns the bounded concern described here and participates through versioned contracts.
-- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and implemented.
-- **Open question:** Which parts of this draft should become active in the first independently versioned release?
+- **Observed:** The repository README establishes the intended boundary as a universal linting
+  platform and extensible MegaLinter wrapper for consistent repository quality; significant
+  implementation remains incomplete.
+- **Decided for this draft:** The repository owns the bounded concern described here and
+  participates through versioned contracts.
+- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and
+  implemented.
+- **Open question:** Which parts of this draft should become active in the first independently
+  versioned release?

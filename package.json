@@ -3,7 +3,6 @@
   "name": "@egohygiene/egolint-toolchain",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "description": "Private Node.js toolchain for developing and validating Egolint policies.",
   "keywords": [
     "egolint",
@@ -11,25 +10,25 @@
     "developer-tools",
     "quality"
   ],
-  "homepage": "https://github.com/egohygiene/egolint#readme",
-  "bugs": {
-    "url": "https://github.com/egohygiene/egolint/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/egohygiene/egolint.git"
-  },
   "license": "MIT",
   "author": {
     "name": "Alan Szmyt",
     "url": "https://egohygiene.io"
   },
-  "engineStrict": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/egohygiene/egolint.git"
+  },
+  "bugs": {
+    "url": "https://github.com/egohygiene/egolint/issues"
+  },
+  "homepage": "https://github.com/egohygiene/egolint#readme",
+  "packageManager": "pnpm@11.21.0",
   "engines": {
     "node": ">=24.0.0",
     "pnpm": ">=11.0.0"
   },
-  "packageManager": "pnpm@11.21.0",
+  "type": "module",
   "scripts": {
     "architecture:test": "cargo test --locked javascript_architecture",
     "commitlint": "commitlint --config .config/lint/commits/commitlint.emoji.config.cjs",

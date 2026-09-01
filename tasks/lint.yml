@@ -189,211 +189,181 @@ tasks:
     desc: "Validate GitHub Actions workflows with actionlint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "ACTION_ACTIONLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "ACTION_ACTIONLINT"
 
   ansible:
     desc: "Run the Ansible descriptor family"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --descriptors "ANSIBLE"
+        "{{.MEGALINTER_SCRIPT}}" --descriptors "ANSIBLE"
 
   arm:
     desc: "Validate Azure Resource Manager templates with ARM TTK"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "ARM_ARM_TTK"
+        "{{.MEGALINTER_SCRIPT}}" --linters "ARM_ARM_TTK"
 
   cljstyle:
     desc: "Validate Clojure formatting with cljstyle"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "CLOJURE_CLJSTYLE"
+        "{{.MEGALINTER_SCRIPT}}" --linters "CLOJURE_CLJSTYLE"
 
   clj-kondo:
     desc: "Analyze Clojure source with clj-kondo"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "CLOJURE_CLJ_KONDO"
+        "{{.MEGALINTER_SCRIPT}}" --linters "CLOJURE_CLJ_KONDO"
 
   cloudformation:
     desc: "Validate AWS CloudFormation templates with cfn-lint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "CLOUDFORMATION_CFN_LINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "CLOUDFORMATION_CFN_LINT"
 
   coffeescript:
     desc: "Validate CoffeeScript source with CoffeeLint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "COFFEE_COFFEELINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "COFFEE_COFFEELINT"
 
   jscpd:
     desc: "Detect duplicated source blocks with jscpd"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "COPYPASTE_JSCPD"
+        "{{.MEGALINTER_SCRIPT}}" --linters "COPYPASTE_JSCPD"
 
   clang-format:
     desc: "Validate C and C++ formatting with clang-format"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "CPP_CLANG_FORMAT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "CPP_CLANG_FORMAT"
 
   clang-format-c:
     desc: "Validate C formatting with clang-format"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "C_CLANG_FORMAT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "C_CLANG_FORMAT"
 
   stylelint:
     desc: "Validate CSS and stylesheet conventions with Stylelint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "CSS_STYLELINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "CSS_STYLELINT"
 
   stylelint:fix:
     desc: "Fix supported CSS findings with Stylelint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "CSS_STYLELINT" --fix="CSS_STYLELINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "CSS_STYLELINT" --fix="CSS_STYLELINT"
 
   dart-analyze:
     desc: "Analyze Dart and Flutter source with Dart Analyzer"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "DART_DARTANALYZER"
+        "{{.MEGALINTER_SCRIPT}}" --linters "DART_DARTANALYZER"
 
   dockerfile:
     desc: "Run the Dockerfile descriptor family"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --descriptors "DOCKERFILE"
+        "{{.MEGALINTER_SCRIPT}}" --descriptors "DOCKERFILE"
 
   hadolint:
     desc: "Validate Dockerfiles with Hadolint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "DOCKERFILE_HADOLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "DOCKERFILE_HADOLINT"
 
   editorconfig:
     desc: "Validate files against EditorConfig policy"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "EDITORCONFIG_EDITORCONFIG_CHECKER"
+        "{{.MEGALINTER_SCRIPT}}" --linters "EDITORCONFIG_EDITORCONFIG_CHECKER"
 
   gherkin:
     desc: "Validate Gherkin feature files with gherkin-lint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "GHERKIN_GHERKIN_LINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "GHERKIN_GHERKIN_LINT"
 
   revive:
     desc: "Analyze Go source with Revive"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "GO_REVIVE"
+        "{{.MEGALINTER_SCRIPT}}" --linters "GO_REVIVE"
 
   graphql-schema:
     desc: "Validate GraphQL schema conventions"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "GRAPHQL_GRAPHQL_SCHEMA_LINTER"
+        "{{.MEGALINTER_SCRIPT}}" --linters "GRAPHQL_GRAPHQL_SCHEMA_LINTER"
 
   groovy:
     desc: "Validate Groovy and Jenkinsfiles with npm-groovy-lint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "GROOVY_NPM_GROOVY_LINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "GROOVY_NPM_GROOVY_LINT"
 
   htmlhint:
     desc: "Validate HTML structure and accessibility with HTMLHint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "HTML_HTMLHINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "HTML_HTMLHINT"
 
   eslint:
     desc: "Analyze JavaScript, TypeScript, and React source with ESLint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "JAVASCRIPT_ES"
+        "{{.MEGALINTER_SCRIPT}}" --linters "JAVASCRIPT_ES"
 
   prettier:
     desc: "Validate supported files with Prettier"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "JAVASCRIPT_PRETTIER"
+        "{{.MEGALINTER_SCRIPT}}" --linters "JAVASCRIPT_PRETTIER"
 
   prettier:fix:
     desc: "Format supported files with Prettier"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "JAVASCRIPT_PRETTIER" --fix="JAVASCRIPT_PRETTIER"
+        "{{.MEGALINTER_SCRIPT}}" --linters "JAVASCRIPT_PRETTIER" --fix="JAVASCRIPT_PRETTIER"
 
   checkstyle:
     desc: "Analyze Java source with Checkstyle"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "JAVA_CHECKSTYLE"
+        "{{.MEGALINTER_SCRIPT}}" --linters "JAVA_CHECKSTYLE"
 
   pmd:
     desc: "Analyze Java source with PMD"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "JAVA_PMD"
+        "{{.MEGALINTER_SCRIPT}}" --linters "JAVA_PMD"
 
   jsonlint:
     desc: "Validate strict JSON syntax with jsonlint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "JSON_JSONLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "JSON_JSONLINT"
 
   npm-package-json:
     desc: "Validate package.json files with npm-package-json-lint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "JSON_NPM_PACKAGE_JSON_LINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "JSON_NPM_PACKAGE_JSON_LINT"
 
   prettier-json:
     desc: "Validate JSON formatting with Prettier"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "JSON_PRETTIER"
+        "{{.MEGALINTER_SCRIPT}}" --linters "JSON_PRETTIER"
 
   prettier-json:fix:
     desc: "Format JSON files with Prettier"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "JSON_PRETTIER" --fix="JSON_PRETTIER"
+        "{{.MEGALINTER_SCRIPT}}" --linters "JSON_PRETTIER" --fix="JSON_PRETTIER"
 
   eslint-jsx:
     desc: "Analyze JSX source with the repository ESLint toolchain"
@@ -401,23 +371,20 @@ tasks:
       - "dependencies:ensure"
     cmds:
       - >-
-        "{{.EGOLINT_ROOT}}/node_modules/.bin/eslint"
-        --config "{{.EGOLINT_ROOT}}/.config/lint/javascript/eslint.config.mjs"
-        "**/*.jsx"
+        "{{.EGOLINT_ROOT}}/node_modules/.bin/eslint" --config
+        "{{.EGOLINT_ROOT}}/.config/lint/javascript/eslint.config.mjs" "**/*.jsx"
 
   chktex:
     desc: "Analyze LaTeX source with ChkTeX"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "LATEX_CHKTEX"
+        "{{.MEGALINTER_SCRIPT}}" --linters "LATEX_CHKTEX"
 
   luacheck:
     desc: "Analyze Lua source with Luacheck"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "LUA_LUACHECK"
+        "{{.MEGALINTER_SCRIPT}}" --linters "LUA_LUACHECK"
 
   checkmake:
     desc: "Analyze Makefiles with Checkmake"
@@ -463,64 +430,55 @@ tasks:
     desc: "Analyze Markdown files with markdownlint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "MARKDOWN_MARKDOWNLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "MARKDOWN_MARKDOWNLINT"
 
   markdownlint:fix:
     desc: "Fix supported Markdown findings with markdownlint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "MARKDOWN_MARKDOWNLINT" --fix="MARKDOWN_MARKDOWNLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "MARKDOWN_MARKDOWNLINT" --fix="MARKDOWN_MARKDOWNLINT"
 
   markdown-link-check:
     desc: "Validate links in Markdown files"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "MARKDOWN_MARKDOWN_LINK_CHECK"
+        "{{.MEGALINTER_SCRIPT}}" --linters "MARKDOWN_MARKDOWN_LINK_CHECK"
 
   remark-lint:
     desc: "Analyze Markdown syntax trees with remark-lint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "MARKDOWN_REMARK_LINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "MARKDOWN_REMARK_LINT"
 
   phpcs:
     desc: "Validate PHP coding conventions with PHP_CodeSniffer"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PHP_PHPCS"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PHP_PHPCS"
 
   phpcs:fix:
     desc: "Fix supported PHP coding-standard findings with PHPCBF"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PHP_PHPCS" --fix="PHP_PHPCS"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PHP_PHPCS" --fix="PHP_PHPCS"
 
   phplint:
     desc: "Validate PHP syntax with PHPLint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PHP_PHPLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PHP_PHPLINT"
 
   phpstan:
     desc: "Analyze PHP types and correctness with PHPStan"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PHP_PHPSTAN"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PHP_PHPSTAN"
 
   psalm:
     desc: "Analyze PHP types and data flow with Psalm"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PHP_PSALM"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PHP_PSALM"
 
   php:
     desc: "Run the complete PHP analysis suite"
@@ -534,22 +492,19 @@ tasks:
     desc: "Analyze PowerShell source with PSScriptAnalyzer"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "POWERSHELL_POWERSHELL"
+        "{{.MEGALINTER_SCRIPT}}" --linters "POWERSHELL_POWERSHELL"
 
   powershell-formatter:
     desc: "Validate PowerShell formatting with PSScriptAnalyzer"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "POWERSHELL_POWERSHELL_FORMATTER"
+        "{{.MEGALINTER_SCRIPT}}" --linters "POWERSHELL_POWERSHELL_FORMATTER"
 
   powershell-formatter:fix:
     desc: "Format PowerShell source with PSScriptAnalyzer"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "POWERSHELL_POWERSHELL_FORMATTER"
+        "{{.MEGALINTER_SCRIPT}}" --linters "POWERSHELL_POWERSHELL_FORMATTER"
         --fix="POWERSHELL_POWERSHELL_FORMATTER"
 
   powershell-all:
@@ -562,36 +517,31 @@ tasks:
     desc: "Analyze Protocol Buffer definitions with protolint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PROTOBUF_PROTOLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PROTOBUF_PROTOLINT"
 
   protolint:fix:
     desc: "Fix supported Protocol Buffer style findings with protolint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PROTOBUF_PROTOLINT" --fix="PROTOBUF_PROTOLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PROTOBUF_PROTOLINT" --fix="PROTOBUF_PROTOLINT"
 
   puppet-lint:
     desc: "Analyze Puppet manifests with puppet-lint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PUPPET_PUPPET_LINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PUPPET_PUPPET_LINT"
 
   raku:
     desc: "Compile and validate Raku source files"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "RAKU_RAKU"
+        "{{.MEGALINTER_SCRIPT}}" --linters "RAKU_RAKU"
 
   ls-lint:
     desc: "Validate repository file and directory naming conventions"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "REPOSITORY_LS_LINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "REPOSITORY_LS_LINT"
 
   cspell:
     desc: "Spell-check repository source and documentation with CSpell"
@@ -599,106 +549,91 @@ tasks:
       - "dependencies:ensure"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SPELL_CSPELL"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SPELL_CSPELL"
 
   checkov:
     desc: "Scan infrastructure-as-code and deployment configuration with Checkov"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "REPOSITORY_CHECKOV"
+        "{{.MEGALINTER_SCRIPT}}" --linters "REPOSITORY_CHECKOV"
 
   betterleaks:
     desc: "Scan source for committed secrets with Betterleaks"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "REPOSITORY_BETTERLEAKS"
+        "{{.MEGALINTER_SCRIPT}}" --linters "REPOSITORY_BETTERLEAKS"
 
   devskim:
     desc: "Scan repository source for insecure coding patterns with DevSkim"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "REPOSITORY_DEVSKIM"
+        "{{.MEGALINTER_SCRIPT}}" --linters "REPOSITORY_DEVSKIM"
 
   grype:
     desc: "Scan repository packages for known vulnerabilities with Grype"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "REPOSITORY_GRYPE"
+        "{{.MEGALINTER_SCRIPT}}" --linters "REPOSITORY_GRYPE"
 
   kics:
     desc: "Scan infrastructure-as-code with KICS"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "REPOSITORY_KICS"
+        "{{.MEGALINTER_SCRIPT}}" --linters "REPOSITORY_KICS"
 
   syft:
     desc: "Generate repository SBOMs with Syft"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "REPOSITORY_SYFT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "REPOSITORY_SYFT"
 
   rstcheck:
     desc: "Validate reStructuredText syntax and embedded code with rstcheck"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "RST_RSTCHECK"
+        "{{.MEGALINTER_SCRIPT}}" --linters "RST_RSTCHECK"
 
   rubocop:
     desc: "Analyze Ruby source with RuboCop"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "RUBY_RUBOCOP"
+        "{{.MEGALINTER_SCRIPT}}" --linters "RUBY_RUBOCOP"
 
   rubocop:fix:
     desc: "Apply safe RuboCop autocorrections"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "RUBY_RUBOCOP" --fix="RUBY_RUBOCOP"
+        "{{.MEGALINTER_SCRIPT}}" --linters "RUBY_RUBOCOP" --fix="RUBY_RUBOCOP"
 
   clippy:
     desc: "Analyze Rust crates with Clippy"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "RUST_CLIPPY"
+        "{{.MEGALINTER_SCRIPT}}" --linters "RUST_CLIPPY"
 
   clippy:fix:
     desc: "Apply supported Clippy fixes"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "RUST_CLIPPY" --fix="RUST_CLIPPY"
+        "{{.MEGALINTER_SCRIPT}}" --linters "RUST_CLIPPY" --fix="RUST_CLIPPY"
 
   lintr:
     desc: "Analyze R and R Markdown source with lintr"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "R_LINTR"
+        "{{.MEGALINTER_SCRIPT}}" --linters "R_LINTR"
 
   trivy:
     desc: "Scan repository security with Trivy"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "REPOSITORY_TRIVY"
+        "{{.MEGALINTER_SCRIPT}}" --linters "REPOSITORY_TRIVY"
 
   trivy-sbom:
     desc: "Generate a CycloneDX repository SBOM with Trivy"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "REPOSITORY_TRIVY_SBOM"
+        "{{.MEGALINTER_SCRIPT}}" --linters "REPOSITORY_TRIVY_SBOM"
 
   trivy-all:
     desc: "Run Trivy security scanning and SBOM generation"
@@ -710,8 +645,7 @@ tasks:
     desc: "Scan repository files for exposed credentials with TruffleHog"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "REPOSITORY_TRUFFLEHOG"
+        "{{.MEGALINTER_SCRIPT}}" --linters "REPOSITORY_TRUFFLEHOG"
 
   eslint-tsx:
     desc: "Analyze TSX source with the repository ESLint toolchain"
@@ -719,12 +653,9 @@ tasks:
       - "dependencies:ensure"
     cmds:
       - >-
-        "{{.EGOLINT_ROOT}}/node_modules/.bin/eslint"
-        --config "{{.EGOLINT_ROOT}}/.config/lint/javascript/eslint.config.mjs"
-        --cache
-        --cache-location ".reports/egolint/cache/eslint/tsx"
-        --cache-strategy "content"
-        "**/*.tsx"
+        "{{.EGOLINT_ROOT}}/node_modules/.bin/eslint" --config
+        "{{.EGOLINT_ROOT}}/.config/lint/javascript/eslint.config.mjs" --cache --cache-location
+        ".reports/egolint/cache/eslint/tsx" --cache-strategy "content" "**/*.tsx"
 
   eslint-typescript:
     desc: "Analyze TypeScript source with the repository ESLint toolchain"
@@ -732,187 +663,159 @@ tasks:
       - "dependencies:ensure"
     cmds:
       - >-
-        "{{.EGOLINT_ROOT}}/node_modules/.bin/eslint"
-        --config "{{.EGOLINT_ROOT}}/.config/lint/javascript/eslint.config.mjs"
-        --cache
-        --cache-location ".reports/egolint/cache/eslint/typescript"
-        --cache-strategy "content"
-        "**/*.ts"
+        "{{.EGOLINT_ROOT}}/node_modules/.bin/eslint" --config
+        "{{.EGOLINT_ROOT}}/.config/lint/javascript/eslint.config.mjs" --cache --cache-location
+        ".reports/egolint/cache/eslint/typescript" --cache-strategy "content" "**/*.ts"
 
   prettier-typescript:
     desc: "Validate TypeScript formatting with Prettier"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "TYPESCRIPT_PRETTIER"
+        "{{.MEGALINTER_SCRIPT}}" --linters "TYPESCRIPT_PRETTIER"
 
   prettier-typescript:fix:
     desc: "Format TypeScript files with Prettier"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "TYPESCRIPT_PRETTIER" --fix="TYPESCRIPT_PRETTIER"
+        "{{.MEGALINTER_SCRIPT}}" --linters "TYPESCRIPT_PRETTIER" --fix="TYPESCRIPT_PRETTIER"
 
   prettier-yaml:
     desc: "Validate YAML formatting with Prettier"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "YAML_PRETTIER"
+        "{{.MEGALINTER_SCRIPT}}" --linters "YAML_PRETTIER"
 
   prettier-yaml:fix:
     desc: "Format YAML files with Prettier"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "YAML_PRETTIER" --fix="YAML_PRETTIER"
+        "{{.MEGALINTER_SCRIPT}}" --linters "YAML_PRETTIER" --fix="YAML_PRETTIER"
 
   terrascan:
     desc: "Run deprecated Terrascan compatibility analysis"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "TERRAFORM_TERRASCAN"
+        "{{.MEGALINTER_SCRIPT}}" --linters "TERRAFORM_TERRASCAN"
 
   tflint:
     desc: "Analyze Terraform modules with TFLint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "TERRAFORM_TFLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "TERRAFORM_TFLINT"
 
   terragrunt:
     desc: "Validate Terragrunt HCL formatting"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "TERRAFORM_TERRAGRUNT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "TERRAFORM_TERRAGRUNT"
 
   terragrunt:fix:
     desc: "Format Terragrunt HCL files"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "TERRAFORM_TERRAGRUNT" --fix="TERRAFORM_TERRAGRUNT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "TERRAFORM_TERRAGRUNT" --fix="TERRAFORM_TERRAGRUNT"
 
   tekton-lint:
     desc: "Analyze Tekton Tasks and Pipelines with tekton-lint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "TEKTON_TEKTON_LINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "TEKTON_TEKTON_LINT"
 
   yamllint:
     desc: "Validate YAML syntax and style with yamllint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "YAML_YAMLLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "YAML_YAMLLINT"
 
   v8r-yaml:
     desc: "Validate YAML files against matching JSON Schemas with v8r"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "YAML_V8R"
+        "{{.MEGALINTER_SCRIPT}}" --linters "YAML_V8R"
 
   swiftlint:
     desc: "Analyze Swift source with SwiftLint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SWIFT_SWIFTLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SWIFT_SWIFTLINT"
 
   swiftlint:fix:
     desc: "Apply supported SwiftLint corrections"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SWIFT_SWIFTLINT" --fix="SWIFT_SWIFTLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SWIFT_SWIFTLINT" --fix="SWIFT_SWIFTLINT"
 
   scalafix:
     desc: "Analyze and rewrite Scala syntax with Scalafix"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SCALA_SCALAFIX"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SCALA_SCALAFIX"
 
   scalafix:fix:
     desc: "Apply supported Scalafix syntactic rewrites"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SCALA_SCALAFIX" --fix="SCALA_SCALAFIX"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SCALA_SCALAFIX" --fix="SCALA_SCALAFIX"
 
   salesforce-apex:
     desc: "Analyze Salesforce Apex with Code Analyzer"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SALESFORCE_CODE_ANALYZER_APEX"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SALESFORCE_CODE_ANALYZER_APEX"
 
   snakefmt:
     desc: "Validate Snakemake formatting with Snakefmt"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SNAKEMAKE_SNAKEFMT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SNAKEMAKE_SNAKEFMT"
 
   snakefmt:fix:
     desc: "Format Snakemake files with Snakefmt"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SNAKEMAKE_SNAKEFMT" --fix="SNAKEMAKE_SNAKEFMT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SNAKEMAKE_SNAKEFMT" --fix="SNAKEMAKE_SNAKEFMT"
 
   gitleaks:
     desc: "Scan Git history for committed credentials with Gitleaks"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "REPOSITORY_GITLEAKS"
+        "{{.MEGALINTER_SCRIPT}}" --linters "REPOSITORY_GITLEAKS"
 
   tsqllint:
     desc: "Analyze T-SQL source with TSQLLint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SQL_TSQLLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SQL_TSQLLINT"
 
   tsqllint:fix:
     desc: "Apply supported TSQLLint fixes"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SQL_TSQLLINT" --fix="SQL_TSQLLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SQL_TSQLLINT" --fix="SQL_TSQLLINT"
 
   sqlfluff:
     desc: "Analyze SQL syntax and style with SQLFluff"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SQL_SQLFLUFF"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SQL_SQLFLUFF"
 
   sqlfluff:fix:
     desc: "Apply supported SQLFluff formatting fixes"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SQL_SQLFLUFF" --fix="SQL_SQLFLUFF"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SQL_SQLFLUFF" --fix="SQL_SQLFLUFF"
 
   proselint:
     desc: "Analyze technical prose with Proselint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SPELL_PROSELINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SPELL_PROSELINT"
 
   vale:
     desc: "Analyze editorial style and terminology with Vale"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SPELL_VALE"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SPELL_VALE"
 
   prose:
     desc: "Run the complete prose-quality suite"
@@ -925,64 +828,55 @@ tasks:
     desc: "Validate repository links with Lychee"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "SPELL_LYCHEE"
+        "{{.MEGALINTER_SCRIPT}}" --linters "SPELL_LYCHEE"
 
   secretlint:
     desc: "Scan the repository for committed secrets with Secretlint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "REPOSITORY_SECRETLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "REPOSITORY_SECRETLINT"
 
   javascript:
     desc: "Run the JavaScript descriptor family"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --descriptors "JAVASCRIPT"
+        "{{.MEGALINTER_SCRIPT}}" --descriptors "JAVASCRIPT"
 
   json:
     desc: "Run the JSON descriptor family"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --descriptors "JSON"
+        "{{.MEGALINTER_SCRIPT}}" --descriptors "JSON"
 
   markdown:
     desc: "Run the Markdown descriptor family"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --descriptors "MARKDOWN"
+        "{{.MEGALINTER_SCRIPT}}" --descriptors "MARKDOWN"
 
   shell:
     desc: "Run the Bash and shell descriptor families"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --descriptors "BASH"
+        "{{.MEGALINTER_SCRIPT}}" --descriptors "BASH"
 
   spellcheck:
     desc: "Run spelling and prose-related linters"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --descriptors "SPELL"
+        "{{.MEGALINTER_SCRIPT}}" --descriptors "SPELL"
 
   terraform:
     desc: "Run the Terraform descriptor family"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --descriptors "TERRAFORM"
+        "{{.MEGALINTER_SCRIPT}}" --descriptors "TERRAFORM"
 
   yaml:
     desc: "Run the YAML descriptor family"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --descriptors "YAML"
+        "{{.MEGALINTER_SCRIPT}}" --descriptors "YAML"
 
   latexindent:check:
     desc: "Check LaTeX formatting with latexindent"
@@ -1001,78 +895,67 @@ tasks:
     desc: "Analyze Python security with Bandit"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PYTHON_BANDIT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PYTHON_BANDIT"
 
   black:
     desc: "Validate Python formatting with Black"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PYTHON_BLACK"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PYTHON_BLACK"
 
   black:fix:
     desc: "Format Python source with Black"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PYTHON_BLACK" --fix="PYTHON_BLACK"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PYTHON_BLACK" --fix="PYTHON_BLACK"
 
   flake8:
     desc: "Analyze Python compatibility policy with Flake8"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PYTHON_FLAKE8"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PYTHON_FLAKE8"
 
   isort:
     desc: "Validate Python import ordering with isort"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PYTHON_ISORT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PYTHON_ISORT"
 
   isort:fix:
     desc: "Sort Python imports with isort"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PYTHON_ISORT" --fix="PYTHON_ISORT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PYTHON_ISORT" --fix="PYTHON_ISORT"
 
   mypy:
     desc: "Type-check Python source with Mypy"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PYTHON_MYPY"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PYTHON_MYPY"
 
   pylint:
     desc: "Analyze Python maintainability with Pylint"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PYTHON_PYLINT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PYTHON_PYLINT"
 
   pyright:
     desc: "Type-check Python source with Pyright"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PYTHON_PYRIGHT"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PYTHON_PYRIGHT"
 
   ruff:
     desc: "Analyze Python source with Ruff"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PYTHON_RUFF"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PYTHON_RUFF"
 
   ruff:fix:
     desc: "Apply supported Ruff lint and formatting fixes"
     cmds:
       - >-
-        "{{.MEGALINTER_SCRIPT}}"
-        --linters "PYTHON_RUFF" --fix="PYTHON_RUFF"
+        "{{.MEGALINTER_SCRIPT}}" --linters "PYTHON_RUFF" --fix="PYTHON_RUFF"
 
   python:
     desc: "Run the active Python quality suite"

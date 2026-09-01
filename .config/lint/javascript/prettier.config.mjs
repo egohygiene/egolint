@@ -55,7 +55,7 @@ const prettierConfiguration = {
     // Documents and platform consistency
     // -------------------------------------------------------------------------
 
-    proseWrap: "preserve",
+    proseWrap: "always",
     endOfLine: "lf",
     embeddedLanguageFormatting: "auto",
 
@@ -76,7 +76,7 @@ const prettierConfiguration = {
             files: ["*.md", "*.markdown", "*.mdx"],
             options: {
                 tabWidth: 2,
-                proseWrap: "preserve",
+                proseWrap: "always",
             },
         },
         {

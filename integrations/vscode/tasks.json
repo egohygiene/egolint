@@ -5,7 +5,14 @@
       "label": "egolint: check",
       "type": "process",
       "command": "egolint",
-      "args": ["--workspace", "${workspaceFolder}", "lint", "--profile", "fast", "--changed-only"],
+      "args": [
+        "--workspace",
+        "${workspaceFolder}",
+        "lint",
+        "--profile",
+        "fast",
+        "--changed-only"
+      ],
       "problemMatcher": {
         "owner": "egolint",
         "fileLocation": ["relative", "${workspaceFolder}"],

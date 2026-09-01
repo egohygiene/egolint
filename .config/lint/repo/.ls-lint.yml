@@ -231,7 +231,8 @@ ignore:
   # Conventional root-level filenames that do not follow extension rules
   # ---------------------------------------------------------------------------
 
-  # REUSE.toml and Taskfile.yml are externally-defined conventional names that
-  # do not follow the repository's .toml / .yml kebab-case or snake_case rules.
+  # Cargo.toml, REUSE.toml, and Taskfile.yml are externally-defined conventional
+  # names that do not follow the repository's extension-level case rules.
+  - "Cargo.toml"
   - "REUSE.toml"
   - "Taskfile.yml"

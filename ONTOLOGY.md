@@ -28,21 +28,23 @@ supersedes: []
 
 ## Domain scope
 
-Egolint models the concepts needed for turn organization quality expectations into reproducible, explainable, and extensible validation. The ontology names conceptual entities and relationships; it is not a source-code class model, API schema, or database design.
+Egolint models the concepts needed for turn organization quality expectations into reproducible,
+explainable, and extensible validation. The ontology names conceptual entities and relationships; it
+is not a source-code class model, API schema, or database design.
 
 ## Canonical concepts
 
-| Concept | Meaning |
-| --- | --- |
-| Quality profile | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
-| Linter | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
-| Formatter | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
-| Finding | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
-| Suppression | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
-| Baseline | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
-| Report | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
+| Concept            | Meaning                                                                                                              |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| Quality profile    | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
+| Linter             | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
+| Formatter          | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
+| Finding            | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
+| Suppression        | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
+| Baseline           | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
+| Report             | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
 | Applicability rule | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
-| Quality gate | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
+| Quality gate       | A canonical concept in the Egolint domain whose exact fields belong to specifications or schemas, not this ontology. |
 
 ## Core relationships
 
@@ -62,7 +64,12 @@ Egolint models the concepts needed for turn organization quality expectations in
 
 ## Evidence and uncertainty
 
-- **Observed:** The repository README establishes the intended boundary as a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; significant implementation remains incomplete.
-- **Decided for this draft:** The repository owns the bounded concern described here and participates through versioned contracts.
-- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and implemented.
-- **Open question:** Which parts of this draft should become active in the first independently versioned release?
+- **Observed:** The repository README establishes the intended boundary as a universal linting
+  platform and extensible MegaLinter wrapper for consistent repository quality; significant
+  implementation remains incomplete.
+- **Decided for this draft:** The repository owns the bounded concern described here and
+  participates through versioned contracts.
+- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and
+  implemented.
+- **Open question:** Which parts of this draft should become active in the first independently
+  versioned release?

@@ -8,19 +8,19 @@ import json
 from pathlib import Path
 import re
 import tomllib
+from typing import Any, ClassVar
 import unittest
-
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACTS = ROOT / "tests" / "fixtures" / "contracts"
 
 
 class CanonicalRepositoryContractFixtureTests(unittest.TestCase):
+    manifest: ClassVar[dict[str, Any]]
+
     @classmethod
     def setUpClass(cls) -> None:
-        cls.manifest = json.loads(
-            (CONTRACTS / "install-manifest.json").read_text(encoding="utf-8")
-        )
+        cls.manifest = json.loads((CONTRACTS / "install-manifest.json").read_text(encoding="utf-8"))
 
     def test_install_manifest_pins_two_canonical_contracts(self) -> None:
         self.assertEqual(1, self.manifest["schema_version"])

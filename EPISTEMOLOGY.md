@@ -26,19 +26,20 @@ supersedes: []
 
 ## Scope
 
-This document governs how Egolint classifies claims, evidence, provenance, confidence, conflict, and revision. It does not dictate which technical conclusion must be accepted.
+This document governs how Egolint classifies claims, evidence, provenance, confidence, conflict, and
+revision. It does not dictate which technical conclusion must be accepted.
 
 ## Claim states
 
-| State | Meaning |
-| --- | --- |
-| Observed | Directly supported by repository or runtime evidence |
-| Decided | Accepted through the repository governance process |
-| Inferred | Reasoned from evidence but not directly observed |
-| Proposed | Recommended future direction not yet accepted |
-| Assumed | Necessary working premise awaiting evidence |
-| Unverified | Plausible claim that has not been checked |
-| Open question | A known gap requiring investigation or choice |
+| State         | Meaning                                              |
+| ------------- | ---------------------------------------------------- |
+| Observed      | Directly supported by repository or runtime evidence |
+| Decided       | Accepted through the repository governance process   |
+| Inferred      | Reasoned from evidence but not directly observed     |
+| Proposed      | Recommended future direction not yet accepted        |
+| Assumed       | Necessary working premise awaiting evidence          |
+| Unverified    | Plausible claim that has not been checked            |
+| Open question | A known gap requiring investigation or choice        |
 
 ## Evidence order
 
@@ -50,15 +51,22 @@ This document governs how Egolint classifies claims, evidence, provenance, confi
 
 ## Provenance and conflict
 
-Claims should identify their source closely enough to be rechecked. Conflicting evidence remains visible until the canonical owner resolves it; recency alone does not automatically establish truth.
+Claims should identify their source closely enough to be rechecked. Conflicting evidence remains
+visible until the canonical owner resolves it; recency alone does not automatically establish truth.
 
 ## Revision
 
-Material claims are revised when stronger evidence appears, their source changes, or an accepted decision supersedes them. Historical decision context is preserved rather than rewritten.
+Material claims are revised when stronger evidence appears, their source changes, or an accepted
+decision supersedes them. Historical decision context is preserved rather than rewritten.
 
 ## Evidence and uncertainty
 
-- **Observed:** The repository README establishes the intended boundary as a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; significant implementation remains incomplete.
-- **Decided for this draft:** The repository owns the bounded concern described here and participates through versioned contracts.
-- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and implemented.
-- **Open question:** Which parts of this draft should become active in the first independently versioned release?
+- **Observed:** The repository README establishes the intended boundary as a universal linting
+  platform and extensible MegaLinter wrapper for consistent repository quality; significant
+  implementation remains incomplete.
+- **Decided for this draft:** The repository owns the bounded concern described here and
+  participates through versioned contracts.
+- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and
+  implemented.
+- **Open question:** Which parts of this draft should become active in the first independently
+  versioned release?

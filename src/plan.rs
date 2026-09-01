@@ -1,10 +1,15 @@
+// Copyright 2026 Ego Hygiene
+// SPDX-License-Identifier: MIT
+
 //! Safe container execution-plan construction.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::env;
 use std::ffi::OsString;
+use std::io::{Read, Write};
 use std::path::{Component, Path, PathBuf};
 use std::process::{Command, ExitStatus, Stdio};
+use std::thread;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -16,6 +21,10 @@ use crate::error::{EgolintError, Result};
 const CONTAINER_WORKSPACE: &str = "/tmp/lint";
 /// Fixed workspace-relative location for all engine and Egolint reports.
 pub const REPORT_DIRECTORY: &str = ".reports/egolint";
+/// Private, bounded adapter output retained for runtime diagnostics.
+pub const ADAPTER_LOG: &str = "mega-linter-adapter.log";
+
+const MAX_ADAPTER_STREAM_BYTES: usize = 512 * 1024;
 
 /// Fixed run-owned artifacts that must never survive into a later execution.
 ///
@@ -23,6 +32,8 @@ pub const REPORT_DIRECTORY: &str = ".reports/egolint";
 /// evidence and may be retained. These names feed Egolint's normalized public
 /// contracts, so every adapter execution starts by removing them.
 const RUN_OWNED_ARTIFACTS: &[&str] = &[
+    ADAPTER_LOG,
+    "mega-linter.log",
     "mega-linter-report.json",
     "mega-linter-report.sarif",
     "run.json",
@@ -51,6 +62,11 @@ pub struct PlanOptions {
     pub enable_linters: Vec<String>,
     /// Explicit `MegaLinter` linter exclusions.
     pub disable_linters: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct BuiltInProfileSnapshot {
+    selected: Vec<String>,
 }
 
 /// Public, redacted execution plan suitable for JSON output.
@@ -183,12 +199,69 @@ impl ExecutionPlan {
         process.args(&self.argv[1..]);
         // Adapter output is untrusted. In particular, GitHub Actions treats
         // specially formatted stdout as workflow commands. MegaLinter's raw
-        // diagnostics remain available under the private report boundary;
+        // diagnostics are captured into a bounded private artifact instead;
         // Egolint emits only normalized findings from the parent process.
-        process.stdout(Stdio::null()).stderr(Stdio::null());
-        process
-            .status()
-            .map_err(|error| EgolintError::RuntimeExecution(error.to_string()))
+        process.stdout(Stdio::piped()).stderr(Stdio::piped());
+        let mut child = process
+            .spawn()
+            .map_err(|error| EgolintError::RuntimeExecution(error.to_string()))?;
+        let stdout = child.stdout.take().ok_or_else(|| {
+            EgolintError::RuntimeExecution("adapter stdout pipe was unavailable".to_owned())
+        })?;
+        let stderr = child.stderr.take().ok_or_else(|| {
+            EgolintError::RuntimeExecution("adapter stderr pipe was unavailable".to_owned())
+        })?;
+        let stdout_reader = thread::spawn(move || capture_stream(stdout));
+        let stderr_reader = thread::spawn(move || capture_stream(stderr));
+        let status = child
+            .wait()
+            .map_err(|error| EgolintError::RuntimeExecution(error.to_string()))?;
+        let stdout = join_capture(stdout_reader, "stdout")?;
+        let stderr = join_capture(stderr_reader, "stderr")?;
+        self.write_adapter_log(status, &stdout, &stderr)?;
+        Ok(status)
+    }
+
+    fn write_adapter_log(
+        &self,
+        status: ExitStatus,
+        stdout: &CapturedStream,
+        stderr: &CapturedStream,
+    ) -> Result<()> {
+        self.validate_report_path()?;
+        let path = self.report_path.join(ADAPTER_LOG);
+        let (path, parent) = crate::sarif::validated_report_target(&path)?;
+        let mut temporary = tempfile::NamedTempFile::new_in(&parent).map_err(|source| {
+            EgolintError::Filesystem {
+                path: parent.clone(),
+                source,
+            }
+        })?;
+        writeln!(temporary, "adapter_exit_status: {status}")
+            .and_then(|()| writeln!(temporary, "stdout_truncated: {}", stdout.truncated))
+            .and_then(|()| writeln!(temporary, "stderr_truncated: {}", stderr.truncated))
+            .and_then(|()| writeln!(temporary, "\n--- stdout ---"))
+            .and_then(|()| temporary.write_all(&stdout.bytes))
+            .and_then(|()| writeln!(temporary, "\n--- stderr ---"))
+            .and_then(|()| temporary.write_all(&stderr.bytes))
+            .and_then(|()| temporary.as_file_mut().sync_all())
+            .map_err(|source| EgolintError::Filesystem {
+                path: path.clone(),
+                source,
+            })?;
+        let (revalidated_path, revalidated_parent) = crate::sarif::validated_report_target(&path)?;
+        if revalidated_path != path || revalidated_parent != parent {
+            return Err(EgolintError::RuntimeExecution(
+                "adapter log destination changed before persistence".to_owned(),
+            ));
+        }
+        temporary
+            .persist(&path)
+            .map_err(|error| EgolintError::Filesystem {
+                path,
+                source: error.error,
+            })?;
+        Ok(())
     }
 
     /// Prepare a fresh fixed writable evidence boundary without starting a
@@ -206,6 +279,7 @@ impl ExecutionPlan {
             source,
         })?;
         validate_report_directory(&self.view.workspace, &self.report_path)?;
+        make_report_directory_container_writable(&self.view.workspace, &self.report_path)?;
         clear_run_artifacts(&self.view.workspace, &self.report_path)
     }
 
@@ -245,6 +319,45 @@ impl ExecutionPlan {
             )))
         }
     }
+}
+
+#[derive(Debug)]
+struct CapturedStream {
+    bytes: Vec<u8>,
+    truncated: bool,
+}
+
+fn capture_stream(mut stream: impl Read) -> std::io::Result<CapturedStream> {
+    let mut bytes = Vec::with_capacity(MAX_ADAPTER_STREAM_BYTES);
+    let mut buffer = [0_u8; 8 * 1024];
+    let mut truncated = false;
+    loop {
+        let count = stream.read(&mut buffer)?;
+        if count == 0 {
+            break;
+        }
+        let remaining = MAX_ADAPTER_STREAM_BYTES.saturating_sub(bytes.len());
+        let retained = remaining.min(count);
+        bytes.extend_from_slice(&buffer[..retained]);
+        truncated |= retained < count;
+    }
+    Ok(CapturedStream { bytes, truncated })
+}
+
+fn join_capture(
+    reader: thread::JoinHandle<std::io::Result<CapturedStream>>,
+    stream_name: &str,
+) -> Result<CapturedStream> {
+    reader
+        .join()
+        .map_err(|_| {
+            EgolintError::RuntimeExecution(format!("adapter {stream_name} capture thread panicked"))
+        })?
+        .map_err(|error| {
+            EgolintError::RuntimeExecution(format!(
+                "could not capture adapter {stream_name}: {error}"
+            ))
+        })
 }
 
 fn build_environment(
@@ -288,13 +401,33 @@ fn build_environment(
         }
         .to_owned(),
     );
-    if !options.enable_linters.is_empty() {
+    let has_linter_overrides =
+        !options.enable_linters.is_empty() || !options.disable_linters.is_empty();
+    let overlays_built_in_selection = operation == Operation::Check
+        && resolved.config.megalinter_config.is_none()
+        && has_linter_overrides;
+    if overlays_built_in_selection {
+        let mut selected = built_in_profile_selection(resolved.config.profile)?;
+        selected.extend(normalize_linter_values(&options.enable_linters)?);
+        for linter in normalize_linter_values(&options.disable_linters)? {
+            selected.remove(&linter);
+        }
+        if selected.is_empty() {
+            return Err(EgolintError::Configuration(
+                "per-run linter overrides cannot disable every built-in profile tool".to_owned(),
+            ));
+        }
+        environment.insert(
+            "ENABLE_LINTERS".to_owned(),
+            selected.into_iter().collect::<Vec<_>>().join(","),
+        );
+    } else if !options.enable_linters.is_empty() {
         environment.insert(
             "ENABLE_LINTERS".to_owned(),
             normalize_linter_list(&options.enable_linters)?,
         );
     }
-    if !options.disable_linters.is_empty() {
+    if !overlays_built_in_selection && !options.disable_linters.is_empty() {
         environment.insert(
             "DISABLE_LINTERS".to_owned(),
             normalize_linter_list(&options.disable_linters)?,
@@ -429,6 +562,54 @@ fn validate_report_directory(workspace: &Path, report_path: &Path) -> Result<()>
     Ok(())
 }
 
+#[cfg(unix)]
+fn make_report_directory_container_writable(workspace: &Path, report_path: &Path) -> Result<()> {
+    use std::fs::{File, Permissions};
+    use std::os::unix::fs::{MetadataExt, PermissionsExt};
+
+    validate_report_directory(workspace, report_path)?;
+    let directory = File::open(report_path).map_err(|source| EgolintError::Filesystem {
+        path: report_path.to_path_buf(),
+        source,
+    })?;
+    let opened = directory
+        .metadata()
+        .map_err(|source| EgolintError::Filesystem {
+            path: report_path.to_path_buf(),
+            source,
+        })?;
+    let matches_open_directory = || -> Result<bool> {
+        let current =
+            std::fs::symlink_metadata(report_path).map_err(|source| EgolintError::Filesystem {
+                path: report_path.to_path_buf(),
+                source,
+            })?;
+        Ok(current.is_dir() && current.dev() == opened.dev() && current.ino() == opened.ino())
+    };
+    if !matches_open_directory()? {
+        return Err(EgolintError::Configuration(
+            "fixed report directory changed while its permissions were prepared".to_owned(),
+        ));
+    }
+    directory
+        .set_permissions(Permissions::from_mode(0o777))
+        .map_err(|source| EgolintError::Filesystem {
+            path: report_path.to_path_buf(),
+            source,
+        })?;
+    if !matches_open_directory()? {
+        return Err(EgolintError::Configuration(
+            "fixed report directory changed while its permissions were prepared".to_owned(),
+        ));
+    }
+    validate_report_directory(workspace, report_path)
+}
+
+#[cfg(not(unix))]
+fn make_report_directory_container_writable(_workspace: &Path, _report_path: &Path) -> Result<()> {
+    Ok(())
+}
+
 fn resolve_runtime(runtime: Runtime, require_runtime: bool) -> Result<&'static str> {
     if let Some(executable) = runtime.executable() {
         if !require_runtime || executable_in_path(executable) {
@@ -558,7 +739,14 @@ fn bind_mount(source: &Path, target: &str, read_only: bool) -> Result<OsString> 
 }
 
 fn normalize_linter_list(values: &[String]) -> Result<String> {
-    let mut normalized = Vec::new();
+    Ok(normalize_linter_values(values)?
+        .into_iter()
+        .collect::<Vec<_>>()
+        .join(","))
+}
+
+fn normalize_linter_values(values: &[String]) -> Result<BTreeSet<String>> {
+    let mut normalized = BTreeSet::new();
     for value in values {
         let value = value.trim().to_ascii_uppercase();
         if value.is_empty()
@@ -570,11 +758,22 @@ fn normalize_linter_list(values: &[String]) -> Result<String> {
                 "invalid MegaLinter identifier: {value}"
             )));
         }
-        normalized.push(value);
+        normalized.insert(value);
     }
-    normalized.sort();
-    normalized.dedup();
-    Ok(normalized.join(","))
+    Ok(normalized)
+}
+
+fn built_in_profile_selection(profile: Profile) -> Result<BTreeSet<String>> {
+    let contents = match profile {
+        Profile::Fast => include_str!("../.config/megalinter/snapshots/fast.json"),
+        Profile::Holistic => include_str!("../.config/megalinter/snapshots/holistic.json"),
+        Profile::Security => include_str!("../.config/megalinter/snapshots/security.json"),
+        Profile::DependencyDebt => {
+            include_str!("../.config/megalinter/snapshots/dependency-debt.json")
+        }
+    };
+    let snapshot: BuiltInProfileSnapshot = serde_json::from_str(contents)?;
+    normalize_linter_values(&snapshot.selected)
 }
 
 fn redact_argv(argv: &[OsString]) -> Vec<String> {
@@ -652,6 +851,42 @@ mod tests {
     }
 
     #[test]
+    fn check_overrides_preserve_the_built_in_profile_selection() {
+        let directory = tempfile::tempdir().expect("temporary directory");
+        let mut resolved = resolved();
+        resolved.config.profile = Profile::Holistic;
+        let options = PlanOptions {
+            enable_linters: vec!["action_zizmor".to_owned()],
+            disable_linters: vec!["json_v8r".to_owned()],
+            ..PlanOptions::default()
+        };
+
+        let plan = ExecutionPlan::build(
+            directory.path(),
+            &resolved,
+            Operation::Check,
+            &options,
+            false,
+        )
+        .expect("execution plan");
+        let selected = environment_value(&plan, "ENABLE_LINTERS")
+            .trim_start_matches("ENABLE_LINTERS=")
+            .split(',')
+            .collect::<BTreeSet<_>>();
+
+        assert!(selected.contains("ACTION_ZIZMOR"));
+        assert!(selected.contains("RUST_CLIPPY"));
+        assert!(!selected.contains("JSON_V8R"));
+        assert!(!selected.contains("PYTHON_FLAKE8"));
+        assert!(!selected.contains("REPOSITORY_SEMGREP"));
+        assert!(!plan.argv.iter().any(|argument| {
+            argument
+                .to_str()
+                .is_some_and(|value| value.starts_with("DISABLE_LINTERS="))
+        }));
+    }
+
+    #[test]
     fn fix_plan_grants_explicit_workspace_writes() {
         let directory = tempfile::tempdir().expect("temporary directory");
         let plan = ExecutionPlan::build(
@@ -692,6 +927,40 @@ mod tests {
             std::fs::read(report.join("private-diagnostic.log")).expect("retained diagnostic"),
             b"retained"
         );
+    }
+
+    #[test]
+    fn adapter_stream_capture_is_bounded_and_marks_truncation() {
+        let input = vec![b'x'; MAX_ADAPTER_STREAM_BYTES + 1];
+        let captured = capture_stream(input.as_slice()).expect("captured stream");
+
+        assert_eq!(captured.bytes.len(), MAX_ADAPTER_STREAM_BYTES);
+        assert!(captured.bytes.iter().all(|byte| *byte == b'x'));
+        assert!(captured.truncated);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn report_directory_is_writable_across_container_user_ids() {
+        use std::os::unix::fs::PermissionsExt;
+
+        let directory = tempfile::tempdir().expect("temporary directory");
+        let plan = ExecutionPlan::build(
+            directory.path(),
+            &resolved(),
+            Operation::Check,
+            &PlanOptions::default(),
+            false,
+        )
+        .expect("execution plan");
+
+        plan.prepare_report_directory().expect("report boundary");
+
+        let mode = std::fs::metadata(plan.report_path())
+            .expect("report metadata")
+            .permissions()
+            .mode();
+        assert_eq!(mode & 0o777, 0o777);
     }
 
     #[test]

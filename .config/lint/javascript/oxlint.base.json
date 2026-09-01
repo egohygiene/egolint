@@ -4,14 +4,7 @@
     "correctness": "error",
     "suspicious": "warn"
   },
-  "plugins": [
-    "eslint",
-    "typescript",
-    "oxc",
-    "import",
-    "promise",
-    "node"
-  ],
+  "plugins": ["eslint", "typescript", "oxc", "import", "promise", "node"],
   "env": {
     "builtin": true,
     "node": true

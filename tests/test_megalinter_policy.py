@@ -141,6 +141,20 @@ class MegaLinterPolicyTests(unittest.TestCase):
         self.assertTrue(any("removed linter" in finding for finding in removed_findings))
         self.assertTrue(any("removed descriptor" in finding for finding in removed_findings))
 
+    def test_generic_file_selection_overrides_require_a_supported_tool(self) -> None:
+        supported_findings = megalinter_policy.validate_configuration(
+            Path("supported.yml"),
+            {"REPOSITORY_SECRETLINT_FILE_EXTENSIONS": ["*"]},
+            self.catalog,
+        )
+        unknown_findings = megalinter_policy.validate_configuration(
+            Path("unknown.yml"),
+            {"REPOSITORY_UNKNOWN_FILE_EXTENSIONS": ["*"]},
+            self.catalog,
+        )
+        self.assertEqual(supported_findings, [])
+        self.assertTrue(any("unknown MegaLinter" in finding for finding in unknown_findings))
+
     def test_resolve_configuration_path_accepts_workspace_anchored_rules(self) -> None:
         expected = REPOSITORY_ROOT / ".config" / "lint" / "terraform" / ".tflint.hcl"
         for rules_path in (

@@ -4,3 +4,6 @@ runtime = "docker"
 image = "egolint-full:dogfood"
 pull-policy = "never"
 network = "none"
+
+[environment]
+RUSTUP_TOOLCHAIN = "stable"

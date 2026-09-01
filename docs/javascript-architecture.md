@@ -14,7 +14,9 @@ dependency-cruiser 18.2.0
 normalized Egolint JSON + SARIF (+ optional DOT)
 ```
 
-The canonical profile is `.config/rules/javascript-architecture.v1.json` and is embedded in the Egolint binary. Consumer repositories do not copy or edit it. Repository-specific policy is expressed through a versioned overlay containing only additional rules and owned exceptions.
+The canonical profile is `.config/rules/javascript-architecture.v1.json` and is embedded in the
+Egolint binary. Consumer repositories do not copy or edit it. Repository-specific policy is
+expressed through a versioned overlay containing only additional rules and owned exceptions.
 
 ## Canonical v1 rule families
 
@@ -29,21 +31,20 @@ The canonical profile is `.config/rules/javascript-architecture.v1.json` and is 
 - production → generated/build internals;
 - orphan review as advisory evidence.
 
-Complexity thresholds such as maximum fan-out/depth are intentionally absent from v1 until evidence justifies them.
+Complexity thresholds such as maximum fan-out/depth are intentionally absent from v1 until evidence
+justifies them.
 
 ## Node package resolution
 
-The generated dependency-cruiser configuration resolves modern Node package
-export maps, including subpath exports. It reviews the `exports` manifest field
-under the `import`, `require`, `node`, and `default` conditions so the canonical
-adapter works across Egolint's supported JavaScript and TypeScript module
-surface without package-specific ignores.
+The generated dependency-cruiser configuration resolves modern Node package export maps, including
+subpath exports. It reviews the `exports` manifest field under the `import`, `require`, `node`, and
+`default` conditions so the canonical adapter works across Egolint's supported JavaScript and
+TypeScript module surface without package-specific ignores.
 
-The adapter intentionally retains dependency-cruiser's environment-derived
-extension ordering and enhanced-resolve's default `main` handling. Consumer
-toolchains determine the supported parser extensions, while packages that
-publish type-only entry points can opt into additional `mainFields` through a
-future reviewed profile contract if evidence requires it.
+The adapter intentionally retains dependency-cruiser's environment-derived extension ordering and
+enhanced-resolve's default `main` handling. Consumer toolchains determine the supported parser
+extensions, while packages that publish type-only entry points can opt into additional `mainFields`
+through a future reviewed profile contract if evidence requires it.
 
 ## Run locally
 
@@ -86,13 +87,18 @@ cargo run --locked --bin egolint-architecture -- \
   --evaluation-date "2026-08-23"
 ```
 
-An overlay may add rules but cannot replace a canonical rule ID. Exceptions require an ID, rule ID, owner, reason, and expiry date, and may narrow to an exact source/target edge. Egolint applies exceptions only *after* dependency-cruiser returns evidence, keeping architecture exceptions visible in normalized reports instead of hiding them in an adapter baseline.
+An overlay may add rules but cannot replace a canonical rule ID. Exceptions require an ID, rule ID,
+owner, reason, and expiry date, and may narrow to an exact source/target edge. Egolint applies
+exceptions only _after_ dependency-cruiser returns evidence, keeping architecture exceptions visible
+in normalized reports instead of hiding them in an adapter baseline.
 
-Expired exceptions never suppress a finding and make the architecture gate fail. Current but unmatched exceptions remain visible for cleanup.
+Expired exceptions never suppress a finding and make the architecture gate fail. Current but
+unmatched exceptions remain visible for cleanup.
 
 ## Finding contract
 
-Every adapter violation becomes the existing shared Egolint `Finding` contract and additionally records:
+Every adapter violation becomes the existing shared Egolint `Finding` contract and additionally
+records:
 
 - source module;
 - target module when applicable;
@@ -102,8 +108,12 @@ Every adapter violation becomes the existing shared Egolint `Finding` contract a
 - remediation guidance;
 - suppression/exception ID when applicable.
 
-This keeps Relay, SARIF consumers, hooks, editors, and future Observatory projections dependent on Egolint contracts rather than dependency-cruiser output details.
+This keeps Relay, SARIF consumers, hooks, editors, and future Observatory projections dependent on
+Egolint contracts rather than dependency-cruiser output details.
 
 ## Versioning
 
-The v1 profile pins dependency-cruiser `18.2.0`. Changing the adapter major version, rule semantics, normalized output semantics, or overlay contract requires explicit review and corresponding profile/schema versioning. Consumer repositories should use the same pinned adapter version locally and in CI.
+The v1 profile pins dependency-cruiser `18.2.0`. Changing the adapter major version, rule semantics,
+normalized output semantics, or overlay contract requires explicit review and corresponding
+profile/schema versioning. Consumer repositories should use the same pinned adapter version locally
+and in CI.

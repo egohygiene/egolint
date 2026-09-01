@@ -29,21 +29,26 @@ supersedes: []
 
 ## Working method
 
-Egolint combines specification-driven, schema-driven, and test-driven development in one evidence loop:
+Egolint combines specification-driven, schema-driven, and test-driven development in one evidence
+loop:
 
 > Discover → Model → Specify → Plan → Test → Implement → Validate → Review → Integrate → Reflect
 
 ## Method contracts
 
-1. **Discover evidence:** inspect current source, runtime behavior, users, risks, and neighboring ownership.
+1. **Discover evidence:** inspect current source, runtime behavior, users, risks, and neighboring
+   ownership.
 2. **Model the domain:** update ontology and boundaries before encoding unstable terminology.
-3. **Specify behavior:** define inputs, outputs, invariants, authority, failures, and acceptance criteria.
+3. **Specify behavior:** define inputs, outputs, invariants, authority, failures, and acceptance
+   criteria.
 4. **Define schemas:** make durable machine boundaries independently validatable.
 5. **Write tests:** cover happy paths, boundaries, failures, compatibility, and safety properties.
 6. **Implement narrowly:** change only the owning system and adapters required by the specification.
 7. **Validate evidence:** run deterministic checks and preserve important results.
-8. **Review impact:** inspect architecture, security, privacy, accessibility, operations, and downstream consumers.
-9. **Integrate and reflect:** publish through the defined lifecycle and feed lessons into decisions and roadmap.
+8. **Review impact:** inspect architecture, security, privacy, accessibility, operations, and
+   downstream consumers.
+9. **Integrate and reflect:** publish through the defined lifecycle and feed lessons into decisions
+   and roadmap.
 
 ## Quality gates
 
@@ -56,11 +61,18 @@ Egolint combines specification-driven, schema-driven, and test-driven developmen
 
 ## AI collaboration
 
-Agents may accelerate discovery, drafting, implementation, and verification within explicit scope. They preserve provenance, report failures honestly, and do not convert recommendations into accepted decisions.
+Agents may accelerate discovery, drafting, implementation, and verification within explicit scope.
+They preserve provenance, report failures honestly, and do not convert recommendations into accepted
+decisions.
 
 ## Evidence and uncertainty
 
-- **Observed:** The repository README establishes the intended boundary as a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; significant implementation remains incomplete.
-- **Decided for this draft:** The repository owns the bounded concern described here and participates through versioned contracts.
-- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and implemented.
-- **Open question:** Which parts of this draft should become active in the first independently versioned release?
+- **Observed:** The repository README establishes the intended boundary as a universal linting
+  platform and extensible MegaLinter wrapper for consistent repository quality; significant
+  implementation remains incomplete.
+- **Decided for this draft:** The repository owns the bounded concern described here and
+  participates through versioned contracts.
+- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and
+  implemented.
+- **Open question:** Which parts of this draft should become active in the first independently
+  versioned release?

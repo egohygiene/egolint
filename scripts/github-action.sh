@@ -106,21 +106,23 @@ require_choice "pull-policy" "${pull_policy}" "always" "missing" "never"
 require_choice "network" "${network}" "none" "bridge"
 
 case "${workspace_input}" in
-  "" | /* | ../* | */../* | */..) fail "workspace must be repository-relative and may not traverse upward" ;;
+"" | /* | ../* | */../* | */..) fail "workspace must be repository-relative and may not traverse upward" ;;
+*) ;;
 esac
 
 workspace="$(realpath --canonicalize-existing "${GITHUB_WORKSPACE}/${workspace_input}")"
 github_workspace="$(realpath --canonicalize-existing "${GITHUB_WORKSPACE}")"
 case "${workspace}" in
-  "${github_workspace}" | "${github_workspace}"/*) ;;
-  *) fail "workspace resolves outside GITHUB_WORKSPACE" ;;
+"${github_workspace}" | "${github_workspace}"/*) ;;
+*) fail "workspace resolves outside GITHUB_WORKSPACE" ;;
 esac
 [[ -d ${workspace} ]] || fail "workspace is not a directory"
 
 for policy_path in "${megalinter_config}" "${repository_contract}" "${repository_intelligence}" "${repository_presentation}" "${suppression}"; do
   if [[ -n ${policy_path} ]]; then
     case "${policy_path}" in
-      /* | ../* | */../* | */..) fail "policy inputs must be workspace-relative and may not traverse upward" ;;
+    /* | ../* | */../* | */..) fail "policy inputs must be workspace-relative and may not traverse upward" ;;
+    *) ;;
     esac
   fi
 done

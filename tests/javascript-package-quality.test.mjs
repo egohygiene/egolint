@@ -1,3 +1,6 @@
+// Copyright 2026 Ego Hygiene
+// SPDX-License-Identifier: MIT
+
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -144,6 +147,7 @@ test("migration ledger accounts for every intentional legacy ESLint rule", async
 });
 
 test("consumer manifests make publint applicability explicit", async () => {
+    const selfConsumer = await json("egolint.javascript-package-quality.json");
     const publishable = await json(
         "tests/fixtures/javascript-package-quality/react-library/egolint.javascript-package-quality.json",
     );
@@ -154,4 +158,6 @@ test("consumer manifests make publint applicability explicit", async () => {
     assert.equal(publishable.publication, "npm");
     assert.equal(privateApp.profile, "base");
     assert.equal(privateApp.publication, "private");
+    assert.ok(selfConsumer.ignore.includes("tests/fixtures/**"));
+    assert.ok(selfConsumer.ignore.includes("schemas/*.schema.json"));
 });

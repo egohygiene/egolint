@@ -282,6 +282,12 @@ FILTER_REGEX_EXCLUDE: |-
     |
     ^docs/generated/
     |
+    ^schemas/
+    |
+    ^\.config/megalinter/(?:tool-matrix\.json|v10-catalog\.json|snapshots/)
+    |
+    ^\.config/toolchain/(?:complementary-tools|tool-matrix)\.json$
+    |
     # Local databases.
     \.(?:db|sqlite|sqlite3)$
     |
@@ -533,8 +539,7 @@ GRAPHQL_GRAPHQL_SCHEMA_LINTER_RULES_PATH: .config/lint/graphql
 GRAPHQL_GRAPHQL_SCHEMA_LINTER_CONFIG_FILE: .graphql-schema-linterrc
 
 GRAPHQL_GRAPHQL_SCHEMA_LINTER_ARGUMENTS: >-
-  --config-directory
-  .config/lint/graphql
+  --config-directory .config/lint/graphql
 
 # ==============================================================================
 # Groovy and Jenkinsfile static analysis
@@ -574,14 +579,11 @@ HTML_DJLINT_ARGUMENTS:
 JAVASCRIPT_ES_RULES_PATH: .config/lint/javascript
 JAVASCRIPT_ES_CONFIG_FILE: eslint.config.mjs
 JAVASCRIPT_ES_ARGUMENTS: >-
-  --cache
-  --cache-location .reports/egolint/cache/eslint/javascript
-  --cache-strategy content
+  --cache --cache-location .reports/egolint/cache/eslint/javascript --cache-strategy content
 
 JAVASCRIPT_ES_PRE_COMMANDS:
   - command: >-
-      mkdir -p
-      ".reports/egolint/cache/eslint/javascript"
+      mkdir -p ".reports/egolint/cache/eslint/javascript"
     cwd: workspace
 
 # ==============================================================================
@@ -618,6 +620,11 @@ JAVA_PMD_CONFIG_FILE: java-pmd-ruleset.xml
 # JSON syntax validation
 # ==============================================================================
 
+# npm-package-json-lint
+# https://npmpackagejsonlint.org/
+JSON_NPM_PACKAGE_JSON_LINT_RULES_PATH: .config/lint/json
+JSON_NPM_PACKAGE_JSON_LINT_CONFIG_FILE: .npmpackagejsonlintrc.json
+
 # jsonlint
 # https://github.com/prantlf/jsonlint
 # https://megalinter.io/latest/descriptors/json_jsonlint/
@@ -649,14 +656,11 @@ JSON_V8R_FILTER_REGEX_EXCLUDE: '(^|/)(node_modules|vendor|build|dist|coverage|ge
 JSX_ESLINT_RULES_PATH: .config/lint/javascript
 JSX_ESLINT_CONFIG_FILE: eslint.config.mjs
 JSX_ESLINT_ARGUMENTS: >-
-  --cache
-  --cache-location .reports/egolint/cache/eslint/jsx
-  --cache-strategy content
+  --cache --cache-location .reports/egolint/cache/eslint/jsx --cache-strategy content
 
 JSX_ESLINT_PRE_COMMANDS:
   - command: >-
-      mkdir -p
-      ".reports/egolint/cache/eslint/jsx"
+      mkdir -p ".reports/egolint/cache/eslint/jsx"
     cwd: workspace
 
 # ==============================================================================
@@ -808,21 +812,21 @@ SPELL_CSPELL_ANALYZE_FILE_NAMES: false
 
 SPELL_CSPELL_PRE_COMMANDS:
   - command: >-
-      mkdir -p ".reports/egolint/cache/cspell" ".reports/egolint/cspell"
-      && test -f "node_modules/@cspell/dict-clojure/cspell-ext.json"
-      && test -f "node_modules/@cspell/dict-elisp/cspell-ext.json"
-      && test -f "node_modules/@cspell/dict-gdscript/cspell-ext.json"
-      && test -f "node_modules/@cspell/dict-gis/cspell-ext.json"
-      && test -f "node_modules/@cspell/dict-medicalterms/cspell-ext.json"
-      && test -f "node_modules/@cspell/dict-mime-types/cspell-ext.json"
-      && test -f "node_modules/@cspell/dict-mnemonics/cspell-ext.json"
-      && test -f "node_modules/@cspell/dict-people-names/cspell-ext.json"
-      && test -f "node_modules/@cspell/dict-pokemon/cspell-ext.json"
-      && test -f "node_modules/@cspell/dict-redis/cspell-ext.json"
-      && test -f "node_modules/@cspell/dict-scientific-terms-us/cspell-ext.json"
-      && test -f "node_modules/@cspell/dict-vim/cspell-ext.json"
-      && test -f "node_modules/@cspell/dict-win32/cspell-ext.json"
-      && test -d "node_modules/@cspell/cspell-json-reporter"
+      mkdir -p ".reports/egolint/cache/cspell" ".reports/egolint/cspell" && test -f
+      "node_modules/@cspell/dict-clojure/cspell-ext.json" && test -f
+      "node_modules/@cspell/dict-elisp/cspell-ext.json" && test -f
+      "node_modules/@cspell/dict-gdscript/cspell-ext.json" && test -f
+      "node_modules/@cspell/dict-gis/cspell-ext.json" && test -f
+      "node_modules/@cspell/dict-medicalterms/cspell-ext.json" && test -f
+      "node_modules/@cspell/dict-mime-types/cspell-ext.json" && test -f
+      "node_modules/@cspell/dict-mnemonics/cspell-ext.json" && test -f
+      "node_modules/@cspell/dict-people-names/cspell-ext.json" && test -f
+      "node_modules/@cspell/dict-pokemon/cspell-ext.json" && test -f
+      "node_modules/@cspell/dict-redis/cspell-ext.json" && test -f
+      "node_modules/@cspell/dict-scientific-terms-us/cspell-ext.json" && test -f
+      "node_modules/@cspell/dict-vim/cspell-ext.json" && test -f
+      "node_modules/@cspell/dict-win32/cspell-ext.json" && test -d
+      "node_modules/@cspell/cspell-json-reporter"
     cwd: workspace
 
 # codespell uses the same reviewed spelling policy but remains disabled until
@@ -864,9 +868,7 @@ REPOSITORY_GRYPE_CONFIG_FILE: .grype.yaml
 
 REPOSITORY_GRYPE_PRE_COMMANDS:
   - command: >-
-      mkdir -p
-      ".reports/egolint/cache/grype/db"
-      ".reports/egolint/grype"
+      mkdir -p ".reports/egolint/cache/grype/db" ".reports/egolint/grype"
     cwd: workspace
 
 # ==============================================================================
@@ -881,9 +883,7 @@ REPOSITORY_TRIVY_CONFIG_FILE: trivy.yaml
 
 REPOSITORY_TRIVY_PRE_COMMANDS:
   - command: >-
-      mkdir -p
-      ".reports/egolint/cache/trivy"
-      ".reports/egolint/trivy"
+      mkdir -p ".reports/egolint/cache/trivy" ".reports/egolint/trivy"
     cwd: workspace
 
 # Trivy SBOM
@@ -894,9 +894,7 @@ REPOSITORY_TRIVY_SBOM_CONFIG_FILE: trivy-sbom.yaml
 
 REPOSITORY_TRIVY_SBOM_PRE_COMMANDS:
   - command: >-
-      mkdir -p
-      ".reports/egolint/cache/trivy"
-      ".reports/egolint/trivy-sbom"
+      mkdir -p ".reports/egolint/cache/trivy" ".reports/egolint/trivy-sbom"
     cwd: workspace
 
 # ==============================================================================
@@ -910,13 +908,8 @@ REPOSITORY_TRUFFLEHOG_RULES_PATH: .config/security/trufflehog
 REPOSITORY_TRUFFLEHOG_CONFIG_FILE: .trufflehog.yml
 
 REPOSITORY_TRUFFLEHOG_ARGUMENTS: >-
-  --exclude-paths=.config/security/trufflehog/.trufflehogignore
-  --fail-on-scan-errors
-  --no-color
-  --force-skip-binaries
-  --archive-max-depth=1
-  --archive-max-size=100MB
-  --archive-timeout=30s
+  --exclude-paths=.config/security/trufflehog/.trufflehogignore --fail-on-scan-errors --no-color
+  --force-skip-binaries --archive-max-depth=1 --archive-max-size=100MB --archive-timeout=30s
 
 # ==============================================================================
 # Software Bill of Materials generation
@@ -930,9 +923,7 @@ REPOSITORY_SYFT_CONFIG_FILE: .syft.yaml
 
 REPOSITORY_SYFT_PRE_COMMANDS:
   - command: >-
-      mkdir -p
-      ".reports/egolint/cache/syft"
-      ".reports/egolint/syft"
+      mkdir -p ".reports/egolint/cache/syft" ".reports/egolint/syft"
     cwd: workspace
 
 # ==============================================================================
@@ -959,8 +950,7 @@ RUBY_RUBOCOP_ARGUMENTS: "--force-exclusion"
 
 RUBY_RUBOCOP_PRE_COMMANDS:
   - command: >-
-      mkdir -p
-      ".reports/egolint/cache/rubocop"
+      mkdir -p ".reports/egolint/cache/rubocop"
     cwd: workspace
 
 # ==============================================================================
@@ -974,17 +964,13 @@ RUST_CLIPPY_RULES_PATH: .config/lint/rust
 RUST_CLIPPY_CONFIG_FILE: .clippy.toml
 
 RUST_CLIPPY_ARGUMENTS: >-
-  --workspace
-  --all-targets
-  --all-features
-  --
-  -D warnings
-  -W clippy::pedantic
-  -D clippy::unwrap_used
-  -D clippy::expect_used
-  -A clippy::module_name_repetitions
-  -A clippy::missing_errors_doc
-  -A clippy::missing_panics_doc
+  --workspace --all-targets --all-features --locked --target-dir .reports/egolint/cache/cargo-target
+  -- -D warnings -W clippy::pedantic -D clippy::unwrap_used -D clippy::expect_used -A
+  clippy::module_name_repetitions -A clippy::missing_errors_doc -A clippy::missing_panics_doc
+
+RUST_CLIPPY_PRE_COMMANDS:
+  - command: mkdir -p ".reports/egolint/cache/cargo-target"
+    cwd: workspace
 
 # ==============================================================================
 # R static analysis
@@ -1005,27 +991,21 @@ R_LINTR_FILTER_REGEX_EXCLUDE: '(^|/)(node_modules|vendor|renv/library|packrat/li
 TSX_ESLINT_RULES_PATH: .config/lint/javascript
 TSX_ESLINT_CONFIG_FILE: eslint.config.mjs
 TSX_ESLINT_ARGUMENTS: >-
-  --cache
-  --cache-location .reports/egolint/cache/eslint/tsx
-  --cache-strategy content
+  --cache --cache-location .reports/egolint/cache/eslint/tsx --cache-strategy content
 
 TSX_ESLINT_PRE_COMMANDS:
   - command: >-
-      mkdir -p
-      ".reports/egolint/cache/eslint/tsx"
+      mkdir -p ".reports/egolint/cache/eslint/tsx"
     cwd: workspace
 
 TYPESCRIPT_ES_RULES_PATH: .config/lint/javascript
 TYPESCRIPT_ES_CONFIG_FILE: eslint.config.mjs
 TYPESCRIPT_ES_ARGUMENTS: >-
-  --cache
-  --cache-location .reports/egolint/cache/eslint/typescript
-  --cache-strategy content
+  --cache --cache-location .reports/egolint/cache/eslint/typescript --cache-strategy content
 
 TYPESCRIPT_ES_PRE_COMMANDS:
   - command: >-
-      mkdir -p
-      ".reports/egolint/cache/eslint/typescript"
+      mkdir -p ".reports/egolint/cache/eslint/typescript"
     cwd: workspace
 
 # Shared Prettier configuration
@@ -1109,8 +1089,7 @@ TEKTON_TEKTON_LINT_CONFIG_FILE: .tektonlintrc.yaml
 
 # Fail when any warning is reported in addition to ordinary errors.
 TEKTON_TEKTON_LINT_ARGUMENTS: >-
-  --max-warnings 0
-  --color false
+  --max-warnings 0 --color false
 
 TEKTON_TEKTON_LINT_FILTER_REGEX_EXCLUDE: '(^|/)(node_modules|vendor|build|dist|coverage|generated|\.cache|\.reports)/'
 
@@ -1147,9 +1126,7 @@ SALESFORCE_CODE_ANALYZER_APEX_CONFIG_FILE: code-analyzer.yml
 # Run Salesforce's recommended PMD rules plus every rule referenced by the
 # repository-owned Apex ruleset.
 SALESFORCE_CODE_ANALYZER_APEX_ARGUMENTS: >-
-  --rule-selector pmd:Recommended
-  --rule-selector pmd:EgoHygieneApex
-  --severity-threshold 3
+  --rule-selector pmd:Recommended --rule-selector pmd:EgoHygieneApex --severity-threshold 3
 
 # ==============================================================================
 # Snakemake formatting
@@ -1200,8 +1177,7 @@ SPELL_PROSELINT_RULES_PATH: .config/lint/prose
 SPELL_PROSELINT_CONFIG_FILE: .proselintrc
 
 SPELL_PROSELINT_FILTER_REGEX_EXCLUDE: >-
-  (^|/)
-  (
+  (^|/) (
     node_modules
     |vendor
     |build
@@ -1225,12 +1201,10 @@ SPELL_VALE_FILE_EXTENSIONS:
   - ".txt"
 
 SPELL_VALE_ARGUMENTS: >-
-  --no-global
-  --no-wrap
+  --no-global --no-wrap
 
 SPELL_VALE_FILTER_REGEX_EXCLUDE: >-
-  (^|/)
-  (
+  (^|/) (
     node_modules
     |vendor
     |build
@@ -1253,8 +1227,7 @@ SPELL_LYCHEE_RULES_PATH: .config/lint/prose/spell
 SPELL_LYCHEE_CONFIG_FILE: lychee.toml
 
 SPELL_LYCHEE_FILTER_REGEX_EXCLUDE: >-
-  (^|/)
-  (
+  (^|/) (
     node_modules
     |vendor
     |build
@@ -1317,10 +1290,14 @@ PYTHON_MYPY_CONFIG_FILE: .mypy.ini
 # Mypy is a project type checker rather than an isolated-file checker.
 PYTHON_MYPY_CLI_LINT_MODE: project
 
+# The full image has no authority to install type stubs during an offline run.
+# Missing third-party types follow the reviewed policy in .mypy.ini instead.
+PYTHON_MYPY_ARGUMENTS: >-
+  --no-install-types --interactive
+
 PYTHON_MYPY_PRE_COMMANDS:
   - command: >-
-      mkdir -p
-      ".reports/egolint/cache/mypy"
+      mkdir -p ".reports/egolint/cache/mypy"
     cwd: workspace
 
 # ------------------------------------------------------------------------------
@@ -1355,8 +1332,7 @@ PYTHON_NBQA_MYPY_CONFIG_FILE: .mypy.ini
 
 PYTHON_RUFF_PRE_COMMANDS:
   - command: >-
-      mkdir -p
-      ".reports/egolint/cache/ruff"
+      mkdir -p ".reports/egolint/cache/ruff"
     cwd: workspace
 
 # ==============================================================================
@@ -1369,9 +1345,11 @@ PYTHON_RUFF_PRE_COMMANDS:
 REPOSITORY_SECRETLINT_RULES_PATH: .config/security/secretlint # pragma: allowlist secret
 REPOSITORY_SECRETLINT_CONFIG_FILE: .secretlintrc.json
 
-REPOSITORY_SECRETLINT_ARGUMENTS: >-
-  --secretlintignore
-  .config/security/secretlint/.secretlintignore
+# Scan MegaLinter's complete, already-filtered file set rather than asking
+# project mode to generate an ignore file inside the read-only workspace.
+REPOSITORY_SECRETLINT_CLI_LINT_MODE: list_of_files # pragma: allowlist secret
+REPOSITORY_SECRETLINT_FILE_EXTENSIONS: # pragma: allowlist secret
+  - "*"
 
 # ==============================================================================
 # Semantic and complementary secret analysis

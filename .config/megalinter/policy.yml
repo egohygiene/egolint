@@ -65,11 +65,15 @@ disabled_reasons:
 advisory_reasons:
   COPYPASTE_JSCPD: Duplication is tracked as a refactoring metric, not a correctness gate.
   MARKDOWN_MARKDOWN_TABLE_FORMATTER: Markdownlint and Prettier own blocking Markdown format policy.
-  PYTHON_PYLINT: Supplemental maintainability findings remain visible while Ruff owns blocking lint policy.
+  PYTHON_PYLINT:
+    Supplemental maintainability findings remain visible while Ruff owns blocking lint policy.
   PYTHON_PYRIGHT: Strict cross-package typing remains visible while its dependency baseline matures.
-  REPOSITORY_CHECKOV: IaC findings require contextual review and remain visible as security inventory.
-  REPOSITORY_GRYPE: The dedicated OSV and Dependabot workflows own dependency vulnerability enforcement.
-  REPOSITORY_TRIVY: The dedicated OSV and Dependabot workflows own dependency vulnerability enforcement.
+  REPOSITORY_CHECKOV:
+    IaC findings require contextual review and remain visible as security inventory.
+  REPOSITORY_GRYPE:
+    The dedicated OSV and Dependabot workflows own dependency vulnerability enforcement.
+  REPOSITORY_TRIVY:
+    The dedicated OSV and Dependabot workflows own dependency vulnerability enforcement.
   SPELL_PROSELINT: Editorial suggestions are review signals rather than correctness failures.
   SPELL_VALE: Editorial suggestions are review signals rather than correctness failures.
 
@@ -86,7 +90,8 @@ tools:
         - tests/fixtures/ansible/playbooks/site.yml
         - tests/fixtures/ansible/inventories/example/hosts.yml
       negative: []
-      blocker: A deliberately invalid playbook is unnecessary for validating the portable project fixture.
+      blocker:
+        A deliberately invalid playbook is unnecessary for validating the portable project fixture.
 
   ACTION_ZIZMOR:
     configuration: .config/lint/actions/zizmor.yml

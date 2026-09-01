@@ -26,7 +26,9 @@ supersedes: []
 
 ## Purpose and scope
 
-Egolint uses a layered, contract-driven architecture. This document owns structural boundaries, dependency direction, integration rules, and current-to-target evolution. Logical responsibilities remain canonical in [SYSTEM.md](SYSTEM.md).
+Egolint uses a layered, contract-driven architecture. This document owns structural boundaries,
+dependency direction, integration rules, and current-to-target evolution. Logical responsibilities
+remain canonical in [SYSTEM.md](SYSTEM.md).
 
 ## Layer model
 
@@ -37,7 +39,8 @@ Egolint uses a layered, contract-driven architecture. This document owns structu
 5. **Interfaces** — CLI, library, site, reports, generated artifacts, and automation contracts.
 6. **Evidence** — tests, diagnostics, provenance, manifests, and health projections.
 
-Dependencies point inward toward stable contracts and domain behavior. External details do not become canonical domain truth.
+Dependencies point inward toward stable contracts and domain behavior. External details do not
+become canonical domain truth.
 
 ## Structural view
 
@@ -58,15 +61,21 @@ flowchart LR
   S6 --> S7
 ```
 
-The diagram is conceptual. [SYSTEM.md](SYSTEM.md) remains authoritative for responsibilities and implementation evidence determines current availability.
+The diagram is conceptual. [SYSTEM.md](SYSTEM.md) remains authoritative for responsibilities and
+implementation evidence determines current availability.
 
 ## Dependency rules
 
-- Sibling domain capabilities integrate through versioned public contracts, not direct access to internals.
-- Generated artifacts never become the canonical source unless an accepted decision explicitly changes ownership.
-- Provider and platform adapters depend on application ports; core behavior does not depend on a provider implementation.
-- Read, plan, apply, verify, publish, and recover remain separate authority boundaries when consequential.
-- Cross-repository references use releases, immutable commits, schemas, packages, or documented APIs rather than mutable default-branch assumptions.
+- Sibling domain capabilities integrate through versioned public contracts, not direct access to
+  internals.
+- Generated artifacts never become the canonical source unless an accepted decision explicitly
+  changes ownership.
+- Provider and platform adapters depend on application ports; core behavior does not depend on a
+  provider implementation.
+- Read, plan, apply, verify, publish, and recover remain separate authority boundaries when
+  consequential.
+- Cross-repository references use releases, immutable commits, schemas, packages, or documented APIs
+  rather than mutable default-branch assumptions.
 
 ## Ecosystem interfaces
 
@@ -78,11 +87,18 @@ The diagram is conceptual. [SYSTEM.md](SYSTEM.md) remains authoritative for resp
 
 ## Deployment and portability
 
-The architecture favors independently usable local and self-hosted operation. Optional managed services may add availability, collaboration, support, and hosted infrastructure without becoming the canonical holder of portable state.
+The architecture favors independently usable local and self-hosted operation. Optional managed
+services may add availability, collaboration, support, and hosted infrastructure without becoming
+the canonical holder of portable state.
 
 ## Evidence and uncertainty
 
-- **Observed:** The repository README establishes the intended boundary as a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; significant implementation remains incomplete.
-- **Decided for this draft:** The repository owns the bounded concern described here and participates through versioned contracts.
-- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and implemented.
-- **Open question:** Which parts of this draft should become active in the first independently versioned release?
+- **Observed:** The repository README establishes the intended boundary as a universal linting
+  platform and extensible MegaLinter wrapper for consistent repository quality; significant
+  implementation remains incomplete.
+- **Decided for this draft:** The repository owns the bounded concern described here and
+  participates through versioned contracts.
+- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and
+  implemented.
+- **Open question:** Which parts of this draft should become active in the first independently
+  versioned release?

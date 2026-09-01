@@ -26,24 +26,27 @@ supersedes: []
 
 ## Purpose and scope
 
-This document defines reusable semantic language for Egolint's documentation, terminal output, diagrams, reports, sites, and future interactive surfaces. It does not freeze a framework, component library, or final visual identity.
+This document defines reusable semantic language for Egolint's documentation, terminal output,
+diagrams, reports, sites, and future interactive surfaces. It does not freeze a framework, component
+library, or final visual identity.
 
 ## Semantic roles
 
-| Role | Meaning |
-| --- | --- |
-| Canvas | Primary quiet background or base surface |
-| Surface | Grouped content or bounded interaction area |
-| Primary | Main action or navigational emphasis |
-| Information | Neutral context or observation |
-| Success | Completed and verified state |
-| Caution | Review required; safe to pause |
-| Danger | Destructive, security, privacy, or irreversible risk |
-| Unknown | Missing, unavailable, partial, or unverified state |
+| Role        | Meaning                                              |
+| ----------- | ---------------------------------------------------- |
+| Canvas      | Primary quiet background or base surface             |
+| Surface     | Grouped content or bounded interaction area          |
+| Primary     | Main action or navigational emphasis                 |
+| Information | Neutral context or observation                       |
+| Success     | Completed and verified state                         |
+| Caution     | Review required; safe to pause                       |
+| Danger      | Destructive, security, privacy, or irreversible risk |
+| Unknown     | Missing, unavailable, partial, or unverified state   |
 
 ## Status vocabulary
 
-Use the states observed, planned, running, partial, verified, failed, blocked, and unknown consistently. Never present partial or unknown as success.
+Use the states observed, planned, running, partial, verified, failed, blocked, and unknown
+consistently. Never present partial or unknown as success.
 
 ## Content and interaction
 
@@ -56,15 +59,23 @@ Use the states observed, planned, running, partial, verified, failed, blocked, a
 
 ## Components and projections
 
-Canonical patterns include command help, progress state, evidence table, decision card, plan preview, validation summary, architecture node, and recovery prompt. Concrete tokens and components are downstream projections maintained by the owning surface.
+Canonical patterns include command help, progress state, evidence table, decision card, plan
+preview, validation summary, architecture node, and recovery prompt. Concrete tokens and components
+are downstream projections maintained by the owning surface.
 
 ## Visual direction
 
-The expression should remain direct, constructive, low-noise, and oriented toward remediation while allowing product-specific identity to vary inside Ego Hygiene's broader family.
+The expression should remain direct, constructive, low-noise, and oriented toward remediation while
+allowing product-specific identity to vary inside Ego Hygiene's broader family.
 
 ## Evidence and uncertainty
 
-- **Observed:** The repository README establishes the intended boundary as a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; significant implementation remains incomplete.
-- **Decided for this draft:** The repository owns the bounded concern described here and participates through versioned contracts.
-- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and implemented.
-- **Open question:** Which parts of this draft should become active in the first independently versioned release?
+- **Observed:** The repository README establishes the intended boundary as a universal linting
+  platform and extensible MegaLinter wrapper for consistent repository quality; significant
+  implementation remains incomplete.
+- **Decided for this draft:** The repository owns the bounded concern described here and
+  participates through versioned contracts.
+- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and
+  implemented.
+- **Open question:** Which parts of this draft should become active in the first independently
+  versioned release?

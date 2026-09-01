@@ -10,6 +10,7 @@ import re
 import subprocess
 import tempfile
 import textwrap
+from typing import Any
 import unittest
 
 import yaml
@@ -18,7 +19,7 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
 
 class IntegrationDistributionTests(unittest.TestCase):
-    def load_yaml(self, relative_path: str) -> object:
+    def load_yaml(self, relative_path: str) -> Any:
         with (REPOSITORY_ROOT / relative_path).open(encoding="utf-8") as stream:
             return yaml.safe_load(stream)
 
@@ -149,7 +150,7 @@ class IntegrationDistributionTests(unittest.TestCase):
                     "INPUT_EVALUATION_DATE": "2026-08-19",
                     "INPUT_CHANGED_ONLY": "false",
                     "GITHUB_TOKEN": "must-not-cross-the-boundary",
-                    "UNRELATED_SECRET": "must-not-cross-the-boundary",
+                    "UNRELATED_SECRET": "must-not-cross-the-boundary",  # pragma: allowlist secret
                 }
             )
             # The executable is a repository-owned, fixed test target.

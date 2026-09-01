@@ -3,3 +3,6 @@
 
 ## Enable All Checks ##
 enable=all
+
+## Expected indirect and conditional helper invocation patterns ##
+disable=SC2310,SC2312,SC2329

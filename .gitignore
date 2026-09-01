@@ -9,6 +9,7 @@
 /.pnpm-store/
 pnpm-debug.log*
 npm-debug.log*
+.egolint-biome-*.json
 
 # Python
 /.venv/
@@ -21,7 +22,7 @@ npm-debug.log*
 *.py[cod]
 
 # Generated lint evidence and caches
-/.reports/
+**/.reports/
 /.cache/
 /.talismanrc.lock
 **/.dart_tool/
