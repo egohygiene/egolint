@@ -126,7 +126,8 @@ class IntegrationDistributionTests(unittest.TestCase):
             with tarfile.open(first_archive, mode="r:gz") as archive:
                 root = f"egolint-integrations-{version}"
                 manifest_member = archive.extractfile(f"{root}/MANIFEST.json")
-                self.assertIsNotNone(manifest_member)
+                if manifest_member is None:
+                    self.fail("integration archive omitted MANIFEST.json")
                 manifest = json.loads(manifest_member.read())
                 self.assertEqual(manifest["schema_version"], 1)
                 self.assertEqual(manifest["bundle_version"], version)
@@ -142,7 +143,8 @@ class IntegrationDistributionTests(unittest.TestCase):
                 )
                 for relative_path, expected_sha256 in manifest["files"].items():
                     member = archive.extractfile(f"{root}/{relative_path}")
-                    self.assertIsNotNone(member)
+                    if member is None:
+                        self.fail(f"integration archive omitted {relative_path}")
                     self.assertEqual(hashlib.sha256(member.read()).hexdigest(), expected_sha256)
 
     def test_action_exposes_canonical_and_private_evidence_separately(self) -> None:
