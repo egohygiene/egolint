@@ -473,6 +473,13 @@ class IntegrationDistributionTests(unittest.TestCase):
         self.assertIn("github.run_attempt", build_step["with"]["tags"])
         self.assertNotIn("github.ref_name", build_step["with"]["tags"])
         self.assertNotIn("if", build_step)
+        product_platforms = {
+            item["product"]: item["platforms"]
+            for item in image_builder["strategy"]["matrix"]["include"]
+        }
+        self.assertEqual(product_platforms["egolint"], "linux/amd64,linux/arm64")
+        self.assertEqual(product_platforms["egolint-full"], "linux/amd64")
+        self.assertEqual(build_step["with"]["platforms"], "${{ matrix.platforms }}")
         quarantine_step = next(
             step for step in steps if step["name"] == "Refuse a pre-existing attempt quarantine tag"
         )
@@ -491,9 +498,11 @@ class IntegrationDistributionTests(unittest.TestCase):
         smoke_step = next(
             step
             for step in steps
-            if step["name"] == "Verify manifest platforms and execute both architectures"
+            if step["name"] == "Verify and execute every declared product platform"
         )
         smoke_script = smoke_step["run"]
+        self.assertIn("observed_platforms", smoke_script)
+        self.assertIn("${PLATFORMS}", smoke_script)
         self.assertIn("tests/fixtures/consumers/clean", smoke_script)
         self.assertIn("MEGALINTER_CONFIG=/tmp/lint/.mega-linter.yml", smoke_script)
         self.assertIn("mega-linter-report.json", smoke_script)
