@@ -18,10 +18,6 @@ jobs:
   reference-consumer:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
-    env:
-      # Keep host-owned Cargo artifacts outside the read-only consumer mount so
-      # project-mode container linters never traverse cross-UID build locks.
-      CARGO_TARGET_DIR: ${{ runner.temp }}/egolint-dogfood-cargo-target
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -47,6 +43,10 @@ jobs:
           printf '%s\n' "$(go env GOPATH)/bin" >> "${GITHUB_PATH}"
 
       - name: Dogfood Egolint
+        env:
+          # Keep host-owned Cargo artifacts outside the read-only consumer mount so
+          # project-mode container linters never traverse cross-UID build locks.
+          CARGO_TARGET_DIR: ${{ runner.temp }}/egolint-dogfood-cargo-target
         run: task dogfood
 
       - name: Upload dogfood evidence
