@@ -60,7 +60,11 @@ A green dogfood run proves that the current repository can:
 - normalize results into the public `.reports/egolint` evidence surface; and
 - do all of that without granting lint execution broad repository writes or network access.
 
-The GitHub Actions `Dogfood` workflow runs this same `task dogfood` entrypoint and uploads `.reports/egolint/` as diagnostic evidence even when the gate fails.
+The GitHub Actions `Dogfood` workflow runs this same `task dogfood` entrypoint
+and uploads `.reports/egolint/` as diagnostic evidence even when the gate
+fails. That private evidence includes a bounded `mega-linter-adapter.log`, so
+startup and configuration failures remain diagnosable without forwarding raw
+container output into workflow command channels.
 
 ## What the gate does not replace
 

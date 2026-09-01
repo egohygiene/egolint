@@ -57,6 +57,9 @@ stabilize.
 
 ### Fixed
 
+- Made the fixed report boundary writable across differing host and container
+  user IDs, and retained bounded private adapter output so pre-reporter engine
+  failures remain diagnosable without exposing raw workflow output.
 - Restored a clean self-dogfood package-quality baseline by excluding generated
   contracts, build output, and hostile fixtures from production-source checks;
   Biome SARIF is also forced color-free for deterministic JSON parsing.

@@ -33,6 +33,7 @@ const MAX_ADAPTER_STREAM_BYTES: usize = 512 * 1024;
 /// contracts, so every adapter execution starts by removing them.
 const RUN_OWNED_ARTIFACTS: &[&str] = &[
     ADAPTER_LOG,
+    "mega-linter.log",
     "mega-linter-report.json",
     "mega-linter-report.sarif",
     "run.json",
@@ -212,13 +213,13 @@ impl ExecutionPlan {
             .map_err(|error| EgolintError::RuntimeExecution(error.to_string()))?;
         let stdout = join_capture(stdout_reader, "stdout")?;
         let stderr = join_capture(stderr_reader, "stderr")?;
-        self.write_adapter_log(&status, &stdout, &stderr)?;
+        self.write_adapter_log(status, &stdout, &stderr)?;
         Ok(status)
     }
 
     fn write_adapter_log(
         &self,
-        status: &ExitStatus,
+        status: ExitStatus,
         stdout: &CapturedStream,
         stderr: &CapturedStream,
     ) -> Result<()> {
@@ -273,6 +274,7 @@ impl ExecutionPlan {
             source,
         })?;
         validate_report_directory(&self.view.workspace, &self.report_path)?;
+        make_report_directory_container_writable(&self.view.workspace, &self.report_path)?;
         clear_run_artifacts(&self.view.workspace, &self.report_path)
     }
 
@@ -532,6 +534,55 @@ fn validate_report_directory(workspace: &Path, report_path: &Path) -> Result<()>
             )));
         }
     }
+    Ok(())
+}
+
+#[cfg(unix)]
+fn make_report_directory_container_writable(workspace: &Path, report_path: &Path) -> Result<()> {
+    use std::fs::{File, Permissions};
+    use std::os::unix::fs::{MetadataExt, PermissionsExt};
+
+    validate_report_directory(workspace, report_path)?;
+    let directory = File::open(report_path).map_err(|source| EgolintError::Filesystem {
+        path: report_path.to_path_buf(),
+        source,
+    })?;
+    let opened = directory
+        .metadata()
+        .map_err(|source| EgolintError::Filesystem {
+            path: report_path.to_path_buf(),
+            source,
+        })?;
+    let matches_open_directory = || -> Result<bool> {
+        let current = std::fs::symlink_metadata(report_path).map_err(|source| {
+            EgolintError::Filesystem {
+                path: report_path.to_path_buf(),
+                source,
+            }
+        })?;
+        Ok(current.is_dir() && current.dev() == opened.dev() && current.ino() == opened.ino())
+    };
+    if !matches_open_directory()? {
+        return Err(EgolintError::Configuration(
+            "fixed report directory changed while its permissions were prepared".to_owned(),
+        ));
+    }
+    directory
+        .set_permissions(Permissions::from_mode(0o777))
+        .map_err(|source| EgolintError::Filesystem {
+            path: report_path.to_path_buf(),
+            source,
+        })?;
+    if !matches_open_directory()? {
+        return Err(EgolintError::Configuration(
+            "fixed report directory changed while its permissions were prepared".to_owned(),
+        ));
+    }
+    validate_report_directory(workspace, report_path)
+}
+
+#[cfg(not(unix))]
+fn make_report_directory_container_writable(_workspace: &Path, _report_path: &Path) -> Result<()> {
     Ok(())
 }
 
@@ -798,6 +849,40 @@ mod tests {
             std::fs::read(report.join("private-diagnostic.log")).expect("retained diagnostic"),
             b"retained"
         );
+    }
+
+    #[test]
+    fn adapter_stream_capture_is_bounded_and_marks_truncation() {
+        let input = vec![b'x'; MAX_ADAPTER_STREAM_BYTES + 1];
+        let captured = capture_stream(input.as_slice()).expect("captured stream");
+
+        assert_eq!(captured.bytes.len(), MAX_ADAPTER_STREAM_BYTES);
+        assert!(captured.bytes.iter().all(|byte| *byte == b'x'));
+        assert!(captured.truncated);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn report_directory_is_writable_across_container_user_ids() {
+        use std::os::unix::fs::PermissionsExt;
+
+        let directory = tempfile::tempdir().expect("temporary directory");
+        let plan = ExecutionPlan::build(
+            directory.path(),
+            &resolved(),
+            Operation::Check,
+            &PlanOptions::default(),
+            false,
+        )
+        .expect("execution plan");
+
+        plan.prepare_report_directory().expect("report boundary");
+
+        let mode = std::fs::metadata(plan.report_path())
+            .expect("report metadata")
+            .permissions()
+            .mode();
+        assert_eq!(mode & 0o777, 0o777);
     }
 
     #[test]

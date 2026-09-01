@@ -10,11 +10,15 @@ linter as code in the security boundary.
   host-shell interpolation.
 - `lint` grants the repository a read-only mount. Only the report path is
   writable. That path is fixed at `.reports/egolint`; symlink and canonical
-  aliases are rejected.
+  aliases are rejected. On Unix, Egolint verifies the opened directory's
+  device and inode before and after making that isolated boundary writable
+  across host/container user IDs.
 - Every run removes its fixed raw and canonical contract artifacts before the
   adapter starts, preventing a failed invocation from reusing stale evidence.
   Raw adapter stdout/stderr is not forwarded to workflow command channels;
-  normalized findings are rendered by the parent CLI.
+  at most 512 KiB per stream is retained in the private
+  `mega-linter-adapter.log`, and normalized findings are rendered by the parent
+  CLI.
 - `fix` materializes both isolated trees from the exact committed Git objects,
   never from ignored or live worktree files. It gives write access only to one
   candidate, discards all container-mutated Git metadata and report data, and
