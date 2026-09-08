@@ -983,9 +983,7 @@ fn native_tool_result(tool_id: &str, findings: &[Finding], enforcement: Enforcem
         policy_source: match tool_id {
             "EGOLINT_PORTABILITY" => ".config/rules/portability.toml",
             "EGOLINT_REPOSITORY_CONTRACT" => "docs/repository-contracts.md",
-            "EGOLINT_REPOSITORY_CONTINUITY" => {
-                ".config/rules/repository-continuity.v1.toml"
-            }
+            "EGOLINT_REPOSITORY_CONTINUITY" => ".config/rules/repository-continuity.v1.toml",
             "EGOLINT_REPOSITORY_INTELLIGENCE" => ".config/rules/repository-intelligence.v1.toml",
             "EGOLINT_REPOSITORY_PRESENTATION" => ".config/rules/repository-presentation.v1.toml",
             "EGOLINT_SUPPRESSIONS" => "docs/suppressions.md",

@@ -77,9 +77,7 @@ const REQUIRED_SECTIONS: [&str; 12] = [
 ];
 
 /// Hygiene rollout stage applied to continuity diagnostics.
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema, ValueEnum,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema, ValueEnum)]
 #[serde(rename_all = "snake_case")]
 pub enum ContinuityRolloutStage {
     /// Findings are visible but capped at warning severity.
@@ -91,9 +89,7 @@ pub enum ContinuityRolloutStage {
 }
 
 /// Pull-request update declaration supplied by the invoking workflow.
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema, ValueEnum,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema, ValueEnum)]
 #[serde(rename_all = "snake_case")]
 pub enum ContinuityDisposition {
     /// The candidate intentionally updates the continuity checkpoint.
@@ -105,9 +101,7 @@ pub enum ContinuityDisposition {
 }
 
 /// Lifecycle transition represented by the comparison.
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema, ValueEnum,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema, ValueEnum)]
 #[serde(rename_all = "snake_case")]
 pub enum ContinuityTransition {
     /// A candidate branch is being prepared or reviewed.
@@ -117,9 +111,7 @@ pub enum ContinuityTransition {
 }
 
 /// Whether a separate adapter supplied live-state verification evidence.
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema, ValueEnum,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema, ValueEnum)]
 #[serde(rename_all = "snake_case")]
 pub enum ContinuityLiveVerification {
     /// Ordinary offline validation has no external live-state evidence.
@@ -138,17 +130,6 @@ pub enum ContinuityRepositoryKind {
     Template,
 }
 
-impl ContinuityRepositoryKind {
-    const fn as_str(self) -> &'static str {
-        match self {
-            Self::Standard => "standard",
-            Self::Mirror => "mirror",
-            Self::GeneratedOnly => "generated-only",
-            Self::Template => "template",
-        }
-    }
-}
-
 /// Repository lifecycle used by Hygiene applicability resolution.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
@@ -156,16 +137,6 @@ pub enum ContinuityLifecycle {
     Active,
     Dormant,
     Archived,
-}
-
-impl ContinuityLifecycle {
-    const fn as_str(self) -> &'static str {
-        match self {
-            Self::Active => "active",
-            Self::Dormant => "dormant",
-            Self::Archived => "archived",
-        }
-    }
 }
 
 /// Repository visibility asserted by local policy.
@@ -392,18 +363,19 @@ impl ContinuityInvocation {
             && !self.live_evidence.is_empty()
         {
             return Err(EgolintError::Configuration(
-                "live evidence may be supplied only with verified continuity live state"
-                    .to_owned(),
+                "live evidence may be supplied only with verified continuity live state".to_owned(),
             ));
         }
-        if self.live_evidence.iter().any(|value| !valid_stable_url(value)) {
+        if self
+            .live_evidence
+            .iter()
+            .any(|value| !valid_stable_url(value))
+        {
             return Err(EgolintError::Configuration(
                 "continuity live evidence must use stable HTTPS URLs".to_owned(),
             ));
         }
-        if self.live_evidence.iter().collect::<BTreeSet<_>>().len()
-            != self.live_evidence.len()
-        {
+        if self.live_evidence.iter().collect::<BTreeSet<_>>().len() != self.live_evidence.len() {
             return Err(EgolintError::Configuration(
                 "continuity live evidence URLs must be unique".to_owned(),
             ));
@@ -659,12 +631,11 @@ struct BundledCatalog {
 
 impl BundledCatalog {
     fn load() -> Result<Self> {
-        let source: BundledCatalogSource =
-            toml::from_str(CATALOG_SOURCE).map_err(|error| {
-                EgolintError::Configuration(format!(
-                    "bundled repository-continuity catalog is invalid: {error}"
-                ))
-            })?;
+        let source: BundledCatalogSource = toml::from_str(CATALOG_SOURCE).map_err(|error| {
+            EgolintError::Configuration(format!(
+                "bundled repository-continuity catalog is invalid: {error}"
+            ))
+        })?;
         if source.schema_version != CONTRACT_VERSION
             || source.owner != "egohygiene/egolint"
             || source.tool_id != TOOL_ID
@@ -782,9 +753,7 @@ impl RawDiagnostic {
         format!(
             "{}\0{}\0{}",
             self.rule_id,
-            self.path
-                .as_deref()
-                .map_or_else(String::new, portable_path),
+            self.path.as_deref().map_or_else(String::new, portable_path),
             self.key
         )
     }
@@ -792,9 +761,9 @@ impl RawDiagnostic {
 
 #[derive(Debug, Default, Clone, Copy)]
 struct CoreStats {
-    files_checked: u64,
-    provider_projections_checked: u64,
-    markdown_links_checked: u64,
+    files: u64,
+    provider_projections: u64,
+    markdown_links: u64,
 }
 
 #[derive(Debug, Clone)]
@@ -1002,7 +971,7 @@ impl<'a> RepositoryContinuityEvaluator<'a> {
             finding.validate()?;
         }
 
-        let status = validation_status(applicability, &diagnostics);
+        let overall_result = validation_status(applicability, &diagnostics);
         let layers = evidence_layers(
             applicability,
             &diagnostics,
@@ -1039,13 +1008,13 @@ impl<'a> RepositoryContinuityEvaluator<'a> {
                 live_evidence: self.invocation.live_evidence.clone(),
             },
             evidence_layers: layers,
-            status,
+            status: overall_result,
             summary: ContinuityValidationSummary {
                 diagnostics: normalized.len() as u64,
                 blocking_diagnostics,
-                files_checked: stats.files_checked,
-                provider_projections_checked: stats.provider_projections_checked,
-                markdown_links_checked: stats.markdown_links_checked,
+                files_checked: stats.files,
+                provider_projections_checked: stats.provider_projections,
+                markdown_links_checked: stats.markdown_links,
                 exceptions_available: self.policy.exceptions.len() as u64,
                 exceptions_applied,
                 parallel_heads_checked: git.parallel_checked,
@@ -1075,17 +1044,15 @@ impl<'a> RepositoryContinuityEvaluator<'a> {
         applicability: ContinuityRequirement,
     ) -> (Vec<RawDiagnostic>, CoreStats, ParsedContinuity) {
         if applicability == ContinuityRequirement::NotApplicable {
-            return (Vec::new(), CoreStats::default(), ParsedContinuity::default());
+            return (
+                Vec::new(),
+                CoreStats::default(),
+                ParsedContinuity::default(),
+            );
         }
         let mut diagnostics = Vec::new();
         let mut stats = CoreStats::default();
-        evaluate_contract_projections(
-            self.policy,
-            snapshot,
-            catalog,
-            &mut diagnostics,
-            &mut stats,
-        );
+        evaluate_contract_projections(self.policy, snapshot, catalog, &mut diagnostics, &mut stats);
         let expected_block = expected_managed_block(self.policy, snapshot, &mut diagnostics);
         evaluate_agents(
             self.policy,
@@ -1094,12 +1061,8 @@ impl<'a> RepositoryContinuityEvaluator<'a> {
             &mut diagnostics,
             &mut stats,
         );
-        let parsed = evaluate_continuity_document(
-            self.policy,
-            snapshot,
-            &mut diagnostics,
-            &mut stats,
-        );
+        let parsed =
+            evaluate_continuity_document(self.policy, snapshot, &mut diagnostics, &mut stats);
         (diagnostics, stats, parsed)
     }
 
@@ -1499,7 +1462,10 @@ fn validate_profile_artifacts(
         ("instruction", &policy.instruction_path),
         ("template", &policy.template_path),
     ] {
-        let expected = aether.artifacts.iter().find(|artifact| artifact.kind == kind);
+        let expected = aether
+            .artifacts
+            .iter()
+            .find(|artifact| artifact.kind == kind);
         let Some(expected) = expected else {
             diagnostics.push(RawDiagnostic::new(
                 CONTRACT_RULE,
@@ -1526,21 +1492,18 @@ fn validate_profile_artifacts(
                 Some(path),
                 "pinned Aether artifact digest",
                 "digest mismatch",
-                format!(
-                    "the local Aether {kind} differs from the reviewed immutable projection"
-                ),
+                format!("the local Aether {kind} differs from the reviewed immutable projection"),
                 DiagnosticImpact::Invalid,
             ));
         }
         let profile_artifact = declared.and_then(|items| {
             items.iter().find_map(|item| {
-                (item.get("kind").and_then(Value::as_str) == Some(kind))
-                    .then(|| {
-                        (
-                            item.get("path").and_then(Value::as_str),
-                            item.get("sha256_utf8_lf").and_then(Value::as_str),
-                        )
-                    })
+                (item.get("kind").and_then(Value::as_str) == Some(kind)).then(|| {
+                    (
+                        item.get("path").and_then(Value::as_str),
+                        item.get("sha256_utf8_lf").and_then(Value::as_str),
+                    )
+                })
             })
         });
         let expected_source_path = portable_path(&expected.path);
@@ -1556,15 +1519,15 @@ fn validate_profile_artifacts(
                 Some(&policy.profile_path),
                 "Hygiene artifact digest matching the supported Aether projection",
                 "missing or mismatched artifact pin",
-                format!(
-                    "the Hygiene profile does not pin the supported Aether {kind} digest"
-                ),
+                format!("the Hygiene profile does not pin the supported Aether {kind} digest"),
                 DiagnosticImpact::Invalid,
             ));
         }
-        if !expected.path.components().all(|component| {
-            matches!(component, Component::Normal(_))
-        }) {
+        if !expected
+            .path
+            .components()
+            .all(|component| matches!(component, Component::Normal(_)))
+        {
             diagnostics.push(RawDiagnostic::new(
                 CONTRACT_RULE,
                 format!("catalog-aether-{kind}-path"),
@@ -1585,7 +1548,7 @@ fn projection_bytes<'a>(
     diagnostics: &mut Vec<RawDiagnostic>,
     stats: &mut CoreStats,
 ) -> Option<&'a [u8]> {
-    stats.files_checked += 1;
+    stats.files += 1;
     let Some(entry) = snapshot.get(path) else {
         diagnostics.push(RawDiagnostic::new(
             CONTRACT_RULE,
@@ -1619,20 +1582,17 @@ fn expected_managed_block(
     diagnostics: &mut Vec<RawDiagnostic>,
 ) -> Option<String> {
     let bytes = snapshot.get(&policy.instruction_path)?.content.as_deref()?;
-    let contents = match std::str::from_utf8(bytes) {
-        Ok(contents) => contents,
-        Err(_) => {
-            diagnostics.push(RawDiagnostic::new(
-                CONTRACT_RULE,
-                "instruction-utf8",
-                Some(&policy.instruction_path),
-                "UTF-8 Aether instruction projection",
-                "non-UTF-8 content",
-                "the pinned Aether instruction cannot be decoded",
-                DiagnosticImpact::Invalid,
-            ));
-            return None;
-        }
+    let Ok(contents) = std::str::from_utf8(bytes) else {
+        diagnostics.push(RawDiagnostic::new(
+            CONTRACT_RULE,
+            "instruction-utf8",
+            Some(&policy.instruction_path),
+            "UTF-8 Aether instruction projection",
+            "non-UTF-8 content",
+            "the pinned Aether instruction cannot be decoded",
+            DiagnosticImpact::Invalid,
+        ));
+        return None;
     };
     let begin = "<!-- BEGIN AETHER REPOSITORY-CONTINUITY -->";
     let end = "<!-- END AETHER REPOSITORY-CONTINUITY -->";
@@ -1671,8 +1631,7 @@ fn evaluate_agents(
     diagnostics: &mut Vec<RawDiagnostic>,
     stats: &mut CoreStats,
 ) {
-    let Some(contents) =
-        required_utf8_file(snapshot, &policy.agents_path, diagnostics, stats)
+    let Some(contents) = required_utf8_file(snapshot, &policy.agents_path, diagnostics, stats)
     else {
         return;
     };
@@ -1687,7 +1646,7 @@ fn evaluate_agents(
         let Some(entry) = snapshot.get(path) else {
             continue;
         };
-        stats.provider_projections_checked += 1;
+        stats.provider_projections += 1;
         if entry.kind != RepositoryEntryKind::File {
             diagnostics.push(RawDiagnostic::new(
                 AGENTS_RULE,
@@ -1750,7 +1709,11 @@ fn validate_managed_block(
                     "the continuity instruction linkage is missing, duplicated, or unbalanced",
                     DiagnosticImpact::Invalid,
                 )
-                .at_line(begins.first().map(|(offset, _)| line_number(contents, *offset))),
+                .at_line(
+                    begins
+                        .first()
+                        .map(|(offset, _)| line_number(contents, *offset)),
+                ),
             );
         }
         return;
@@ -1791,8 +1754,7 @@ fn evaluate_continuity_document(
     diagnostics: &mut Vec<RawDiagnostic>,
     stats: &mut CoreStats,
 ) -> ParsedContinuity {
-    let Some(contents) =
-        required_utf8_file(snapshot, &policy.continuity_path, diagnostics, stats)
+    let Some(contents) = required_utf8_file(snapshot, &policy.continuity_path, diagnostics, stats)
     else {
         return ParsedContinuity::default();
     };
@@ -1823,9 +1785,7 @@ fn evaluate_continuity_document(
             DiagnosticImpact::Invalid,
         ));
         evaluate_body(policy, snapshot, contents, 1, diagnostics, stats);
-        return ParsedContinuity {
-            metadata: None,
-        };
+        return ParsedContinuity { metadata: None };
     };
     if front_matter.lines().any(unsafe_yaml_line) {
         diagnostics.push(RawDiagnostic::new(
@@ -1838,23 +1798,20 @@ fn evaluate_continuity_document(
             DiagnosticImpact::Invalid,
         ));
     }
-    let metadata = match serde_yaml::from_str::<ContinuityMetadata>(front_matter) {
-        Ok(metadata) => {
-            validate_metadata(policy, snapshot, &metadata, diagnostics);
-            Some(metadata)
-        }
-        Err(_) => {
-            diagnostics.push(RawDiagnostic::new(
-                SCHEMA_RULE,
-                "front-matter-schema",
-                Some(&policy.continuity_path),
-                "Aether repository-continuity v1 metadata",
-                "malformed or unsupported metadata",
-                "continuity front matter does not decode against the supported closed v1 structure",
-                DiagnosticImpact::Invalid,
-            ));
-            None
-        }
+    let metadata = if let Ok(metadata) = serde_yaml::from_str::<ContinuityMetadata>(front_matter) {
+        validate_metadata(policy, snapshot, &metadata, diagnostics);
+        Some(metadata)
+    } else {
+        diagnostics.push(RawDiagnostic::new(
+            SCHEMA_RULE,
+            "front-matter-schema",
+            Some(&policy.continuity_path),
+            "Aether repository-continuity v1 metadata",
+            "malformed or unsupported metadata",
+            "continuity front matter does not decode against the supported closed v1 structure",
+            DiagnosticImpact::Invalid,
+        ));
+        None
     };
     evaluate_body(policy, snapshot, body, body_line, diagnostics, stats);
     ParsedContinuity { metadata }
@@ -1866,7 +1823,7 @@ fn required_utf8_file<'a>(
     diagnostics: &mut Vec<RawDiagnostic>,
     stats: &mut CoreStats,
 ) -> Option<&'a str> {
-    stats.files_checked += 1;
+    stats.files += 1;
     let Some(entry) = snapshot.get(path) else {
         let observed = snapshot
             .mis_cased(path)
@@ -1915,20 +1872,19 @@ fn required_utf8_file<'a>(
         ));
         return None;
     };
-    match std::str::from_utf8(bytes) {
-        Ok(contents) => Some(contents),
-        Err(_) => {
-            diagnostics.push(RawDiagnostic::new(
-                SCHEMA_RULE,
-                format!("utf8-{}", portable_path(path)),
-                Some(path),
-                "UTF-8 content",
-                "non-UTF-8 bytes",
-                format!("{} must contain UTF-8 text", portable_path(path)),
-                DiagnosticImpact::Invalid,
-            ));
-            None
-        }
+    if let Ok(contents) = std::str::from_utf8(bytes) {
+        Some(contents)
+    } else {
+        diagnostics.push(RawDiagnostic::new(
+            SCHEMA_RULE,
+            format!("utf8-{}", portable_path(path)),
+            Some(path),
+            "UTF-8 content",
+            "non-UTF-8 bytes",
+            format!("{} must contain UTF-8 text", portable_path(path)),
+            DiagnosticImpact::Invalid,
+        ));
+        None
     }
 }
 
@@ -1978,12 +1934,14 @@ fn validate_metadata(
                 metadata.document.stale_reason.is_none()
                     && metadata.document.superseded_by.is_none()
             }
-            ContinuityDocumentStatus::Stale => metadata
-                .document
-                .stale_reason
-                .as_deref()
-                .is_some_and(valid_nonempty)
-                && metadata.document.superseded_by.is_none(),
+            ContinuityDocumentStatus::Stale => {
+                metadata
+                    .document
+                    .stale_reason
+                    .as_deref()
+                    .is_some_and(valid_nonempty)
+                    && metadata.document.superseded_by.is_none()
+            }
             ContinuityDocumentStatus::Superseded => {
                 metadata.document.stale_reason.is_none()
                     && metadata
@@ -2357,7 +2315,7 @@ fn evaluate_body(
     }
 
     for (target, line) in markdown_links(body, first_line) {
-        stats.markdown_links_checked += 1;
+        stats.markdown_links += 1;
         if !valid_markdown_target(snapshot, &target) {
             diagnostics.push(
                 RawDiagnostic::new(
@@ -2459,43 +2417,42 @@ fn collect_git_comparison(
             },
             Some(RepositorySnapshot::default()),
         )
+    } else if let Some(snapshot) =
+        snapshot_at_revision(workspace, &invocation.base_revision, content_paths)?
+    {
+        (
+            ContinuityRevisionEvidence {
+                requested: invocation.base_revision.clone(),
+                state: ContinuityRevisionState::Available,
+                resolved_revision: Some(invocation.base_revision.clone()),
+            },
+            Some(snapshot),
+        )
     } else {
-        match snapshot_at_revision(workspace, &invocation.base_revision, content_paths)? {
-            Some(snapshot) => (
-                ContinuityRevisionEvidence {
-                    requested: invocation.base_revision.clone(),
-                    state: ContinuityRevisionState::Available,
-                    resolved_revision: Some(invocation.base_revision.clone()),
+        diagnostics.push(
+            RawDiagnostic::new(
+                COMPARISON_RULE,
+                "base-unavailable",
+                None,
+                "locally available comparison base",
+                if shallow {
+                    "unavailable in shallow clone"
+                } else {
+                    "unavailable"
                 },
-                Some(snapshot),
-            ),
-            None => {
-                diagnostics.push(
-                    RawDiagnostic::new(
-                        COMPARISON_RULE,
-                        "base-unavailable",
-                        None,
-                        "locally available comparison base",
-                        if shallow {
-                            "unavailable in shallow clone"
-                        } else {
-                            "unavailable"
-                        },
-                        "the represented base revision is unavailable locally and was not fetched",
-                        DiagnosticImpact::Incomplete,
-                    )
-                    .with_severity(Severity::Error),
-                );
-                (
-                    ContinuityRevisionEvidence {
-                        requested: invocation.base_revision.clone(),
-                        state: ContinuityRevisionState::Unavailable,
-                        resolved_revision: None,
-                    },
-                    None,
-                )
-            }
-        }
+                "the represented base revision is unavailable locally and was not fetched",
+                DiagnosticImpact::Incomplete,
+            )
+            .with_severity(Severity::Error),
+        );
+        (
+            ContinuityRevisionEvidence {
+                requested: invocation.base_revision.clone(),
+                state: ContinuityRevisionState::Unavailable,
+                resolved_revision: None,
+            },
+            None,
+        )
     };
     let (head, head_snapshot) = if invocation.head_revision == "working-tree" {
         (
@@ -2644,15 +2601,15 @@ fn snapshot_at_revision(
     if git_bytes(workspace, &["cat-file", "-e", &commit_expression])?.is_none() {
         return Ok(None);
     }
-    let Some(tree) = git_bytes(
-        workspace,
-        &["ls-tree", "--recursive", "-z", "--full-tree", revision],
-    )?
+    let Some(tree) = git_bytes(workspace, &["ls-tree", "-r", "-z", "--full-tree", revision])?
     else {
         return Ok(None);
     };
     let mut entries = BTreeMap::new();
-    for record in tree.split(|byte| *byte == 0).filter(|record| !record.is_empty()) {
+    for record in tree
+        .split(|byte| *byte == 0)
+        .filter(|record| !record.is_empty())
+    {
         let Some(tab) = record.iter().position(|byte| *byte == b'\t') else {
             return Err(EgolintError::Configuration(
                 "Git tree record is missing its path separator".to_owned(),
@@ -2738,12 +2695,7 @@ fn determine_topology(
     {
         let parents = git_text(
             workspace,
-            &[
-                "rev-list",
-                "--parents",
-                "--max-count=1",
-                head_revision,
-            ],
+            &["rev-list", "--parents", "--max-count=1", head_revision],
         )?
         .map_or(0, |value| value.split_ascii_whitespace().count());
         return Ok(if head.state == ContinuityRevisionState::WorkingTree {
@@ -2802,10 +2754,7 @@ fn evaluate_exceptions(
                 "proposed" | "approved" | "expired" | "revoked"
             )
             && valid_nonempty(&exception.exit_criteria)
-            && exception
-                .approval
-                .as_deref()
-                .is_none_or(valid_stable_url);
+            && exception.approval.as_deref().is_none_or(valid_stable_url);
         let approved_valid = exception.validation_state != "approved"
             || exception.approval.as_deref().is_some_and(valid_stable_url);
         let time_valid = exception.expires_on.as_str() >= invocation.evaluation_date.as_str();
@@ -2941,9 +2890,11 @@ fn evaluate_comparison(
             let reviewed = matches!(
                 metadata.review.status,
                 ContinuityReviewStatus::Passed | ContinuityReviewStatus::Partial
-            ) && metadata.review.evidence.iter().any(|item| {
-                matches!(item.outcome.as_str(), "passed" | "limited")
-            });
+            ) && metadata
+                .review
+                .evidence
+                .iter()
+                .any(|item| matches!(item.outcome.as_str(), "passed" | "limited"));
             if git.continuity_changed != Some(false) || !reviewed {
                 diagnostics.push(RawDiagnostic::new(
                     COMPARISON_RULE,
@@ -3218,18 +3169,17 @@ fn evidence_layers(
     } else {
         ContinuityEvidenceStatus::Valid
     };
-    let external_live_state = if invocation.live_verification
-        == ContinuityLiveVerification::Verified
-    {
-        ContinuityEvidenceStatus::Verified
-    } else if metadata.is_some_and(|metadata| {
-        metadata.state.live.status == ContinuityLiveStatus::Verified
-            || metadata.state.live.pull_request_state == "merged"
-    }) {
-        ContinuityEvidenceStatus::RequiresExternalVerification
-    } else {
-        ContinuityEvidenceStatus::Unavailable
-    };
+    let external_live_state =
+        if invocation.live_verification == ContinuityLiveVerification::Verified {
+            ContinuityEvidenceStatus::Verified
+        } else if metadata.is_some_and(|metadata| {
+            metadata.state.live.status == ContinuityLiveStatus::Verified
+                || metadata.state.live.pull_request_state == "merged"
+        }) {
+            ContinuityEvidenceStatus::RequiresExternalVerification
+        } else {
+            ContinuityEvidenceStatus::Unavailable
+        };
     ContinuityEvidenceLayers {
         structural,
         freshness_declaration,
@@ -3238,17 +3188,16 @@ fn evidence_layers(
     }
 }
 
-fn layer_status(
-    diagnostics: &[RawDiagnostic],
-    rules: &[&str],
-) -> ContinuityEvidenceStatus {
-    if diagnostics.iter().any(|item| {
-        rules.contains(&item.rule_id) && item.impact == DiagnosticImpact::Invalid
-    }) {
+fn layer_status(diagnostics: &[RawDiagnostic], rules: &[&str]) -> ContinuityEvidenceStatus {
+    if diagnostics
+        .iter()
+        .any(|item| rules.contains(&item.rule_id) && item.impact == DiagnosticImpact::Invalid)
+    {
         ContinuityEvidenceStatus::Invalid
-    } else if diagnostics.iter().any(|item| {
-        rules.contains(&item.rule_id) && item.impact == DiagnosticImpact::Incomplete
-    }) {
+    } else if diagnostics
+        .iter()
+        .any(|item| rules.contains(&item.rule_id) && item.impact == DiagnosticImpact::Incomplete)
+    {
         ContinuityEvidenceStatus::Incomplete
     } else {
         ContinuityEvidenceStatus::Valid
@@ -3293,11 +3242,7 @@ fn raw_diagnostic_order(left: &RawDiagnostic, right: &RawDiagnostic) -> std::cmp
         .then_with(|| left.key.cmp(&right.key))
 }
 
-fn stable_fingerprint(
-    rule_id: &str,
-    location: Option<&SourceLocation>,
-    key: &str,
-) -> String {
+fn stable_fingerprint(rule_id: &str, location: Option<&SourceLocation>, key: &str) -> String {
     let path = location
         .map(|location| portable_path(&location.path))
         .unwrap_or_default();
@@ -3427,8 +3372,7 @@ fn valid_datetime(value: &str) -> bool {
     } else {
         let Some(index) = remainder
             .char_indices()
-            .skip(1)
-            .rfind(|(_, character)| matches!(character, '+' | '-'))
+            .rfind(|&(index, character)| index > 0 && matches!(character, '+' | '-'))
             .map(|(index, _)| index)
         else {
             return false;
@@ -3460,12 +3404,8 @@ fn valid_datetime(value: &str) -> bool {
     bytes.len() == 6
         && matches!(bytes[0], b'+' | b'-')
         && bytes[3] == b':'
-        && zone[1..3]
-            .parse::<u32>()
-            .is_ok_and(|hours| hours <= 23)
-        && zone[4..6]
-            .parse::<u32>()
-            .is_ok_and(|minutes| minutes <= 59)
+        && zone[1..3].parse::<u32>().is_ok_and(|hours| hours <= 23)
+        && zone[4..6].parse::<u32>().is_ok_and(|minutes| minutes <= 59)
 }
 
 fn valid_canonical_source(value: &str) -> bool {
@@ -3501,22 +3441,12 @@ fn valid_stable_url(value: &str) -> bool {
         return false;
     }
     if segments.len() >= 4 && matches!(segments[2], "issues" | "pull") {
-        return segments[3]
-            .split(|character| matches!(character, '#' | '?'))
-            .next()
-            .is_some_and(|number| {
-                !number.is_empty()
-                    && number != "0"
-                    && number.bytes().all(|byte| byte.is_ascii_digit())
-            });
+        return segments[3].split(['#', '?']).next().is_some_and(|number| {
+            !number.is_empty() && number != "0" && number.bytes().all(|byte| byte.is_ascii_digit())
+        });
     }
     if segments.len() >= 4 && segments[2] == "commit" {
-        return valid_commit(
-            segments[3]
-                .split(|character| matches!(character, '#' | '?'))
-                .next()
-                .unwrap_or_default(),
-        );
+        return valid_commit(segments[3].split(['#', '?']).next().unwrap_or_default());
     }
     if segments.len() >= 5 && matches!(segments[2], "blob" | "tree") {
         return valid_commit(segments[3]);
@@ -3590,9 +3520,14 @@ fn unsafe_yaml_line(line: &str) -> bool {
 }
 
 fn line_number(contents: &str, offset: usize) -> u32 {
-    u32::try_from(contents[..offset].bytes().filter(|byte| *byte == b'\n').count())
-        .unwrap_or(u32::MAX)
-        .saturating_add(1)
+    u32::try_from(
+        contents[..offset]
+            .bytes()
+            .filter(|byte| *byte == b'\n')
+            .count(),
+    )
+    .unwrap_or(u32::MAX)
+    .saturating_add(1)
 }
 
 fn template_placeholders(contents: &str) -> BTreeSet<String> {
@@ -3612,9 +3547,7 @@ fn template_placeholders(contents: &str) -> BTreeSet<String> {
             let candidate = &line[start..end];
             if candidate.len() <= 160
                 && !candidate.starts_with("</")
-                && candidate
-                    .bytes()
-                    .any(|byte| byte.is_ascii_alphabetic())
+                && candidate.bytes().any(|byte| byte.is_ascii_alphabetic())
             {
                 placeholders.insert(candidate.to_owned());
             }
@@ -3631,18 +3564,21 @@ fn contains_secret_like_value(contents: &str) -> bool {
     {
         return true;
     }
-    contents.split(|character: char| {
-        !(character.is_ascii_alphanumeric() || matches!(character, '_' | '-'))
-    })
-    .any(|token| {
-        (token.starts_with("ghp_") && token.len() >= 24)
-            || (token.starts_with("github_pat_") && token.len() >= 24)
-            || (token.starts_with("sk_live_") && token.len() >= 24)
-            || (token.starts_with("xoxb-") && token.len() >= 24)
-            || (token.starts_with("AKIA")
-                && token.len() == 20
-                && token.bytes().all(|byte| byte.is_ascii_uppercase() || byte.is_ascii_digit()))
-    })
+    contents
+        .split(|character: char| {
+            !(character.is_ascii_alphanumeric() || matches!(character, '_' | '-'))
+        })
+        .any(|token| {
+            (token.starts_with("ghp_") && token.len() >= 24)
+                || (token.starts_with("github_pat_") && token.len() >= 24)
+                || (token.starts_with("sk_live_") && token.len() >= 24)
+                || (token.starts_with("xoxb-") && token.len() >= 24)
+                || (token.starts_with("AKIA")
+                    && token.len() == 20
+                    && token
+                        .bytes()
+                        .all(|byte| byte.is_ascii_uppercase() || byte.is_ascii_digit()))
+        })
 }
 
 fn markdown_links(contents: &str, first_line: u32) -> Vec<(String, u32)> {
@@ -3694,8 +3630,7 @@ fn valid_markdown_target(snapshot: &RepositorySnapshot, value: &str) -> bool {
 mod tests {
     use super::*;
 
-    const POLICY: &str =
-        include_str!("../../.config/dogfood/repository-continuity.toml");
+    const POLICY: &str = include_str!("../../.config/dogfood/repository-continuity.toml");
     const PUBLIC_CONTINUITY: &str =
         include_str!("../../tests/fixtures/repository-continuity/valid-public.md");
     const PRIVATE_CONTINUITY: &str =
@@ -3922,8 +3857,10 @@ mod tests {
                 PRIVATE_CONTINUITY,
             ),
         ] {
-            let diagnostics =
-                structural_diagnostics(&policy(repository, visibility), &fixture_snapshot(contents));
+            let diagnostics = structural_diagnostics(
+                &policy(repository, visibility),
+                &fixture_snapshot(contents),
+            );
             assert!(
                 diagnostics.iter().all(|diagnostic| {
                     diagnostic.rule_id == CONTRACT_RULE
@@ -3964,9 +3901,7 @@ mod tests {
 
         let mut missing_agents = fixture_snapshot(PUBLIC_CONTINUITY);
         missing_agents.entries.remove(Path::new("AGENTS.md"));
-        assert!(
-            rules(&structural_diagnostics(&policy, &missing_agents)).contains(FILE_RULE)
-        );
+        assert!(rules(&structural_diagnostics(&policy, &missing_agents)).contains(FILE_RULE));
 
         let mut duplicated = fixture_snapshot(PUBLIC_CONTINUITY);
         duplicated.entries.insert(
@@ -3993,8 +3928,7 @@ mod tests {
             snapshot_entry("Do not read CONTINUITY.md for this repository."),
         );
         assert!(
-            rules(&structural_diagnostics(&provider_policy, &contradictory))
-                .contains(AGENTS_RULE)
+            rules(&structural_diagnostics(&provider_policy, &contradictory)).contains(AGENTS_RULE)
         );
     }
 
@@ -4020,8 +3954,11 @@ mod tests {
 
         let hostile = format!("{PUBLIC_CONTINUITY}\n{MALICIOUS_FRAGMENT}");
         assert!(
-            rules(&structural_diagnostics(&policy, &fixture_snapshot(&hostile)))
-                .contains(SAFETY_RULE)
+            rules(&structural_diagnostics(
+                &policy,
+                &fixture_snapshot(&hostile)
+            ))
+            .contains(SAFETY_RULE)
         );
 
         let synthetic_token = SYNTHETIC_SECRET_PARTS.lines().collect::<String>();
@@ -4112,11 +4049,7 @@ mod tests {
 
         excepted_policy.exceptions[0].expires_on = "2026-09-01".to_owned();
         assert_eq!(
-            evaluate_exceptions(
-                &excepted_policy,
-                &exception_invocation,
-                &mut Vec::new(),
-            ),
+            evaluate_exceptions(&excepted_policy, &exception_invocation, &mut Vec::new(),),
             ExceptionState::Invalid
         );
     }
@@ -4162,7 +4095,10 @@ mod tests {
 
         let mut generated = policy("example/public", ContinuityVisibility::Public);
         generated.repository_kind = ContinuityRepositoryKind::GeneratedOnly;
-        assert_eq!(resolve_applicability(&generated), ContinuityRequirement::Advisory);
+        assert_eq!(
+            resolve_applicability(&generated),
+            ContinuityRequirement::Advisory
+        );
         generated.repository_kind = ContinuityRepositoryKind::Mirror;
         assert_eq!(
             resolve_applicability(&generated),
@@ -4300,7 +4236,11 @@ mod tests {
         let evaluation = evaluator
             .evaluate(&workspace, &inventory)
             .expect("parallel evaluation");
-        assert_eq!(evaluation.report.comparison.parallel_checkpoint_conflicts, 1);
+        assert_eq!(
+            evaluation.report.comparison.parallel_checkpoint_conflicts, 1,
+            "{:#?}",
+            evaluation.report
+        );
         assert!(
             evaluation
                 .report
@@ -4325,8 +4265,7 @@ mod tests {
             "shallow clone failed: {}",
             String::from_utf8_lossy(&output.stderr)
         );
-        let shallow_inventory =
-            RepositoryInventory::discover(&clone).expect("shallow inventory");
+        let shallow_inventory = RepositoryInventory::discover(&clone).expect("shallow inventory");
         let shallow_evaluator = RepositoryContinuityEvaluator::new(
             &policy,
             Path::new("policy.toml"),
@@ -4390,13 +4329,17 @@ mod tests {
                 .collect::<Vec<_>>()
         };
         assert_eq!(human_inputs(&first), human_inputs(&second));
-        assert_eq!(first.report.status, ContinuityValidationStatus::Valid);
+        assert_eq!(
+            first.report.status,
+            ContinuityValidationStatus::Valid,
+            "{:#?}",
+            first.report
+        );
     }
 
     #[test]
     fn scenario_manifest_names_every_required_adversarial_case() {
-        let scenarios =
-            include_str!("../../tests/fixtures/repository-continuity/scenarios.txt");
+        let scenarios = include_str!("../../tests/fixtures/repository-continuity/scenarios.txt");
         for expected in [
             "valid-fresh-public",
             "valid-fresh-private",
