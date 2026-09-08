@@ -25,7 +25,9 @@ The repository also declares `egolint.javascript-package-quality.json`, so its r
 tooling is checked through the same package-quality manifest contract as external consumers. The
 JavaScript architecture profile includes `scripts/` as a first-class production root. The
 repository-owned manifest scope keeps generated contracts and deliberately hostile fixtures under
-their focused generators and tests instead of treating them as production package source.
+their focused generators and tests instead of treating them as production package source. Reviewed
+Aether and Hygiene projections are excluded from formatters because their owning contracts verify
+their exact bytes and digests instead.
 
 ## Canonical command
 
@@ -37,8 +39,8 @@ task dogfood
 
 The composed task performs three checks in order:
 
-1. `dogfood:native` invokes the public `egolint validate` CLI against this repository, including
-   the Hygiene v2 required-file contract and focused continuity comparison.
+1. `dogfood:native` invokes the public `egolint validate` CLI against this repository, including the
+   Hygiene v2 required-file contract and focused continuity comparison.
 2. `dogfood:javascript` runs the public dependency-architecture and JavaScript package-quality
    adapters against Egolint's own production tooling.
 3. `dogfood:holistic` builds the current checkout's `Dockerfile.full` and invokes the public

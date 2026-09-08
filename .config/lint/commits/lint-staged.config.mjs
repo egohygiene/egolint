@@ -5,7 +5,7 @@ import { relative } from "node:path";
 
 const prettierConfiguration = ".config/lint/javascript/prettier.config.mjs";
 const stylelintConfiguration = ".config/lint/css/stylelint.json";
-const immutablePathPrefixes = ["assets/identity/", "vendor/hygiene/"];
+const immutablePathPrefixes = ["assets/identity/", "vendor/aether/", "vendor/hygiene/"];
 
 function shellQuote(value) {
     return `'${value.replaceAll("'", `'\\''`)}'`;
