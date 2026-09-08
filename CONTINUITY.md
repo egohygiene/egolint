@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-09-08T16:35:44Z"
+  updated_at: "2026-09-08T17:39:53Z"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -30,12 +30,11 @@ scope:
     - docs/contracts.md
     - ROADMAP.md
 work:
-  objective: Implement deterministic repository continuity validation for egolint issue 55.
+  objective: Maintain the merged repository continuity validator at observe until issue 55's released-contract gate is satisfied.
   success_conditions:
-    - Validate exact continuity and agent surfaces against immutable Hygiene and Aether projections.
-    - Emit normalized findings and a dedicated continuity report with explicit evidence layers.
-    - Cover update, no-change, exception, shallow, parallel, lifecycle, and safety cases.
-    - Pass the repository's required pull-request checks before review.
+    - Keep the merged validator, reports, integrations, fixtures, and managed agent wiring green.
+    - Consume released Aether and Hygiene contracts through reviewed immutable projections.
+    - Reject rollout promotion until the pinned upstream lifecycle gates are satisfied.
   active_issue:
     provider: github
     id: egohygiene/egolint#55
@@ -51,40 +50,52 @@ work:
       - egohygiene/egolint#55
 state:
   base:
-    revision: 4b98b30eb3a574c81986fb9be585c4935f585f65
+    revision: 60e4f9ff7b46a898709910a1bfdb76341d7c58e1
     ref: refs/heads/main
-    verified_at: "2026-09-08T15:54:37Z"
+    verified_at: "2026-09-08T17:36:53Z"
   candidate:
     branch: codex/egolint-55-continuity-validation
-    revision: ce569d400d7972b05cc8a36e538d4238e7dcf5b8
+    revision: 454cebe6763270de4d1499f322ab08dbea2c1157
     pull_request:
       provider: github
       id: egohygiene/egolint#56
       url: https://github.com/egohygiene/egolint/pull/56
-    handoff_state: in-progress
+    handoff_state: post-merge-reconciliation
   live:
     status: verified
-    observed_at: "2026-09-08T16:35:44Z"
-    default_branch_revision: 4b98b30eb3a574c81986fb9be585c4935f585f65
+    observed_at: "2026-09-08T17:36:53Z"
+    default_branch_revision: 60e4f9ff7b46a898709910a1bfdb76341d7c58e1
     issue_state: open
-    pull_request_state: draft
-    notes: GitHub showed issue 55 open, pull request 56 draft, and main at the recorded revision; recheck before handoff.
+    pull_request_state: merged
+    notes: GitHub showed pull request 56 merged into the recorded main revision and issue 55 reopened for its unmet release gate; recheck mutable state before resuming.
   parallel_changes: []
 review:
-  status: partial
-  reviewed_at: "2026-09-08T16:35:44Z"
+  status: passed
+  reviewed_at: "2026-09-08T17:39:53Z"
   reviewed_by: Codex
   evidence:
-    - command: git status --short and git rev-parse HEAD
+    - command: cargo fmt, Clippy, test, Python, JavaScript, schema, package, and syntax suites
       outcome: passed
-      observed_at: "2026-09-08T15:54:37Z"
-      notes: The candidate branch is based on the recorded main revision and contains only scoped work.
-    - command: cargo test --locked
-      outcome: limited
-      observed_at: "2026-09-08T15:54:37Z"
-      notes: The local environment does not provide cargo; pull-request CI remains required.
+      observed_at: "2026-09-08T17:36:53Z"
+      notes: Pinned Rust 1.85.1 formatting, deny-warnings Clippy, all Rust tests, 62 Python tests, 12 distribution tests, JavaScript suites, generated schemas, package checks, and static decoding passed locally.
+    - command: GitHub Actions CI run 34256937159
+      outcome: passed
+      observed_at: "2026-09-08T17:36:53Z"
+      notes: Rust core, three native operating systems, contracts, schemas, and lightweight and full images passed.
+    - command: GitHub Actions Dogfood run 34256937173
+      outcome: passed
+      observed_at: "2026-09-08T17:36:53Z"
+      notes: The holistic reference-consumer workflow and evidence upload passed.
+    - command: GitHub issue and pull-request live-state inspection
+      outcome: passed
+      observed_at: "2026-09-08T17:36:53Z"
+      notes: Pull request 56 is merged and issue 55 is open because its released-contract acceptance criterion remains unmet.
+    - command: native continuity validation with updated disposition and post-merge transition
+      outcome: passed
+      observed_at: "2026-09-08T17:39:53Z"
+      notes: Exit zero with only the intended provisional-profile and unreleased-contract observe warnings.
   environment_limitations:
-    - Rust and Cargo are unavailable in the local execution environment.
+    - Docker was unavailable locally; the GitHub Actions CLI-image and full-policy-image jobs supplied container proof.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -114,33 +125,37 @@ This bounded checkpoint preserves operational handoff state. It does not replace
 
 ## Current objective and success conditions
 
-Implement issue 55 as an offline, rollout-aware native EgoLint validation surface. Completion requires immutable contract projections, stable diagnostics and schemas, adversarial fixtures, documentation, dogfood integration, and passing pull-request checks.
+Keep the merged offline validator and its integrations green while issue 55 tracks the remaining upstream release gate. The validator must remain in `observe` until released Aether and Hygiene inputs replace the reviewed draft and proposed projections.
 
 ## State snapshot
 
-The candidate branch starts from main revision `4b98b30eb3a574c81986fb9be585c4935f585f65`. Draft pull request 56 is open; its recorded candidate revision is prior to this checkpoint reconciliation and does not predict merge. The GitHub observation above is time-bounded and must be refreshed before handoff.
+Pull request 56 merged candidate `454cebe6763270de4d1499f322ab08dbea2c1157` into main as `60e4f9ff7b46a898709910a1bfdb76341d7c58e1`. Issue 55 was reopened because released upstream contracts remain an explicit acceptance criterion. This post-merge observation is time-bounded and must be refreshed before further work.
 
 ## Completed and material changes
 
 - Added repository-owned Hygiene and Aether contract projections with immutable source revisions and SHA-256 digests.
-- Added a typed native continuity policy, evaluator, normalized diagnostics, dedicated report model, and CLI inputs.
-- Added root agent wiring, a dogfood policy, and this repository checkpoint.
+- Added typed native evaluation with normalized findings and a dedicated report across structural, freshness, local-Git, and external-live evidence layers.
+- Added deterministic update, reviewed-no-change, exception, topology, lifecycle, safety, and parallel-reconciliation behavior with adversarial fixtures.
+- Added CLI, Task, Action, schema, packaging, documentation, root agent wiring, dogfood integration, and this bounded checkpoint.
 
 ## Validation and review evidence
 
-- Local Git inspection passed against the recorded base.
-- `cargo test --locked` was limited because Cargo is unavailable locally; GitHub pull-request checks are the authoritative Rust validation path.
+- Pinned Rust formatting, deny-warnings Clippy, all Rust tests, 62 Python tests, 12 distribution tests, JavaScript suites, schema generation, packaging, syntax, and immutable-digest checks passed locally.
+- GitHub [CI run 129](https://github.com/egohygiene/egolint/actions/runs/34256937159) passed every Rust, multi-OS, contract, schema, package, and container job.
+- GitHub [Dogfood run 74](https://github.com/egohygiene/egolint/actions/runs/34256937173) passed the holistic reference-consumer workflow.
+- Identity and both JavaScript pull-request workflows passed before merge.
 
 ## Blockers, risks, unknowns, and deferred work
 
-- Blocker: no local Rust toolchain is available.
-- Risk: initial compiler, formatter, Clippy, and generated-schema feedback must be resolved through pull-request CI.
-- Unknown: compiler, formatter, Clippy, schema, package, and dogfood results are pending in draft pull request 56.
-- Deferred: enforcement remains in observe while the upstream Hygiene profile is proposed and the Aether contract is draft.
+- Implementation blocker: none observed; pull request 56 is merged and its checks passed.
+- Release blocker: Hygiene remains `proposed`, and Aether remains `draft` with `release_included: false`.
+- Risk: advancing beyond `observe` before those lifecycle gates pass would overstate contract authority.
+- Unknown: the future released revisions and release dates are not yet established.
+- Deferred: repinning released inputs, promotion review, issue closure, and downstream rollout.
 
 ## Next dependency-ready work
 
-Finish issue 55, reconcile this checkpoint with exact CI and pull-request evidence, then continue `egohygiene/holon#42` after this change is merged.
+Track the upstream releases, repin and revalidate the released projections, then close issue 55. `egohygiene/holon#42` remains blocked on that gate.
 
 ## Parallel changes and reconciliation
 
