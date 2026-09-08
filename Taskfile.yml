@@ -178,10 +178,9 @@ tasks:
         --repository-intelligence ".config/dogfood/repository-intelligence.toml"
         --represented-commit "$(git rev-parse --verify HEAD)" --repository-continuity
         ".config/dogfood/repository-continuity.toml" --continuity-base
-        "{{.DOGFOOD_CONTINUITY_BASE}}" --continuity-head "working-tree"
-        --continuity-disposition "updated" --continuity-transition "pull-request"
-        --continuity-live-verification "unavailable" --continuity-evaluation-date
-        "{{.DOGFOOD_EVALUATION_DATE}}"
+        "{{.DOGFOOD_CONTINUITY_BASE}}" --continuity-head "working-tree" --continuity-disposition
+        "updated" --continuity-transition "pull-request" --continuity-live-verification
+        "unavailable" --continuity-evaluation-date "{{.DOGFOOD_EVALUATION_DATE}}"
 
   continuity:check:
     desc: "Validate continuity with caller-supplied, locally available base/head evidence"
@@ -195,12 +194,11 @@ tasks:
       - >-
         cargo run --quiet --locked -- --workspace "." validate --repository-contract
         ".config/dogfood/repository-context.toml" --repository-continuity
-        ".config/dogfood/repository-continuity.toml" --continuity-base
-        "{{.CONTINUITY_BASE}}" --continuity-head "{{.CONTINUITY_HEAD}}"
-        --continuity-disposition "{{.CONTINUITY_DISPOSITION}}" --continuity-transition
-        '{{default "pull-request" .CONTINUITY_TRANSITION}}' --continuity-live-verification
-        '{{default "unavailable" .CONTINUITY_LIVE_VERIFICATION}}'
-        --continuity-evaluation-date "{{.EVALUATION_DATE}}"
+        ".config/dogfood/repository-continuity.toml" --continuity-base "{{.CONTINUITY_BASE}}"
+        --continuity-head "{{.CONTINUITY_HEAD}}" --continuity-disposition
+        "{{.CONTINUITY_DISPOSITION}}" --continuity-transition '{{default "pull-request"
+        .CONTINUITY_TRANSITION}}' --continuity-live-verification '{{default "unavailable"
+        .CONTINUITY_LIVE_VERIFICATION}}' --continuity-evaluation-date "{{.EVALUATION_DATE}}"
 
   dogfood:architecture:
     desc: "Run Egolint's architecture adapter with bounded self-consumer debt"

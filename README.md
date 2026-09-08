@@ -41,7 +41,7 @@ Egolint separates orchestration from the lint engine:
 | `egolint lint`      | Run linters with the repository mounted read-only.                                                       |
 | `egolint fix`       | Generate a bounded patch in an isolated copy; never edit the source worktree.                            |
 | `egolint apply-fix` | Apply and stage one reviewed patch only when its SHA-256, base commit, and expected post-tree all match. |
-| `egolint validate`  | Run native portability, repository-contract, continuity, and semantic checks without a container.       |
+| `egolint validate`  | Run native portability, repository-contract, continuity, and semantic checks without a container.        |
 | `egolint plan`      | Print the redacted container invocation without running it.                                              |
 | `egolint doctor`    | Validate configuration and runtime readiness.                                                            |
 | `egolint explain`   | Show effective configuration and ordered sources.                                                        |

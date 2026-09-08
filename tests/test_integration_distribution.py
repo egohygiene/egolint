@@ -308,23 +308,25 @@ class IntegrationDistributionTests(unittest.TestCase):
             action_outputs = dict(
                 line.split("=", 1) for line in output.read_text(encoding="utf-8").splitlines()
             )
-            self.assertEqual(action_outputs["run-report"], ".reports/egolint/run.json")
-            self.assertEqual(action_outputs["sarif-report"], ".reports/egolint/egolint.sarif")
             self.assertEqual(
-                action_outputs["repository-continuity-report"],
-                ".reports/egolint/repository-continuity.json",
+                action_outputs,
+                {
+                    "run-report": ".reports/egolint/run.json",
+                    "sarif-report": ".reports/egolint/egolint.sarif",
+                    "repository-continuity-report": (".reports/egolint/repository-continuity.json"),
+                    "repository-intelligence-report": (
+                        ".reports/egolint/repository-intelligence.json"
+                    ),
+                    "repository-presentation-report": (
+                        ".reports/egolint/repository-presentation.json"
+                    ),
+                    "debt-json": ".reports/egolint/debt.json",
+                    "debt-markdown": ".reports/egolint/debt.md",
+                    "raw-megalinter-json": ".reports/egolint/mega-linter-report.json",
+                    "raw-megalinter-sarif": ".reports/egolint/mega-linter-report.sarif",
+                    "exit-code": "0",
+                },
             )
-            self.assertEqual(
-                action_outputs["repository-intelligence-report"],
-                ".reports/egolint/repository-intelligence.json",
-            )
-            self.assertEqual(
-                action_outputs["repository-presentation-report"],
-                ".reports/egolint/repository-presentation.json",
-            )
-            self.assertEqual(action_outputs["debt-json"], ".reports/egolint/debt.json")
-            self.assertEqual(action_outputs["debt-markdown"], ".reports/egolint/debt.md")
-            self.assertEqual(action_outputs["exit-code"], "0")
 
     def test_action_rejects_output_command_injection_paths(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
