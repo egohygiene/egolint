@@ -38,6 +38,38 @@ inputs:
     description: Optional workspace-relative repository-contract TOML path.
     required: false
     default: ""
+  repository-continuity:
+    description: Optional workspace-relative repository-continuity policy TOML path.
+    required: false
+    default: ""
+  continuity-base:
+    description: Explicit full base commit or unborn for continuity comparison.
+    required: false
+    default: ""
+  continuity-head:
+    description: Explicit full head commit or working-tree for continuity comparison.
+    required: false
+    default: ""
+  continuity-disposition:
+    description: Continuity result (updated, reviewed-no-change, or exception).
+    required: false
+    default: ""
+  continuity-transition:
+    description: Continuity lifecycle transition (pull-request or post-merge).
+    required: false
+    default: "pull-request"
+  continuity-live-verification:
+    description: Whether a separate authorized adapter supplied live evidence.
+    required: false
+    default: "unavailable"
+  continuity-live-evidence:
+    description: Optional comma-separated stable evidence URLs from that adapter.
+    required: false
+    default: ""
+  continuity-parallel-heads:
+    description: Optional comma-separated full candidate commits from the same base.
+    required: false
+    default: ""
   repository-intelligence:
     description: Optional workspace-relative Repository Intelligence policy TOML path.
     required: false
@@ -56,7 +88,7 @@ inputs:
     required: false
     default: ""
   evaluation-date:
-    description: Auditable YYYY-MM-DD date required with a suppression.
+    description: Auditable YYYY-MM-DD date required with a suppression or continuity policy.
     required: false
     default: ""
   changed-only:
@@ -74,6 +106,9 @@ outputs:
   repository-intelligence-report:
     description: Workspace-relative normalized Repository Intelligence validation report.
     value: ${{ steps.check.outputs.repository-intelligence-report }}
+  repository-continuity-report:
+    description: Workspace-relative privacy-safe repository-continuity validation report.
+    value: ${{ steps.check.outputs.repository-continuity-report }}
   repository-presentation-report:
     description: Workspace-relative privacy-safe repository-presentation validation report.
     value: ${{ steps.check.outputs.repository-presentation-report }}
@@ -110,6 +145,14 @@ runs:
         INPUT_NETWORK: ${{ inputs.network }}
         INPUT_MEGALINTER_CONFIG: ${{ inputs.megalinter-config }}
         INPUT_REPOSITORY_CONTRACT: ${{ inputs.repository-contract }}
+        INPUT_REPOSITORY_CONTINUITY: ${{ inputs.repository-continuity }}
+        INPUT_CONTINUITY_BASE: ${{ inputs.continuity-base }}
+        INPUT_CONTINUITY_HEAD: ${{ inputs.continuity-head }}
+        INPUT_CONTINUITY_DISPOSITION: ${{ inputs.continuity-disposition }}
+        INPUT_CONTINUITY_TRANSITION: ${{ inputs.continuity-transition }}
+        INPUT_CONTINUITY_LIVE_VERIFICATION: ${{ inputs.continuity-live-verification }}
+        INPUT_CONTINUITY_LIVE_EVIDENCE: ${{ inputs.continuity-live-evidence }}
+        INPUT_CONTINUITY_PARALLEL_HEADS: ${{ inputs.continuity-parallel-heads }}
         INPUT_REPOSITORY_INTELLIGENCE: ${{ inputs.repository-intelligence }}
         INPUT_REPOSITORY_PRESENTATION: ${{ inputs.repository-presentation }}
         INPUT_REPRESENTED_COMMIT: ${{ inputs.represented-commit }}

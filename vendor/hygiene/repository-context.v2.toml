@@ -1,0 +1,47 @@
+schema-version = 1
+id = "hygiene-repository-context"
+version = "2.0.0"
+profile = "hygiene/repository-context"
+provisional = true
+
+[source]
+repository = "egohygiene/hygiene"
+revision = "1c720954283b91134c18a7cfa28e5c2dda505d46"
+revision-kind = "git-commit"
+path = "catalog/repository-context.json"
+decision = "https://github.com/egohygiene/hygiene/issues/45"
+
+[[requirements]]
+id = "agent-instructions"
+path = "AGENTS.md"
+kind = "file"
+ownership = "repository-owned"
+markers = [
+  "<!-- BEGIN AETHER REPOSITORY-CONTINUITY -->",
+  "<!-- aether-instruction {\"contract\":\"aether.repository-continuity/v1\",\"continuity_path\":\"CONTINUITY.md\",\"id\":\"repository-continuity\",\"skill\":\"maintain-repository-continuity\",\"status\":\"draft\",\"version\":\"1.0.0\"} -->",
+  "<!-- END AETHER REPOSITORY-CONTINUITY -->",
+]
+
+[[requirements]]
+id = "continuity-checkpoint"
+path = "CONTINUITY.md"
+kind = "file"
+ownership = "repository-owned"
+markers = [
+  "schema_version: aether.repository-continuity/v1",
+  "continuity_path: CONTINUITY.md",
+  "## Current objective and success conditions",
+  "## Next dependency-ready work",
+]
+
+[[requirements]]
+id = "ecosystem-context"
+path = "docs/ecosystem/CONTEXT.md"
+kind = "file"
+ownership = "generated"
+markers = [
+  "<!-- egohygiene-context: repository-context/v2 -->",
+  "architecture-release: \"architecture-v0.1.0\"",
+  "generated-by: \"egohygiene/hygiene:repository-context@2.0.0\"",
+  "continuity-policy: \"egohygiene.repository-continuity-policy/v1@1.0.0-alpha.1\"",
+]

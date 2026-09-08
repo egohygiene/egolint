@@ -84,6 +84,14 @@ behavior.
 own incremental source coverage and enabled-rule profile; see
 [Repository Intelligence validation](repository-intelligence.md).
 
+`--repository-continuity` selects one versioned continuity policy and requires explicit
+`--continuity-base`, `--continuity-head`, `--continuity-disposition`, and
+`--continuity-evaluation-date` values. Optional transition, parallel-head, and authorized live-state
+inputs remain separate so local Git evidence is never confused with provider verification. The
+validator does not fetch or write. See
+[repository continuity validation](repository-continuity.md) for checkout-depth, rollout, and
+comparison semantics.
+
 `--changed-only`, repeatable `--enable-linter`, and repeatable `--disable-linter` apply to one
 invocation and are not persistent TOML fields. Repeatable `--suppression` inputs each name one
 versioned suppression JSON document. Suppression evaluation deliberately requires

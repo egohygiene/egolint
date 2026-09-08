@@ -3,6 +3,7 @@
 pub mod inventory;
 pub mod portability;
 pub mod repository_contract;
+pub mod repository_continuity;
 pub mod repository_intelligence;
 pub mod repository_presentation;
 pub mod suppressions;
@@ -12,6 +13,16 @@ pub use portability::{PortabilityRuleDefinition, PortabilityRuleSet};
 pub use repository_contract::{
     ContractRequirement, ContractSource, RepositoryContract, RepositoryContractEvaluator,
     RequirementKind, RequirementOwnership, SourceRevisionKind,
+};
+pub use repository_continuity::{
+    ContinuityAetherLock, ContinuityDisposition, ContinuityEvaluation,
+    ContinuityEvidenceLayers, ContinuityEvidenceStatus, ContinuityHygieneLock,
+    ContinuityInvocation, ContinuityLiveVerification, ContinuityRequirement,
+    ContinuityRevisionEvidence, ContinuityRevisionState, ContinuityRolloutStage,
+    ContinuityTopology, ContinuityTransition, ContinuityValidationStatus,
+    ContinuityValidationSummary, REPORT_PATH as REPOSITORY_CONTINUITY_REPORT,
+    RepositoryContinuityEvaluator, RepositoryContinuityPolicy, RepositoryContinuityReport,
+    TOOL_ID as REPOSITORY_CONTINUITY_TOOL_ID, write_continuity_report_atomic,
 };
 pub use repository_intelligence::{
     AdoptionState, CommitHistory, CommitRecord, IntelligenceEnforcement, IntelligenceEvaluation,

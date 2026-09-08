@@ -1,0 +1,131 @@
+schema-version = 1
+catalog-version = "0.1.0-alpha.1"
+owner = "egohygiene/egolint"
+tool-id = "EGOLINT_REPOSITORY_CONTINUITY"
+policy-source = ".config/rules/repository-continuity.v1.toml"
+
+[[upstream-contracts]]
+id = "egohygiene.repository-continuity-policy/v1"
+version = "1.0.0-alpha.1"
+authority = "proposed"
+release-included = false
+source-repository = "egohygiene/hygiene"
+source-revision = "43386f5749116717585ead7459b4945e0ac50d06"
+source-path = "catalog/repository-continuity-policy.json"
+digest = "a17178482d67e141009b07d6715727612fbf7f372be8c471a124149752c2ca64"
+
+[[upstream-contracts]]
+id = "aether.repository-continuity/v1"
+version = "1.0.0"
+authority = "draft"
+release-included = false
+source-repository = "egohygiene/aether"
+source-revision = "b7597301c4d22a9bcd580967b5753138bb368111"
+source-path = "library/organization/specs/methodology/repository-continuity.spec.md"
+
+[[upstream-contracts.artifacts]]
+kind = "schema"
+path = "catalog/schemas/aether.repository-continuity.v1.schema.json"
+digest = "a725e004fe0db2bf96a968c6e3f300d37ecf8b00b9a0923be5c5f4c529655916"
+
+[[upstream-contracts.artifacts]]
+kind = "instruction"
+path = "library/organization/instructions/repository-continuity/INSTRUCTION.md"
+digest = "dc2fb66bd5268af2416389fef469d2a13c91d1a6f179e6fc10a21d4f890876a8"
+
+[[upstream-contracts.artifacts]]
+kind = "template"
+path = "library/organization/skills/methodology/maintain-repository-continuity/templates/CONTINUITY.template.md"
+digest = "494de90d0c344db9ff41b78998445b9e9c02f23a69c25d48442d2af1de1343f2"
+
+[[rules]]
+id = "EGO-CONTRACT-FILE-001"
+title = "Required continuity surfaces use exact-case regular files"
+default-severity = "error"
+contracts = ["egohygiene.repository-continuity-policy/v1", "aether.repository-continuity/v1"]
+remediation = "Materialize exact-case root CONTINUITY.md and AGENTS.md as regular files; do not satisfy the contract with links."
+
+[[rules]]
+id = "EGO-CONTINUITY-CONTRACT-001"
+title = "Continuity inputs use supported immutable projections"
+default-severity = "error"
+contracts = ["egohygiene.repository-continuity-policy/v1", "aether.repository-continuity/v1"]
+remediation = "Install the reviewed local Hygiene profile and Aether artifacts with exact source revisions and SHA-256 digests; remain in observe until lifecycle gates are met."
+
+[[rules]]
+id = "EGO-CONTINUITY-SCHEMA-001"
+title = "Continuity front matter conforms to supported Aether v1 structure"
+default-severity = "error"
+contracts = ["aether.repository-continuity/v1"]
+remediation = "Repair the leading YAML document, supported schema identifier, required fields, closed enums, and cross-field lifecycle invariants."
+
+[[rules]]
+id = "EGO-CONTINUITY-STRUCTURE-001"
+title = "Continuity Markdown remains bounded and repository-specific"
+default-severity = "error"
+contracts = ["aether.repository-continuity/v1"]
+remediation = "Keep all required sections once and in order, remove template placeholders, and compact the file below 16384 bytes and 240 lines."
+
+[[rules]]
+id = "EGO-CONTINUITY-IDENTITY-001"
+title = "Continuity repository identity matches local policy"
+default-severity = "error"
+contracts = ["egohygiene.repository-continuity-policy/v1", "aether.repository-continuity/v1"]
+remediation = "Align repository ID, visibility, default branch, and exact continuity path with the repository-owned validation policy."
+
+[[rules]]
+id = "EGO-CONTINUITY-LINK-001"
+title = "Continuity references use stable structural formats"
+default-severity = "error"
+contracts = ["aether.repository-continuity/v1"]
+remediation = "Use matching GitHub issue or pull-request IDs, immutable GitHub file references, or normalized repository-relative links that resolve locally."
+
+[[rules]]
+id = "EGO-CONTINUITY-AGENTS-001"
+title = "Agent projections contain one unmodified managed continuity block"
+default-severity = "error"
+contracts = ["egohygiene.repository-continuity-policy/v1", "aether.repository-continuity/v1"]
+remediation = "Restore exactly one byte-matching managed Aether block in root AGENTS.md and reconcile any provider projection that contains continuity wiring."
+
+[[rules]]
+id = "EGO-CONTINUITY-FRESHNESS-001"
+title = "Checkpoint state represents the supplied transition and base"
+default-severity = "error"
+contracts = ["aether.repository-continuity/v1"]
+remediation = "Reconcile base and candidate metadata with the explicit comparison, using transition-safe pre-merge wording or an explicit post-merge state."
+
+[[rules]]
+id = "EGO-CONTINUITY-COMPARISON-001"
+title = "Base and head evidence supports the declared update result"
+default-severity = "error"
+contracts = ["egohygiene.repository-continuity-policy/v1", "aether.repository-continuity/v1"]
+remediation = "Supply locally available base/head revisions and declare an observed update, a reviewed no-change result, or a valid exception."
+
+[[rules]]
+id = "EGO-CONTINUITY-PARALLEL-001"
+title = "Parallel checkpoint changes require semantic reconciliation"
+default-severity = "error"
+contracts = ["aether.repository-continuity/v1"]
+remediation = "Fetch the explicitly named parallel heads when authorized, reconcile their current state manually, and rerun comparison without last-writer-wins resolution."
+
+[[rules]]
+id = "EGO-CONTINUITY-EXCEPTION-001"
+title = "Continuity exceptions are reviewed, owned, and unexpired"
+default-severity = "error"
+contracts = ["egohygiene.repository-continuity-policy/v1"]
+remediation = "Use a repository-matched Hygiene exception with an owner, stable approval, real expiry, review trigger, and exit criteria."
+
+[[rules]]
+id = "EGO-CONTINUITY-LIVE-001"
+title = "Live and merge-state claims remain externally verified"
+default-severity = "warning"
+contracts = ["egohygiene.repository-continuity-policy/v1",
+  "aether.repository-continuity/v1"]
+remediation = "Have an authorized adapter supply stable live-state evidence, or mark mutable state partial or unavailable without inferring success."
+
+[[rules]]
+id = "EGO-CONTINUITY-SAFETY-001"
+title = "Continuity content cannot grant authority or retain secrets"
+default-severity = "critical"
+contracts = ["egohygiene.repository-continuity-policy/v1", "aether.repository-continuity/v1"]
+remediation = "Remove authority-escalation text and secret-shaped values; retain only minimum public-safe repository state and record redaction categories."

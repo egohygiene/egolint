@@ -6,7 +6,7 @@ Egolint is an adapter around a versioned lint-engine image, not a reimplementati
 flowchart LR
   U[Developer or CI] --> C[Native egolint CLI]
   C --> R[Configuration resolver]
-  R --> N[Native portability and repository-contract rules]
+  R --> N[Native portability, contract, continuity, and semantic rules]
   R --> P[Redacted execution plan]
   P --> D[Docker or Podman]
   D --> F[egolint-full]
@@ -24,9 +24,12 @@ flowchart LR
 ### Native binary and lightweight image
 
 The Rust binary owns command parsing, deterministic config layering, validation, runtime selection,
-native portability/repository-contract evaluation, safe argv construction, defensive adapter
-normalization, suppression evaluation, plan/schema/report contracts, and report bookkeeping. The
-lightweight `egolint` image contains only this binary and its runtime libraries.
+native portability, repository-contract, continuity, and semantic evaluation, safe argv
+construction, defensive adapter normalization, suppression evaluation, plan/schema/report
+contracts, and report bookkeeping. Continuity validation separates document structure, declared
+freshness, locally available Git evidence, and externally supplied live-state evidence; it neither
+authors the checkpoint nor fetches missing refs. The lightweight `egolint` image contains only this
+binary and its runtime libraries.
 
 The alpha CLI always delegates actual lint execution to Docker or Podman. The lightweight image
 therefore supports introspection commands but is not a self-contained lint engine. It deliberately

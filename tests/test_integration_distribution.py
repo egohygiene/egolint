@@ -155,6 +155,7 @@ class IntegrationDistributionTests(unittest.TestCase):
             {
                 "run-report",
                 "sarif-report",
+                "repository-continuity-report",
                 "repository-intelligence-report",
                 "repository-presentation-report",
                 "debt-json",
@@ -168,6 +169,7 @@ class IntegrationDistributionTests(unittest.TestCase):
         for report in (
             "run.json",
             "egolint.sarif",
+            "repository-continuity.json",
             "repository-intelligence.json",
             "repository-presentation.json",
             "debt.json",
@@ -241,6 +243,12 @@ class IntegrationDistributionTests(unittest.TestCase):
                     "INPUT_NETWORK": "none",
                     "INPUT_MEGALINTER_CONFIG": "",
                     "INPUT_REPOSITORY_CONTRACT": "contracts/repository.toml",
+                    "INPUT_REPOSITORY_CONTINUITY": "policy/continuity.toml",
+                    "INPUT_CONTINUITY_BASE": "a" * 40,
+                    "INPUT_CONTINUITY_HEAD": "working-tree",
+                    "INPUT_CONTINUITY_DISPOSITION": "updated",
+                    "INPUT_CONTINUITY_TRANSITION": "pull-request",
+                    "INPUT_CONTINUITY_LIVE_VERIFICATION": "unavailable",
                     "INPUT_SUPPRESSION": "policy/suppression.json",
                     "INPUT_EVALUATION_DATE": "2026-08-19",
                     "INPUT_CHANGED_ONLY": "false",
@@ -283,6 +291,15 @@ class IntegrationDistributionTests(unittest.TestCase):
             self.assertNotIn("fix", arguments)
             self.assertIn("--repository-contract", arguments)
             self.assertIn("contracts/repository.toml", arguments)
+            self.assertIn("--repository-continuity", arguments)
+            self.assertIn("policy/continuity.toml", arguments)
+            self.assertIn("--continuity-base", arguments)
+            self.assertIn("a" * 40, arguments)
+            self.assertIn("--continuity-head", arguments)
+            self.assertIn("working-tree", arguments)
+            self.assertIn("--continuity-disposition", arguments)
+            self.assertIn("updated", arguments)
+            self.assertIn("--continuity-evaluation-date", arguments)
             self.assertIn("--suppression", arguments)
             self.assertIn("policy/suppression.json", arguments)
             self.assertIn("--evaluation-date", arguments)
@@ -293,6 +310,10 @@ class IntegrationDistributionTests(unittest.TestCase):
             )
             self.assertEqual(action_outputs["run-report"], ".reports/egolint/run.json")
             self.assertEqual(action_outputs["sarif-report"], ".reports/egolint/egolint.sarif")
+            self.assertEqual(
+                action_outputs["repository-continuity-report"],
+                ".reports/egolint/repository-continuity.json",
+            )
             self.assertEqual(
                 action_outputs["repository-intelligence-report"],
                 ".reports/egolint/repository-intelligence.json",
@@ -407,7 +428,7 @@ class IntegrationDistributionTests(unittest.TestCase):
         self.assertIn("subject-digest:", workflow)
         self.assertRegex(
             workflow,
-            r"\breport \\\n\s+debt \\\n\s+repository-contract \\\n\s+repository-intelligence \\\n\s+repository-intelligence-report \\\n\s+repository-presentation \\\n\s+repository-presentation-report; do",
+            r"\breport \\\n\s+debt \\\n\s+repository-contract \\\n\s+repository-intelligence \\\n\s+repository-intelligence-report \\\n\s+repository-presentation \\\n\s+repository-presentation-report \\\n\s+repository-continuity \\\n\s+repository-continuity-report; do",
         )
         self.assertNotRegex(workflow, r"tags:.*:(latest|edge)\s*$")
 
