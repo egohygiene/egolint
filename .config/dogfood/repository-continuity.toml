@@ -1,0 +1,38 @@
+schema-version = 1
+id = "egolint.repository-continuity-validation/v1"
+repository = "egohygiene/egolint"
+rollout-stage = "observe"
+repository-kind = "standard"
+visibility = "public"
+lifecycle = "active"
+continuity-path = "CONTINUITY.md"
+agents-path = "AGENTS.md"
+provider-projections = [
+  ".github/copilot-instructions.md",
+  "CLAUDE.md",
+  "GEMINI.md",
+]
+profile-path = "vendor/hygiene/repository-continuity-policy.v1.json"
+schema-path = "vendor/aether/aether.repository-continuity.v1.schema.json"
+instruction-path = "vendor/aether/repository-continuity.INSTRUCTION.md"
+template-path = "vendor/aether/CONTINUITY.template.md"
+
+[hygiene-lock]
+id = "egohygiene.repository-continuity-policy/v1"
+version = "1.0.0-alpha.1"
+status = "proposed"
+source-repository = "egohygiene/hygiene"
+source-revision = "43386f5749116717585ead7459b4945e0ac50d06"
+source-path = "catalog/repository-continuity-policy.json"
+digest = "a17178482d67e141009b07d6715727612fbf7f372be8c471a124149752c2ca64"
+
+[aether-lock]
+id = "aether.repository-continuity/v1"
+selected-version = "1.0.0"
+minimum-version = "1.0.0"
+maximum-version-exclusive = "2.0.0"
+lifecycle = "draft"
+release-included = false
+source-repository = "egohygiene/aether"
+source-revision = "b7597301c4d22a9bcd580967b5753138bb368111"
+source-path = "library/organization/specs/methodology/repository-continuity.spec.md"

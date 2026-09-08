@@ -25,7 +25,9 @@ The repository also declares `egolint.javascript-package-quality.json`, so its r
 tooling is checked through the same package-quality manifest contract as external consumers. The
 JavaScript architecture profile includes `scripts/` as a first-class production root. The
 repository-owned manifest scope keeps generated contracts and deliberately hostile fixtures under
-their focused generators and tests instead of treating them as production package source.
+their focused generators and tests instead of treating them as production package source. Reviewed
+Aether and Hygiene projections are excluded from formatters because their owning contracts verify
+their exact bytes and digests instead.
 
 ## Canonical command
 
@@ -37,7 +39,8 @@ task dogfood
 
 The composed task performs three checks in order:
 
-1. `dogfood:native` invokes the public `egolint validate` CLI against this repository.
+1. `dogfood:native` invokes the public `egolint validate` CLI against this repository, including the
+   Hygiene v2 required-file contract and focused continuity comparison.
 2. `dogfood:javascript` runs the public dependency-architecture and JavaScript package-quality
    adapters against Egolint's own production tooling.
 3. `dogfood:holistic` builds the current checkout's `Dockerfile.full` and invokes the public
@@ -54,7 +57,9 @@ compiler analysis. Those analyzers require network access, reviewed pre-seeded d
 consumer dependencies, so an offline failure cannot establish their quality or freshness. Their
 policy remains active in the corresponding network-enabled profiles; the dogfood gate records the
 bounded offline selection directly in its public execution plan. Rust formatting, Clippy, and tests
-remain blocking in the dedicated Rust core CI lane.
+remain blocking in the dedicated Rust core CI lane. The workflow uses a full Git checkout so the
+checkpoint's explicit base remains locally available; neither the task nor the validator silently
+fetches history.
 
 The generic Mypy contract keeps first-party strictness while accepting installed third-party
 packages that do not publish type stubs. Secretlint consumes MegaLinter's complete filtered file
@@ -70,6 +75,8 @@ A green dogfood run proves that the current repository can:
 
 - decode and resolve its public configuration contract;
 - execute native repository policy through the public CLI;
+- validate the root continuity checkpoint, managed agent block, immutable upstream projections, and
+  explicit base/head evidence in observe mode;
 - analyze its own JavaScript tooling through the public package-quality manifest;
 - analyze JavaScript dependency structure through the public architecture adapter;
 - build the full lint-engine image from the same checkout;

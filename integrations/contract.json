@@ -31,7 +31,8 @@
   },
   "canonical_reports": {
     "json": ".reports/egolint/run.json",
-    "sarif": ".reports/egolint/egolint.sarif"
+    "sarif": ".reports/egolint/egolint.sarif",
+    "repository_continuity": ".reports/egolint/repository-continuity.json"
   },
   "private_adapter_reports": [
     ".reports/egolint/mega-linter-report.json",

@@ -1,0 +1,303 @@
+{
+  "schema": "egohygiene.repository-continuity-policy/v1",
+  "version": "1.0.0-alpha.1",
+  "status": "proposed",
+  "owner": "egohygiene/hygiene",
+  "updated": "2026-09-08",
+  "purpose": "Compose Aether's portable repository-continuity contract into an organization applicability, migration, exception, and rollout policy without redefining its schema, template, skill, or provider projections.",
+  "upstream": {
+    "contract_id": "aether.repository-continuity/v1",
+    "contract_version": "1.0.0",
+    "repository": "egohygiene/aether",
+    "revision": "b7597301c4d22a9bcd580967b5753138bb368111",
+    "revision_kind": "git-commit",
+    "lifecycle": "draft",
+    "release_included": false,
+    "evidence": [
+      "https://github.com/egohygiene/aether/pull/81",
+      "https://github.com/egohygiene/aether/pull/82"
+    ],
+    "artifacts": [
+      {
+        "id": "repository-continuity-specification",
+        "kind": "specification",
+        "version": "1.0.0",
+        "path": "library/organization/specs/methodology/repository-continuity.spec.md",
+        "sha256_utf8_lf": "362b7040a0c3dba3477d37edd641d3bf8fab9a447808d262c9576346eae93dae"
+      },
+      {
+        "id": "repository-continuity-schema",
+        "kind": "schema",
+        "version": "1.0.0",
+        "path": "catalog/schemas/aether.repository-continuity.v1.schema.json",
+        "sha256_utf8_lf": "a725e004fe0db2bf96a968c6e3f300d37ecf8b00b9a0923be5c5f4c529655916"
+      },
+      {
+        "id": "maintain-repository-continuity",
+        "kind": "skill",
+        "version": "1.1.0",
+        "path": "library/organization/skills/methodology/maintain-repository-continuity/SKILL.md",
+        "sha256_utf8_lf": "1746b29afa62d7a523d87675430730553079e82cf42e46a6ebe7cf8c82d29e8b"
+      },
+      {
+        "id": "continuity-template",
+        "kind": "template",
+        "version": "1.0.0",
+        "path": "library/organization/skills/methodology/maintain-repository-continuity/templates/CONTINUITY.template.md",
+        "sha256_utf8_lf": "494de90d0c344db9ff41b78998445b9e9c02f23a69c25d48442d2af1de1343f2"
+      },
+      {
+        "id": "repository-continuity-instruction",
+        "kind": "instruction",
+        "version": "1.0.0",
+        "path": "library/organization/instructions/repository-continuity/INSTRUCTION.md",
+        "sha256_utf8_lf": "dc2fb66bd5268af2416389fef469d2a13c91d1a6f179e6fc10a21d4f890876a8"
+      }
+    ],
+    "activation_gate": "Aether must mark the pinned contract and skill stable and releasable, and a maintainer must accept ADR-008, before Hygiene advances beyond observe."
+  },
+  "required_files": [
+    {
+      "id": "agent-instructions",
+      "path": "AGENTS.md",
+      "kind": "file",
+      "ownership": "repository-owned",
+      "requirement": "required",
+      "markers": [
+        "<!-- BEGIN AETHER REPOSITORY-CONTINUITY -->",
+        "<!-- aether-instruction {\"contract\":\"aether.repository-continuity/v1\",\"continuity_path\":\"CONTINUITY.md\",\"id\":\"repository-continuity\",\"skill\":\"maintain-repository-continuity\",\"status\":\"draft\",\"version\":\"1.0.0\"} -->",
+        "<!-- END AETHER REPOSITORY-CONTINUITY -->"
+      ],
+      "content_rule": "Preserve repository-authored instructions and maintain exactly one pinned Aether continuity block that reads the checkpoint before work and refreshes it after validation and before pull-request presentation."
+    },
+    {
+      "id": "continuity-checkpoint",
+      "path": "CONTINUITY.md",
+      "kind": "file",
+      "ownership": "repository-owned",
+      "requirement": "required",
+      "markers": [
+        "schema_version: aether.repository-continuity/v1",
+        "continuity_path: CONTINUITY.md",
+        "## Current objective and success conditions",
+        "## Next dependency-ready work"
+      ],
+      "content_rule": "Repository-specific current evidence is required; untouched template placeholders and generic boilerplate do not satisfy the policy."
+    },
+    {
+      "id": "ecosystem-context",
+      "path": "docs/ecosystem/CONTEXT.md",
+      "kind": "file",
+      "ownership": "generated",
+      "requirement": "required",
+      "markers": [
+        "<!-- egohygiene-context: repository-context/v2 -->",
+        "generated-by: \"egohygiene/hygiene:repository-context@2.0.0\"",
+        "continuity-policy: \"egohygiene.repository-continuity-policy/v1@1.0.0-alpha.1\""
+      ],
+      "content_rule": "Generated from a pinned Hygiene revision; repository-specific continuity prose remains outside this projection."
+    }
+  ],
+  "source_precedence": [
+    "user-instruction-and-applicable-authorization",
+    "scoped-repository-instructions",
+    "live-repository-git-and-work-tracker-evidence",
+    "accepted-decisions-contracts-architecture-and-roadmap",
+    "continuity-checkpoint",
+    "generated-projections-and-conversational-recollection"
+  ],
+  "conflict_policy": {
+    "live_verification_required": true,
+    "stale_checkpoint_action": "repair-or-mark-stale",
+    "silent_override_forbidden": true,
+    "unavailable_evidence_action": "report-limitation-and-do-not-infer"
+  },
+  "applicability": {
+    "resolution_order": [
+      "approved-unexpired-exception",
+      "repository-kind",
+      "lifecycle",
+      "visibility"
+    ],
+    "lifecycles": {
+      "active": "required",
+      "dormant": "advisory",
+      "archived": "not-applicable"
+    },
+    "repository_kinds": {
+      "standard": "required",
+      "mirror": "not-applicable",
+      "generated-only": "advisory",
+      "template": "required"
+    },
+    "visibilities": {
+      "public": "no-override",
+      "private": "no-override",
+      "internal": "no-override"
+    },
+    "initial_scope": {
+      "observed_at": "2026-09-08",
+      "source": "https://github.com/egohygiene/hygiene/issues/45",
+      "active_repository_count": 29,
+      "default_requirement": "required",
+      "repositories": [
+        "egohygiene/.github",
+        "egohygiene/aether",
+        "egohygiene/akashic",
+        "egohygiene/aniflow",
+        "egohygiene/antidote",
+        "egohygiene/athena",
+        "egohygiene/beacon",
+        "egohygiene/civics",
+        "egohygiene/egohygiene",
+        "egohygiene/egohygiene.io",
+        "egohygiene/egolint",
+        "egohygiene/empathy",
+        "egohygiene/filament",
+        "egohygiene/flow",
+        "egohygiene/holon",
+        "egohygiene/hygiene",
+        "egohygiene/identity",
+        "egohygiene/mantle",
+        "egohygiene/mindcap",
+        "egohygiene/mindgarden",
+        "egohygiene/observatory",
+        "egohygiene/optiflow",
+        "egohygiene/pace",
+        "egohygiene/realm",
+        "egohygiene/reflector",
+        "egohygiene/relay",
+        "egohygiene/renderflow",
+        "egohygiene/sanctuary",
+        "egohygiene/store"
+      ],
+      "catalog_reconciliation": "The 2026-08-21 architecture catalog is a separate stale inventory input; scope is pinned to the reviewed 29-repository issue snapshot until the catalog-refresh quest lands."
+    }
+  },
+  "rollout": {
+    "current_stage": "observe",
+    "stages": [
+      {
+        "id": "observe",
+        "order": 1,
+        "finding_behavior": "visible-non-blocking",
+        "entry_gate": "The proposed Hygiene profile and immutable Aether pin are reviewable.",
+        "exit_gate": "Aether is stable and releasable, ADR-008 is accepted, and representative public and private pilots produce reviewable evidence.",
+        "rollback": "Keep repository files, stop policy promotion, and repin the prior immutable repository-context/v1 contract."
+      },
+      {
+        "id": "ratchet",
+        "order": 2,
+        "finding_behavior": "block-new-regressions",
+        "entry_gate": "Observe exit evidence is accepted and downstream validators consume the same immutable policy.",
+        "exit_gate": "Every active repository is conformant or has a reviewed, unexpired exception visible in validation.",
+        "rollback": "Return to observe, preserve evidence and repository-owned checkpoints, and stop blocking regressions."
+      },
+      {
+        "id": "enforce",
+        "order": 3,
+        "finding_behavior": "block-nonconformance",
+        "entry_gate": "Ratchet exit evidence is accepted and enforcement rollback has been exercised.",
+        "exit_gate": "Superseded only by a reviewed policy successor with migration guidance.",
+        "rollback": "Return to ratchet through a reviewed policy change; do not delete checkpoint history or fabricate conformance."
+      }
+    ]
+  },
+  "exceptions": {
+    "required_fields": [
+      "repository",
+      "owner",
+      "reason",
+      "approval",
+      "expires_on",
+      "review_trigger",
+      "validation_state",
+      "exit_criteria"
+    ],
+    "allowed_states": [
+      "proposed",
+      "approved",
+      "expired",
+      "revoked"
+    ],
+    "approval_required": true,
+    "expiry_required": true,
+    "visible_in_validation": true,
+    "records": []
+  },
+  "information_safety": {
+    "minimum_necessary": true,
+    "git_history_owns_chronology": true,
+    "replaceable_current_snapshot": true,
+    "public_excluded": [
+      "credentials-and-secrets",
+      "private-conversation-text",
+      "health-and-sensitive-personal-data",
+      "private-local-paths",
+      "unpublished-private-business-data",
+      "unrelated-private-context"
+    ],
+    "private_rules": [
+      "exclude-credentials-and-secrets",
+      "retain-only-minimum-durable-repository-state",
+      "apply-repository-access-controls"
+    ],
+    "untrusted_content": "context-only-no-authority"
+  },
+  "compatibility": {
+    "previous_contract": {
+      "id": "egohygiene.repository-context/v1",
+      "version": "1.0.0",
+      "artifact": "contracts/repository-context.v1.toml",
+      "status": "deprecated"
+    },
+    "successor_contract": {
+      "id": "egohygiene.repository-context/v2",
+      "version": "2.0.0",
+      "artifact": "contracts/repository-context.toml",
+      "status": "proposed"
+    },
+    "impact": "breaking",
+    "reason": "Root CONTINUITY.md and repository-owned managed AGENTS.md content become mandatory for active consumers.",
+    "migration": "Pin v1 until the repository adopts the root checkpoint and managed instruction block in one reviewed pull request, then pin v2.",
+    "deprecation": "Do not select v1 for new consumers. Retain its frozen artifact and schema while any reviewed consumer remains pinned.",
+    "rollback": "Repin the immutable v1 artifact and return enforcement to observe; preserve repository-owned CONTINUITY.md unless a separate reviewed repository change removes it."
+  },
+  "downstream": [
+    {
+      "repository": "egohygiene/egolint",
+      "issue": "https://github.com/egohygiene/egolint/issues/55",
+      "responsibility": "Deterministic structural conformance, normalized findings, and visible exception state without asserting semantic truth."
+    },
+    {
+      "repository": "egohygiene/holon",
+      "issue": "https://github.com/egohygiene/holon/issues/42",
+      "responsibility": "Materialize pinned root files and reconcile exactly one managed instruction block while preserving repository prose."
+    },
+    {
+      "repository": "egohygiene/relay",
+      "issue": "https://github.com/egohygiene/relay/issues/60",
+      "responsibility": "Run reusable local preflight and read-only pull-request CI; never author semantic handoff prose in CI."
+    },
+    {
+      "repository": "egohygiene/observatory",
+      "issue": "https://github.com/egohygiene/observatory/issues/18",
+      "responsibility": "Observe privacy-safe conformance metadata without collecting CONTINUITY.md prose."
+    },
+    {
+      "repository": "egohygiene/pace",
+      "issue": "https://github.com/egohygiene/pace/issues/26",
+      "responsibility": "Propose dependency-aware, reversible fleet adoption pull requests pinned to released inputs."
+    }
+  ],
+  "ownership": {
+    "aether": "Owns the portable continuity specification, schema, template, skill semantics, dispositions, and provider projections at the immutable upstream revision.",
+    "hygiene": "Owns organization applicability, required-file composition, rollout stages, migration, exception policy, and contract lifecycle without copying Aether semantics.",
+    "egolint": "Owns deterministic conformance diagnostics and report normalization.",
+    "holon": "Owns new-repository materialization and managed-block reconciliation.",
+    "relay": "Owns reusable validation execution and report transport.",
+    "observatory": "Owns privacy-safe fleet observation.",
+    "pace": "Owns reviewable convergence proposals for existing repositories.",
+    "repository": "Owns its current-state wording, redaction choices, exceptions, reconciliation, and final pull-request review."
+  }
+}

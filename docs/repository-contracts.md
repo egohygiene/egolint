@@ -51,3 +51,9 @@ Stable evaluator rules are:
 - `EGO-CONTRACT-SOURCE-001` — visible warning for provisional sources;
 - `EGO-CONTRACT-FILE-001` — missing, mis-cased, wrong-kind, or wrong-mode file;
 - `EGO-CONTRACT-CONTEXT-001` — generated/context marker drift.
+
+The pinned Hygiene repository-context v2 projection composes root `AGENTS.md`, root
+`CONTINUITY.md`, and generated `docs/ecosystem/CONTEXT.md` into this generic required-file surface.
+Focused schema, freshness, rollout, exception, and Git comparison behavior belongs to the separate
+[repository continuity validator](repository-continuity.md), which reuses
+`EGO-CONTRACT-FILE-001` instead of duplicating missing-file findings.

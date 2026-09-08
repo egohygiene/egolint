@@ -120,7 +120,9 @@ jobs:
             repository-intelligence \
             repository-intelligence-report \
             repository-presentation \
-            repository-presentation-report; do
+            repository-presentation-report \
+            repository-continuity \
+            repository-continuity-report; do
             cargo run --quiet --locked -- schema "${schema}" \
               > "${temporary_directory}/${schema}.schema.json"
             diff --unified \

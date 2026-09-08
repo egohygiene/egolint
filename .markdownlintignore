@@ -21,6 +21,12 @@ node_modules/
 vendor/
 **/vendor/
 
+# Focused repository contracts own these exact or generated Markdown surfaces.
+# Generic Markdown formatting must not rewrite their managed metadata or blocks.
+AGENTS.md
+CONTINUITY.md
+docs/ecosystem/CONTEXT.md
+
 # ------------------------------------------------------------------------------
 # Python environments and caches
 # ------------------------------------------------------------------------------

@@ -44,6 +44,9 @@ No changes yet.
   token, metadata, guidance, checksum, and archive projections.
 - Reviewed release-input contract binding every base-image variable to an exact registry digest and
   each published image product to the platforms its complete dependency chain supports.
+- Versioned offline repository-continuity validation with immutable Hygiene/Aether projections,
+  exact root checkpoint and agent wiring, explicit base/head and live-evidence layers, rollout and
+  exception semantics, adversarial Git/safety fixtures, and reusable CLI, Task, and Action surfaces.
 
 ### Changed
 

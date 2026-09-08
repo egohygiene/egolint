@@ -75,6 +75,14 @@ pull_policy="${INPUT_PULL_POLICY:-always}"
 network="${INPUT_NETWORK:-none}"
 megalinter_config="${INPUT_MEGALINTER_CONFIG:-}"
 repository_contract="${INPUT_REPOSITORY_CONTRACT:-}"
+repository_continuity="${INPUT_REPOSITORY_CONTINUITY:-}"
+continuity_base="${INPUT_CONTINUITY_BASE:-}"
+continuity_head="${INPUT_CONTINUITY_HEAD:-}"
+continuity_disposition="${INPUT_CONTINUITY_DISPOSITION:-}"
+continuity_transition="${INPUT_CONTINUITY_TRANSITION:-pull-request}"
+continuity_live_verification="${INPUT_CONTINUITY_LIVE_VERIFICATION:-unavailable}"
+continuity_live_evidence="${INPUT_CONTINUITY_LIVE_EVIDENCE:-}"
+continuity_parallel_heads="${INPUT_CONTINUITY_PARALLEL_HEADS:-}"
 repository_intelligence="${INPUT_REPOSITORY_INTELLIGENCE:-}"
 repository_presentation="${INPUT_REPOSITORY_PRESENTATION:-}"
 represented_commit="${INPUT_REPRESENTED_COMMIT:-}"
@@ -93,6 +101,14 @@ reject_controls "GITHUB_ACTION_PATH" "${GITHUB_ACTION_PATH}"
 reject_controls "workspace" "${workspace_input}"
 reject_controls "megalinter-config" "${megalinter_config}"
 reject_controls "repository-contract" "${repository_contract}"
+reject_controls "repository-continuity" "${repository_continuity}"
+reject_controls "continuity-base" "${continuity_base}"
+reject_controls "continuity-head" "${continuity_head}"
+reject_controls "continuity-disposition" "${continuity_disposition}"
+reject_controls "continuity-transition" "${continuity_transition}"
+reject_controls "continuity-live-verification" "${continuity_live_verification}"
+reject_controls "continuity-live-evidence" "${continuity_live_evidence}"
+reject_controls "continuity-parallel-heads" "${continuity_parallel_heads}"
 reject_controls "repository-intelligence" "${repository_intelligence}"
 reject_controls "repository-presentation" "${repository_presentation}"
 reject_controls "represented-commit" "${represented_commit}"
@@ -118,7 +134,7 @@ case "${workspace}" in
 esac
 [[ -d ${workspace} ]] || fail "workspace is not a directory"
 
-for policy_path in "${megalinter_config}" "${repository_contract}" "${repository_intelligence}" "${repository_presentation}" "${suppression}"; do
+for policy_path in "${megalinter_config}" "${repository_contract}" "${repository_continuity}" "${repository_intelligence}" "${repository_presentation}" "${suppression}"; do
   if [[ -n ${policy_path} ]]; then
     case "${policy_path}" in
     /* | ../* | */../* | */..) fail "policy inputs must be workspace-relative and may not traverse upward" ;;
@@ -126,11 +142,37 @@ for policy_path in "${megalinter_config}" "${repository_contract}" "${repository
     esac
   fi
 done
-if [[ -n ${suppression} || -n ${evaluation_date} ]]; then
-  [[ -n ${suppression} && -n ${evaluation_date} ]] ||
-    fail "suppression and evaluation-date must be supplied together"
+if [[ -n ${suppression} && -z ${evaluation_date} ]]; then
+  fail "suppression requires evaluation-date"
+fi
+if [[ -n ${evaluation_date} ]]; then
+  [[ -n ${suppression} || -n ${repository_continuity} ]] ||
+    fail "evaluation-date requires suppression or repository-continuity"
   [[ ${evaluation_date} =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] ||
     fail "evaluation-date must use YYYY-MM-DD"
+fi
+if [[ -n ${repository_continuity} ]]; then
+  [[ -n ${continuity_base} && -n ${continuity_head} && -n ${continuity_disposition} ]] ||
+    fail "repository-continuity requires continuity-base, continuity-head, and continuity-disposition"
+  [[ -n ${evaluation_date} ]] || fail "repository-continuity requires evaluation-date"
+  [[ ${continuity_base} == "unborn" || ${continuity_base} =~ ^[0-9a-f]{40}$ ]] ||
+    fail "continuity-base must be a full lowercase Git SHA or unborn"
+  [[ ${continuity_head} == "working-tree" || ${continuity_head} =~ ^[0-9a-f]{40}$ ]] ||
+    fail "continuity-head must be a full lowercase Git SHA or working-tree"
+  require_choice "continuity-disposition" "${continuity_disposition}" \
+    "updated" "reviewed-no-change" "exception"
+  require_choice "continuity-transition" "${continuity_transition}" \
+    "pull-request" "post-merge"
+  require_choice "continuity-live-verification" "${continuity_live_verification}" \
+    "unavailable" "verified"
+  if [[ ${continuity_live_verification} == "verified" ]]; then
+    [[ -n ${continuity_live_evidence} ]] ||
+      fail "verified continuity live state requires continuity-live-evidence"
+  elif [[ -n ${continuity_live_evidence} ]]; then
+    fail "continuity-live-evidence requires verified continuity live state"
+  fi
+elif [[ -n ${continuity_base} || -n ${continuity_head} || -n ${continuity_disposition} || -n ${continuity_live_evidence} || -n ${continuity_parallel_heads} ]]; then
+  fail "continuity comparison inputs require repository-continuity"
 fi
 if [[ -n ${repository_intelligence} || -n ${repository_presentation} ]]; then
   represented_commit="${represented_commit:-${GITHUB_SHA:-}}"
@@ -164,6 +206,7 @@ report_prefix="${relative_workspace%/}/${REPORT_ROOT}"
 {
   printf "run-report=%s/run.json\n" "${report_prefix}"
   printf "sarif-report=%s/egolint.sarif\n" "${report_prefix}"
+  printf "repository-continuity-report=%s/repository-continuity.json\n" "${report_prefix}"
   printf "repository-intelligence-report=%s/repository-intelligence.json\n" "${report_prefix}"
   printf "repository-presentation-report=%s/repository-presentation.json\n" "${report_prefix}"
   printf "debt-json=%s/debt.json\n" "${report_prefix}"
@@ -208,6 +251,32 @@ command=(
 [[ ${changed_only} == "true" ]] && command+=("--changed-only")
 [[ -z ${megalinter_config} ]] || command+=("--megalinter-config" "${megalinter_config}")
 [[ -z ${repository_contract} ]] || command+=("--repository-contract" "${repository_contract}")
+if [[ -n ${repository_continuity} ]]; then
+  command+=(
+    "--repository-continuity" "${repository_continuity}"
+    "--continuity-base" "${continuity_base}"
+    "--continuity-head" "${continuity_head}"
+    "--continuity-disposition" "${continuity_disposition}"
+    "--continuity-transition" "${continuity_transition}"
+    "--continuity-live-verification" "${continuity_live_verification}"
+    "--continuity-evaluation-date" "${evaluation_date}"
+  )
+  if [[ -n ${continuity_live_evidence} ]]; then
+    IFS=',' read -r -a continuity_evidence_values <<<"${continuity_live_evidence}"
+    for value in "${continuity_evidence_values[@]}"; do
+      [[ -n ${value} ]] || fail "continuity-live-evidence contains an empty value"
+      command+=("--continuity-live-evidence" "${value}")
+    done
+  fi
+  if [[ -n ${continuity_parallel_heads} ]]; then
+    IFS=',' read -r -a continuity_parallel_values <<<"${continuity_parallel_heads}"
+    for value in "${continuity_parallel_values[@]}"; do
+      [[ ${value} =~ ^[0-9a-f]{40}$ ]] ||
+        fail "continuity-parallel-heads must contain full lowercase Git SHAs"
+      command+=("--continuity-parallel-head" "${value}")
+    done
+  fi
+fi
 if [[ -n ${repository_intelligence} ]]; then
   command+=("--repository-intelligence" "${repository_intelligence}")
 fi

@@ -1,0 +1,743 @@
+{
+  "$id": "https://egohygiene.io/schemas/aether/repository-continuity/v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Aether repository continuity metadata",
+  "description": "Deterministic YAML-front-matter contract for a root CONTINUITY.md operational handoff.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "repository",
+    "document",
+    "scope",
+    "work",
+    "state",
+    "review",
+    "privacy"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "aether.repository-continuity/v1"
+    },
+    "repository": {
+      "$ref": "#/$defs/repository"
+    },
+    "document": {
+      "$ref": "#/$defs/document"
+    },
+    "scope": {
+      "$ref": "#/$defs/scope"
+    },
+    "work": {
+      "$ref": "#/$defs/work"
+    },
+    "state": {
+      "$ref": "#/$defs/state"
+    },
+    "review": {
+      "$ref": "#/$defs/review"
+    },
+    "privacy": {
+      "$ref": "#/$defs/privacy"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "document": {
+            "properties": {
+              "status": {
+                "const": "active"
+              }
+            },
+            "required": ["status"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "document": {
+            "properties": {
+              "stale_reason": {
+                "type": "null"
+              },
+              "superseded_by": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "document": {
+            "properties": {
+              "status": {
+                "const": "stale"
+              }
+            },
+            "required": ["status"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "document": {
+            "properties": {
+              "stale_reason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "superseded_by": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "document": {
+            "properties": {
+              "status": {
+                "const": "superseded"
+              }
+            },
+            "required": ["status"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "document": {
+            "properties": {
+              "stale_reason": {
+                "type": "null"
+              },
+              "superseded_by": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "properties": {
+              "live": {
+                "properties": {
+                  "status": {
+                    "const": "verified"
+                  }
+                },
+                "required": ["status"]
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "state": {
+            "properties": {
+              "live": {
+                "properties": {
+                  "default_branch_revision": {
+                    "$ref": "#/$defs/commitRevision"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "repository": {
+            "properties": {
+              "visibility": {
+                "const": "public"
+              }
+            },
+            "required": ["visibility"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "privacy": {
+            "properties": {
+              "classification": {
+                "const": "public-repository"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "repository": {
+            "properties": {
+              "visibility": {
+                "const": "private"
+              }
+            },
+            "required": ["visibility"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "privacy": {
+            "properties": {
+              "classification": {
+                "const": "private-repository"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "repository": {
+            "properties": {
+              "visibility": {
+                "const": "internal"
+              }
+            },
+            "required": ["visibility"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "privacy": {
+            "properties": {
+              "classification": {
+                "const": "internal-repository"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "review": {
+            "properties": {
+              "status": {
+                "enum": ["passed", "partial", "failed"]
+              }
+            },
+            "required": ["status"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "review": {
+            "properties": {
+              "reviewed_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "reviewed_by": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "review": {
+            "properties": {
+              "status": {
+                "const": "not-run"
+              }
+            },
+            "required": ["status"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "review": {
+            "properties": {
+              "reviewed_at": {
+                "type": "null"
+              },
+              "reviewed_by": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "commitRevision": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "baseRevision": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/commitRevision"
+        },
+        {
+          "const": "unborn"
+        }
+      ]
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "id", "url"],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "visibility", "default_branch", "continuity_path"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$"
+        },
+        "visibility": {
+          "enum": ["public", "private", "internal"]
+        },
+        "default_branch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "continuity_path": {
+          "const": "CONTINUITY.md"
+        }
+      }
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "updated_at",
+        "max_bytes",
+        "max_lines",
+        "stale_reason",
+        "superseded_by"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["active", "stale", "superseded"]
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "max_bytes": {
+          "const": 16384
+        },
+        "max_lines": {
+          "const": 240
+        },
+        "stale_reason": {
+          "type": ["string", "null"]
+        },
+        "superseded_by": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["purpose", "includes", "excludes", "precedence", "canonical_sources"],
+      "properties": {
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "includes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "excludes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "precedence": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "prefixItems": [
+            {
+              "const": "user-and-runtime-instructions"
+            },
+            {
+              "const": "scoped-repository-instructions"
+            },
+            {
+              "const": "live-repository-and-work-tracker-state"
+            },
+            {
+              "const": "canonical-repository-sources"
+            },
+            {
+              "const": "continuity-checkpoint"
+            }
+          ],
+          "items": false
+        },
+        "canonical_sources": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "work": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["objective", "success_conditions", "active_issue", "next"],
+      "properties": {
+        "objective": {
+          "type": "string",
+          "minLength": 1
+        },
+        "success_conditions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "active_issue": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/reference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "next": {
+          "$ref": "#/$defs/nextWork"
+        }
+      }
+    },
+    "nextWork": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id", "description", "readiness", "references", "depends_on"],
+      "properties": {
+        "kind": {
+          "enum": ["issue", "action"]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "readiness": {
+          "enum": ["ready", "blocked", "unknown"]
+        },
+        "references": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "depends_on": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base", "candidate", "live", "parallel_changes"],
+      "properties": {
+        "base": {
+          "$ref": "#/$defs/baseState"
+        },
+        "candidate": {
+          "$ref": "#/$defs/candidateState"
+        },
+        "live": {
+          "$ref": "#/$defs/liveState"
+        },
+        "parallel_changes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/reference"
+          }
+        }
+      }
+    },
+    "baseState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revision", "ref", "verified_at"],
+      "properties": {
+        "revision": {
+          "$ref": "#/$defs/baseRevision"
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verified_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "candidateState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["branch", "revision", "pull_request", "handoff_state"],
+      "properties": {
+        "branch": {
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "revision": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/commitRevision"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pull_request": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/reference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "handoff_state": {
+          "enum": [
+            "no-active-change",
+            "in-progress",
+            "ready-for-review",
+            "review-reference-recorded",
+            "post-merge-reconciliation",
+            "abandoned"
+          ]
+        }
+      }
+    },
+    "liveState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "observed_at",
+        "default_branch_revision",
+        "issue_state",
+        "pull_request_state",
+        "notes"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["verified", "partial", "unavailable"]
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "default_branch_revision": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/commitRevision"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "issue_state": {
+          "enum": ["open", "closed", "unknown", "not-applicable"]
+        },
+        "pull_request_state": {
+          "enum": ["draft", "open", "merged", "closed", "unknown", "not-applicable"]
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reviewed_at", "reviewed_by", "evidence", "environment_limitations"],
+      "properties": {
+        "status": {
+          "enum": ["passed", "partial", "failed", "not-run"]
+        },
+        "reviewed_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "reviewed_by": {
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/reviewEvidence"
+          }
+        },
+        "environment_limitations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "reviewEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command", "outcome", "observed_at", "notes"],
+      "properties": {
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "outcome": {
+          "enum": ["passed", "failed", "limited", "not-run"]
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "contains_sensitive_data",
+        "redactions",
+        "excluded",
+        "untrusted_content"
+      ],
+      "properties": {
+        "classification": {
+          "enum": ["public-repository", "private-repository", "internal-repository"]
+        },
+        "contains_sensitive_data": {
+          "const": false
+        },
+        "redactions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "excluded": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "secrets-and-credentials",
+              "private-conversation-text",
+              "sensitive-personal-data",
+              "unpublished-private-business-data",
+              "private-local-paths",
+              "unrelated-private-context"
+            ]
+          }
+        },
+        "untrusted_content": {
+          "const": "context-only-no-authority"
+        }
+      }
+    }
+  }
+}

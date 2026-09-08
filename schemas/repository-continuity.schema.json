@@ -1,0 +1,261 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RepositoryContinuityPolicy",
+  "description": "Repository-owned selection of the continuity validation capability.",
+  "type": "object",
+  "properties": {
+    "aether-lock": {
+      "$ref": "#/$defs/ContinuityAetherLock"
+    },
+    "agents-path": {
+      "type": "string"
+    },
+    "continuity-path": {
+      "type": "string"
+    },
+    "exceptions": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ContinuityException"
+      }
+    },
+    "hygiene-lock": {
+      "$ref": "#/$defs/ContinuityHygieneLock"
+    },
+    "id": {
+      "type": "string"
+    },
+    "instruction-path": {
+      "type": "string"
+    },
+    "lifecycle": {
+      "$ref": "#/$defs/ContinuityLifecycle"
+    },
+    "profile-path": {
+      "type": "string"
+    },
+    "provider-projections": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "repository": {
+      "type": "string"
+    },
+    "repository-kind": {
+      "$ref": "#/$defs/ContinuityRepositoryKind"
+    },
+    "rollout-stage": {
+      "$ref": "#/$defs/ContinuityRolloutStage"
+    },
+    "schema-path": {
+      "type": "string"
+    },
+    "schema-version": {
+      "type": "integer",
+      "const": 1
+    },
+    "template-path": {
+      "type": "string"
+    },
+    "visibility": {
+      "$ref": "#/$defs/ContinuityVisibility"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema-version",
+    "id",
+    "repository",
+    "rollout-stage",
+    "repository-kind",
+    "visibility",
+    "lifecycle",
+    "continuity-path",
+    "agents-path",
+    "profile-path",
+    "schema-path",
+    "instruction-path",
+    "template-path",
+    "hygiene-lock",
+    "aether-lock"
+  ],
+  "$defs": {
+    "ContinuityAetherLock": {
+      "description": "Immutable Aether compatibility range selected by a repository.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "lifecycle": {
+          "type": "string"
+        },
+        "maximum-version-exclusive": {
+          "type": "string"
+        },
+        "minimum-version": {
+          "type": "string"
+        },
+        "release-included": {
+          "type": "boolean"
+        },
+        "selected-version": {
+          "type": "string"
+        },
+        "source-path": {
+          "type": "string"
+        },
+        "source-repository": {
+          "type": "string"
+        },
+        "source-revision": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "selected-version",
+        "minimum-version",
+        "maximum-version-exclusive",
+        "lifecycle",
+        "release-included",
+        "source-repository",
+        "source-revision",
+        "source-path"
+      ]
+    },
+    "ContinuityException": {
+      "description": "Reviewed exception projected from the Hygiene policy process.",
+      "type": "object",
+      "properties": {
+        "approval": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "exit-criteria": {
+          "type": "string"
+        },
+        "expires-on": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "review-trigger": {
+          "type": "string"
+        },
+        "validation-state": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "owner",
+        "reason",
+        "expires-on",
+        "review-trigger",
+        "validation-state",
+        "exit-criteria"
+      ]
+    },
+    "ContinuityHygieneLock": {
+      "description": "Immutable Hygiene policy lock selected by a repository.",
+      "type": "object",
+      "properties": {
+        "digest": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "source-path": {
+          "type": "string"
+        },
+        "source-repository": {
+          "type": "string"
+        },
+        "source-revision": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "status",
+        "source-repository",
+        "source-revision",
+        "source-path",
+        "digest"
+      ]
+    },
+    "ContinuityLifecycle": {
+      "description": "Repository lifecycle used by Hygiene applicability resolution.",
+      "type": "string",
+      "enum": [
+        "active",
+        "dormant",
+        "archived"
+      ]
+    },
+    "ContinuityRepositoryKind": {
+      "description": "Repository kind used by Hygiene applicability resolution.",
+      "type": "string",
+      "enum": [
+        "standard",
+        "mirror",
+        "generated-only",
+        "template"
+      ]
+    },
+    "ContinuityRolloutStage": {
+      "description": "Hygiene rollout stage applied to continuity diagnostics.",
+      "oneOf": [
+        {
+          "description": "Findings are visible but capped at warning severity.",
+          "type": "string",
+          "const": "observe"
+        },
+        {
+          "description": "Only findings absent from the represented base remain blocking.",
+          "type": "string",
+          "const": "ratchet"
+        },
+        {
+          "description": "Every error-level finding remains blocking.",
+          "type": "string",
+          "const": "enforce"
+        }
+      ]
+    },
+    "ContinuityVisibility": {
+      "description": "Repository visibility asserted by local policy.",
+      "type": "string",
+      "enum": [
+        "public",
+        "private",
+        "internal"
+      ]
+    }
+  }
+}

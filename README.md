@@ -41,7 +41,7 @@ Egolint separates orchestration from the lint engine:
 | `egolint lint`      | Run linters with the repository mounted read-only.                                                       |
 | `egolint fix`       | Generate a bounded patch in an isolated copy; never edit the source worktree.                            |
 | `egolint apply-fix` | Apply and stage one reviewed patch only when its SHA-256, base commit, and expected post-tree all match. |
-| `egolint validate`  | Run native portability and repository-contract checks without a container.                               |
+| `egolint validate`  | Run native portability, repository-contract, continuity, and semantic checks without a container.        |
 | `egolint plan`      | Print the redacted container invocation without running it.                                              |
 | `egolint doctor`    | Validate configuration and runtime readiness.                                                            |
 | `egolint explain`   | Show effective configuration and ordered sources.                                                        |
@@ -57,11 +57,11 @@ infrastructure checks. `dependency-debt` focuses vulnerability and inventory evi
 selections are versioned in the policy catalog.
 
 Successful lint runs write normalized `.reports/egolint/run.json` and
-`.reports/egolint/egolint.sarif`. Repository Intelligence validation also writes
-`.reports/egolint/repository-intelligence.json`; repository-presentation validation writes the
-privacy-safe `.reports/egolint/repository-presentation.json`. Both include represented source, rule
-IDs, locations, and remediation. Dependency-debt runs write compact JSON and Markdown debt
-summaries; raw MegaLinter reports remain private adapter artifacts.
+`.reports/egolint/egolint.sarif`. Repository continuity, Repository Intelligence, and
+repository-presentation validation also write focused privacy-safe JSON reports under
+`.reports/egolint/`. They include represented source or comparison evidence, rule IDs, locations,
+and remediation without copying continuity prose. Dependency-debt runs write compact JSON and
+Markdown debt summaries; raw MegaLinter reports remain private adapter artifacts.
 
 ## Try it from source
 
@@ -76,10 +76,16 @@ cargo run --locked -- schema repository-intelligence
 cargo run --locked -- schema repository-intelligence-report
 cargo run --locked -- schema repository-presentation
 cargo run --locked -- schema repository-presentation-report
+cargo run --locked -- schema repository-continuity
+cargo run --locked -- schema repository-continuity-report
 cargo run --locked -- explain --format "json"
 cargo run --locked -- validate --repository-contract \
   "tests/fixtures/contracts/empathy-universal-v1.toml"
 ```
+
+The focused [repository continuity validator](docs/repository-continuity.md) accepts explicit local
+base/head evidence, emits a dedicated report, and never writes checkpoint prose or fetches mutable
+provider state.
 
 Build the two images locally:
 

@@ -42,6 +42,11 @@ tests/fixtures/
 .config/toolchain/complementary-tools.json
 .config/toolchain/tool-matrix.json
 
+# Reviewed third-party projections are verified byte-for-byte by their owning
+# contracts and must not be rewritten by local formatting tools.
+vendor/aether/
+vendor/hygiene/
+
 # -----------------------------------------------------------------------------
 # Cache Directories
 # -----------------------------------------------------------------------------

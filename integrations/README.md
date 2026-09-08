@@ -20,8 +20,11 @@ run, plus `debt-json` and `debt-markdown` when the `dependency-debt` profile is 
 MegaLinter JSON and SARIF paths are separate, explicitly private outputs. The action never uploads
 or publishes any of them. One repository contract and one reviewed suppression can be supplied
 directly through `repository-contract` and `suppression`; a suppression requires the explicit
-`evaluation-date` input so expiry is reproducible in CI. The composite action currently targets
-Linux runners with Bash, GNU `realpath`, Rustup/Cargo, and Docker; native CLI rule packs remain the
+`evaluation-date` input so expiry is reproducible in CI. Repository continuity additionally accepts
+an explicit base, head, disposition, transition, optional same-base parallel heads, and separately
+verified live evidence, and exposes the privacy-safe `repository-continuity-report` path. The same
+evaluation date makes exception expiry reproducible. The composite action currently targets Linux
+runners with Bash, GNU `realpath`, Rustup/Cargo, and Docker; native CLI rule packs remain the
 portable path for macOS and Windows workstations.
 [`github/action.example.yml`](github/action.example.yml) is a least-privilege consumer workflow with
 explicit commit- and image-digest sentinels to replace. Changed-only checks require enough Git

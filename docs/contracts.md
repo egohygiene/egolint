@@ -1,9 +1,10 @@
 # Machine-readable contracts
 
 Egolint owns versioned contracts for profiles, findings, suppressions, evidence, per-tool results,
-execution plans, run reports, the repository-contract validation envelope, and Repository
-Intelligence semantic policy. The checked-in JSON Schemas in [`schemas/`](../schemas/) are generated
-from the Rust types used by the CLI; CI rejects schema drift.
+execution plans, run reports, the repository-contract validation envelope, Repository Continuity,
+and Repository Intelligence semantic policy. The checked-in JSON Schemas in
+[`schemas/`](../schemas/) are generated from the Rust types used by the CLI; CI rejects schema
+drift.
 
 Consumer delivery is separately bound by
 [`integrations/contract.json`](../integrations/contract.json). That contract versions the GitHub
@@ -84,13 +85,17 @@ egolint schema repository-intelligence
 egolint schema repository-intelligence-report
 egolint schema repository-presentation
 egolint schema repository-presentation-report
+egolint schema repository-continuity
+egolint schema repository-continuity-report
 ```
 
 `validate` resolves every configuration layer, evaluates native portability policy plus requested
-repository contracts, Repository Intelligence sources, repository-presentation structure and
-evidence, and suppressions, and writes `.reports/egolint/run.json` and canonical SARIF without
-starting a container. `plan` prints the redacted execution plan. `doctor` additionally requires and
-probes Docker or Podman before printing that plan. `check` is a compatibility alias for `lint`;
+repository contracts, explicit-base/head repository continuity, Repository Intelligence sources,
+repository-presentation structure and evidence, and suppressions. It writes
+`.reports/egolint/run.json`, canonical SARIF, and any selected focused report without starting a
+container. See [repository continuity validation](repository-continuity.md) for the evidence-layer
+and rollout semantics. `plan` prints the redacted execution plan. `doctor` additionally requires
+and probes Docker or Podman before printing that plan. `check` is a compatibility alias for `lint`;
 `config explain` remains a compatibility form of `explain`.
 
 ## Empathy compatibility

@@ -6,15 +6,18 @@ use std::process::ExitCode;
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use egolint::error::exit_code;
 use egolint::rules::{
-    IntelligenceEnforcement, PortabilityRuleSet, RepositoryContract, RepositoryContractEvaluator,
-    RepositoryIntelligenceEvaluator, RepositoryIntelligencePolicy, RepositoryIntelligenceReport,
-    RepositoryInventory, RepositoryPresentationEvaluator, RepositoryPresentationPolicy,
-    RepositoryPresentationReport, RepresentedCommit, collect_commit_history,
+    ContinuityDisposition, ContinuityInvocation, ContinuityLiveVerification,
+    ContinuityRolloutStage, ContinuityTransition, IntelligenceEnforcement, PortabilityRuleSet,
+    RepositoryContinuityEvaluator, RepositoryContinuityPolicy, RepositoryContinuityReport,
+    RepositoryContract, RepositoryContractEvaluator, RepositoryIntelligenceEvaluator,
+    RepositoryIntelligencePolicy, RepositoryIntelligenceReport, RepositoryInventory,
+    RepositoryPresentationEvaluator, RepositoryPresentationPolicy, RepositoryPresentationReport,
+    RepresentedCommit, collect_commit_history, write_continuity_report_atomic,
     write_intelligence_report_atomic, write_presentation_report_atomic,
 };
 use egolint::rules::{
-    PresentationMode, REPOSITORY_INTELLIGENCE_REPORT, REPOSITORY_PRESENTATION_REPORT,
-    apply_suppressions,
+    PresentationMode, REPOSITORY_CONTINUITY_REPORT, REPOSITORY_INTELLIGENCE_REPORT,
+    REPOSITORY_PRESENTATION_REPORT, apply_suppressions,
 };
 use egolint::sarif::{EGOLINT_SARIF_REPORT, write_sarif_atomic};
 use egolint::{
@@ -131,6 +134,50 @@ struct RunArgs {
     #[arg(long = "repository-contract")]
     repository_contracts: Vec<PathBuf>,
 
+    /// Versioned repository-continuity validation policy.
+    #[arg(
+        long,
+        requires_all = [
+            "continuity_base",
+            "continuity_head",
+            "continuity_disposition",
+            "continuity_evaluation_date"
+        ]
+    )]
+    repository_continuity: Option<PathBuf>,
+
+    /// Full represented base commit or unborn.
+    #[arg(long, requires = "repository_continuity")]
+    continuity_base: Option<String>,
+
+    /// Full represented head commit or working-tree.
+    #[arg(long, requires = "repository_continuity")]
+    continuity_head: Option<String>,
+
+    /// Declared update, reviewed-no-change, or exception result.
+    #[arg(long, value_enum, requires = "repository_continuity")]
+    continuity_disposition: Option<ContinuityDisposition>,
+
+    /// Candidate or post-merge transition being evaluated.
+    #[arg(long, value_enum, requires = "repository_continuity")]
+    continuity_transition: Option<ContinuityTransition>,
+
+    /// Whether an authorized adapter supplied live-state evidence.
+    #[arg(long, value_enum, requires = "repository_continuity")]
+    continuity_live_verification: Option<ContinuityLiveVerification>,
+
+    /// Stable live-state evidence URL supplied by an external adapter. Repeatable.
+    #[arg(long, requires = "repository_continuity")]
+    continuity_live_evidence: Vec<String>,
+
+    /// Additional locally available candidate head from the same baseline. Repeatable.
+    #[arg(long, requires = "repository_continuity")]
+    continuity_parallel_head: Vec<String>,
+
+    /// Deterministic YYYY-MM-DD date for exception evaluation.
+    #[arg(long, requires = "repository_continuity")]
+    continuity_evaluation_date: Option<String>,
+
     /// Versioned Repository Intelligence semantic policy.
     #[arg(long, requires = "represented_commit")]
     repository_intelligence: Option<PathBuf>,
@@ -195,6 +242,8 @@ enum SchemaKind {
     RepositoryIntelligenceReport,
     RepositoryPresentation,
     RepositoryPresentationReport,
+    RepositoryContinuity,
+    RepositoryContinuityReport,
 }
 
 fn main() -> ExitCode {
@@ -340,6 +389,8 @@ fn execute_lint(
         .map_or_else(Vec::new, |normalized| normalized.tool_results.clone());
     let mut findings = native.findings;
     let mut evidence = native.evidence;
+    let continuity_report = native.continuity_report;
+    let continuity_rollout = native.continuity_rollout;
     let intelligence_report = native.intelligence_report;
     let intelligence_enforcement = native.intelligence_enforcement;
     let presentation_report = native.presentation_report;
@@ -364,6 +415,7 @@ fn execute_lint(
         &mut tool_results,
         &findings,
         !arguments.repository_contracts.is_empty(),
+        continuity_rollout,
         intelligence_enforcement,
         presentation_mode,
         !suppressions.is_empty(),
@@ -376,6 +428,7 @@ fn execute_lint(
         &plan,
         &report,
         plan.view.profile == Profile::DependencyDebt,
+        continuity_report.as_ref(),
         intelligence_report.as_ref(),
         presentation_report.as_ref(),
     )?;
@@ -392,6 +445,8 @@ fn execute_validate(
     plan.prepare_report_directory()?;
     let native = evaluate_native(workspace, arguments)?;
     let mut findings = native.findings;
+    let continuity_report = native.continuity_report;
+    let continuity_rollout = native.continuity_rollout;
     let intelligence_report = native.intelligence_report;
     let intelligence_enforcement = native.intelligence_enforcement;
     let presentation_report = native.presentation_report;
@@ -407,6 +462,7 @@ fn execute_validate(
         &mut tool_results,
         &findings,
         !arguments.repository_contracts.is_empty(),
+        continuity_rollout,
         intelligence_enforcement,
         presentation_mode,
         !suppressions.is_empty(),
@@ -423,6 +479,7 @@ fn execute_validate(
         &plan,
         &report,
         false,
+        continuity_report.as_ref(),
         intelligence_report.as_ref(),
         presentation_report.as_ref(),
     )?;
@@ -439,6 +496,8 @@ fn execute_fix_preview(
     let outcome = run_isolated_fix(workspace, &resolved, &plan_options(arguments))?;
     let native = evaluate_native(workspace, arguments)?;
     let mut findings = native.findings;
+    let continuity_report = native.continuity_report;
+    let continuity_rollout = native.continuity_rollout;
     let intelligence_report = native.intelligence_report;
     let intelligence_enforcement = native.intelligence_enforcement;
     let presentation_report = native.presentation_report;
@@ -454,6 +513,7 @@ fn execute_fix_preview(
         &mut tool_results,
         &findings,
         !arguments.repository_contracts.is_empty(),
+        continuity_rollout,
         intelligence_enforcement,
         presentation_mode,
         !suppressions.is_empty(),
@@ -480,6 +540,7 @@ fn execute_fix_preview(
         &plan,
         &report,
         false,
+        continuity_report.as_ref(),
         intelligence_report.as_ref(),
         presentation_report.as_ref(),
     )?;
@@ -505,6 +566,8 @@ fn execute_fix_preview(
 struct NativeEvaluation {
     findings: Vec<Finding>,
     evidence: Vec<EvidenceReference>,
+    continuity_report: Option<RepositoryContinuityReport>,
+    continuity_rollout: Option<ContinuityRolloutStage>,
     intelligence_report: Option<RepositoryIntelligenceReport>,
     intelligence_enforcement: Option<IntelligenceEnforcement>,
     presentation_report: Option<RepositoryPresentationReport>,
@@ -543,6 +606,58 @@ fn evaluate_native(
             path: relative,
             sha256: None,
             description: Some("Pinned local repository-contract projection.".to_owned()),
+        });
+    }
+    let mut continuity_report = None;
+    let mut continuity_rollout = None;
+    if let Some(policy_path) = &arguments.repository_continuity {
+        let (relative, contents) = read_workspace_file(workspace, policy_path, 4 * 1024 * 1024)?;
+        let contents = std::str::from_utf8(&contents).map_err(|_| {
+            EgolintError::Configuration(format!(
+                "repository-continuity policy must contain UTF-8: {}",
+                relative.display()
+            ))
+        })?;
+        let policy = RepositoryContinuityPolicy::from_toml(contents, &relative)?;
+        let invocation = ContinuityInvocation {
+            base_revision: arguments
+                .continuity_base
+                .clone()
+                .expect("clap requires continuity base with continuity policy"),
+            head_revision: arguments
+                .continuity_head
+                .clone()
+                .expect("clap requires continuity head with continuity policy"),
+            parallel_heads: arguments.continuity_parallel_head.clone(),
+            disposition: arguments
+                .continuity_disposition
+                .expect("clap requires continuity disposition with continuity policy"),
+            transition: arguments
+                .continuity_transition
+                .unwrap_or(ContinuityTransition::PullRequest),
+            live_verification: arguments
+                .continuity_live_verification
+                .unwrap_or(ContinuityLiveVerification::Unavailable),
+            live_evidence: arguments.continuity_live_evidence.clone(),
+            evaluation_date: arguments
+                .continuity_evaluation_date
+                .clone()
+                .expect("clap requires continuity evaluation date with continuity policy"),
+        };
+        let evaluator = RepositoryContinuityEvaluator::new(&policy, &relative, invocation)?;
+        let evaluation = evaluator.evaluate(workspace, &inventory)?;
+        findings.extend(evaluation.findings);
+        continuity_rollout = Some(policy.rollout_stage);
+        continuity_report = Some(evaluation.report);
+        evidence.push(EvidenceReference {
+            schema_version: CONTRACT_VERSION,
+            kind: EvidenceKind::Configuration,
+            path: relative,
+            sha256: None,
+            description: Some(
+                "Versioned continuity policy with immutable local Hygiene and Aether projections."
+                    .to_owned(),
+            ),
         });
     }
     let mut intelligence_report = None;
@@ -629,6 +744,8 @@ fn evaluate_native(
     Ok(NativeEvaluation {
         findings,
         evidence,
+        continuity_report,
+        continuity_rollout,
         intelligence_report,
         intelligence_enforcement,
         presentation_report,
@@ -779,6 +896,7 @@ fn add_native_tool_results(
     tool_results: &mut Vec<ToolResult>,
     findings: &[Finding],
     contracts_evaluated: bool,
+    continuity_rollout: Option<ContinuityRolloutStage>,
     intelligence_enforcement: Option<IntelligenceEnforcement>,
     presentation_mode: Option<PresentationMode>,
     suppressions_evaluated: bool,
@@ -793,6 +911,18 @@ fn add_native_tool_results(
             "EGOLINT_REPOSITORY_CONTRACT",
             findings,
             Enforcement::Blocking,
+        ));
+    }
+    if let Some(rollout) = continuity_rollout {
+        tool_results.push(native_tool_result(
+            "EGOLINT_REPOSITORY_CONTINUITY",
+            findings,
+            match rollout {
+                ContinuityRolloutStage::Observe => Enforcement::Advisory,
+                ContinuityRolloutStage::Ratchet | ContinuityRolloutStage::Enforce => {
+                    Enforcement::Blocking
+                }
+            },
         ));
     }
     if let Some(enforcement) = intelligence_enforcement {
@@ -853,6 +983,7 @@ fn native_tool_result(tool_id: &str, findings: &[Finding], enforcement: Enforcem
         policy_source: match tool_id {
             "EGOLINT_PORTABILITY" => ".config/rules/portability.toml",
             "EGOLINT_REPOSITORY_CONTRACT" => "docs/repository-contracts.md",
+            "EGOLINT_REPOSITORY_CONTINUITY" => ".config/rules/repository-continuity.v1.toml",
             "EGOLINT_REPOSITORY_INTELLIGENCE" => ".config/rules/repository-intelligence.v1.toml",
             "EGOLINT_REPOSITORY_PRESENTATION" => ".config/rules/repository-presentation.v1.toml",
             "EGOLINT_SUPPRESSIONS" => "docs/suppressions.md",
@@ -888,6 +1019,7 @@ fn write_run_outputs(
     plan: &ExecutionPlan,
     report: &RunReport,
     include_debt: bool,
+    continuity_report: Option<&RepositoryContinuityReport>,
     intelligence_report: Option<&RepositoryIntelligenceReport>,
     presentation_report: Option<&RepositoryPresentationReport>,
 ) -> Result<(), EgolintError> {
@@ -895,6 +1027,13 @@ fn write_run_outputs(
     report.write_atomic(&plan.report_path().join("run.json"))?;
     plan.validate_report_path()?;
     write_sarif_atomic(report, &plan.view.workspace.join(EGOLINT_SARIF_REPORT))?;
+    if let Some(continuity_report) = continuity_report {
+        plan.validate_report_path()?;
+        write_continuity_report_atomic(
+            continuity_report,
+            &plan.view.workspace.join(REPOSITORY_CONTINUITY_REPORT),
+        )?;
+    }
     if let Some(intelligence_report) = intelligence_report {
         plan.validate_report_path()?;
         write_intelligence_report_atomic(
@@ -1071,6 +1210,12 @@ fn print_schema(kind: SchemaKind) -> Result<(), EgolintError> {
         }
         SchemaKind::RepositoryPresentationReport => {
             schemars::schema_for!(RepositoryPresentationReport)
+        }
+        SchemaKind::RepositoryContinuity => {
+            schemars::schema_for!(RepositoryContinuityPolicy)
+        }
+        SchemaKind::RepositoryContinuityReport => {
+            schemars::schema_for!(RepositoryContinuityReport)
         }
     };
     println!("{}", serde_json::to_string_pretty(&schema)?);
@@ -1259,6 +1404,52 @@ mod tests {
                 .command,
             Command::Schema {
                 kind: SchemaKind::RepositoryPresentationReport
+            }
+        ));
+    }
+
+    #[test]
+    fn repository_continuity_requires_explicit_comparison_and_exposes_schemas() {
+        assert!(
+            Cli::try_parse_from([
+                "egolint",
+                "validate",
+                "--repository-continuity",
+                "continuity.toml",
+            ])
+            .is_err()
+        );
+        assert!(
+            Cli::try_parse_from([
+                "egolint",
+                "validate",
+                "--repository-continuity",
+                "continuity.toml",
+                "--continuity-base",
+                "unborn",
+                "--continuity-head",
+                "working-tree",
+                "--continuity-disposition",
+                "updated",
+                "--continuity-evaluation-date",
+                "2026-09-08",
+            ])
+            .is_ok()
+        );
+        assert!(matches!(
+            Cli::try_parse_from(["egolint", "schema", "repository-continuity"])
+                .expect("repository-continuity schema command")
+                .command,
+            Command::Schema {
+                kind: SchemaKind::RepositoryContinuity
+            }
+        ));
+        assert!(matches!(
+            Cli::try_parse_from(["egolint", "schema", "repository-continuity-report"])
+                .expect("repository-continuity report schema command")
+                .command,
+            Command::Schema {
+                kind: SchemaKind::RepositoryContinuityReport
             }
         ));
     }

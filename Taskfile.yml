@@ -9,6 +9,11 @@ vars:
   DOGFOOD_IMAGE: '{{default "egolint-full:dogfood" .DOGFOOD_IMAGE}}'
   DOGFOOD_EVALUATION_DATE:
     sh: date -u "+%Y-%m-%d"
+  DOGFOOD_CONTINUITY_BASE:
+    sh: >-
+      python3 -c 'import pathlib,re; text=pathlib.Path("CONTINUITY.md").read_text();
+      match=re.search(r"(?m)^  base:\n    revision: ([a-f0-9]{40}|unborn)$", text);
+      print(match.group(1) if match else "")'
 
 includes:
   lint:
@@ -108,6 +113,14 @@ tasks:
         schemas/repository-intelligence.schema.json
       - cargo run --quiet --locked -- schema repository-intelligence-report >
         schemas/repository-intelligence-report.schema.json
+      - cargo run --quiet --locked -- schema repository-presentation >
+        schemas/repository-presentation.schema.json
+      - cargo run --quiet --locked -- schema repository-presentation-report >
+        schemas/repository-presentation-report.schema.json
+      - cargo run --quiet --locked -- schema repository-continuity >
+        schemas/repository-continuity.schema.json
+      - cargo run --quiet --locked -- schema repository-continuity-report >
+        schemas/repository-continuity-report.schema.json
 
   schemas:check:
     desc: "Fail when checked-in JSON Schemas differ from the Rust types"
@@ -127,7 +140,11 @@ tasks:
           debt \
           repository-contract \
           repository-intelligence \
-          repository-intelligence-report; do
+          repository-intelligence-report \
+          repository-presentation \
+          repository-presentation-report \
+          repository-continuity \
+          repository-continuity-report; do
           cargo run --quiet --locked -- schema "$schema" > "$temporary_directory/$schema.schema.json"
           diff --unified \
             "schemas/$schema.schema.json" \
@@ -157,8 +174,31 @@ tasks:
     cmds:
       - >-
         cargo run --quiet --locked -- --workspace "." --config ".config/dogfood/egolint.toml"
-        validate --repository-intelligence ".config/dogfood/repository-intelligence.toml"
-        --represented-commit "$(git rev-parse --verify HEAD)"
+        validate --repository-contract ".config/dogfood/repository-context.toml"
+        --repository-intelligence ".config/dogfood/repository-intelligence.toml"
+        --represented-commit "$(git rev-parse --verify HEAD)" --repository-continuity
+        ".config/dogfood/repository-continuity.toml" --continuity-base
+        "{{.DOGFOOD_CONTINUITY_BASE}}" --continuity-head "working-tree" --continuity-disposition
+        "updated" --continuity-transition "pull-request" --continuity-live-verification
+        "unavailable" --continuity-evaluation-date "{{.DOGFOOD_EVALUATION_DATE}}"
+
+  continuity:check:
+    desc: "Validate continuity with caller-supplied, locally available base/head evidence"
+    requires:
+      vars:
+        - CONTINUITY_BASE
+        - CONTINUITY_HEAD
+        - CONTINUITY_DISPOSITION
+        - EVALUATION_DATE
+    cmds:
+      - >-
+        cargo run --quiet --locked -- --workspace "." validate --repository-contract
+        ".config/dogfood/repository-context.toml" --repository-continuity
+        ".config/dogfood/repository-continuity.toml" --continuity-base "{{.CONTINUITY_BASE}}"
+        --continuity-head "{{.CONTINUITY_HEAD}}" --continuity-disposition
+        "{{.CONTINUITY_DISPOSITION}}" --continuity-transition '{{default "pull-request"
+        .CONTINUITY_TRANSITION}}' --continuity-live-verification '{{default "unavailable"
+        .CONTINUITY_LIVE_VERIFICATION}}' --continuity-evaluation-date "{{.EVALUATION_DATE}}"
 
   dogfood:architecture:
     desc: "Run Egolint's architecture adapter with bounded self-consumer debt"

@@ -8,6 +8,7 @@
     ".venv/**",
     "venv/**",
     "assets/identity/**",
+    "vendor/aether/**",
     "vendor/hygiene/**",
     "schemas/*.schema.json",
     ".config/megalinter/tool-matrix.json",

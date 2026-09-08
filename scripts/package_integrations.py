@@ -82,6 +82,7 @@ def validate_contract(contract: dict[str, Any], version: str) -> list[tuple[str,
     reports = contract.get("canonical_reports")
     if reports != {
         "json": ".reports/egolint/run.json",
+        "repository_continuity": ".reports/egolint/repository-continuity.json",
         "sarif": ".reports/egolint/egolint.sarif",
     }:
         raise IntegrationContractError("canonical report paths changed without a contract version")

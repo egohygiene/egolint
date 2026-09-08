@@ -160,4 +160,6 @@ test("consumer manifests make publint applicability explicit", async () => {
     assert.equal(privateApp.publication, "private");
     assert.ok(selfConsumer.ignore.includes("tests/fixtures/**"));
     assert.ok(selfConsumer.ignore.includes("schemas/*.schema.json"));
+    assert.ok(selfConsumer.ignore.includes("vendor/aether/**"));
+    assert.ok(selfConsumer.ignore.includes("vendor/hygiene/**"));
 });

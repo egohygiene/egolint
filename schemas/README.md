@@ -30,6 +30,12 @@ equivalent semantic validation.
   exact Hygiene pins, enabled-rule profile, and incremental source coverage.
 - `repository-intelligence-report.schema.json` describes normalized semantic
   validity, represented commit, coverage, diagnostics, and remediation.
+- `repository-presentation.schema.json` and `repository-presentation-report.schema.json` describe
+  repository-owned presentation selection and privacy-safe conformance evidence.
+- `repository-continuity.schema.json` describes immutable upstream locks, applicability inputs,
+  rollout, local projection paths, and reviewed exceptions.
+- `repository-continuity-report.schema.json` describes explicit base/head topology, separately
+  bounded evidence layers, semantic status, stable diagnostics, and remediation.
 
 Every contract version is constrained to exactly `1` in its generated schema.
 The report declares whether it contains adapter-exit-only, partial, or complete
