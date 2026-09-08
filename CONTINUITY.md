@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-09-08T15:54:37Z"
+  updated_at: "2026-09-08T16:35:44Z"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -56,20 +56,23 @@ state:
     verified_at: "2026-09-08T15:54:37Z"
   candidate:
     branch: codex/egolint-55-continuity-validation
-    revision: null
-    pull_request: null
+    revision: ce569d400d7972b05cc8a36e538d4238e7dcf5b8
+    pull_request:
+      provider: github
+      id: egohygiene/egolint#56
+      url: https://github.com/egohygiene/egolint/pull/56
     handoff_state: in-progress
   live:
     status: verified
-    observed_at: "2026-09-08T15:54:37Z"
+    observed_at: "2026-09-08T16:35:44Z"
     default_branch_revision: 4b98b30eb3a574c81986fb9be585c4935f585f65
     issue_state: open
-    pull_request_state: not-applicable
-    notes: GitHub showed issue 55 open and main at the recorded revision; recheck mutable state before handoff.
+    pull_request_state: draft
+    notes: GitHub showed issue 55 open, pull request 56 draft, and main at the recorded revision; recheck before handoff.
   parallel_changes: []
 review:
   status: partial
-  reviewed_at: "2026-09-08T15:54:37Z"
+  reviewed_at: "2026-09-08T16:35:44Z"
   reviewed_by: Codex
   evidence:
     - command: git status --short and git rev-parse HEAD
@@ -115,7 +118,7 @@ Implement issue 55 as an offline, rollout-aware native EgoLint validation surfac
 
 ## State snapshot
 
-The candidate branch starts from main revision `4b98b30eb3a574c81986fb9be585c4935f585f65`. Work is in progress; no pull request or candidate revision is claimed yet. The GitHub observation recorded above is time-bounded and must be refreshed before handoff.
+The candidate branch starts from main revision `4b98b30eb3a574c81986fb9be585c4935f585f65`. Draft pull request 56 is open; its recorded candidate revision is prior to this checkpoint reconciliation and does not predict merge. The GitHub observation above is time-bounded and must be refreshed before handoff.
 
 ## Completed and material changes
 
@@ -132,7 +135,7 @@ The candidate branch starts from main revision `4b98b30eb3a574c81986fb9be585c493
 
 - Blocker: no local Rust toolchain is available.
 - Risk: initial compiler, formatter, Clippy, and generated-schema feedback must be resolved through pull-request CI.
-- Unknown: the final pull-request number and candidate revision do not exist yet.
+- Unknown: compiler, formatter, Clippy, schema, package, and dogfood results are pending in draft pull request 56.
 - Deferred: enforcement remains in observe while the upstream Hygiene profile is proposed and the Aether contract is draft.
 
 ## Next dependency-ready work
