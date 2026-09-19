@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-09-19T19:20:34Z"
+  updated_at: "2026-09-19T19:33:28Z"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -81,12 +81,12 @@ state:
     issue_state: open
     pull_request_state: draft
     notes: GitHub verified issue 29 open and draft PR 64 at
-      788864d87ec5f8bd3d3df9b3b0f87153c497cac3. PR 63 is merged and issue 14 is closed. Aether 61
+      65e5ed91027e0ee17eaee173e139af48f85af4d1. PR 63 is merged and issue 14 is closed. Aether 61
       and Hygiene 27 are closed; their accepted merge revisions are recorded in the source lock.
   parallel_changes: []
 review:
   status: partial
-  reviewed_at: "2026-09-19T19:20:34Z"
+  reviewed_at: "2026-09-19T19:33:28Z"
   reviewed_by: Codex
   evidence:
     - command: python scripts/validate_repository_release_sources.py
@@ -110,10 +110,10 @@ review:
         structured-document checks passed.
     - command: Cargo and GitHub Actions checks
       outcome: limited
-      observed_at: "2026-09-19T19:20:34Z"
-      notes: CI run 35463506377 passed. Dogfood run 35463506335 passed native continuity and Mypy,
-        then found six ls-lint errors for issue 14's conventional .egolint fixture directories. The
-        exact ls-lint 2.3.1 command now passes locally and the corrected head needs a new CI run.
+      observed_at: "2026-09-19T19:33:28Z"
+      notes: CI run 35464113199 passed. Dogfood run 35464113190 accepted the .egolint fixtures,
+        then found one inherited snake-case Rust module directory under a kebab-only first-party
+        rule. The exact MegaLinter ls-lint command now passes and the corrected head needs CI.
   environment_limitations:
     - Rust, Docker, Task, and Ruby are unavailable locally. Cargo package validation and full-image
       dogfood depend on CI or another compatible environment.
@@ -171,17 +171,17 @@ and issue 29 plus draft PR 64 are open.
   `28f9d6c7519d820644572634ba4476614f418d83` with exact blob and SHA-256 identities.
 - Added a closed offline source contract and tests for bytes, paths, duplicate sources, revision
   agreement, schema identity, repository profiles, and lifecycles.
-- Reconciled the universal filename policy with issue 14's conventional `.egolint` configuration
-  directories after dogfood exposed the inherited fixture mismatch.
+- Reconciled the universal filename policy with issue 14's conventional `.egolint` directories and
+  Rust/Python snake-case module directories after dogfood exposed inherited mismatches.
 - Documented ownership and staged implementation. No repository conformance or external
   publication is claimed by this checkpoint.
 
 ## Validation and review evidence
 
 All 77 Python tests, 11 JavaScript tests, source-lock checks, repository policy checks, Ruff,
-Prettier, continuity schema validation, exact Mypy 1.19.1, and exact ls-lint 2.3.1 pass locally. CI
-run 35463506377 passed every job. Dogfood successively exposed continuity anatomy, Mypy narrowing,
-and the inherited `.egolint` directory convention; this revision repairs all three findings.
+Prettier, continuity schema validation, exact Mypy 1.19.1, and MegaLinter's exact ls-lint 2.3.1
+command pass locally. CI run 35464113199 passed every job. Dogfood successively exposed continuity
+anatomy, Mypy narrowing, and two inherited directory-policy gaps; this revision repairs all four.
 
 ## Blockers, risks, unknowns, and deferred work
 
