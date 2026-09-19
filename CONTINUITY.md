@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-09-19T18:57:33Z"
+  updated_at: "2026-09-19T19:08:52Z"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -81,12 +81,12 @@ state:
     issue_state: open
     pull_request_state: draft
     notes: GitHub verified issue 29 open and draft PR 64 at
-      d015293f08f36234014ffc234a2b4716d1809dd3. PR 63 is merged and issue 14 is closed. Aether 61
+      8bb3b76482f7bacca46c08d65bc9b86af27e1f00. PR 63 is merged and issue 14 is closed. Aether 61
       and Hygiene 27 are closed; their accepted merge revisions are recorded in the source lock.
   parallel_changes: []
 review:
   status: partial
-  reviewed_at: "2026-09-19T18:57:33Z"
+  reviewed_at: "2026-09-19T19:08:52Z"
   reviewed_by: Codex
   evidence:
     - command: python scripts/validate_repository_release_sources.py
@@ -110,9 +110,10 @@ review:
         structured-document checks passed.
     - command: Cargo and GitHub Actions checks
       outcome: limited
-      observed_at: "2026-09-19T18:57:33Z"
-      notes: Rust, schema, policy, and package checks passed. The first dogfood run rejected changed
-        continuity headings; this revision restores the required anatomy and needs a new CI run.
+      observed_at: "2026-09-19T19:08:52Z"
+      notes: CI run 35462867696 passed. Dogfood run 35462867731 passed native continuity, then
+        found three Mypy errors in the new validator; exact Mypy 1.19.1 now passes locally after
+        narrowing untyped JSON values, and the corrected head needs a new CI run.
   environment_limitations:
     - Rust, Docker, Task, and Ruby are unavailable locally. Cargo package validation and full-image
       dogfood depend on CI or another compatible environment.
@@ -176,9 +177,9 @@ and issue 29 plus draft PR 64 are open.
 ## Validation and review evidence
 
 All 77 Python tests, 11 JavaScript tests, source-lock checks, repository policy checks, Ruff,
-Prettier, and continuity schema validation pass locally. CI policy contracts and the available Rust
-checks passed on the first checkpoint head; dogfood correctly rejected an intermediate continuity
-draft whose headings did not preserve the required anatomy. This revision repairs that finding.
+Prettier, continuity schema validation, and exact Mypy 1.19.1 pass locally. CI run 35462867696
+passed every job. Dogfood first rejected an intermediate continuity draft and then exposed three
+Mypy narrowing errors in the new validator; this revision repairs both findings.
 
 ## Blockers, risks, unknowns, and deferred work
 

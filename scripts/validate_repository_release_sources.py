@@ -14,7 +14,7 @@ import json
 from pathlib import Path, PurePosixPath
 import re
 import sys
-from typing import Any
+from typing import Any, TypeGuard
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_LOCK = REPOSITORY_ROOT / ".config/rules/repository-release-sources.v1.json"
@@ -63,7 +63,7 @@ def load_json_object(path: Path) -> dict[str, Any]:
     return value
 
 
-def safe_relative_path(value: Any) -> bool:
+def safe_relative_path(value: Any) -> TypeGuard[str]:
     """Return whether a value is one normalized repository-relative path."""
 
     if not isinstance(value, str) or not value or "\\" in value:
@@ -124,7 +124,8 @@ def validate_source_record(source: Any, index: int) -> list[str]:
     findings: list[str] = []
     if set(source) != SOURCE_FIELDS:
         findings.append(f"{label} fields must exactly match the v1 contract")
-    source_id = source.get("id")
+    raw_source_id = source.get("id")
+    source_id = raw_source_id if isinstance(raw_source_id, str) else ""
     expected = EXPECTED_SOURCES.get(source_id)
     if expected is None:
         findings.append(f"{label}.id is not a supported source")
@@ -138,8 +139,8 @@ def validate_source_record(source: Any, index: int) -> list[str]:
         if not safe_relative_path(source.get(field))
     )
     for field in ("revision", "git_blob_sha1"):
-        value = source.get(field)
-        if not isinstance(value, str) or COMMIT_PATTERN.fullmatch(value) is None:
+        field_value = source.get(field)
+        if not isinstance(field_value, str) or COMMIT_PATTERN.fullmatch(field_value) is None:
             findings.append(f"{label}.{field} must be a full lowercase Git object id")
     digest = source.get("sha256")
     if not isinstance(digest, str) or SHA256_PATTERN.fullmatch(digest) is None:
