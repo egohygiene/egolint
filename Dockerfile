@@ -14,10 +14,13 @@ COPY .config/rules/repository-continuity.v1.toml .config/rules/repository-contin
 COPY .config/rules/repository-intelligence.v1.toml .config/rules/repository-intelligence.v1.toml
 COPY .config/rules/repository-presentation.v1.toml .config/rules/repository-presentation.v1.toml
 COPY .config/rules/repository-gitignore.v1.json .config/rules/repository-gitignore.v1.json
+COPY .config/rules/repository-release-sources.v1.json .config/rules/repository-release-sources.v1.json
 COPY .config/rules/javascript-architecture.v1.json .config/rules/javascript-architecture.v1.json
 COPY .config/megalinter/tool-matrix.json .config/megalinter/tool-matrix.json
 COPY .config/megalinter/snapshots/ .config/megalinter/snapshots/
 COPY .config/security/scanner-ownership.json .config/security/scanner-ownership.json
+COPY vendor/aether/aether.repository-release.v1.schema.json vendor/aether/aether.repository-release.v1.schema.json
+COPY vendor/hygiene/repository-release-policy.v1.json vendor/hygiene/repository-release-policy.v1.json
 
 RUN cargo build --locked --release --package "egolint" --bin "egolint"
 

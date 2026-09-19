@@ -78,6 +78,12 @@ inputs:
     description: Optional workspace-relative repository-presentation policy TOML path.
     required: false
     default: ""
+  release-adoption-state:
+    description:
+      Optional authorized repository-release rollout (required, advisory, exempt, or
+      not-applicable).
+    required: false
+    default: ""
   represented-commit:
     description:
       Full represented Git commit; defaults to github.sha when semantic validation is enabled.
@@ -112,6 +118,9 @@ outputs:
   repository-presentation-report:
     description: Workspace-relative privacy-safe repository-presentation validation report.
     value: ${{ steps.check.outputs.repository-presentation-report }}
+  repository-release-report:
+    description: Workspace-relative offline repository-release applicability report.
+    value: ${{ steps.check.outputs.repository-release-report }}
   debt-json:
     description:
       Workspace-relative dependency-debt JSON path; the file exists only for that profile.
@@ -155,6 +164,7 @@ runs:
         INPUT_CONTINUITY_PARALLEL_HEADS: ${{ inputs.continuity-parallel-heads }}
         INPUT_REPOSITORY_INTELLIGENCE: ${{ inputs.repository-intelligence }}
         INPUT_REPOSITORY_PRESENTATION: ${{ inputs.repository-presentation }}
+        INPUT_RELEASE_ADOPTION_STATE: ${{ inputs.release-adoption-state }}
         INPUT_REPRESENTED_COMMIT: ${{ inputs.represented-commit }}
         INPUT_SUPPRESSION: ${{ inputs.suppression }}
         INPUT_EVALUATION_DATE: ${{ inputs.evaluation-date }}

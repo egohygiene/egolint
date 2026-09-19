@@ -85,6 +85,7 @@ continuity_live_evidence="${INPUT_CONTINUITY_LIVE_EVIDENCE:-}"
 continuity_parallel_heads="${INPUT_CONTINUITY_PARALLEL_HEADS:-}"
 repository_intelligence="${INPUT_REPOSITORY_INTELLIGENCE:-}"
 repository_presentation="${INPUT_REPOSITORY_PRESENTATION:-}"
+release_adoption_state="${INPUT_RELEASE_ADOPTION_STATE:-}"
 represented_commit="${INPUT_REPRESENTED_COMMIT:-}"
 suppression="${INPUT_SUPPRESSION:-}"
 evaluation_date="${INPUT_EVALUATION_DATE:-}"
@@ -111,6 +112,7 @@ reject_controls "continuity-live-evidence" "${continuity_live_evidence}"
 reject_controls "continuity-parallel-heads" "${continuity_parallel_heads}"
 reject_controls "repository-intelligence" "${repository_intelligence}"
 reject_controls "repository-presentation" "${repository_presentation}"
+reject_controls "release-adoption-state" "${release_adoption_state}"
 reject_controls "represented-commit" "${represented_commit}"
 reject_controls "suppression" "${suppression}"
 reject_controls "evaluation-date" "${evaluation_date}"
@@ -120,6 +122,10 @@ require_boolean "allow-unpinned-image" "${allow_unpinned}"
 require_boolean "changed-only" "${changed_only}"
 require_choice "pull-policy" "${pull_policy}" "always" "missing" "never"
 require_choice "network" "${network}" "none" "bridge"
+if [[ -n ${release_adoption_state} ]]; then
+  require_choice "release-adoption-state" "${release_adoption_state}" \
+    "required" "advisory" "exempt" "not-applicable"
+fi
 
 case "${workspace_input}" in
 "" | /* | ../* | */../* | */..) fail "workspace must be repository-relative and may not traverse upward" ;;
@@ -209,6 +215,7 @@ report_prefix="${relative_workspace%/}/${REPORT_ROOT}"
   printf "repository-continuity-report=%s/repository-continuity.json\n" "${report_prefix}"
   printf "repository-intelligence-report=%s/repository-intelligence.json\n" "${report_prefix}"
   printf "repository-presentation-report=%s/repository-presentation.json\n" "${report_prefix}"
+  printf "repository-release-report=%s/repository-release.json\n" "${report_prefix}"
   printf "debt-json=%s/debt.json\n" "${report_prefix}"
   printf "debt-markdown=%s/debt.md\n" "${report_prefix}"
   printf "raw-megalinter-json=%s/mega-linter-report.json\n" "${report_prefix}"
@@ -282,6 +289,9 @@ if [[ -n ${repository_intelligence} ]]; then
 fi
 if [[ -n ${repository_presentation} ]]; then
   command+=("--repository-presentation" "${repository_presentation}")
+fi
+if [[ -n ${release_adoption_state} ]]; then
+  command+=("--release-adoption-state" "${release_adoption_state}")
 fi
 [[ -z ${repository_intelligence} && -z ${repository_presentation} ]] ||
   command+=("--represented-commit" "${represented_commit}")

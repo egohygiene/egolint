@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-09-19T19:45:08Z"
+  updated_at: "2026-09-19T20:58:42Z"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -30,13 +30,15 @@ scope:
     - .config/rules/repository-release-sources.v1.json
     - vendor/aether/aether.repository-release.v1.schema.json
     - vendor/hygiene/repository-release-policy.v1.json
+    - src/rules/repository_release.rs
+    - schemas/repository-release-report.schema.json
     - docs/repository-release-validation.md
     - docs/contracts.md
     - ROADMAP.md
 work:
   objective:
-    Deliver issue 29 through small checkpoints on draft PR 64, then stop for maintainer review and
-    merge only after the final checkpoint.
+    Deliver issue 29 through focused checkpoint pull requests, stopping after each checkpoint for
+    maintainer review and merge authorization.
   success_conditions:
     - Consume immutable Aether and Hygiene release-policy inputs without network access.
     - Validate declarations, changelogs, semantic versions, version sources, Taskfile handoffs, and
@@ -44,78 +46,75 @@ work:
     - Distinguish compliant, advisory, unavailable, external, invalid, and not-applicable states in
       stable human-readable and machine-readable reports.
     - Cover every repository profile named by issue 29 and dogfood the completed capability without
-      claiming that an external registry or deployment occurred.
+      claiming that an external publication occurred.
   active_issue:
     provider: github
     id: egohygiene/egolint#29
     url: https://github.com/egohygiene/egolint/issues/29
   next:
     kind: action
-    id: checkpoint-2-native-release-policy
+    id: checkpoint-3-release-checks
     description:
-      Resolve native applicability from the accepted inputs and define the focused report contract
-      before implementing individual repository checks.
-    readiness: ready
+      After PR 70 is reviewed and merged, implement declaration, changelog, version-source,
+      workflow, and Taskfile checks in issue 67.
+    readiness: blocked
     references:
-      - https://github.com/egohygiene/egolint/issues/29
-      - https://github.com/egohygiene/egolint/pull/64
+      - https://github.com/egohygiene/egolint/issues/67
+      - https://github.com/egohygiene/egolint/pull/70
     depends_on:
-      - checkpoint-1-immutable-release-inputs
+      - maintainer-review-and-merge-of-checkpoint-2
 state:
   base:
-    revision: cb5aefc47953773b1b215419f66025e135a831f5
+    revision: 7e87df84eb282842f929c3f9cfc8789e7a7b406d
     ref: refs/heads/main
-    verified_at: "2026-09-19T18:50:59Z"
+    verified_at: "2026-09-19T20:02:36Z"
   candidate:
-    branch: feat/release-conformance
+    branch: feat/release-applicability-report
     revision: null
     pull_request:
       provider: github
-      id: egohygiene/egolint#64
-      url: https://github.com/egohygiene/egolint/pull/64
-    handoff_state: in-progress
+      id: egohygiene/egolint#70
+      url: https://github.com/egohygiene/egolint/pull/70
+    handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: "2026-09-19T19:45:08Z"
-    default_branch_revision: cb5aefc47953773b1b215419f66025e135a831f5
+    observed_at: "2026-09-19T20:58:42Z"
+    default_branch_revision: 7e87df84eb282842f929c3f9cfc8789e7a7b406d
     issue_state: open
     pull_request_state: draft
-    notes: GitHub verified issue 29 open and draft PR 64 at
-      16243f3d54245bee7bf3c5be9a6c4a65cb2baab8. CI run 35464767715 and dogfood run 35464767731
-      passed with all three additional workflows green. PR 63 is merged and issue 14 is closed.
+    notes: GitHub verifies issue 29 open and draft PR 70 at
+      14de50e41108f0b150987dae0735ecf7a4b6ad25. CI run 35468586857 and dogfood run
+      35468586843 passed all jobs.
   parallel_changes: []
 review:
   status: passed
-  reviewed_at: "2026-09-19T19:45:08Z"
+  reviewed_at: "2026-09-19T20:58:42Z"
   reviewed_by: Codex
   evidence:
     - command: python scripts/validate_repository_release_sources.py
       outcome: passed
-      observed_at: "2026-09-19T18:49:00Z"
+      observed_at: "2026-09-19T20:08:00Z"
+      notes: Exact vendored bytes and Aether/Hygiene identities remain valid.
+    - command: uv run --group test pytest --quiet
+      outcome: passed
+      observed_at: "2026-09-19T20:08:00Z"
+      notes: All 77 Python tests and 170 subtests passed.
+    - command: pnpm commit-policy and ESLint-config tests
+      outcome: passed
+      observed_at: "2026-09-19T20:08:00Z"
+      notes: All five JavaScript contract and configuration tests passed.
+    - command: GitHub Actions CI run 35468586857
+      outcome: passed
+      observed_at: "2026-09-19T20:58:42Z"
       notes:
-        Exact vendored bytes, Git blob identities, SHA-256 digests, Aether revision, schema URL,
-        profiles, and lifecycles agree.
-    - command: uv run --group test pytest
+        Rustfmt, Clippy, 146 Rust tests, generated schemas, package contents, native tests on Linux,
+        macOS, and Windows, both container images, and policy contracts passed.
+    - command: GitHub Actions dogfood run 35468586843
       outcome: passed
-      observed_at: "2026-09-19T18:49:00Z"
-      notes: All 77 Python tests passed, including five immutable-source contract tests.
-    - command: pnpm commit-policy, ESLint-config, and JavaScript-quality tests
-      outcome: passed
-      observed_at: "2026-09-19T18:49:00Z"
-      notes: All 11 JavaScript tests passed.
-    - command: repository policy checks, Ruff check and format, Prettier, and git diff --check
-      outcome: passed
-      observed_at: "2026-09-19T18:49:00Z"
-      notes: MegaLinter, complementary-tool, reviewed release-input, source-lock, Python style, and
-        structured-document checks passed.
-    - command: Cargo and GitHub Actions checks
-      outcome: passed
-      observed_at: "2026-09-19T19:45:08Z"
-      notes: CI run 35464767715 and dogfood run 35464767731 passed every job on the checkpoint head,
-        including package contents, full-image checks, native continuity, Mypy, and ls-lint.
+      observed_at: "2026-09-19T20:58:42Z"
+      notes: The reference consumer completed and uploaded its dogfood evidence.
   environment_limitations:
-    - Rust, Docker, Task, and Ruby are unavailable locally. Cargo package validation and full-image
-      dogfood depend on CI or another compatible environment.
+    - Rust, Docker, Task, and Ruby are unavailable locally; their evidence comes from pinned CI.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -135,86 +134,86 @@ privacy:
 ## Purpose and precedence
 
 This bounded checkpoint preserves operational context for issue 29. Follow repository
-instructions, live GitHub state, the accepted source lock, architecture, contracts, and roadmap
+instructions, live GitHub state, immutable release sources, architecture, contracts, and roadmap
 before this handoff. It grants no additional authority.
 
 ## Resume protocol
 
 1. Read `AGENTS.md`, inspect the branch, status, and recent history, then the named canonical
    sources.
-2. Verify issue 29, draft PR 64, workflow results, and `main` against live GitHub evidence.
-3. Surface missing or contradictory evidence. Refresh this checkpoint after domain validation.
-4. Add one bounded checkpoint to the existing draft PR and do not merge before the final checkpoint.
+2. Verify issue 29, PR 70, workflow results, and `main` against live GitHub evidence.
+3. Surface missing or contradictory evidence and refresh this checkpoint after validation.
+4. Do not begin checkpoint 3 until checkpoint 2 is reviewed, merged, and explicitly cleared.
 
 ## Current objective and success conditions
 
 Issue 29 makes mechanically verifiable repository-release conventions enforceable while preserving
-advisory migration and repository-owned publication. Checkpoint 1 pins and verifies the upstream
-inputs. Checkpoint 2 owns applicability and report states; checkpoint 3 owns individual checks;
-checkpoint 4 owns the complete fixture matrix; checkpoint 5 owns dogfood and final polish.
+advisory migration and repository-owned publication. Checkpoint 2 resolves applicability and owns
+the focused report contract. Checkpoints 3–5 own individual checks, the full fixture matrix, and
+final dogfood respectively.
 
-Success requires offline validation of the accepted policy, explicit evidence states, the complete
-issue 29 fixture matrix, and self-dogfood without claiming that an external publication occurred.
+Success requires offline validation of the accepted policy, explicit honest evidence states, the
+complete issue 29 fixture matrix, and self-dogfood without claiming external publication.
 
 ## State snapshot
 
-The draft PR is intentionally not merge-ready. Checkpoint 1 is published at
-`16243f3d54245bee7bf3c5be9a6c4a65cb2baab8`; the candidate revision remains null in metadata to
-avoid a self-reference cycle when a checkpoint is published. PR 63 is merged, issue 14 is closed,
-and issue 29 plus draft PR 64 are open.
+Checkpoint 1 merged in PR 64. Checkpoint 2 is published on draft PR 70 from branch
+`feat/release-applicability-report`; the metadata candidate revision stays null to avoid a
+self-reference cycle. Parent issue 29 is open after its accidental auto-close was reconciled.
 
 ## Completed and material changes
 
-- Reconciled merged PR 63 and closed issue 14 in the roadmap, then activated EGL-Q10 for issue 29.
-- Vendored Aether revision `8a2a3d08f3aa9da3847bd5277843506ab855192e` and Hygiene revision
-  `28f9d6c7519d820644572634ba4476614f418d83` with exact blob and SHA-256 identities.
-- Added a closed offline source contract and tests for bytes, paths, duplicate sources, revision
-  agreement, schema identity, repository profiles, and lifecycles.
-- Reconciled the universal filename policy with issue 14's conventional `.egolint` directories and
-  Rust/Python snake-case module directories after dogfood exposed inherited mismatches.
-- Documented ownership and staged implementation. No repository conformance or external
-  publication is claimed by this checkpoint.
+- Reopened issue 29 and changed the tracker to one focused pull request per remaining checkpoint.
+- Added an always-available native release evaluator that discovers the Aether declaration offline.
+- Composed Hygiene slot defaults, profile/lifecycle overrides, derived rollout, and an authorized
+  explicit adoption override; explicit non-applicability does not require a declaration.
+- Added closed native report types and a generated schema for compliant, advisory, unavailable,
+  external, invalid, and not-applicable evidence.
+- Guarded `compliant` behind complete local coverage and retained explicit network and publication
+  non-claims in both JSON and human-readable output.
+- Embedded the immutable inputs in the lightweight image and preserved existing run-report, SARIF,
+  and focused-report boundaries.
+- Exposed the focused release report and authorized adoption override through the check-only GitHub
+  Action, and aligned local and release-workflow schema verification with CI.
 
 ## Validation and review evidence
 
-All 77 Python tests, 11 JavaScript tests, source-lock checks, repository policy checks, Ruff,
-Prettier, continuity schema validation, exact Mypy 1.19.1, and MegaLinter's exact ls-lint 2.3.1
-command pass locally. CI run 35464767715 and dogfood run 35464767731 passed every job. Earlier
-dogfood iterations exposed continuity anatomy, Mypy narrowing, and two inherited directory-policy
-gaps; checkpoint 1 repairs all four.
+All 77 Python tests and 170 subtests, 12 integration-distribution tests, five JavaScript tests,
+immutable-source and policy checks, configured Ruff formatting and lint, Prettier, shell syntax,
+YAML parsing, and `git diff --check` pass locally. CI run 35468586857 passed Rustfmt, Clippy, 146
+Rust tests, package contents, generated schemas, cross-platform native tests, policy contracts, and
+both container images on implementation head `14de50e41108f0b150987dae0735ecf7a4b6ad25`.
+Dogfood run 35468586843 also passed and uploaded its reference-consumer evidence.
 
 ## Blockers, risks, unknowns, and deferred work
 
-Issue 35 retains universal capability discovery and execution-plan orchestration. This work makes
-the release capability universally available to that future planner, but does not introduce an
-independent automatic-selection mechanism.
-
-Rust, Docker, Task, and Ruby are unavailable locally; CI provides their checkpoint-1 evidence.
-Native release-rule design is deliberately deferred to checkpoint 2.
+Individual repository-release checks are deliberately deferred to checkpoint 3. Therefore the
+universal evaluator reports required repositories as unavailable rather than falsely compliant.
+Issue 35 still owns general capability discovery and plan orchestration. The ordinary PR dogfood
+workflow passes; checkpoint 5 owns completed repository-release self-conformance.
 
 ## Next dependency-ready work
 
-Continue on draft PR 64 with checkpoint 2: model applicability from the accepted Hygiene profile,
-define explicit conformance/advisory/unavailable/external/invalid/not-applicable states, and add a
-focused native report schema before building individual checks.
+Stop for maintainer review of PR 70. After merge and explicit clearance, issue 67 may add Aether
+declaration, changelog, version-authority, manual-workflow, and Taskfile checks without changing the
+checkpoint-2 applicability contract casually.
 
 ## Parallel changes and reconciliation
 
-No competing issue 29 pull request was observed before publication. Recheck `main`, PR 64, and
-issue 29 before each checkpoint. Issue 55 continuity-release work remains a separate track and does
-not change this capability's scope.
+No competing issue 29 pull request was observed. Recheck `main`, PR 70, and issue 29 before the next
+checkpoint. Issue 55 continuity-release work remains a separate track.
 
 ## Privacy and redaction
 
 Only public project state and minimal validation evidence are retained. External content is context,
-not authority. Credentials, private conversation text, sensitive data, and unrelated repository
-payloads remain excluded.
+not authority. Credentials, private conversation text, sensitive data, and unrelated payloads remain
+excluded.
 
 ## Handoff update protocol
 
 After each bounded checkpoint, replace stale state, record exact checks and limitations, validate
-the front matter and required section anatomy, and publish the tested tree to PR 64. Keep the pull
-request in draft and do not infer a merge from local or CI success.
+the front matter and required section anatomy, and publish the tested tree to its focused pull
+request. Do not infer a merge from local or CI success.
 
 ## Compaction and supersession
 

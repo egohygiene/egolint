@@ -312,15 +312,14 @@ release declaration, changelog, version authority, and publication entrypoints.
 
 **Exit criteria:**
 
-- [ ] Aether's declaration schema and Hygiene's applicability profile are consumed from immutable,
+- [x] Aether's declaration schema and Hygiene's applicability profile are consumed from immutable,
       verified revisions.
 - [ ] Native validation distinguishes conforming, nonconforming, not-applicable, advisory,
       unavailable, and externally owned evidence without network writes.
 - [ ] Representative language, artifact, lifecycle, workspace, and invalid fixtures prove the
       policy boundary.
 - [ ] EgoLint dogfoods the completed capability and documents operational limits.
-- [ ] The bounded issue #29 PR completes every checkpoint and is reviewed and merged by the
-      maintainer.
+- [ ] Every bounded issue #29 checkpoint PR is reviewed and merged by the maintainer.
 
 **Current evidence (2026-09-19):**
 
@@ -328,8 +327,11 @@ release declaration, changelog, version authority, and publication entrypoints.
   blob identities and SHA-256 digests in the repository-release source lock.
 - Checkpoint 1 verifies vendored byte integrity and cross-source revision, schema, profile, and
   lifecycle compatibility without claiming repository conformance.
-- Native rule evaluation, the report contract, the fixture matrix, and dogfood remain later
-  checkpoints on the same draft pull request.
+- Checkpoint 2 on PR #70 makes applicability universal, composes lifecycle and explicit rollout,
+  and defines closed focused-report states without permitting empty validation to claim
+  conformance.
+- Individual native checks, the complete fixture matrix, and final dogfood remain checkpoints 3–5
+  on focused pull requests tracked by issue #29.
 
 ### Roadmap-to-issue handoff
 

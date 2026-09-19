@@ -16,12 +16,15 @@ use egolint::rules::{
     RepositoryContract, RepositoryContractEvaluator, RepositoryIntelligenceEvaluator,
     RepositoryIntelligencePolicy, RepositoryIntelligenceReport, RepositoryInventory,
     RepositoryPresentationEvaluator, RepositoryPresentationPolicy, RepositoryPresentationReport,
-    RepresentedCommit, collect_commit_history, write_continuity_report_atomic,
-    write_intelligence_report_atomic, write_presentation_report_atomic,
+    RepositoryReleaseEvaluator, RepositoryReleaseReport, RepresentedCommit, collect_commit_history,
+    write_continuity_report_atomic, write_intelligence_report_atomic,
+    write_presentation_report_atomic, write_release_report_atomic,
 };
 use egolint::rules::{
     PresentationMode, REPOSITORY_CONTINUITY_REPORT, REPOSITORY_INTELLIGENCE_REPORT,
-    REPOSITORY_PRESENTATION_REPORT, apply_suppressions,
+    REPOSITORY_PRESENTATION_REPORT, REPOSITORY_RELEASE_DECLARATION, REPOSITORY_RELEASE_REPORT,
+    ReleaseAdoptionState, ReleaseDeclarationState, ReleaseEvidenceState, ReleaseValidationEvidence,
+    apply_suppressions,
 };
 use egolint::sarif::{EGOLINT_SARIF_REPORT, write_sarif_atomic};
 use egolint::{
@@ -204,6 +207,10 @@ struct RunArgs {
     #[arg(long, requires = "suppressions")]
     evaluation_date: Option<String>,
 
+    /// Explicit repository-release rollout selected by an authorized planner.
+    #[arg(long)]
+    release_adoption_state: Option<ReleaseAdoptionState>,
+
     /// Output encoding for plan and doctor commands.
     #[arg(long, value_enum, default_value_t = OutputFormat::Text)]
     format: OutputFormat,
@@ -262,6 +269,7 @@ enum SchemaKind {
     RepositoryContinuityReport,
     RepositoryGitignore,
     RepositoryGitignoreReport,
+    RepositoryReleaseReport,
 }
 
 fn main() -> ExitCode {
@@ -416,6 +424,7 @@ fn execute_lint(
     let intelligence_enforcement = native.intelligence_enforcement;
     let presentation_report = native.presentation_report;
     let presentation_mode = native.presentation_mode;
+    let release_report = native.release_report;
     let mut completeness = if let Some(normalized) = adapter {
         findings.extend(normalized.findings);
         evidence.extend(normalized.evidence);
@@ -439,6 +448,7 @@ fn execute_lint(
         continuity_rollout,
         intelligence_enforcement,
         presentation_mode,
+        &release_report,
         !suppressions.is_empty(),
     );
     reconcile_suppressed_tool_results(&mut tool_results, &findings);
@@ -452,8 +462,10 @@ fn execute_lint(
         continuity_report.as_ref(),
         intelligence_report.as_ref(),
         presentation_report.as_ref(),
+        Some(&release_report),
     )?;
     print_findings(&report);
+    println!("{}", release_report.render_text());
     Ok(report.status.exit_code())
 }
 
@@ -472,6 +484,7 @@ fn execute_validate(
     let intelligence_enforcement = native.intelligence_enforcement;
     let presentation_report = native.presentation_report;
     let presentation_mode = native.presentation_mode;
+    let release_report = native.release_report;
     let mut suppressions = load_suppressions(workspace, arguments)?;
     evaluate_suppressions(
         &mut findings,
@@ -486,6 +499,7 @@ fn execute_validate(
         continuity_rollout,
         intelligence_enforcement,
         presentation_mode,
+        &release_report,
         !suppressions.is_empty(),
     );
     let mut report = RunReport::from_plan(&plan.view, Some(exit_code::CLEAN));
@@ -503,8 +517,10 @@ fn execute_validate(
         continuity_report.as_ref(),
         intelligence_report.as_ref(),
         presentation_report.as_ref(),
+        Some(&release_report),
     )?;
     print_findings(&report);
+    println!("{}", release_report.render_text());
     Ok(report.status.exit_code())
 }
 
@@ -551,7 +567,7 @@ fn execute_gitignore(
         &evaluation.report,
         &workspace.join(repository_gitignore::REPORT_PATH),
     )?;
-    write_run_outputs(&plan, &report, false, None, None, None)?;
+    write_run_outputs(&plan, &report, false, None, None, None, None)?;
     print_findings(&report);
     println!(
         "gitignore: {} (see {})",
@@ -578,6 +594,7 @@ fn execute_fix_preview(
     let intelligence_enforcement = native.intelligence_enforcement;
     let presentation_report = native.presentation_report;
     let presentation_mode = native.presentation_mode;
+    let release_report = native.release_report;
     let mut suppressions = load_suppressions(workspace, arguments)?;
     evaluate_suppressions(
         &mut findings,
@@ -592,6 +609,7 @@ fn execute_fix_preview(
         continuity_rollout,
         intelligence_enforcement,
         presentation_mode,
+        &release_report,
         !suppressions.is_empty(),
     );
     let mut report = RunReport::from_plan(&plan.view, outcome.adapter_exit_code);
@@ -619,8 +637,10 @@ fn execute_fix_preview(
         continuity_report.as_ref(),
         intelligence_report.as_ref(),
         presentation_report.as_ref(),
+        Some(&release_report),
     )?;
     print_findings(&report);
+    println!("{}", release_report.render_text());
     println!("Fix preview: {}", outcome.patch_path.display());
     println!("Patch SHA-256: {}", outcome.patch_sha256);
     println!("Base commit: {}", outcome.base_commit);
@@ -648,6 +668,7 @@ struct NativeEvaluation {
     intelligence_enforcement: Option<IntelligenceEnforcement>,
     presentation_report: Option<RepositoryPresentationReport>,
     presentation_mode: Option<PresentationMode>,
+    release_report: RepositoryReleaseReport,
 }
 
 #[allow(clippy::too_many_lines)]
@@ -665,6 +686,34 @@ fn evaluate_native(
         sha256: None,
         description: Some("Egolint's embedded versioned portability rule catalog.".to_owned()),
     }];
+    let release_report = RepositoryReleaseEvaluator::bundled()?.evaluate(
+        &inventory,
+        arguments.release_adoption_state,
+        ReleaseValidationEvidence::default(),
+    )?;
+    evidence.push(EvidenceReference {
+        schema_version: CONTRACT_VERSION,
+        kind: EvidenceKind::Policy,
+        path: PathBuf::from("vendor/hygiene/repository-release-policy.v1.json"),
+        sha256: Some(release_report.policy.hygiene_source.sha256.clone()),
+        description: Some("Immutable Hygiene repository-release applicability profile.".to_owned()),
+    });
+    evidence.push(EvidenceReference {
+        schema_version: CONTRACT_VERSION,
+        kind: EvidenceKind::Other,
+        path: PathBuf::from(REPOSITORY_RELEASE_REPORT),
+        sha256: None,
+        description: Some("Focused offline repository-release applicability evidence.".to_owned()),
+    });
+    if release_report.declaration.state == ReleaseDeclarationState::Present {
+        evidence.push(EvidenceReference {
+            schema_version: CONTRACT_VERSION,
+            kind: EvidenceKind::Configuration,
+            path: PathBuf::from(REPOSITORY_RELEASE_DECLARATION),
+            sha256: release_report.declaration.sha256.clone(),
+            description: Some("Repository-owned Aether release declaration.".to_owned()),
+        });
+    }
     for contract_path in &arguments.repository_contracts {
         let (relative, contents) = read_workspace_file(workspace, contract_path, 4 * 1024 * 1024)?;
         let contents = std::str::from_utf8(&contents).map_err(|_| {
@@ -826,6 +875,7 @@ fn evaluate_native(
         intelligence_enforcement,
         presentation_report,
         presentation_mode,
+        release_report,
     })
 }
 
@@ -968,6 +1018,7 @@ fn add_runtime_failure(adapter_exit_code: Option<i32>, tool_results: &mut Vec<To
     });
 }
 
+#[allow(clippy::too_many_arguments)]
 fn add_native_tool_results(
     tool_results: &mut Vec<ToolResult>,
     findings: &[Finding],
@@ -975,6 +1026,7 @@ fn add_native_tool_results(
     continuity_rollout: Option<ContinuityRolloutStage>,
     intelligence_enforcement: Option<IntelligenceEnforcement>,
     presentation_mode: Option<PresentationMode>,
+    release_report: &RepositoryReleaseReport,
     suppressions_evaluated: bool,
 ) {
     tool_results.push(native_tool_result(
@@ -1021,6 +1073,7 @@ fn add_native_tool_results(
             },
         ));
     }
+    tool_results.push(release_tool_result(release_report));
     if suppressions_evaluated {
         tool_results.push(native_tool_result(
             "EGOLINT_SUPPRESSIONS",
@@ -1029,6 +1082,44 @@ fn add_native_tool_results(
         ));
     }
     tool_results.sort_by(|left, right| left.tool_id.cmp(&right.tool_id));
+}
+
+fn release_tool_result(report: &RepositoryReleaseReport) -> ToolResult {
+    let status = match report.state {
+        ReleaseEvidenceState::Compliant => ToolStatus::Passed,
+        ReleaseEvidenceState::NotApplicable => ToolStatus::NotApplicable,
+        ReleaseEvidenceState::Advisory
+        | ReleaseEvidenceState::Unavailable
+        | ReleaseEvidenceState::External
+        | ReleaseEvidenceState::Invalid => ToolStatus::Selected,
+    };
+    let enforcement = match report.applicability.adoption_state {
+        Some(ReleaseAdoptionState::Required) => Enforcement::Blocking,
+        Some(ReleaseAdoptionState::Advisory | ReleaseAdoptionState::Exempt) | None => {
+            Enforcement::Advisory
+        }
+        Some(ReleaseAdoptionState::NotApplicable) => Enforcement::Disabled,
+    };
+    ToolResult {
+        schema_version: CONTRACT_VERSION,
+        tool_id: egolint::rules::REPOSITORY_RELEASE_TOOL_ID.to_owned(),
+        owner: "egohygiene/egolint".to_owned(),
+        policy_source: "vendor/hygiene/repository-release-policy.v1.json".to_owned(),
+        status,
+        enforcement,
+        finding_count: 0,
+        warning_count: 0,
+        duration_ms: None,
+        evidence: vec![EvidenceReference {
+            schema_version: CONTRACT_VERSION,
+            kind: EvidenceKind::Other,
+            path: PathBuf::from(REPOSITORY_RELEASE_REPORT),
+            sha256: None,
+            description: Some(
+                "Focused repository-release applicability and validation state.".to_owned(),
+            ),
+        }],
+    }
 }
 
 fn native_tool_result(tool_id: &str, findings: &[Finding], enforcement: Enforcement) -> ToolResult {
@@ -1062,6 +1153,7 @@ fn native_tool_result(tool_id: &str, findings: &[Finding], enforcement: Enforcem
             "EGOLINT_REPOSITORY_CONTINUITY" => ".config/rules/repository-continuity.v1.toml",
             "EGOLINT_REPOSITORY_INTELLIGENCE" => ".config/rules/repository-intelligence.v1.toml",
             "EGOLINT_REPOSITORY_PRESENTATION" => ".config/rules/repository-presentation.v1.toml",
+            "EGOLINT_REPOSITORY_RELEASE" => "vendor/hygiene/repository-release-policy.v1.json",
             "EGOLINT_REPOSITORY_GITIGNORE" => ".config/rules/repository-gitignore.v1.json",
             "EGOLINT_SUPPRESSIONS" => "docs/suppressions.md",
             _ => "README.md",
@@ -1099,6 +1191,7 @@ fn write_run_outputs(
     continuity_report: Option<&RepositoryContinuityReport>,
     intelligence_report: Option<&RepositoryIntelligenceReport>,
     presentation_report: Option<&RepositoryPresentationReport>,
+    release_report: Option<&RepositoryReleaseReport>,
 ) -> Result<(), EgolintError> {
     plan.validate_report_path()?;
     report.write_atomic(&plan.report_path().join("run.json"))?;
@@ -1123,6 +1216,13 @@ fn write_run_outputs(
         write_presentation_report_atomic(
             presentation_report,
             &plan.view.workspace.join(REPOSITORY_PRESENTATION_REPORT),
+        )?;
+    }
+    if let Some(release_report) = release_report {
+        plan.validate_report_path()?;
+        write_release_report_atomic(
+            release_report,
+            &plan.view.workspace.join(REPOSITORY_RELEASE_REPORT),
         )?;
     }
     if include_debt {
@@ -1296,6 +1396,7 @@ fn print_schema(kind: SchemaKind) -> Result<(), EgolintError> {
         SchemaKind::RepositoryContinuityReport => {
             schemars::schema_for!(RepositoryContinuityReport)
         }
+        SchemaKind::RepositoryReleaseReport => schemars::schema_for!(RepositoryReleaseReport),
     };
     println!("{}", serde_json::to_string_pretty(&schema)?);
     Ok(())
@@ -1531,6 +1632,39 @@ mod tests {
                 kind: SchemaKind::RepositoryContinuityReport
             }
         ));
+    }
+
+    #[test]
+    fn repository_release_is_universal_with_an_explicit_rollout_override() {
+        assert!(matches!(
+            Cli::try_parse_from(["egolint", "schema", "repository-release-report"])
+                .expect("repository-release report schema command")
+                .command,
+            Command::Schema {
+                kind: SchemaKind::RepositoryReleaseReport
+            }
+        ));
+        let cli = Cli::try_parse_from([
+            "egolint",
+            "validate",
+            "--release-adoption-state",
+            "not-applicable",
+        ])
+        .expect("explicit release applicability");
+        let Command::Validate(arguments) = cli.command else {
+            panic!("validate command");
+        };
+        assert_eq!(
+            arguments.release_adoption_state,
+            Some(ReleaseAdoptionState::NotApplicable)
+        );
+        let Command::Validate(defaults) = Cli::try_parse_from(["egolint", "validate"])
+            .expect("universal release capability")
+            .command
+        else {
+            panic!("validate command");
+        };
+        assert_eq!(defaults.release_adoption_state, None);
     }
 
     #[test]
