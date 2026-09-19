@@ -1151,17 +1151,17 @@ fn resolve_state(
             "one or more completed repository release checks failed".to_owned(),
         );
     }
+    if unavailable > 0 {
+        return (
+            ReleaseEvidenceState::Unavailable,
+            "the declaration marks one or more release evidence sources unavailable".to_owned(),
+        );
+    }
     if external > 0 {
         return (
             ReleaseEvidenceState::External,
             "the declaration assigns evidence to an external owner; reachability and publication were not checked"
                 .to_owned(),
-        );
-    }
-    if unavailable > 0 {
-        return (
-            ReleaseEvidenceState::Unavailable,
-            "the declaration marks one or more release evidence sources unavailable".to_owned(),
         );
     }
     if !validation_complete || checks_completed < applicable_slots {
@@ -1675,13 +1675,20 @@ mod tests {
 
     #[test]
     fn human_rendering_preserves_external_ownership_boundaries() {
-        let report = evaluate(&declaration("active", "external"), None);
-        let rendered = report.render_text();
+        let evaluation = RepositoryReleaseEvaluator::bundled()
+            .expect("bundled policy")
+            .evaluate(&declaration("active", "external"), None)
+            .expect("valid evaluation");
+        let rendered = evaluation.report.render_text();
 
         assert!(rendered.contains("repository-release: external"));
         assert!(rendered.contains("network not performed"));
         assert!(rendered.contains("external publication not verified"));
         assert!(!rendered.contains("published successfully"));
+        assert!(evaluation.findings.iter().any(|finding| {
+            finding.rule.rule_id == "EGOLINT_RELEASE_AETHER_DECLARATION"
+                && finding.severity == Severity::Warning
+        }));
     }
 
     #[test]
@@ -1787,12 +1794,10 @@ mod tests {
             .evaluate(&inventory, None)
             .expect("valid evaluation");
 
-        assert!(
-            evaluation.findings.iter().any(|finding| {
-                finding.rule.rule_id == "EGOLINT_RELEASE_VERSION_AUTHORITY"
-                    && finding.severity == Severity::Error
-            })
-        );
+        assert!(evaluation.findings.iter().any(|finding| {
+            finding.rule.rule_id == "EGOLINT_RELEASE_VERSION_AUTHORITY"
+                && finding.severity == Severity::Error
+        }));
         assert_eq!(evaluation.report.state, ReleaseEvidenceState::Invalid);
     }
 }

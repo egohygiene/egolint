@@ -167,7 +167,7 @@ enum DeliveryKind {
     InternalDistribution,
 }
 
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 enum DeliveryState {
     Planned,
@@ -384,12 +384,7 @@ pub(super) fn evaluate(
         } else if let Some(document) = declaration {
             match slot.id.as_str() {
                 "agents_profile_pointer" => check_agents(inventory),
-                "aether_declaration" => Outcome::passed(
-                    PathBuf::from(DECLARATION_PATH),
-                    "The repository declaration satisfies the pinned Aether object contract.",
-                    "Keep the declaration synchronized with the pinned Aether contract.",
-                    local_evidence(inventory, Path::new(DECLARATION_PATH)),
-                ),
+                "aether_declaration" => check_declaration_evidence(inventory, document),
                 "changelog" => changelog
                     .as_ref()
                     .expect("a parsed declaration always has changelog analysis")
@@ -625,6 +620,55 @@ fn check_agents(inventory: &RepositoryInventory) -> Outcome {
             evidence,
         )
     }
+}
+
+fn check_declaration_evidence(
+    inventory: &RepositoryInventory,
+    declaration: &ReleaseDeclaration,
+) -> Outcome {
+    let path = PathBuf::from(DECLARATION_PATH);
+    let evidence = local_declaration_evidence(inventory);
+    let evidence_states = [
+        declaration.evidence.source,
+        declaration.evidence.change,
+        declaration.evidence.provenance,
+        declaration.evidence.sbom,
+        declaration.evidence.signature,
+    ];
+    let has_unavailable = evidence_states.contains(&EvidenceState::Unavailable)
+        || declaration
+            .delivery
+            .channels
+            .iter()
+            .any(|channel| channel.state == DeliveryState::Unavailable);
+    if has_unavailable {
+        return Outcome::unavailable(
+            path,
+            "The valid Aether declaration explicitly marks release evidence as unavailable.",
+            "Restore the repository-owned evidence or retain an authorized, reviewable exception.",
+            evidence,
+        );
+    }
+    let has_external = evidence_states.contains(&EvidenceState::External)
+        || declaration
+            .delivery
+            .channels
+            .iter()
+            .any(|channel| channel.state == DeliveryState::External);
+    if has_external {
+        return Outcome::external(
+            path,
+            "The valid Aether declaration explicitly assigns release evidence to an external owner; Egolint did not query it.",
+            "Retain explicit external ownership or provide repository-local evidence.",
+            evidence,
+        );
+    }
+    Outcome::passed(
+        path,
+        "The repository declaration satisfies the pinned Aether object contract and has no unavailable or external evidence fields.",
+        "Keep the declaration synchronized with the pinned Aether contract.",
+        evidence,
+    )
 }
 
 #[derive(Debug, Clone)]

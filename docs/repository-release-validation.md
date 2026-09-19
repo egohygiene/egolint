@@ -73,7 +73,7 @@ sanitized evidence, message, and remediation.
 | Hygiene slot             | Native rule                              | Offline evidence                                                                                       |
 | ------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | `agents_profile_pointer` | `EGOLINT_RELEASE_AGENTS_PROFILE_POINTER` | `AGENTS.md` is a regular UTF-8 file and points to `.egohygiene/release.json`.                          |
-| `aether_declaration`     | `EGOLINT_RELEASE_AETHER_DECLARATION`     | The closed declaration shape, constants, enums, bounded text, identifiers, and safe paths are valid.   |
+| `aether_declaration`     | `EGOLINT_RELEASE_AETHER_DECLARATION`     | The closed declaration is valid; unavailable or externally owned evidence remains explicit.            |
 | `changelog`              | `EGOLINT_RELEASE_CHANGELOG`              | Root `CHANGELOG.md` has exact title and Unreleased headings plus valid promoted version/date headings. |
 | `manual_workflow`        | `EGOLINT_RELEASE_MANUAL_WORKFLOW`        | The configured workflow is manual-only and external actions use immutable commit or digest references. |
 | `release_rollback_docs`  | `EGOLINT_RELEASE_ROLLBACK_DOCS`          | The declaration contains an accepted rollback strategy and bounded repository-owned instructions.      |
