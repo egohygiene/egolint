@@ -1,0 +1,38 @@
+{
+  "files": [
+    {
+      "content": "# Composed ignore rules; see the foundation plan for source hashes.\n\n# Repository-owned local additions.\n\n# Universal baseline (last in every declared scope).\n# Empathy universal ignore baseline; see docs/foundation/gitignore/README.md.\n# Registered for composition plans; active-root adoption is a separate step.\n\n# Operating-system metadata.\n.DS_Store\n.AppleDouble\n.LSOverride\n._*\nThumbs.db\nDesktop.ini\n$RECYCLE.BIN/\n\n# Editor-local state; shared .idea/ and .vscode/ configuration stays visible.\n*~\n*.swp\n*.swo\n**/.idea/workspace.xml\n**/.idea/usage.statistics.xml\n**/.idea/shelf/\n\n# Local environments. Template suffixes are deliberate, not prefix matches.\n.env\n.env.*\n!.env.example\n!.env.sample\n!.env.template\n!.env.*.example\n!.env.*.sample\n!.env.*.template\n\n# Reserved private local namespace; public keys and fixtures stay visible.\n.secrets/\n\n# Unambiguous local caches, environments, and installed dependencies.\n.cache/\n.tmp/\n.venv/\n__pycache__/\nnode_modules/\n\n# Language/build outputs, logs, reports, and credential extensions need\n# profile or repository ownership. Do not add universal bin/, build/, dist/,\n# out/, target/, vendor/, *.log, *.key, or whole-editor-directory rules.\n# Lockfiles, reviewed artifacts, and shared configuration remain trackable.\n# A blanket .gitkeep negation cannot reopen an ignored parent directory.\n",
+      "content_sha256": "3637ea33004215037e745cf898f59e7c2a3195f8b66df5bae0921186ec731373",
+      "layers": [
+        {
+          "kind": "local",
+          "owner": "egohygiene/filament",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "id": "universal",
+          "kind": "baseline",
+          "owner": "egohygiene/empathy",
+          "path": "foundation/ignore/universal.gitignore",
+          "sha256": "79280ac4f3147ead97a0b21b01f40241238f08fa5d63abe3f81c8b64e7f179f0"
+        }
+      ],
+      "override": null,
+      "ownership": "repository-owned",
+      "path": ".gitignore"
+    }
+  ],
+  "format": "empathy.gitignore/v1",
+  "foundation": "empathy/repository-foundation@1.1.0",
+  "generator": "tools/foundation.py plan-gitignore",
+  "profiles": [
+    "universal"
+  ],
+  "repository": "egohygiene/filament",
+  "source": {
+    "catalog_sha256": "c3a74a7acc2cda2644e8ef21e7ef1b4dcde928c9e781937d849e834b2067919c",
+    "owner": "egohygiene/empathy",
+    "resolved_manifest_sha256": "37027459bac0a4819dae850d18d1a6d212275b433dedf611c76d5f3a866890f1"
+  },
+  "status": "plan-only"
+}

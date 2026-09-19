@@ -87,6 +87,8 @@ egolint schema repository-presentation
 egolint schema repository-presentation-report
 egolint schema repository-continuity
 egolint schema repository-continuity-report
+egolint schema repository-gitignore
+egolint schema repository-gitignore-report
 ```
 
 `validate` resolves every configuration layer, evaluates native portability policy plus requested
@@ -107,3 +109,12 @@ verifies holistic profile resolution and the 124/12/105 catalog/fast/holistic in
 round-trips sanitized finding, suppression, and report examples. The fixture intentionally excludes
 Empathy's generated MegaLinter report because that artifact contains cached process environments,
 absolute paths, and unrelated repository state.
+
+## Layered gitignore evidence
+
+The focused `egolint gitignore` command emits standard findings, tool results, run JSON, and SARIF,
+plus `egolint.repository-gitignore-report/v1` evidence. Its closed policy and report schemas are
+`repository-gitignore.schema.json` and `repository-gitignore-report.schema.json`. Presence, source
+integrity, exact content, actual Git behavior, nested inventory, tracked files, and coverage are
+independent checks. Unknown evidence is blocking; accepted exceptions remain visible. See
+[repository gitignore validation](repository-gitignore.md) for invocation, ownership, and limits.

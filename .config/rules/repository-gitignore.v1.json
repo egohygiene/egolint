@@ -1,0 +1,488 @@
+{
+  "schema_version": 1,
+  "catalog_version": "0.1.0-alpha.1",
+  "source": {
+    "repository": "egohygiene/empathy",
+    "revision": "b44f798bb49259f9f48416b4ffebde1103e135c0",
+    "foundation": "empathy/repository-foundation@1.1.0",
+    "format": "empathy.gitignore/v1",
+    "catalog_path": "foundation/catalog.json",
+    "catalog_sha256": "c3a74a7acc2cda2644e8ef21e7ef1b4dcde928c9e781937d849e834b2067919c"
+  },
+  "probe_source": {
+    "repository": "egohygiene/empathy",
+    "revision": "b44f798bb49259f9f48416b4ffebde1103e135c0",
+    "path": "tests/test_gitignore_baseline.py",
+    "sha256": "e63ce39f29dfd88fc20ab37ae6fd5bbb1b619aacf88662d35cfac49b3bb2bca5",
+    "methods": [
+      "test_operating_system_and_editor_local_state_is_ignored",
+      "test_reserved_caches_and_dependencies_are_ignored_at_any_depth",
+      "test_local_environments_and_private_namespace_are_ignored",
+      "test_explicit_environment_template_suffixes_stay_visible",
+      "test_shared_configuration_and_lockfiles_stay_visible",
+      "test_ambiguous_paths_and_reviewed_artifacts_stay_visible"
+    ]
+  },
+  "probes": [
+    {
+      "path": "$RECYCLE.BIN/deleted.txt",
+      "ignored": true
+    },
+    {
+      "path": ".AppleDouble/metadata",
+      "ignored": true
+    },
+    {
+      "path": ".DS_Store",
+      "ignored": true
+    },
+    {
+      "path": ".LSOverride",
+      "ignored": true
+    },
+    {
+      "path": ".cache/tool/state.json",
+      "ignored": true
+    },
+    {
+      "path": ".env",
+      "ignored": true
+    },
+    {
+      "path": ".env.example",
+      "ignored": false
+    },
+    {
+      "path": ".env.example.local",
+      "ignored": true
+    },
+    {
+      "path": ".env.local",
+      "ignored": true
+    },
+    {
+      "path": ".env.production",
+      "ignored": true
+    },
+    {
+      "path": ".env.production.example",
+      "ignored": false
+    },
+    {
+      "path": ".env.production.sample",
+      "ignored": false
+    },
+    {
+      "path": ".env.production.sample.local",
+      "ignored": true
+    },
+    {
+      "path": ".env.production.template",
+      "ignored": false
+    },
+    {
+      "path": ".env.sample",
+      "ignored": false
+    },
+    {
+      "path": ".env.template",
+      "ignored": false
+    },
+    {
+      "path": ".env.template.backup",
+      "ignored": true
+    },
+    {
+      "path": ".fleet/settings.json",
+      "ignored": false
+    },
+    {
+      "path": ".idea/codeStyles/Project.xml",
+      "ignored": false
+    },
+    {
+      "path": ".idea/inspectionProfiles/Project_Default.xml",
+      "ignored": false
+    },
+    {
+      "path": ".idea/usage.statistics.xml",
+      "ignored": true
+    },
+    {
+      "path": ".idea/workspace.xml",
+      "ignored": true
+    },
+    {
+      "path": ".reports/accepted-evidence.json",
+      "ignored": false
+    },
+    {
+      "path": ".secrets.baseline",
+      "ignored": false
+    },
+    {
+      "path": ".secrets/.env.example",
+      "ignored": true
+    },
+    {
+      "path": ".secrets/private.key",
+      "ignored": true
+    },
+    {
+      "path": ".terraform.lock.hcl",
+      "ignored": false
+    },
+    {
+      "path": ".tmp/scratch.txt",
+      "ignored": true
+    },
+    {
+      "path": ".venv/pyvenv.cfg",
+      "ignored": true
+    },
+    {
+      "path": ".vscode/custom-shared.json",
+      "ignored": false
+    },
+    {
+      "path": ".vscode/extensions.json",
+      "ignored": false
+    },
+    {
+      "path": ".vscode/launch.json",
+      "ignored": false
+    },
+    {
+      "path": ".vscode/project.code-snippets",
+      "ignored": false
+    },
+    {
+      "path": ".vscode/settings.json",
+      "ignored": false
+    },
+    {
+      "path": ".vscode/tasks.json",
+      "ignored": false
+    },
+    {
+      "path": ".yarn/cache/reviewed-package.zip",
+      "ignored": false
+    },
+    {
+      "path": "Cargo.lock",
+      "ignored": false
+    },
+    {
+      "path": "Pods/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "Thumbs.db",
+      "ignored": true
+    },
+    {
+      "path": "__pycache__/example.cpython-312.pyc",
+      "ignored": true
+    },
+    {
+      "path": "bin/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "build/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "coverage/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "dist/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "docs/generated/reference.md",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/binary sample.p12",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/public.crt",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/public.key",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/public.pem",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.apk",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.bak",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.jks",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.keystore",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.log",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.orig",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.patch",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.pfx",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.pyd",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.rej",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.seed",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.tar.gz",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.test",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.whl",
+      "ignored": false
+    },
+    {
+      "path": "fixtures/reference.zip",
+      "ignored": false
+    },
+    {
+      "path": "infra/reviewed.tfvars",
+      "ignored": false
+    },
+    {
+      "path": "lib/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "nested/.DS_Store",
+      "ignored": true
+    },
+    {
+      "path": "nested/._document",
+      "ignored": true
+    },
+    {
+      "path": "nested/.notes.swo",
+      "ignored": true
+    },
+    {
+      "path": "nested/.notes.swp",
+      "ignored": true
+    },
+    {
+      "path": "nested/Desktop.ini",
+      "ignored": true
+    },
+    {
+      "path": "node_modules/.gitkeep",
+      "ignored": true
+    },
+    {
+      "path": "node_modules/package/index.js",
+      "ignored": true
+    },
+    {
+      "path": "notes.md~",
+      "ignored": true
+    },
+    {
+      "path": "obj/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "out/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "package-lock.json",
+      "ignored": false
+    },
+    {
+      "path": "pkg/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "ignored": false
+    },
+    {
+      "path": "poetry.lock",
+      "ignored": false
+    },
+    {
+      "path": "project/.cache/tool/state.json",
+      "ignored": true
+    },
+    {
+      "path": "project/.env.example",
+      "ignored": false
+    },
+    {
+      "path": "project/.env.production.example",
+      "ignored": false
+    },
+    {
+      "path": "project/.env.production.local",
+      "ignored": true
+    },
+    {
+      "path": "project/.env.production.sample",
+      "ignored": false
+    },
+    {
+      "path": "project/.env.production.template",
+      "ignored": false
+    },
+    {
+      "path": "project/.env.sample",
+      "ignored": false
+    },
+    {
+      "path": "project/.env.template",
+      "ignored": false
+    },
+    {
+      "path": "project/.idea/modules.xml",
+      "ignored": false
+    },
+    {
+      "path": "project/.idea/shelf/change.patch",
+      "ignored": true
+    },
+    {
+      "path": "project/.idea/workspace.xml",
+      "ignored": true
+    },
+    {
+      "path": "project/.secrets/private.p12",
+      "ignored": true
+    },
+    {
+      "path": "project/.tmp/scratch.txt",
+      "ignored": true
+    },
+    {
+      "path": "project/.venv/pyvenv.cfg",
+      "ignored": true
+    },
+    {
+      "path": "project/.vscode/settings.json",
+      "ignored": false
+    },
+    {
+      "path": "project/Cargo.lock",
+      "ignored": false
+    },
+    {
+      "path": "project/__pycache__/example.cpython-312.pyc",
+      "ignored": true
+    },
+    {
+      "path": "project/bin/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "project/build/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "project/dist/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "project/node_modules/package/index.js",
+      "ignored": true
+    },
+    {
+      "path": "project/target/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "public/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "reports/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "screenshots/reference.png",
+      "ignored": false
+    },
+    {
+      "path": "snapshots/reference.snap",
+      "ignored": false
+    },
+    {
+      "path": "target/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "temp.md",
+      "ignored": false
+    },
+    {
+      "path": "temp.txt",
+      "ignored": false
+    },
+    {
+      "path": "temp/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "tmp/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "uv.lock",
+      "ignored": false
+    },
+    {
+      "path": "vendor/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "venv/source.txt",
+      "ignored": false
+    },
+    {
+      "path": "yarn.lock",
+      "ignored": false
+    }
+  ]
+}

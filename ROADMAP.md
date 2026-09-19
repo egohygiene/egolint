@@ -8,7 +8,7 @@ status: provisional
 owners:
   - egohygiene
 created: 2026-08-19
-updated: 2026-08-25
+updated: 2026-09-19
 governed_by:
   - architecture-roadmap
 depends_on:
@@ -33,7 +33,7 @@ repository: egohygiene/egolint
 visibility: public
 publication: central
 route: /roadmap/egolint/
-updated: 2026-08-25
+updated: 2026-09-19
 -->
 
 ## 2026-08-25 execution snapshot
@@ -227,6 +227,39 @@ declared GitHub links, and optional commit trailers without network access.
 **Current evidence:**
 
 - Issue #24 defines the validator boundary; the current implementation remains under review.
+
+<!-- roadmap-step
+id: EGL-Q08
+status: active
+depends_on: [EGL-Q01, EGL-Q04]
+issues: [61]
+-->
+
+#### EGL-Q08 — Validate layered gitignore semantics
+
+**State:** `active` **Depends on:** `EGL-Q01`, `EGL-Q04`
+
+**Outcome:** A standalone native command proves pinned ignore composition, content, and bounded
+actual Git behavior without reading ordinary repository payloads or changing consumer policies.
+
+**Exit criteria:**
+
+- [x] Source integrity, composition, presence, content, behavior, nested policies, tracked files,
+      and coverage have independent machine-readable evidence.
+- [x] Accepted Filament and scoped Rust/local inputs pass; weakened and unavailable evidence blocks.
+- [x] Standard findings, JSON/SARIF, schemas, offline fixtures, and a documented invocation exist.
+- [ ] The bounded issue #61 PR is reviewed and merged by the maintainer.
+
+**Current evidence (2026-09-19):**
+
+- The candidate consumes Empathy `b44f798bb49259f9f48416b4ffebde1103e135c0`; Holon #60 is verified
+  merged as `660b941f99618806fcadd589bcdae61c519f96e4`. These are source/adoption inputs, not a
+  requirement to repair MegaLinter or finish fleet rollout before local validation.
+- See `docs/repository-gitignore.md`, its compatibility fixtures, and `CONTINUITY.md` for validation
+  evidence and limits. Existing quest snapshots above retain their separately dated observations.
+- After merge, Empathy #92 is the next scheduled proof. Relay #5/#49 retain shared execution and
+  release gates; Pace #30 retains fleet adoption. Master epic egohygiene/.github#32 keeps
+  `.gitattributes` queued under Empathy #91 after gitignore closeout.
 
 ### Roadmap-to-issue handoff
 

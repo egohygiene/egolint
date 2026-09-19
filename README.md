@@ -41,6 +41,7 @@ Egolint separates orchestration from the lint engine:
 | `egolint lint`      | Run linters with the repository mounted read-only.                                                       |
 | `egolint fix`       | Generate a bounded patch in an isolated copy; never edit the source worktree.                            |
 | `egolint apply-fix` | Apply and stage one reviewed patch only when its SHA-256, base commit, and expected post-tree all match. |
+| `egolint gitignore` | Validate pinned layered ignore content and isolated Git behavior; report unknown evidence explicitly. |
 | `egolint validate`  | Run native portability, repository-contract, continuity, and semantic checks without a container.        |
 | `egolint plan`      | Print the redacted container invocation without running it.                                              |
 | `egolint doctor`    | Validate configuration and runtime readiness.                                                            |
@@ -104,6 +105,10 @@ cargo run --locked -- lint \
 The second command runs the native CLI, which launches the local full image. Do not mount a host
 Docker socket into the lightweight CLI image. An in-container local MegaLinter adapter is a future
 capability, not part of this alpha.
+
+The focused [gitignore validator](docs/repository-gitignore.md) consumes an explicit pinned Empathy
+composition and uses Git without reading ordinary file payloads or starting a container. It reports
+content, nested-policy, tracked-file, and effective-behavior evidence separately.
 
 ## Dogfood the complete architecture
 

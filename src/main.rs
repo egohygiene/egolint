@@ -5,6 +5,10 @@ use std::process::ExitCode;
 
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use egolint::error::exit_code;
+use egolint::rules::repository_gitignore::{
+    self, RepositoryGitignorePolicy, RepositoryGitignoreReport, evaluate_gitignore,
+    write_gitignore_report_atomic,
+};
 use egolint::rules::{
     ContinuityDisposition, ContinuityInvocation, ContinuityLiveVerification,
     ContinuityRolloutStage, ContinuityTransition, IntelligenceEnforcement, PortabilityRuleSet,
@@ -59,6 +63,8 @@ enum Command {
     ApplyFix(ApplyFixArgs),
     /// Validate configuration and native rules without starting a container.
     Validate(RunArgs),
+    /// Validate layered ignore content and Git behavior without reading file payloads.
+    Gitignore(GitignoreArgs),
     /// Print the redacted execution plan without starting a container.
     Plan(RunArgs),
     /// Validate configuration and container-runtime readiness.
@@ -204,6 +210,16 @@ struct RunArgs {
 }
 
 #[derive(Debug, Clone, Args)]
+struct GitignoreArgs {
+    /// Repository-relative versioned TOML policy with pinned composition inputs.
+    #[arg(long)]
+    policy: PathBuf,
+    /// Deterministic YYYY-MM-DD date for reviewed exception expiry.
+    #[arg(long)]
+    evaluation_date: String,
+}
+
+#[derive(Debug, Clone, Args)]
 struct ApplyFixArgs {
     /// SHA-256 printed by the reviewed `egolint fix` preview.
     #[arg(long)]
@@ -244,6 +260,8 @@ enum SchemaKind {
     RepositoryPresentationReport,
     RepositoryContinuity,
     RepositoryContinuityReport,
+    RepositoryGitignore,
+    RepositoryGitignoreReport,
 }
 
 fn main() -> ExitCode {
@@ -283,6 +301,9 @@ fn run(cli: Cli) -> Result<i32, EgolintError> {
         }
         Command::Validate(arguments) => {
             execute_validate(&workspace, cli.config.as_deref(), &arguments)
+        }
+        Command::Gitignore(arguments) => {
+            execute_gitignore(&workspace, cli.config.as_deref(), &arguments)
         }
         Command::Plan(arguments) => {
             let (_, plan) = build(
@@ -484,6 +505,61 @@ fn execute_validate(
         presentation_report.as_ref(),
     )?;
     print_findings(&report);
+    Ok(report.status.exit_code())
+}
+
+fn execute_gitignore(
+    workspace: &Path,
+    config_path: Option<&Path>,
+    arguments: &GitignoreArgs,
+) -> Result<i32, EgolintError> {
+    let policy = RepositoryGitignorePolicy::load(workspace, &arguments.policy)?;
+    let (_, plan) = build(
+        workspace,
+        config_path,
+        Operation::Check,
+        &RunArgs::default(),
+        false,
+    )?;
+    plan.prepare_report_directory()?;
+    let evaluation = evaluate_gitignore(
+        workspace,
+        &policy,
+        &arguments.policy,
+        &arguments.evaluation_date,
+    )?;
+    let tool = native_tool_result(
+        repository_gitignore::TOOL_ID,
+        &evaluation.findings,
+        Enforcement::Blocking,
+    );
+    let mut report = RunReport::from_plan(&plan.view, Some(exit_code::CLEAN));
+    report.set_normalized(
+        vec![tool],
+        evaluation.findings,
+        Vec::new(),
+        vec![EvidenceReference {
+            schema_version: CONTRACT_VERSION,
+            kind: EvidenceKind::Other,
+            path: PathBuf::from(repository_gitignore::REPORT_PATH),
+            sha256: None,
+            description: Some("Pinned gitignore composition and isolated Git evidence.".to_owned()),
+        }],
+        ReportCompleteness::Partial,
+    )?;
+    write_gitignore_report_atomic(
+        &evaluation.report,
+        &workspace.join(repository_gitignore::REPORT_PATH),
+    )?;
+    write_run_outputs(&plan, &report, false, None, None, None)?;
+    print_findings(&report);
+    println!(
+        "gitignore: {} (see {})",
+        serde_json::to_value(evaluation.report.status)?
+            .as_str()
+            .unwrap_or("incomplete"),
+        repository_gitignore::REPORT_PATH
+    );
     Ok(report.status.exit_code())
 }
 
@@ -986,6 +1062,7 @@ fn native_tool_result(tool_id: &str, findings: &[Finding], enforcement: Enforcem
             "EGOLINT_REPOSITORY_CONTINUITY" => ".config/rules/repository-continuity.v1.toml",
             "EGOLINT_REPOSITORY_INTELLIGENCE" => ".config/rules/repository-intelligence.v1.toml",
             "EGOLINT_REPOSITORY_PRESENTATION" => ".config/rules/repository-presentation.v1.toml",
+            "EGOLINT_REPOSITORY_GITIGNORE" => ".config/rules/repository-gitignore.v1.json",
             "EGOLINT_SUPPRESSIONS" => "docs/suppressions.md",
             _ => "README.md",
         }
@@ -1211,6 +1288,8 @@ fn print_schema(kind: SchemaKind) -> Result<(), EgolintError> {
         SchemaKind::RepositoryPresentationReport => {
             schemars::schema_for!(RepositoryPresentationReport)
         }
+        SchemaKind::RepositoryGitignore => schemars::schema_for!(RepositoryGitignorePolicy),
+        SchemaKind::RepositoryGitignoreReport => schemars::schema_for!(RepositoryGitignoreReport),
         SchemaKind::RepositoryContinuity => {
             schemars::schema_for!(RepositoryContinuityPolicy)
         }

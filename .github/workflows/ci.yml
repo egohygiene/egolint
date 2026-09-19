@@ -144,7 +144,9 @@ jobs:
             repository-presentation \
             repository-presentation-report \
             repository-continuity \
-            repository-continuity-report; do
+            repository-continuity-report \
+            repository-gitignore \
+            repository-gitignore-report; do
             cargo run --quiet --locked -- schema "$schema" \
               > "$temporary_directory/$schema.schema.json"
             diff --unified \

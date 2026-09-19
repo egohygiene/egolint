@@ -1,0 +1,45 @@
+# Empathy universal ignore baseline; see docs/foundation/gitignore/README.md.
+# Registered for composition plans; active-root adoption is a separate step.
+
+# Operating-system metadata.
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editor-local state; shared .idea/ and .vscode/ configuration stays visible.
+*~
+*.swp
+*.swo
+**/.idea/workspace.xml
+**/.idea/usage.statistics.xml
+**/.idea/shelf/
+
+# Local environments. Template suffixes are deliberate, not prefix matches.
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+!.env.*.example
+!.env.*.sample
+!.env.*.template
+
+# Reserved private local namespace; public keys and fixtures stay visible.
+.secrets/
+
+# Unambiguous local caches, environments, and installed dependencies.
+.cache/
+.tmp/
+.venv/
+__pycache__/
+node_modules/
+
+# Language/build outputs, logs, reports, and credential extensions need
+# profile or repository ownership. Do not add universal bin/, build/, dist/,
+# out/, target/, vendor/, *.log, *.key, or whole-editor-directory rules.
+# Lockfiles, reviewed artifacts, and shared configuration remain trackable.
+# A blanket .gitkeep negation cannot reopen an ignored parent directory.

@@ -31,7 +31,7 @@ freshness, locally available Git evidence, and externally supplied live-state ev
 authors the checkpoint nor fetches missing refs. The lightweight `egolint` image contains only this
 binary and its runtime libraries.
 
-The alpha CLI always delegates actual lint execution to Docker or Podman. The lightweight image
+The alpha `lint` command delegates engine execution to Docker or Podman. The lightweight image
 therefore supports introspection commands but is not a self-contained lint engine. It deliberately
 has no Docker CLI and should not be given a host container socket.
 
@@ -75,3 +75,16 @@ runs explicitly selected formatters against only one, destroys its mutable Git m
 reports, and creates a bounded patch in the untouched comparison repository. `apply-fix` accepts
 only that reviewed patch plus its SHA-256, base commit, and expected post-tree; it never starts the
 lint engine.
+
+## Focused Git ignore semantics
+
+`egolint gitignore` is a native metadata-only evaluation path. It validates the reviewed Empathy
+source and composition as data, inventories all bounded ignore policies, compares actual Git
+behavior in disposable reference/consumer repositories, and checks protected tracked paths. It
+bypasses the general `RepositoryInventory`, which reads file payloads for other rule families.
+It reuses the existing normalized findings, tool results, run JSON, SARIF, and safe report writers.
+Empathy retains policy authority and Holon retains materialization/recovery ownership.
+
+This path requires a host Git executable. The lightweight CLI image does not currently promise
+Git availability; missing Git produces incomplete evidence, never a semantic pass. See
+[the validation contract](repository-gitignore.md) and ADR-004 for boundaries and downstream work.

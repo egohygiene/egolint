@@ -1,0 +1,315 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RepositoryGitignoreReport",
+  "description": "Deterministic bounded report for CLI, Relay, and other evidence consumers.",
+  "type": "object",
+  "properties": {
+    "behavior": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/GitignoreBehaviorEvidence"
+      }
+    },
+    "checks": {
+      "$ref": "#/$defs/GitignoreChecks"
+    },
+    "composition_sha256": {
+      "type": "string"
+    },
+    "contract": {
+      "type": "string"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/GitignoreDiagnostic"
+      }
+    },
+    "evaluation_date": {
+      "type": "string"
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/GitignoreFileEvidence"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "policy_path": {
+      "type": "string"
+    },
+    "policy_sha256": {
+      "type": "string"
+    },
+    "repository": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "source": {
+      "$ref": "#/$defs/GitignoreSource"
+    },
+    "status": {
+      "$ref": "#/$defs/GitignoreValidationStatus"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract",
+    "repository",
+    "policy_path",
+    "policy_sha256",
+    "source",
+    "composition_sha256",
+    "evaluation_date",
+    "status",
+    "checks",
+    "files",
+    "behavior",
+    "diagnostics",
+    "limitations"
+  ],
+  "$defs": {
+    "GitignoreBehaviorEvidence": {
+      "description": "One evaluated path, retaining expected and actual effective behavior.",
+      "type": "object",
+      "properties": {
+        "actual_ignored": {
+          "type": "boolean"
+        },
+        "exception": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expected_ignored": {
+          "type": "boolean"
+        },
+        "path": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "tracked": {
+          "type": "boolean"
+        },
+        "winning_rule": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GitignoreWinningRule"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "scope",
+        "expected_ignored",
+        "actual_ignored",
+        "tracked"
+      ]
+    },
+    "GitignoreCheckStatus": {
+      "description": "Independent result for each bounded evidence layer.",
+      "type": "string",
+      "enum": [
+        "passed",
+        "failed",
+        "incomplete",
+        "unavailable",
+        "not_evaluated"
+      ]
+    },
+    "GitignoreChecks": {
+      "description": "Presence never substitutes for content, behavior, or evidence availability.",
+      "type": "object",
+      "properties": {
+        "composition": {
+          "$ref": "#/$defs/GitignoreCheckStatus"
+        },
+        "content": {
+          "$ref": "#/$defs/GitignoreCheckStatus"
+        },
+        "coverage": {
+          "$ref": "#/$defs/GitignoreCheckStatus"
+        },
+        "effective_behavior": {
+          "$ref": "#/$defs/GitignoreCheckStatus"
+        },
+        "nested_policy": {
+          "$ref": "#/$defs/GitignoreCheckStatus"
+        },
+        "presence": {
+          "$ref": "#/$defs/GitignoreCheckStatus"
+        },
+        "source_integrity": {
+          "$ref": "#/$defs/GitignoreCheckStatus"
+        },
+        "tracked_files": {
+          "$ref": "#/$defs/GitignoreCheckStatus"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "source_integrity",
+        "composition",
+        "presence",
+        "content",
+        "effective_behavior",
+        "nested_policy",
+        "tracked_files",
+        "coverage"
+      ]
+    },
+    "GitignoreDiagnostic": {
+      "description": "Actionable diagnostic shared with normalized finding output.",
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "remediation": {
+          "type": "string"
+        },
+        "rule_id": {
+          "type": "string"
+        },
+        "scope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "$ref": "#/$defs/GitignoreCheckStatus"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "rule_id",
+        "status",
+        "message",
+        "remediation"
+      ]
+    },
+    "GitignoreFileEvidence": {
+      "description": "Policy file identity; ignore text is not copied into the report.",
+      "type": "object",
+      "properties": {
+        "actual_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "disposition": {
+          "type": "string"
+        },
+        "expected_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "scope",
+        "disposition"
+      ]
+    },
+    "GitignoreSource": {
+      "description": "Immutable provider identity from `EgoLint`'s reviewed adapter catalog.",
+      "type": "object",
+      "properties": {
+        "catalog_path": {
+          "type": "string"
+        },
+        "catalog_sha256": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "foundation": {
+          "type": "string"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "revision",
+        "foundation",
+        "format",
+        "catalog_path",
+        "catalog_sha256"
+      ]
+    },
+    "GitignoreValidationStatus": {
+      "description": "Repository-wide status within the explicitly reported coverage boundary.",
+      "type": "string",
+      "enum": [
+        "valid",
+        "valid_with_exceptions",
+        "invalid",
+        "incomplete"
+      ]
+    },
+    "GitignoreWinningRule": {
+      "description": "Git's winning rule, relative to the consumer policy snapshot.",
+      "type": "object",
+      "properties": {
+        "line": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        "path": {
+          "type": "string"
+        },
+        "pattern": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "line",
+        "pattern"
+      ]
+    }
+  }
+}

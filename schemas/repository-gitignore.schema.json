@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RepositoryGitignorePolicy",
+  "description": "Repository-owned selection of the accepted Empathy composition contract.",
+  "type": "object",
+  "properties": {
+    "composition-path": {
+      "type": "string"
+    },
+    "composition-sha256": {
+      "type": "string"
+    },
+    "exceptions": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/GitignoreException"
+      }
+    },
+    "id": {
+      "type": "string"
+    },
+    "nested-policies": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/GitignoreNestedPolicy"
+      }
+    },
+    "probes": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/GitignoreProbe"
+      }
+    },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "repository": {
+      "type": "string"
+    },
+    "schema-version": {
+      "type": "integer",
+      "const": 1
+    },
+    "scopes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/GitignoreScope"
+      }
+    },
+    "source-revision": {
+      "type": "string"
+    },
+    "source-root": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema-version",
+    "id",
+    "repository",
+    "source-revision",
+    "source-root",
+    "composition-path",
+    "composition-sha256",
+    "profiles",
+    "scopes"
+  ],
+  "$defs": {
+    "GitignoreException": {
+      "description": "A time-bounded exception for one literal path, bound to its winning policy.",
+      "type": "object",
+      "properties": {
+        "allow-tracked": {
+          "type": "boolean",
+          "default": false
+        },
+        "approval": {
+          "type": "string"
+        },
+        "expires-on": {
+          "type": "string"
+        },
+        "ignored": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "owner": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "policy-path": {
+          "type": "string"
+        },
+        "policy-sha256": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "policy-path",
+        "policy-sha256",
+        "owner",
+        "reason",
+        "approval",
+        "expires-on"
+      ]
+    },
+    "GitignoreNestedPolicy": {
+      "description": "Reviewed inventory of an inherited policy; this alone exempts no behavior.",
+      "type": "object",
+      "properties": {
+        "approval": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "owner",
+        "reason",
+        "approval"
+      ]
+    },
+    "GitignoreProbe": {
+      "description": "An exact consumer behavior assertion; paths are literal, never globs.",
+      "type": "object",
+      "properties": {
+        "ignored": {
+          "type": "boolean"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "ignored"
+      ]
+    },
+    "GitignoreScope": {
+      "description": "Explicit scope selected by the consumer, using Empathy's ordered local text.",
+      "type": "object",
+      "properties": {
+        "local-additions": {
+          "type": "string"
+        },
+        "overlays": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "root": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "root",
+        "overlays",
+        "local-additions"
+      ]
+    }
+  }
+}

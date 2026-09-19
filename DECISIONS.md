@@ -43,6 +43,7 @@ do not change meaning; supersede it with a new record when the decision changes 
 - ADR-001: Wrap rather than fork specialized linters
 - ADR-002: Keep holistic and universal profiles distinct
 - ADR-003: Aggregate reports under a stable repository-owned location
+- ADR-004: Validate ignore semantics through a focused metadata-only command
 
 ## ADR-001: Wrap rather than fork specialized linters
 
@@ -76,6 +77,24 @@ do not change meaning; supersede it with a new record when the decision changes 
   contracts, validation, and migration discipline.
 - **Reconsider when:** New evidence shows that the boundary prevents standalone usefulness, safety,
   portability, or maintainability.
+
+## ADR-004: Validate ignore semantics through a focused metadata-only command
+
+- **Status:** Proposed in issue #61; accepted only with maintainer review/merge.
+- **Date:** 2026-09-19
+- **Context:** Required-file checks cannot prove that nested ignore policies protect local state
+  while keeping intended source visible. General native inventory reads ordinary file payloads,
+  which is outside this capability's authorized evidence boundary.
+- **Decision:** Add `egolint gitignore` with pinned Empathy inputs, exact composition validation,
+  bounded policy/path inventory, isolated actual Git matching, and separate tracked-file checks.
+  Reuse normalized reports and findings. Keep unavailable evidence and exact reviewed exceptions
+  explicit. Do not fetch sources, generate policy, or change the consumer during validation.
+- **Consequences:** Callers supply a reviewed source export, composition, selection, and date.
+  Git is required; finite probes and supported topology limit coverage. The general `validate`
+  and lint-engine paths do not implicitly enable this capability. Future Relay adapters invoke
+  the focused command after acceptance; source reconciliation remains Empathy #92.
+- **Reconsider when:** The native inventory gains an equivalent metadata-only boundary or a new
+  accepted composition version needs a separately reviewed adapter.
 
 ## Open decisions
 
