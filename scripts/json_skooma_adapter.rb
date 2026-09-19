@@ -35,8 +35,8 @@ def parse_options
   }
   OptionParser.new do |parser|
     parser.banner = 'Usage: json_skooma_adapter.rb [options]'
-    parser.on('--workspace PATH', Pathname) { |value| options[:workspace] = value }
-    parser.on('--config PATH', Pathname) { |value| options[:config] = value }
+    parser.on('--workspace PATH') { |value| options[:workspace] = Pathname.new(value) }
+    parser.on('--config PATH') { |value| options[:config] = Pathname.new(value) }
     parser.on('--report PATH') { |value| options[:report] = value }
     parser.on('--version') { options[:version] = true }
   end.parse!
