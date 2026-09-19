@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-09-19T20:58:42Z"
+  updated_at: "2026-09-19T22:02:51Z"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -53,42 +53,36 @@ work:
     url: https://github.com/egohygiene/egolint/issues/29
   next:
     kind: action
-    id: checkpoint-3-release-checks
+    id: validate-checkpoint-3-draft
     description:
-      After PR 70 is reviewed and merged, implement declaration, changelog, version-source,
-      workflow, and Taskfile checks in issue 67.
-    readiness: blocked
+      Run pinned CI on the first checkpoint-3 slice, reconcile Rust and generated-schema feedback,
+      then finish focused documentation and review polish without beginning checkpoint 4.
+    readiness: ready
     references:
       - https://github.com/egohygiene/egolint/issues/67
-      - https://github.com/egohygiene/egolint/pull/70
-    depends_on:
-      - maintainer-review-and-merge-of-checkpoint-2
+    depends_on: []
 state:
   base:
-    revision: 7e87df84eb282842f929c3f9cfc8789e7a7b406d
+    revision: 7766ba3d66a65d8bee483f599a1932cadb3c1e92
     ref: refs/heads/main
-    verified_at: "2026-09-19T20:02:36Z"
+    verified_at: "2026-09-19T22:02:51Z"
   candidate:
-    branch: feat/release-applicability-report
+    branch: feat/release-declaration-checks
     revision: null
-    pull_request:
-      provider: github
-      id: egohygiene/egolint#70
-      url: https://github.com/egohygiene/egolint/pull/70
-    handoff_state: ready-for-review
+    pull_request: null
+    handoff_state: implementation
   live:
     status: verified
-    observed_at: "2026-09-19T20:58:42Z"
-    default_branch_revision: 7e87df84eb282842f929c3f9cfc8789e7a7b406d
+    observed_at: "2026-09-19T22:02:51Z"
+    default_branch_revision: 7766ba3d66a65d8bee483f599a1932cadb3c1e92
     issue_state: open
-    pull_request_state: draft
-    notes: GitHub verifies issue 29 open and draft PR 70 at
-      14de50e41108f0b150987dae0735ecf7a4b6ad25. CI run 35468586857 and dogfood run
-      35468586843 passed all jobs.
+    pull_request_state: not-created
+    notes: PR 70 is merged into main and the maintainer explicitly cleared checkpoint 3. GitHub
+      branch feat/release-declaration-checks starts at the verified merge commit.
   parallel_changes: []
 review:
-  status: passed
-  reviewed_at: "2026-09-19T20:58:42Z"
+  status: partial
+  reviewed_at: "2026-09-19T22:02:51Z"
   reviewed_by: Codex
   evidence:
     - command: python scripts/validate_repository_release_sources.py
@@ -103,16 +97,14 @@ review:
       outcome: passed
       observed_at: "2026-09-19T20:08:00Z"
       notes: All five JavaScript contract and configuration tests passed.
-    - command: GitHub Actions CI run 35468586857
+    - command: pnpm commitlint:test and pnpm eslint-config:test
       outcome: passed
-      observed_at: "2026-09-19T20:58:42Z"
-      notes:
-        Rustfmt, Clippy, 146 Rust tests, generated schemas, package contents, native tests on Linux,
-        macOS, and Windows, both container images, and policy contracts passed.
-    - command: GitHub Actions dogfood run 35468586843
+      observed_at: "2026-09-19T22:02:51Z"
+      notes: All five JavaScript policy and configuration tests passed.
+    - command: git diff --check and Prettier check
       outcome: passed
-      observed_at: "2026-09-19T20:58:42Z"
-      notes: The reference consumer completed and uploaded its dogfood evidence.
+      observed_at: "2026-09-19T22:02:51Z"
+      notes: The checkpoint-3 source, schema, and documentation changes are whitespace-clean.
   environment_limitations:
     - Rust, Docker, Task, and Ruby are unavailable locally; their evidence comes from pinned CI.
 privacy:
@@ -141,9 +133,10 @@ before this handoff. It grants no additional authority.
 
 1. Read `AGENTS.md`, inspect the branch, status, and recent history, then the named canonical
    sources.
-2. Verify issue 29, PR 70, workflow results, and `main` against live GitHub evidence.
+2. Verify issue 29, issue 67, the checkpoint-3 draft PR, workflow results, and `main` against live
+   GitHub evidence.
 3. Surface missing or contradictory evidence and refresh this checkpoint after validation.
-4. Do not begin checkpoint 3 until checkpoint 2 is reviewed, merged, and explicitly cleared.
+4. Keep work inside checkpoint 3 until its draft is green, polished, and explicitly approved.
 
 ## Current objective and success conditions
 
@@ -157,9 +150,9 @@ complete issue 29 fixture matrix, and self-dogfood without claiming external pub
 
 ## State snapshot
 
-Checkpoint 1 merged in PR 64. Checkpoint 2 is published on draft PR 70 from branch
-`feat/release-applicability-report`; the metadata candidate revision stays null to avoid a
-self-reference cycle. Parent issue 29 is open after its accidental auto-close was reconciled.
+Checkpoints 1 and 2 merged in PRs 64 and 70. Checkpoint 3 is active on
+`feat/release-declaration-checks`; the metadata candidate revision stays null to avoid a
+self-reference cycle. Parent issue 29 and checkpoint issue 67 remain open.
 
 ## Completed and material changes
 
@@ -175,33 +168,37 @@ self-reference cycle. Parent issue 29 is open after its accidental auto-close wa
   and focused-report boundaries.
 - Exposed the focused release report and authorized adoption override through the check-only GitHub
   Action, and aligned local and release-workflow schema verification with CI.
+- Replaced caller-supplied completion counters with seven native checks mapped one-to-one to the
+  accepted Hygiene slots.
+- Added strict Aether declaration parsing, root changelog and semantic-version validation, safe
+  static version drift checks, Taskfile handoff checks, and manual-workflow dependency pinning.
+- Normalized failed, unavailable, and external check states into stable findings shared by focused
+  reports, run reports, tool counts, suppressions, and SARIF.
 
 ## Validation and review evidence
 
-All 77 Python tests and 170 subtests, 12 integration-distribution tests, five JavaScript tests,
-immutable-source and policy checks, configured Ruff formatting and lint, Prettier, shell syntax,
-YAML parsing, and `git diff --check` pass locally. CI run 35468586857 passed Rustfmt, Clippy, 146
-Rust tests, package contents, generated schemas, cross-platform native tests, policy contracts, and
-both container images on implementation head `14de50e41108f0b150987dae0735ecf7a4b6ad25`.
-Dogfood run 35468586843 also passed and uploaded its reference-consumer evidence.
+All 77 Python tests and 170 subtests, five JavaScript tests, immutable-source checks, Prettier, JSON
+schema parsing, and `git diff --check` pass locally for the first checkpoint-3 slice. Rust, Docker,
+Task, and Ruby remain unavailable locally; pinned CI must still verify rustfmt, Clippy, Rust tests,
+generated schemas, package contents, native platforms, policy contracts, and container images.
 
 ## Blockers, risks, unknowns, and deferred work
 
-Individual repository-release checks are deliberately deferred to checkpoint 3. Therefore the
-universal evaluator reports required repositories as unavailable rather than falsely compliant.
-Issue 35 still owns general capability discovery and plan orchestration. The ordinary PR dogfood
-workflow passes; checkpoint 5 owns completed repository-release self-conformance.
+Static parsing deliberately does not claim that a Git tag, workflow run, registry, or publication
+exists. Multi-component repositories do not acquire an invented shared version. Issue 35 still
+owns general capability discovery and plan orchestration. Checkpoint 4 owns the full profile and
+ecosystem fixture matrix; checkpoint 5 owns completed self-conformance.
 
 ## Next dependency-ready work
 
-Stop for maintainer review of PR 70. After merge and explicit clearance, issue 67 may add Aether
-declaration, changelog, version-authority, manual-workflow, and Taskfile checks without changing the
-checkpoint-2 applicability contract casually.
+Publish the first checkpoint-3 slice to a draft PR, use pinned CI to reconcile Rust and generated
+schema feedback, then complete documentation and adversarial unit coverage. Do not start issue 68
+or checkpoint 4 before checkpoint 3 is reviewed and merged.
 
 ## Parallel changes and reconciliation
 
-No competing issue 29 pull request was observed. Recheck `main`, PR 70, and issue 29 before the next
-checkpoint. Issue 55 continuity-release work remains a separate track.
+No competing issue 29 pull request was observed. Recheck `main`, issue 67, its draft PR, and issue
+29 before final handoff. Issue 55 continuity-release work remains a separate track.
 
 ## Privacy and redaction
 

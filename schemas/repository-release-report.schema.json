@@ -10,6 +10,12 @@
     "boundary": {
       "$ref": "#/$defs/ReleaseEvidenceBoundary"
     },
+    "checks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ReleaseCheckResult"
+      }
+    },
     "contract": {
       "type": "string"
     },
@@ -46,12 +52,87 @@
     "policy",
     "declaration",
     "applicability",
+    "checks",
     "state",
     "summary",
     "boundary",
     "rationale"
   ],
   "$defs": {
+    "EvidenceKind": {
+      "description": "Sanitized evidence category.",
+      "oneOf": [
+        {
+          "description": "Canonical policy selection or ownership record.",
+          "type": "string",
+          "const": "policy"
+        },
+        {
+          "description": "Tool or rule configuration.",
+          "type": "string",
+          "const": "configuration"
+        },
+        {
+          "description": "Positive, negative, or compatibility fixture.",
+          "type": "string",
+          "const": "fixture"
+        },
+        {
+          "description": "Machine-readable adapter report.",
+          "type": "string",
+          "const": "adapter_report"
+        },
+        {
+          "description": "Sanitized adapter log.",
+          "type": "string",
+          "const": "adapter_log"
+        },
+        {
+          "description": "Other reviewed evidence.",
+          "type": "string",
+          "const": "other"
+        }
+      ]
+    },
+    "EvidenceReference": {
+      "description": "Versioned reference to sanitized, workspace-owned evidence.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "description": "Optional bounded human-readable context.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kind": {
+          "description": "Kind of evidence referenced.",
+          "$ref": "#/$defs/EvidenceKind"
+        },
+        "path": {
+          "description": "Normalized workspace-relative evidence path.",
+          "type": "string"
+        },
+        "schema_version": {
+          "description": "Evidence-contract version.",
+          "type": "integer",
+          "const": 1
+        },
+        "sha256": {
+          "description": "Optional lowercase hexadecimal SHA-256 digest.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "kind",
+        "path"
+      ]
+    },
     "ReleaseAdoptionState": {
       "description": "Repository-wide adoption state selected by policy or an authorized planner.",
       "type": "string",
@@ -119,6 +200,65 @@
         "explicit",
         "lifecycle_policy",
         "unavailable"
+      ]
+    },
+    "ReleaseCheckResult": {
+      "description": "Stable native evidence for one repository-release check.",
+      "type": "object",
+      "properties": {
+        "authority": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EvidenceReference"
+          }
+        },
+        "location": {
+          "$ref": "#/$defs/SourceLocation"
+        },
+        "message": {
+          "type": "string"
+        },
+        "remediation": {
+          "type": "string"
+        },
+        "requirement": {
+          "$ref": "#/$defs/ReleaseRequirement"
+        },
+        "rule_id": {
+          "type": "string"
+        },
+        "slot_id": {
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/ReleaseCheckState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "slot_id",
+        "rule_id",
+        "requirement",
+        "authority",
+        "state",
+        "message",
+        "remediation",
+        "location",
+        "evidence"
+      ]
+    },
+    "ReleaseCheckState": {
+      "description": "Result of one source-pinned Hygiene release-policy slot.",
+      "type": "string",
+      "enum": [
+        "passed",
+        "failed",
+        "unavailable",
+        "external",
+        "not_applicable"
       ]
     },
     "ReleaseDeclarationReference": {
@@ -386,6 +526,56 @@
         "python-package",
         "static-site",
         "workspace"
+      ]
+    },
+    "SourceLocation": {
+      "description": "Workspace-relative source location.",
+      "type": "object",
+      "properties": {
+        "end_column": {
+          "description": "One-based ending column.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "end_line": {
+          "description": "One-based ending line.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "path": {
+          "description": "Normalized path relative to the inspected workspace.",
+          "type": "string"
+        },
+        "start_column": {
+          "description": "One-based starting column.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        },
+        "start_line": {
+          "description": "One-based starting line.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path"
       ]
     }
   }

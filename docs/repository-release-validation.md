@@ -60,10 +60,37 @@ explicit `not-applicable` makes every slot not applicable even when no release d
 | `invalid`        | The declaration cannot establish trusted applicability or a completed check failed.      |
 | `not_applicable` | An authorized planner explicitly selected non-applicability.                             |
 
-Checkpoint 2 resolves applicability only, so ordinary required repositories remain `unavailable`
-until checkpoint 3 supplies complete check coverage. This prevents an empty validator from
-reporting false conformance. Use `egolint schema repository-release-report` to emit the exact
-machine contract. Human-readable commands print the same state and the non-publication boundary.
+Checkpoint 3 derives check coverage from repository evidence; callers cannot supply completion
+counters. Use `egolint schema repository-release-report` to emit the exact machine contract.
+Human-readable commands print the same state and the non-publication boundary.
+
+## Mechanical checks
+
+Every accepted Hygiene slot maps to one stable native rule. Each focused-report check includes its
+slot and rule identifiers, effective requirement and authority, state, repository location,
+sanitized evidence, message, and remediation.
+
+| Hygiene slot             | Native rule                              | Offline evidence                                                                                       |
+| ------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `agents_profile_pointer` | `EGOLINT_RELEASE_AGENTS_PROFILE_POINTER` | `AGENTS.md` is a regular UTF-8 file and points to `.egohygiene/release.json`.                          |
+| `aether_declaration`     | `EGOLINT_RELEASE_AETHER_DECLARATION`     | The closed declaration shape, constants, enums, bounded text, identifiers, and safe paths are valid.   |
+| `changelog`              | `EGOLINT_RELEASE_CHANGELOG`              | Root `CHANGELOG.md` has exact title and Unreleased headings plus valid promoted version/date headings. |
+| `manual_workflow`        | `EGOLINT_RELEASE_MANUAL_WORKFLOW`        | The configured workflow is manual-only and external actions use immutable commit or digest references. |
+| `release_rollback_docs`  | `EGOLINT_RELEASE_ROLLBACK_DOCS`          | The declaration contains an accepted rollback strategy and bounded repository-owned instructions.      |
+| `task_handoffs`          | `EGOLINT_RELEASE_TASK_HANDOFFS`          | The four declared Taskfile targets exist and publish explicitly names the declared manual workflow.    |
+| `version_authority`      | `EGOLINT_RELEASE_VERSION_AUTHORITY`      | Every component has one parseable authority and local values use semantic-version syntax.              |
+
+Static version drift is checked only when it is safe: one released or frozen component, one local
+manifest value, and one valid latest promoted changelog version. Multi-component workspaces retain
+their independent authorities instead of acquiring an invented workspace-wide version. Git-tag
+and external authorities remain explicit; EgoLint does not query tags, registries, workflows, or
+publication services.
+
+`failed`, `unavailable`, and `external` check states become normalized findings. Required local
+failures and unavailable evidence are errors; advisory rollout produces warnings for the same
+facts, preserving diagnostics without claiming conformance. Explicit external ownership remains a
+warning because reachability is outside the offline boundary. Suppressions, tool counts, run-report
+status, and SARIF consume these findings through the standard pipeline.
 
 ## Checkpoint plan
 

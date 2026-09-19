@@ -23,8 +23,7 @@ use egolint::rules::{
 use egolint::rules::{
     PresentationMode, REPOSITORY_CONTINUITY_REPORT, REPOSITORY_INTELLIGENCE_REPORT,
     REPOSITORY_PRESENTATION_REPORT, REPOSITORY_RELEASE_DECLARATION, REPOSITORY_RELEASE_REPORT,
-    ReleaseAdoptionState, ReleaseDeclarationState, ReleaseEvidenceState, ReleaseValidationEvidence,
-    apply_suppressions,
+    ReleaseAdoptionState, ReleaseDeclarationState, apply_suppressions,
 };
 use egolint::sarif::{EGOLINT_SARIF_REPORT, write_sarif_atomic};
 use egolint::{
@@ -686,11 +685,10 @@ fn evaluate_native(
         sha256: None,
         description: Some("Egolint's embedded versioned portability rule catalog.".to_owned()),
     }];
-    let release_report = RepositoryReleaseEvaluator::bundled()?.evaluate(
-        &inventory,
-        arguments.release_adoption_state,
-        ReleaseValidationEvidence::default(),
-    )?;
+    let release_evaluation = RepositoryReleaseEvaluator::bundled()?
+        .evaluate(&inventory, arguments.release_adoption_state)?;
+    findings.extend(release_evaluation.findings);
+    let release_report = release_evaluation.report;
     evidence.push(EvidenceReference {
         schema_version: CONTRACT_VERSION,
         kind: EvidenceKind::Policy,
@@ -1073,7 +1071,7 @@ fn add_native_tool_results(
             },
         ));
     }
-    tool_results.push(release_tool_result(release_report));
+    tool_results.push(release_tool_result(release_report, findings));
     if suppressions_evaluated {
         tool_results.push(native_tool_result(
             "EGOLINT_SUPPRESSIONS",
@@ -1084,15 +1082,7 @@ fn add_native_tool_results(
     tool_results.sort_by(|left, right| left.tool_id.cmp(&right.tool_id));
 }
 
-fn release_tool_result(report: &RepositoryReleaseReport) -> ToolResult {
-    let status = match report.state {
-        ReleaseEvidenceState::Compliant => ToolStatus::Passed,
-        ReleaseEvidenceState::NotApplicable => ToolStatus::NotApplicable,
-        ReleaseEvidenceState::Advisory
-        | ReleaseEvidenceState::Unavailable
-        | ReleaseEvidenceState::External
-        | ReleaseEvidenceState::Invalid => ToolStatus::Selected,
-    };
+fn release_tool_result(report: &RepositoryReleaseReport, findings: &[Finding]) -> ToolResult {
     let enforcement = match report.applicability.adoption_state {
         Some(ReleaseAdoptionState::Required) => Enforcement::Blocking,
         Some(ReleaseAdoptionState::Advisory | ReleaseAdoptionState::Exempt) | None => {
@@ -1100,26 +1090,24 @@ fn release_tool_result(report: &RepositoryReleaseReport) -> ToolResult {
         }
         Some(ReleaseAdoptionState::NotApplicable) => Enforcement::Disabled,
     };
-    ToolResult {
-        schema_version: CONTRACT_VERSION,
-        tool_id: egolint::rules::REPOSITORY_RELEASE_TOOL_ID.to_owned(),
-        owner: "egohygiene/egolint".to_owned(),
-        policy_source: "vendor/hygiene/repository-release-policy.v1.json".to_owned(),
-        status,
+    let mut result = native_tool_result(
+        egolint::rules::REPOSITORY_RELEASE_TOOL_ID,
+        findings,
         enforcement,
-        finding_count: 0,
-        warning_count: 0,
-        duration_ms: None,
-        evidence: vec![EvidenceReference {
-            schema_version: CONTRACT_VERSION,
-            kind: EvidenceKind::Other,
-            path: PathBuf::from(REPOSITORY_RELEASE_REPORT),
-            sha256: None,
-            description: Some(
-                "Focused repository-release applicability and validation state.".to_owned(),
-            ),
-        }],
+    );
+    if report.applicability.adoption_state == Some(ReleaseAdoptionState::NotApplicable) {
+        result.status = ToolStatus::NotApplicable;
     }
+    result.evidence.push(EvidenceReference {
+        schema_version: CONTRACT_VERSION,
+        kind: EvidenceKind::Other,
+        path: PathBuf::from(REPOSITORY_RELEASE_REPORT),
+        sha256: None,
+        description: Some(
+            "Focused repository-release applicability and validation state.".to_owned(),
+        ),
+    });
+    result
 }
 
 fn native_tool_result(tool_id: &str, findings: &[Finding], enforcement: Enforcement) -> ToolResult {
