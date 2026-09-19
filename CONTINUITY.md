@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-09-19T19:33:28Z"
+  updated_at: "2026-09-19T19:45:08Z"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -76,17 +76,17 @@ state:
     handoff_state: in-progress
   live:
     status: verified
-    observed_at: "2026-09-19T18:50:59Z"
+    observed_at: "2026-09-19T19:45:08Z"
     default_branch_revision: cb5aefc47953773b1b215419f66025e135a831f5
     issue_state: open
     pull_request_state: draft
     notes: GitHub verified issue 29 open and draft PR 64 at
-      65e5ed91027e0ee17eaee173e139af48f85af4d1. PR 63 is merged and issue 14 is closed. Aether 61
-      and Hygiene 27 are closed; their accepted merge revisions are recorded in the source lock.
+      16243f3d54245bee7bf3c5be9a6c4a65cb2baab8. CI run 35464767715 and dogfood run 35464767731
+      passed with all three additional workflows green. PR 63 is merged and issue 14 is closed.
   parallel_changes: []
 review:
-  status: partial
-  reviewed_at: "2026-09-19T19:33:28Z"
+  status: passed
+  reviewed_at: "2026-09-19T19:45:08Z"
   reviewed_by: Codex
   evidence:
     - command: python scripts/validate_repository_release_sources.py
@@ -109,11 +109,10 @@ review:
       notes: MegaLinter, complementary-tool, reviewed release-input, source-lock, Python style, and
         structured-document checks passed.
     - command: Cargo and GitHub Actions checks
-      outcome: limited
-      observed_at: "2026-09-19T19:33:28Z"
-      notes: CI run 35464113199 passed. Dogfood run 35464113190 accepted the .egolint fixtures,
-        then found one inherited snake-case Rust module directory under a kebab-only first-party
-        rule. The exact MegaLinter ls-lint command now passes and the corrected head needs CI.
+      outcome: passed
+      observed_at: "2026-09-19T19:45:08Z"
+      notes: CI run 35464767715 and dogfood run 35464767731 passed every job on the checkpoint head,
+        including package contents, full-image checks, native continuity, Mypy, and ls-lint.
   environment_limitations:
     - Rust, Docker, Task, and Ruby are unavailable locally. Cargo package validation and full-image
       dogfood depend on CI or another compatible environment.
@@ -159,9 +158,9 @@ issue 29 fixture matrix, and self-dogfood without claiming that an external publ
 
 ## State snapshot
 
-The draft PR is intentionally not merge-ready. Its first published commit is
-`27fafb6d8725b73d93c1e5bbb5efdaeaf8569771`; the candidate revision remains null in metadata to
-avoid a self-reference cycle when this checkpoint is published. PR 63 is merged, issue 14 is closed,
+The draft PR is intentionally not merge-ready. Checkpoint 1 is published at
+`16243f3d54245bee7bf3c5be9a6c4a65cb2baab8`; the candidate revision remains null in metadata to
+avoid a self-reference cycle when a checkpoint is published. PR 63 is merged, issue 14 is closed,
 and issue 29 plus draft PR 64 are open.
 
 ## Completed and material changes
@@ -180,8 +179,9 @@ and issue 29 plus draft PR 64 are open.
 
 All 77 Python tests, 11 JavaScript tests, source-lock checks, repository policy checks, Ruff,
 Prettier, continuity schema validation, exact Mypy 1.19.1, and MegaLinter's exact ls-lint 2.3.1
-command pass locally. CI run 35464113199 passed every job. Dogfood successively exposed continuity
-anatomy, Mypy narrowing, and two inherited directory-policy gaps; this revision repairs all four.
+command pass locally. CI run 35464767715 and dogfood run 35464767731 passed every job. Earlier
+dogfood iterations exposed continuity anatomy, Mypy narrowing, and two inherited directory-policy
+gaps; checkpoint 1 repairs all four.
 
 ## Blockers, risks, unknowns, and deferred work
 
@@ -189,9 +189,8 @@ Issue 35 retains universal capability discovery and execution-plan orchestration
 the release capability universally available to that future planner, but does not introduce an
 independent automatic-selection mechanism.
 
-Rust, Docker, Task, and Ruby are unavailable locally. CI must prove package contents, images, and
-dogfood for the corrected checkpoint head. Native release-rule design is deliberately deferred to
-checkpoint 2.
+Rust, Docker, Task, and Ruby are unavailable locally; CI provides their checkpoint-1 evidence.
+Native release-rule design is deliberately deferred to checkpoint 2.
 
 ## Next dependency-ready work
 
