@@ -205,6 +205,11 @@ ignore:
   - ".cache"
   - "**/.cache/**"
 
+  # Tool-owned configuration directories use externally defined dot names.
+  - ".egolint"
+  - "**/.egolint"
+  - "**/.egolint/**"
+
   # ---------------------------------------------------------------------------
   # Generated output
   # ---------------------------------------------------------------------------
