@@ -5,6 +5,21 @@
 ARG MEGALINTER_IMAGE="ghcr.io/oxsecurity/megalinter:v10.0.0"
 ARG NODE_POLICY_IMAGE="node:24-alpine3.24"
 
+FROM scratch AS json-skooma-gems
+
+ADD --checksum=sha256:61ebe1e5e559bdc3cc6f2c0ee7f427321fc838f59611c294356eb04d6e21cf66 \
+    https://rubygems.org/downloads/bigdecimal-4.1.3.gem /gems/bigdecimal-4.1.3.gem
+ADD --checksum=sha256:5425db42d651fea08859811c29d20446f16af196308162894db208cac5ce9b0d \
+    https://rubygems.org/downloads/hana-1.3.7.gem /gems/hana-1.3.7.gem
+ADD --checksum=sha256:518494acf0dcbfc8d6de0924730524365222ffe4b70211effdc588c79a9ce8df \
+    https://rubygems.org/downloads/json_skooma-0.2.7.gem /gems/json_skooma-0.2.7.gem
+ADD --checksum=sha256:35a916a1d63190ab5c9009457136ae5f3c0c7512d60291d0d1378ba18ce08ebb \
+    https://rubygems.org/downloads/regexp_parser-2.12.0.gem /gems/regexp_parser-2.12.0.gem
+ADD --checksum=sha256:c8601a9ca545670a763f5a7c56c99d7072bc2b1f6d83df63e6f35c264b609823 \
+    https://rubygems.org/downloads/uri-idna-0.3.1.gem /gems/uri-idna-0.3.1.gem
+ADD --checksum=sha256:2c85125a8467ce069e20123d1e709a08955c9d29c118c25b46b7b7fafdbb92e5 \
+    https://rubygems.org/downloads/zeitwerk-2.8.3.gem /gems/zeitwerk-2.8.3.gem
+
 # Match MegaLinter v10's Alpine/musl runtime so optional native Node packages
 # are materialized for the same libc rather than copied from a glibc stage.
 FROM ${NODE_POLICY_IMAGE} AS policy-node-dependencies
@@ -41,9 +56,24 @@ COPY .mega-linter.security.yml /opt/egolint/profiles/security.yml
 COPY .mega-linter.dependency-debt.yml /opt/egolint/profiles/dependency-debt.yml
 COPY .markdownlintignore /opt/egolint/.markdownlintignore
 COPY --from=policy-node-dependencies /opt/egolint/node_modules/ /opt/egolint/node_modules/
+COPY --from=json-skooma-gems /gems/ /tmp/json-skooma-gems/
 COPY scripts/render_image_profiles.py /opt/egolint/bin/render_image_profiles.py
+COPY scripts/json_skooma.py /opt/egolint/bin/json_skooma.py
+COPY scripts/json_skooma_adapter.rb /opt/egolint/bin/json_skooma_adapter.rb
 COPY LICENSE NOTICE /usr/share/doc/egolint/
 COPY LICENSES/ /usr/share/doc/egolint/LICENSES/
+
+# Install the complete JSONSkooma graph from content-addressed local archives.
+# Runtime execution remains adaptive; unrelated repositories never start Ruby.
+# Alpine package versions are inherited from the digest-pinned MegaLinter base;
+# the temporary toolchain is removed after compiling bigdecimal's extension.
+# hadolint ignore=DL3018
+RUN apk add --no-cache --virtual .egolint-json-skooma-build-deps build-base ruby-dev \
+    && gem install --local --no-document --ignore-dependencies /tmp/json-skooma-gems/*.gem \
+    && ruby -rjson_skooma -e 'expected = {"json_skooma" => "0.2.7", "bigdecimal" => "4.1.3", "hana" => "1.3.7", "regexp_parser" => "2.12.0", "uri-idna" => "0.3.1", "zeitwerk" => "2.8.3"}; actual = expected.keys.to_h { |name| [name, Gem.loaded_specs.fetch(name).version.to_s] }; abort "JSONSkooma gem graph mismatch: #{actual}" unless actual == expected' \
+    && chmod 0555 /opt/egolint/bin/json_skooma.py /opt/egolint/bin/json_skooma_adapter.rb \
+    && rm -rf /tmp/json-skooma-gems \
+    && apk del .egolint-json-skooma-build-deps
 
 # Repository-relative policy paths are made image-absolute in the packaged
 # profiles. Fast is flattened against holistic because MegaLinter v10 prefixes

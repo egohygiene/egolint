@@ -218,3 +218,112 @@ jobs:
           );
           if (!Array.isArray(config)) process.exit(1);
           JS
+
+      - name: Exercise the adaptive JSONSkooma capability
+        run: |
+          temporary_directory="$(mktemp -d)"
+          trap 'rm -rf "$temporary_directory"' EXIT
+
+          run_fixture() {
+            fixture="$1"
+            report="$2"
+            shift 2
+            docker run --rm \
+              --volume "$PWD/$fixture:/workspace:ro" \
+              --entrypoint "python3" \
+              "egolint-full:ci" \
+              "/opt/egolint/bin/json_skooma.py" \
+              --workspace "/workspace" \
+              --report "-" \
+              "$@" > "$report"
+          }
+
+          valid_report="$temporary_directory/valid.json"
+          run_fixture "tests/fixtures/json-skooma/valid" "$valid_report"
+          python3 - "$valid_report" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+
+          report = json.loads(Path(sys.argv[1]).read_text())
+          assert report["status"] == "passed"
+          assert report["validator"]["version"] == "0.2.7"
+          assert report["mappings"][0]["dialect"] == "2020-12"
+          PY
+
+          invalid_report="$temporary_directory/invalid.json"
+          set +e
+          run_fixture "tests/fixtures/negative/json-skooma" "$invalid_report"
+          invalid_exit="$?"
+          set -e
+          test "$invalid_exit" -eq 1
+          python3 - "$invalid_report" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+
+          report = json.loads(Path(sys.argv[1]).read_text())
+          assert report["status"] == "failed_findings"
+          finding = report["mappings"][0]["instances"][0]["findings"][-1]
+          assert finding["instance_path"] == "/level"
+          assert finding["schema_path"] == "/properties/level/minimum"
+          assert finding["keyword"] == "minimum"
+          PY
+
+          for fixture in non-ruby schema-absent disabled; do
+            skip_report="$temporary_directory/$fixture.json"
+            run_fixture \
+              "tests/fixtures/json-skooma/$fixture" \
+              "$skip_report" \
+              --ruby-executable "/runtime/must/not/start"
+            python3 - "$skip_report" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+
+          report = json.loads(Path(sys.argv[1]).read_text())
+          assert report["status"] == "not_applicable"
+          PY
+          done
+
+          enabled_report="$temporary_directory/explicit-enabled.json"
+          run_fixture "tests/fixtures/json-skooma/explicit-enabled" "$enabled_report"
+          python3 - "$enabled_report" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+
+          report = json.loads(Path(sys.argv[1]).read_text())
+          assert report["status"] == "passed"
+          assert report["mappings"][0]["dialect"] == "2019-09"
+          PY
+
+          external_report="$temporary_directory/external-reference.json"
+          set +e
+          run_fixture "tests/fixtures/json-skooma/external-reference" "$external_report"
+          external_exit="$?"
+          set -e
+          test "$external_exit" -eq 2
+          python3 - "$external_report" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+
+          report = json.loads(Path(sys.argv[1]).read_text())
+          assert report["status"] == "invalid_configuration"
+          assert report["reason"] == "only fragment-local schema references are supported"
+          PY
+
+          docker run --rm \
+            --entrypoint "ruby" \
+            "egolint-full:ci" -e '
+              names = %w[json_skooma bigdecimal hana regexp_parser uri-idna zeitwerk]
+              roots = names.map { |name| Gem::Specification.find_by_name(name).full_gem_path }
+              bytes = roots.sum do |root|
+                Dir.glob(File.join(root, "**", "*"), File::FNM_DOTMATCH)
+                  .select { |path| File.file?(path) }
+                  .sum { |path| File.size(path) }
+              end
+              puts "JSONSkooma installed bytes: #{bytes}"
+              abort "JSONSkooma installed footprint exceeds 16 MiB" if bytes > 16 * 1024 * 1024
+            '

@@ -138,3 +138,8 @@ tasks:
     desc: "Enforce Python cognitive-complexity thresholds"
     cmds:
       - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run complexipy'
+
+  json-skooma:
+    desc: "Validate mapped Ruby-local JSON Schema instances with JSONSkooma"
+    cmds:
+      - 'python3 "{{.COMPLEMENTARY_SCRIPT}}" --run json-skooma'

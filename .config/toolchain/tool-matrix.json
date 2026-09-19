@@ -295,6 +295,47 @@
       "reason": "Python docstring coverage with a shared explicit threshold."
     },
     {
+      "id": "json-skooma",
+      "name": "JSONSkooma",
+      "category": "ruby-schema",
+      "version": "0.2.7",
+      "configuration_path": null,
+      "declared_state": "conditional",
+      "repository_applicability": "not_applicable",
+      "applicability_markers": [
+        [
+          "Gemfile",
+          ".ruby-version",
+          "*.gemspec"
+        ],
+        [
+          ".egolint/json-skooma.json"
+        ]
+      ],
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/json-skooma/valid/Gemfile",
+          "tests/fixtures/json-skooma/valid/.egolint/json-skooma.json",
+          "tests/fixtures/json-skooma/valid/schemas/character.schema.json",
+          "tests/fixtures/json-skooma/valid/instances/valid.json"
+        ],
+        "negative": [
+          "tests/fixtures/negative/json-skooma/Gemfile",
+          "tests/fixtures/negative/json-skooma/.egolint/json-skooma.json",
+          "tests/fixtures/negative/json-skooma/schemas/character.schema.json",
+          "tests/fixtures/negative/json-skooma/instances/invalid.json",
+          "tests/fixtures/json-skooma/external-reference/Gemfile",
+          "tests/fixtures/json-skooma/external-reference/.egolint/json-skooma.json",
+          "tests/fixtures/json-skooma/external-reference/schema.json",
+          "tests/fixtures/json-skooma/external-reference/instance.json"
+        ],
+        "expected_rule": "minimum"
+      },
+      "runtime": "python3",
+      "report_path": ".reports/egolint/complementary/json-skooma/latest.json",
+      "reason": "Ruby-local JSON Schema parity with explicit mapping and adaptive skip evidence."
+    },
+    {
       "id": "knip",
       "name": "Knip",
       "category": "javascript-project",

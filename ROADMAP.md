@@ -43,10 +43,10 @@ updated: 2026-09-19
 > plans, and commit lists are projections.
 
 **Lifecycle:** early alpha, pre-release  
-**Current gate:** Record the issue #14 JSONSkooma capability decision without introducing a Ruby
-runtime or displacing language-neutral schema contracts. **North-star outcome:** A portable,
-evidence-backed lint platform for organization contracts, roadmaps, repositories, and generated
-artifacts.
+**Current gate:** Package issue #14's conditional JSONSkooma capability without displacing
+language-neutral schema contracts or initializing Ruby for inapplicable repositories. **North-star
+outcome:** A portable, evidence-backed lint platform for organization contracts, roadmaps,
+repositories, and generated artifacts.
 
 ### Visual roadmap publication
 
@@ -280,13 +280,20 @@ JSON Schema contracts or affecting repositories where Ruby schema execution is i
 
 - [x] Current and plausible future Ruby consumers are inventoried.
 - [x] JSONSkooma support, diagnostics, packaging, maintenance, and alternatives are compared.
-- [x] The defer decision defines applicability, skip behavior, and measurable re-evaluation gates.
+- [x] The conditional-adoption decision defines applicability, overrides, skip behavior, and costs.
+- [x] A pinned full-image adapter preserves normalized paths, keyword, dialect, and versions.
+- [x] Valid, invalid, non-Ruby, schema-absent, override, and external-reference fixtures prove the boundary.
 - [ ] The bounded issue #14 PR is reviewed and merged by the maintainer.
 
 **Current evidence (2026-09-19):**
 
-- `docs/json-skooma-evaluation.md` records the source-pinned comparison and the proposed decision.
-- No Ruby adapter, gem, runtime, or execution path is added by the candidate.
+- `docs/json-skooma-evaluation.md` records the source-pinned comparison and conditional-adoption
+  decision.
+- The full image installs six SHA-256-pinned gem archives totaling 351,744 bytes. A Python selector
+  emits skip evidence without initializing Ruby; the lightweight image remains unaffected.
+- Contract and container fixtures cover activation, findings, non-applicability, and overrides.
+- The adapter is available through the complementary inventory and full image without weakening the
+  no-global-hooks MegaLinter invariant; issue #35 owns automatic capability orchestration.
 - After maintainer review, issue #29 is the next ordered dependency-ready EgoLint item; its Aether
   and Hygiene dependencies are verified closed.
 

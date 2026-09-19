@@ -276,6 +276,7 @@ def validate_manifest(manifest: dict[str, Any]) -> list[str]:
         "detect-secrets",
         "govulncheck",
         "interrogate",
+        "json-skooma",
         "knip",
         "latexindent",
         "regal",

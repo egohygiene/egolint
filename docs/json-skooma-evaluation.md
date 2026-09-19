@@ -2,29 +2,29 @@
 
 ## Decision
 
-**Defer a JSONSkooma-specific EgoLint adapter.** Keep JSON Schema contracts language-neutral and
-continue using the existing V8R boundary for filename/catalog-oriented validation. Evaluate a
-language-neutral offline CLI or native Rust adapter before adding another language-specific schema
-engine. Reconsider JSONSkooma when a real Ruby consumer needs Ruby-local custom dialect,
-vocabulary, keyword, or application-parity behavior that the canonical validator cannot provide.
+**Adopt JSONSkooma as an optional adaptive EgoLint capability.** Keep JSON Schema contracts
+language-neutral and retain the existing V8R boundary for filename/catalog-oriented validation.
+Package the pinned Ruby adapter in `egolint-full`, but activate it only for a Ruby project with an
+explicit schema mapping or an explicit `enabled` override.
 
-This decision adds no package, image layer, runtime, network access, or execution path. It is not a
-rejection of JSONSkooma as a Ruby library. It rejects speculative product integration without a
-distinct capability owner or consumer.
+This makes the capability available before a fleet consumer needs it without making Ruby the
+canonical schema model. When selected, non-Ruby, schema-absent, and explicitly disabled
+repositories produce a visible `not_applicable` result before Ruby starts. The lightweight CLI
+image remains unaffected, and MegaLinter profiles do not gain an unsafe global command hook.
 
 ## Evaluation snapshot
 
-| Field                  | Evidence                                                                                                        |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Evaluation date        | 2026-09-19                                                                                                      |
-| Owning issue           | [EgoLint #14](https://github.com/egohygiene/egolint/issues/14)                                                  |
-| Upstream source        | [`skryukov/json_skooma`](https://github.com/skryukov/json_skooma) at `973af58de8ec47ca736f510e5662e4d4dd29d463` |
-| Evaluated release      | `json_skooma` `0.2.7`, published 2026-06-10                                                                     |
-| Release integrity      | RubyGems SHA-256 `518494acf0dcbfc8d6de0924730524365222ffe4b70211effdc588c79a9ce8df`                             |
-| License                | MIT                                                                                                             |
-| Required Ruby          | `>= 2.6`; upstream CI covers MRI 3.0 through 4.0, JRuby, and TruffleRuby                                        |
-| Packaged gem           | 38,400-byte archive; five direct runtime dependencies                                                           |
-| Duplicate EgoLint work | No JSONSkooma source, configuration, or pull request found at evaluation time                                   |
+| Field             | Evidence                                                                                                        |
+| ----------------- | --------------------------------------------------------------------------------------------------------------- |
+| Evaluation date   | 2026-09-19                                                                                                      |
+| Owning issue      | [EgoLint #14](https://github.com/egohygiene/egolint/issues/14)                                                  |
+| Upstream source   | [`skryukov/json_skooma`](https://github.com/skryukov/json_skooma) at `973af58de8ec47ca736f510e5662e4d4dd29d463` |
+| Evaluated release | `json_skooma` `0.2.7`, published 2026-06-10                                                                     |
+| Release integrity | RubyGems SHA-256 `518494acf0dcbfc8d6de0924730524365222ffe4b70211effdc588c79a9ce8df`                             |
+| License           | MIT                                                                                                             |
+| Required Ruby     | `>= 2.6`; upstream CI covers MRI 3.0 through 4.0, JRuby, and TruffleRuby                                        |
+| Packaged gem      | 38,400-byte archive; five direct runtime dependencies                                                           |
+| EgoLint adapter   | Version `1.0.0`; packaged only in `egolint-full` and selected before Ruby starts                                |
 
 The upstream `0.2.6` package was yanked because its JSON Schema metaschema submodules were omitted;
 `0.2.7` repaired the package. That incident is resolved, but it demonstrates why any future adapter
@@ -65,22 +65,21 @@ not exist.
 - Can resolve references through caller-supplied local or remote sources.
 - Is actively maintained, MIT licensed, compact as a gem, and supports multiple Ruby runtimes.
 
-### Product gaps
+### Product ownership and limits
 
-- JSONSkooma is a library, not a first-party CLI. EgoLint would own argument parsing, file loading,
-  YAML/JSON handling, process exit semantics, timeouts, output stability, redaction, and JSON/SARIF
-  normalization.
-- The library does not expose a stable standalone rule identifier. An adapter could derive a
-  keyword from `keywordLocation`, but that derived contract would belong to EgoLint.
+- JSONSkooma is a library, not a first-party CLI. EgoLint therefore owns argument parsing, bounded
+  JSON loading, exit semantics, timeouts, applicability, output stability, and redaction.
+- The library does not expose a stable standalone rule identifier. The adapter derives a rule from
+  `keywordLocation`; that normalized contract belongs to EgoLint.
 - Upstream does not publish a representative performance benchmark. Safe runtime budgets would
   require an EgoLint-owned corpus and cold/warm measurements.
 - Optional suite exclusions include ECMAScript regular-expression behavior, unknown-keyword
   references, dependency-compatibility cases, and one 2019-09 cross-draft case. Those exclusions
   matter for cross-validator parity.
-- Remote sources are possible. EgoLint would have to reject them by default and accept only pinned,
-  local resolution unless a separately authorized network capability exists.
-- The lightweight CLI image contains no Ruby. The full image currently inherits Ruby for RuboCop,
-  but an incidental base-image runtime is not a stable JSONSkooma packaging contract.
+- Remote sources are possible upstream. Adapter version 1 rejects every non-fragment `$ref`, sets a
+  no-network execution contract, and never installs dependencies during lint execution.
+- The lightweight CLI image contains no Ruby. The full image installs the exact JSONSkooma graph
+  from SHA-256-pinned gem archives and verifies every loaded version during its build.
 
 ## Cross-language comparison
 
@@ -93,58 +92,56 @@ not exist.
 | Python `jsonschema`                  | Python application/runtime validation     | Multi-draft library and extension protocols                                        | Library; already exposed through `check-jsonschema`       | Use through the CLI boundary unless Python-local parity is required.                  |
 | Dart `json_schema` 5.2.2             | Dart/Flutter application validation       | Through Draft 7                                                                    | Library, platform-oriented diagnostics                    | Consumer-side option; insufficient as the canonical modern-dialect validator.         |
 | Ruby JSONSchemer 2.5.0               | Broad Ruby/OpenAPI validation             | Drafts 4, 6, 7, 2019-09, 2020-12; OpenAPI 3.0/3.1                                  | Library with structured output                            | More mature Ruby comparator; still does not remove the adapter cost.                  |
-| JSONSkooma 0.2.7                     | Extensible Ruby-local validation          | 2019-09 and 2020-12; custom dialects/vocabularies                                  | Library with detailed structured results, no CLI          | Defer until its Ruby-specific extension model is a demonstrated requirement.          |
+| JSONSkooma 0.2.7                     | Extensible Ruby-local validation          | 2019-09 and 2020-12; custom dialects/vocabularies                                  | Library with detailed structured results, no CLI          | Adopt conditionally for Ruby-local parity; skip before Ruby when inapplicable.        |
 
 The languages of these implementations do not redefine the canonical schemas. JSON Schema files
 and explicit schema-to-instance mappings remain the portable source of truth.
 
 ## Cost and bounded execution
 
-The selected defer decision has a measured product cost of **zero added bytes and zero added
-runtime**: EgoLint does not install the gem, initialize Ruby, or execute JSONSkooma.
+The complete pinned download graph is 351,744 bytes across six archives: JSONSkooma plus
+`bigdecimal`, `hana`, `regexp_parser`, `uri-idna`, and `zeitwerk`. The image build verifies the
+archive hashes and exact loaded versions. CI measures installed bytes and fails above a 16 MiB
+budget. Every applicable run records its duration; the launcher enforces a 60-second default
+timeout, 128 mappings, 256 instances per mapping, and 1 MiB per input.
 
-A future prototype starts with the following known lower bound:
+The inapplicable runtime cost is one bounded Python selection pass and **zero Ruby initialization**.
+The capability performs no network resolution and supports only fragment-local references in
+adapter version 1. Upstream publishes no representative benchmark, so no broad throughput claim is
+made from the small contract fixtures.
 
-- one 38,400-byte `json_skooma` 0.2.7 archive;
-- five direct runtime dependencies (`bigdecimal`, `hana`, `regexp_parser`, `uri-idna`, and
-  `zeitwerk`) plus resolved transitive dependencies;
-- a pinned Ruby runtime where it is not already part of the selected image;
-- an EgoLint-owned executable adapter and normalized evidence tests; and
-- packaged-gem, schema-suite, cold-start, warm-validation, memory, and timeout measurements.
+## Applicability and override contract
 
-No throughput claim is recorded because upstream publishes no representative benchmark and the
-evaluation environment did not contain Ruby. Inventing a number would be weaker evidence than the
-explicit re-evaluation gate below. If prototyped, compare at least small configuration schemas,
-large generated schemas, deep/nested failures, reference-heavy inputs, and hostile depth/size
-limits against the selected language-neutral validator.
+Repositories declare mappings in `.egolint/json-skooma.json`:
 
-## Re-evaluation and applicability contract
+```json
+{
+  "schema_version": 1,
+  "mode": "auto",
+  "mappings": [
+    {
+      "schema": "schemas/example.schema.json",
+      "instances": ["config/example.json"]
+    }
+  ]
+}
+```
 
-Reopen the decision only when at least one trigger exists:
+`auto` requires a root `Gemfile`, `.ruby-version`, or `*.gemspec` plus the mapping. `enabled` is the
+reviewed explicit override and may activate without a Ruby manifest. `disabled` always skips before
+Ruby starts. Missing mappings, absent Ruby evidence in auto mode, and explicit disablement record
+distinct `not_applicable` reasons.
 
-1. An owned Ruby project declares JSON Schema validation in its runtime or build contract.
-2. A supported schema requires a custom dialect, vocabulary, keyword, or result annotation that
-   the canonical language-neutral validator cannot preserve.
-3. Application/CI parity requires the same Ruby engine in both paths.
-4. A measured prototype shows material precision, diagnostic, or runtime value that exceeds its
-   packaging and maintenance cost.
+The adapter accepts JSON instances and schemas declaring draft 2019-09 or 2020-12. It rejects
+absolute paths, traversal, symlink escapes, non-fragment references, unsupported dialects, malformed
+configuration, and oversized inputs. Findings preserve instance path, schema/keyword path, derived
+keyword/rule, dialect, adapter version, gem version, configuration digest, and represented commit
+without copying instance values or upstream error messages into public evidence.
 
-If reconsidered, activation must require all of these signals:
-
-- a Ruby manifest or an explicit, reviewed Ruby capability declaration;
-- one or more JSON Schema documents or explicit schema-to-instance mappings;
-- a supported 2019-09 or 2020-12 dialect;
-- a selected schema/Ruby capability or an explicit repository override; and
-- a pinned adapter, gem dependency graph, and local-only schema source set.
-
-Non-Ruby repositories, Ruby-only utility files, schema-absent repositories, unsupported dialects,
-and repositories that disable the capability must report `skipped` or `not-applicable`. They must
-not initialize Ruby or install gems at lint time.
-
-A future adapter must prove valid, invalid, non-Ruby, schema-absent, explicit-enable,
-explicit-disable, unsupported-dialect, local-reference, hostile-depth, timeout, and redaction
-fixtures. Normalized evidence must preserve instance path, schema/keyword path, derived keyword or
-rule, dialect, adapter version, gem version, configuration digest, and represented commit.
+Valid, invalid, non-Ruby, schema-absent, explicit-enable, explicit-disable, and external-reference
+fixtures prove the selection and adapter boundaries. The full image and complementary-tool inventory
+make the adapter available now; issue #35 owns automatic selection through the general versioned
+capability registry and normalized execution plan.
 
 ## Sources
 

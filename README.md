@@ -31,8 +31,9 @@ Egolint separates orchestration from the lint engine:
   `schema`, and configuration inspection; it does not contain a container runtime or require access
   to a Docker socket.
 - `ghcr.io/egohygiene/egolint-full` is the planned lint-engine image. It extends MegaLinter and
-  embeds the fast, holistic, security, and dependency-debt Ego Hygiene policies. The native CLI
-  launches this image and intentionally preserves MegaLinter's entrypoint.
+  embeds the fast, holistic, security, and dependency-debt Ego Hygiene policies plus conditional
+  capabilities such as JSONSkooma. The native CLI launches this image and intentionally preserves
+  MegaLinter's entrypoint.
 
 ## Current alpha surface
 
@@ -149,7 +150,7 @@ variables, and CLI options. User and local files are skipped when `CI` is truthy
 - [Identity Brand Kit](docs/identity.md)
 - [Configuration](docs/configuration.md)
 - [Dogfooding and self-consumer proof](docs/dogfooding.md)
-- [JSONSkooma capability evaluation](docs/json-skooma-evaluation.md)
+- [Adaptive JSONSkooma capability](docs/json-skooma-evaluation.md)
 - [Versioned consumer integrations](integrations/README.md)
 - [Machine-readable contracts](docs/contracts.md)
 - [Repository Intelligence validation](docs/repository-intelligence.md)

@@ -35,7 +35,7 @@ class ComplementaryToolContractTests(unittest.TestCase):
 
     def test_manifest_is_complete_and_valid(self) -> None:
         self.assertEqual(COMPLEMENTARY_TOOLS.validate_manifest(self.manifest), [])
-        self.assertEqual(len(self.tools), 18)
+        self.assertEqual(len(self.tools), 19)
 
     def test_generated_matrix_is_current(self) -> None:
         matrix_path = REPOSITORY_ROOT / self.manifest["generated_matrix"]
@@ -52,6 +52,7 @@ class ComplementaryToolContractTests(unittest.TestCase):
             "deptry",
             "govulncheck",
             "interrogate",
+            "json-skooma",
             "knip",
             "regal",
             "vacuum",

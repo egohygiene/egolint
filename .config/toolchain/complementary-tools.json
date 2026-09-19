@@ -596,6 +596,57 @@
       },
       "report_path": ".reports/egolint/complementary/complexipy/latest.json",
       "reason": "Cognitive-complexity enforcement for packaged Python source trees."
+    },
+    {
+      "id": "json-skooma",
+      "name": "JSONSkooma",
+      "category": "ruby-schema",
+      "version": "0.2.7",
+      "state": "conditional",
+      "configuration_path": null,
+      "runtime": "python3",
+      "command": [
+        "python3",
+        "scripts/json_skooma.py",
+        "--workspace",
+        ".",
+        "--config",
+        ".egolint/json-skooma.json",
+        "--report",
+        ".reports/egolint/complementary/json-skooma/latest.json"
+      ],
+      "version_command": [
+        "python3",
+        "scripts/json_skooma.py",
+        "--version"
+      ],
+      "applicability": {
+        "marker_groups": [
+          ["Gemfile", ".ruby-version", "*.gemspec"],
+          [".egolint/json-skooma.json"]
+        ]
+      },
+      "fixtures": {
+        "positive": [
+          "tests/fixtures/json-skooma/valid/Gemfile",
+          "tests/fixtures/json-skooma/valid/.egolint/json-skooma.json",
+          "tests/fixtures/json-skooma/valid/schemas/character.schema.json",
+          "tests/fixtures/json-skooma/valid/instances/valid.json"
+        ],
+        "negative": [
+          "tests/fixtures/negative/json-skooma/Gemfile",
+          "tests/fixtures/negative/json-skooma/.egolint/json-skooma.json",
+          "tests/fixtures/negative/json-skooma/schemas/character.schema.json",
+          "tests/fixtures/negative/json-skooma/instances/invalid.json",
+          "tests/fixtures/json-skooma/external-reference/Gemfile",
+          "tests/fixtures/json-skooma/external-reference/.egolint/json-skooma.json",
+          "tests/fixtures/json-skooma/external-reference/schema.json",
+          "tests/fixtures/json-skooma/external-reference/instance.json"
+        ],
+        "expected_rule": "minimum"
+      },
+      "report_path": ".reports/egolint/complementary/json-skooma/latest.json",
+      "reason": "Ruby-local JSON Schema parity with explicit mapping and adaptive skip evidence."
     }
   ]
 }

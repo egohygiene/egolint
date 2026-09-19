@@ -22,8 +22,9 @@ Mounting `/var/run/docker.sock` would grant broad host control and is outside th
 
 `Dockerfile.full` extends `ghcr.io/oxsecurity/megalinter:v10.0.0`, embeds policy, materializes the
 locked Node-based policy dependencies with lifecycle scripts disabled, flattens the fast, holistic,
-security, and dependency-debt profiles so they have no runtime `EXTENDS` dependency, and preserves
-the upstream entrypoint. Build it locally with:
+security, and dependency-debt profiles so they have no runtime `EXTENDS` dependency, installs the
+content-addressed JSONSkooma 0.2.7 gem graph, and preserves the upstream entrypoint. Build it locally
+with:
 
 ```sh
 docker build --file "Dockerfile.full" --tag "egolint-full:local" "."
@@ -60,3 +61,11 @@ embedded path-only pre-commands use upstream Bash.
 Some configured tools or MegaLinter pre-commands may need dependency downloads. Such operations fail
 under `network = "none"`; enabling `bridge` is an explicit trust decision. Prefer images with
 dependencies preinstalled for reproducible protected CI.
+
+The full image exposes the JSONSkooma selector at `/opt/egolint/bin/json_skooma.py`. When invoked, it
+records a `not_applicable` result without starting Ruby unless the repository supplies both Ruby
+project evidence and `.egolint/json-skooma.json`, or explicitly sets that mapping to
+`mode: "enabled"`. No MegaLinter profile invokes it through a global command hook; issue #35 owns
+automatic orchestration through the general capability registry. All gem downloads happen at image
+build time from SHA-256-pinned archives; lint execution never installs dependencies or enables
+network resolution.
