@@ -41,12 +41,12 @@ pub use repository_presentation::{
 };
 pub use repository_release::{
     DECLARATION_PATH as REPOSITORY_RELEASE_DECLARATION, REPORT_PATH as REPOSITORY_RELEASE_REPORT,
-    ReleaseAdoptionState, ReleaseApplicability, ReleaseApplicabilitySource,
-    ReleaseCheckResult, ReleaseCheckState, ReleaseDeclarationReference, ReleaseDeclarationState,
+    ReleaseAdoptionState, ReleaseApplicability, ReleaseApplicabilitySource, ReleaseCheckResult,
+    ReleaseCheckState, ReleaseDeclarationReference, ReleaseDeclarationState,
     ReleaseEvaluationSummary, ReleaseEvidenceBoundary, ReleaseEvidenceState,
     ReleaseExternalPublication, ReleaseLifecycle, ReleaseNetworkAccess, ReleasePolicyReference,
-    ReleaseRequirement, ReleaseSlotApplicability, ReleaseSourceLock,
-    RepositoryReleaseEvaluation, RepositoryReleaseEvaluator, RepositoryReleaseProfile,
-    RepositoryReleaseReport, TOOL_ID as REPOSITORY_RELEASE_TOOL_ID, write_release_report_atomic,
+    ReleaseRequirement, ReleaseSlotApplicability, ReleaseSourceLock, RepositoryReleaseEvaluation,
+    RepositoryReleaseEvaluator, RepositoryReleaseProfile, RepositoryReleaseReport,
+    TOOL_ID as REPOSITORY_RELEASE_TOOL_ID, write_release_report_atomic,
 };
 pub use suppressions::apply_suppressions;

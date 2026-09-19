@@ -457,11 +457,10 @@ impl RepositoryReleaseReport {
                     || self.summary.checks_completed < applicable
                     || self.summary.external_evidence_items != 0
                     || self.summary.unavailable_evidence_items != 0
-                    || self
-                        .checks
-                        .iter()
-                        .any(|check| check.state != ReleaseCheckState::Passed
-                            && check.state != ReleaseCheckState::NotApplicable) =>
+                    || self.checks.iter().any(|check| {
+                        check.state != ReleaseCheckState::Passed
+                            && check.state != ReleaseCheckState::NotApplicable
+                    }) =>
             {
                 return Err(configuration(
                     "compliant release evidence requires complete local validation",
@@ -611,49 +610,49 @@ impl RepositoryReleaseEvaluator {
             declared_unavailable,
             invalid_reason,
         ) = match declaration {
-                DeclarationInspection::Missing => (
-                    ReleaseDeclarationReference {
-                        path: PathBuf::from(DECLARATION_PATH),
-                        state: ReleaseDeclarationState::Missing,
-                        sha256: None,
-                    },
-                    None,
-                    None,
-                    None,
-                    None,
-                    0,
-                    0,
-                    None,
-                ),
-                DeclarationInspection::Invalid { digest, reason } => (
-                    ReleaseDeclarationReference {
-                        path: PathBuf::from(DECLARATION_PATH),
-                        state: ReleaseDeclarationState::Invalid,
-                        sha256: digest,
-                    },
-                    None,
-                    None,
-                    None,
-                    None,
-                    0,
-                    0,
-                    Some(reason),
-                ),
-                DeclarationInspection::Present(data) => (
-                    ReleaseDeclarationReference {
-                        path: PathBuf::from(DECLARATION_PATH),
-                        state: ReleaseDeclarationState::Present,
-                        sha256: Some(data.digest),
-                    },
-                    Some(data.repository),
-                    Some(data.profile),
-                    Some(data.lifecycle),
-                    Some(data.document),
-                    data.external_evidence_items,
-                    data.unavailable_evidence_items,
-                    None,
-                ),
-            };
+            DeclarationInspection::Missing => (
+                ReleaseDeclarationReference {
+                    path: PathBuf::from(DECLARATION_PATH),
+                    state: ReleaseDeclarationState::Missing,
+                    sha256: None,
+                },
+                None,
+                None,
+                None,
+                None,
+                0,
+                0,
+                None,
+            ),
+            DeclarationInspection::Invalid { digest, reason } => (
+                ReleaseDeclarationReference {
+                    path: PathBuf::from(DECLARATION_PATH),
+                    state: ReleaseDeclarationState::Invalid,
+                    sha256: digest,
+                },
+                None,
+                None,
+                None,
+                None,
+                0,
+                0,
+                Some(reason),
+            ),
+            DeclarationInspection::Present(data) => (
+                ReleaseDeclarationReference {
+                    path: PathBuf::from(DECLARATION_PATH),
+                    state: ReleaseDeclarationState::Present,
+                    sha256: Some(data.digest),
+                },
+                Some(data.repository),
+                Some(data.profile),
+                Some(data.lifecycle),
+                Some(data.document),
+                data.external_evidence_items,
+                data.unavailable_evidence_items,
+                None,
+            ),
+        };
 
         let adoption = explicit_adoption.or_else(|| lifecycle.map(|value| self.rollout(value)));
         let applicability_source = if explicit_adoption.is_some() {
@@ -683,12 +682,8 @@ impl RepositoryReleaseEvaluator {
         let required_slots = count_requirement(&slots, ReleaseRequirement::Required);
         let advisory_slots = count_requirement(&slots, ReleaseRequirement::Advisory);
         let not_applicable_slots = count_requirement(&slots, ReleaseRequirement::NotApplicable);
-        let check_results = checks::evaluate(
-            inventory,
-            document.as_ref(),
-            &slots,
-            &self.policy_reference,
-        )?;
+        let check_results =
+            checks::evaluate(inventory, document.as_ref(), &slots, &self.policy_reference)?;
         let checks_completed = check_results
             .iter()
             .filter(|check| {
@@ -1143,10 +1138,7 @@ fn resolve_state(
         } else {
             "the accepted rollout keeps applicable release requirements advisory"
         };
-        return (
-            ReleaseEvidenceState::Advisory,
-            rationale.to_owned(),
-        );
+        return (ReleaseEvidenceState::Advisory, rationale.to_owned());
     }
     if checks_failed > 0 {
         return (
@@ -1709,7 +1701,13 @@ mod tests {
             .expect("workflow finding");
 
         assert_eq!(finding.severity, Severity::Error);
-        assert_eq!(finding.location.as_ref().map(|location| location.path.as_path()), Some(Path::new(".github/workflows/release.yml")));
+        assert_eq!(
+            finding
+                .location
+                .as_ref()
+                .map(|location| location.path.as_path()),
+            Some(Path::new(".github/workflows/release.yml"))
+        );
         assert!(finding.fingerprint.is_some());
         assert_eq!(evaluation.report.state, ReleaseEvidenceState::Invalid);
     }
@@ -1727,7 +1725,17 @@ mod tests {
             .expect("valid evaluation");
 
         assert_eq!(evaluation.report.state, ReleaseEvidenceState::Advisory);
-        assert!(evaluation.findings.iter().all(|finding| finding.severity == Severity::Warning));
-        assert!(evaluation.findings.iter().any(|finding| finding.rule.rule_id == "EGOLINT_RELEASE_CHANGELOG"));
+        assert!(
+            evaluation
+                .findings
+                .iter()
+                .all(|finding| finding.severity == Severity::Warning)
+        );
+        assert!(
+            evaluation
+                .findings
+                .iter()
+                .any(|finding| finding.rule.rule_id == "EGOLINT_RELEASE_CHANGELOG")
+        );
     }
 }

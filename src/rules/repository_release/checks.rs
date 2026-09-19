@@ -247,15 +247,21 @@ pub(super) enum GithubAutomationState {
     Unavailable,
 }
 
-pub(super) fn parse_declaration(value: JsonValue) -> std::result::Result<ReleaseDeclaration, String> {
-    let document: ReleaseDeclaration = serde_json::from_value(value)
-        .map_err(|_| "the release declaration does not match the closed Aether object shape".to_owned())?;
+pub(super) fn parse_declaration(
+    value: JsonValue,
+) -> std::result::Result<ReleaseDeclaration, String> {
+    let document: ReleaseDeclaration = serde_json::from_value(value).map_err(|_| {
+        "the release declaration does not match the closed Aether object shape".to_owned()
+    })?;
     validate_declaration(&document)?;
     Ok(document)
 }
 
 fn validate_declaration(document: &ReleaseDeclaration) -> std::result::Result<(), String> {
-    if document.schema.as_deref().is_some_and(|value| value != AETHER_SCHEMA_URL)
+    if document
+        .schema
+        .as_deref()
+        .is_some_and(|value| value != AETHER_SCHEMA_URL)
         || document.schema_version != AETHER_CONTRACT_ID
         || !valid_repository(&document.repository.id)
         || document.release.tag_prefix != "v"
@@ -270,7 +276,9 @@ fn validate_declaration(document: &ReleaseDeclaration) -> std::result::Result<()
         || document.automation.tasks.verify != "release:verify"
         || document.automation.tasks.publish != "release:publish"
     {
-        return Err("the release declaration violates an Aether constant or required value".to_owned());
+        return Err(
+            "the release declaration violates an Aether constant or required value".to_owned(),
+        );
     }
     validate_schema_path(&document.changelog.path, "changelog path")?;
     validate_schema_path(&document.automation.taskfile_path, "Taskfile path")?;
@@ -305,9 +313,11 @@ fn validate_declaration(document: &ReleaseDeclaration) -> std::result::Result<()
                 return Err("a delivery relay profile is invalid".to_owned());
             }
         }
-        if channel.notes.as_ref().is_some_and(|notes| {
-            notes.len() > 500 || notes.chars().any(char::is_control)
-        }) {
+        if channel
+            .notes
+            .as_ref()
+            .is_some_and(|notes| notes.len() > 500 || notes.chars().any(char::is_control))
+        {
             return Err("delivery notes must contain bounded human-readable text".to_owned());
         }
         let _ = (channel.kind, channel.state);
@@ -320,9 +330,16 @@ fn validate_declaration(document: &ReleaseDeclaration) -> std::result::Result<()
         if let Some(path) = &component.version_authority.path {
             validate_schema_path(path, "version authority path")?;
         }
-        if component.version_authority.selector.as_ref().is_some_and(|selector| {
-            selector.is_empty() || selector.len() > 256 || selector.chars().any(char::is_control)
-        }) {
+        if component
+            .version_authority
+            .selector
+            .as_ref()
+            .is_some_and(|selector| {
+                selector.is_empty()
+                    || selector.len() > 256
+                    || selector.chars().any(char::is_control)
+            })
+        {
             return Err("a version authority selector is invalid".to_owned());
         }
         let _ = component.kind;
@@ -422,12 +439,17 @@ pub(super) fn findings(checks: &[ReleaseCheckResult]) -> Vec<Finding> {
     checks
         .iter()
         .filter_map(|check| {
-            if matches!(check.state, ReleaseCheckState::Passed | ReleaseCheckState::NotApplicable) {
+            if matches!(
+                check.state,
+                ReleaseCheckState::Passed | ReleaseCheckState::NotApplicable
+            ) {
                 return None;
             }
             let severity = if check.requirement == ReleaseRequirement::Required
-                && matches!(check.state, ReleaseCheckState::Failed | ReleaseCheckState::Unavailable)
-            {
+                && matches!(
+                    check.state,
+                    ReleaseCheckState::Failed | ReleaseCheckState::Unavailable
+                ) {
                 Severity::Error
             } else {
                 Severity::Warning
@@ -473,7 +495,13 @@ impl Outcome {
         remediation: impl Into<String>,
         evidence: Vec<EvidenceReference>,
     ) -> Self {
-        Self::new(ReleaseCheckState::Passed, path, message, remediation, evidence)
+        Self::new(
+            ReleaseCheckState::Passed,
+            path,
+            message,
+            remediation,
+            evidence,
+        )
     }
 
     fn failed(
@@ -482,7 +510,13 @@ impl Outcome {
         remediation: impl Into<String>,
         evidence: Vec<EvidenceReference>,
     ) -> Self {
-        Self::new(ReleaseCheckState::Failed, path, message, remediation, evidence)
+        Self::new(
+            ReleaseCheckState::Failed,
+            path,
+            message,
+            remediation,
+            evidence,
+        )
     }
 
     fn unavailable(
@@ -491,7 +525,13 @@ impl Outcome {
         remediation: impl Into<String>,
         evidence: Vec<EvidenceReference>,
     ) -> Self {
-        Self::new(ReleaseCheckState::Unavailable, path, message, remediation, evidence)
+        Self::new(
+            ReleaseCheckState::Unavailable,
+            path,
+            message,
+            remediation,
+            evidence,
+        )
     }
 
     fn external(
@@ -500,7 +540,13 @@ impl Outcome {
         remediation: impl Into<String>,
         evidence: Vec<EvidenceReference>,
     ) -> Self {
-        Self::new(ReleaseCheckState::External, path, message, remediation, evidence)
+        Self::new(
+            ReleaseCheckState::External,
+            path,
+            message,
+            remediation,
+            evidence,
+        )
     }
 
     fn not_applicable(
@@ -648,7 +694,11 @@ fn analyze_changelog(
         };
     }
     let mut versions = Vec::new();
-    for heading in text.lines().map(str::trim).filter(|line| line.starts_with("## ")) {
+    for heading in text
+        .lines()
+        .map(str::trim)
+        .filter(|line| line.starts_with("## "))
+    {
         if heading == "## [Unreleased]" {
             continue;
         }
@@ -663,8 +713,10 @@ fn analyze_changelog(
         }
         versions.push(version.to_owned());
     }
-    if matches!(declaration.release.state, ReleaseState::Released | ReleaseState::Frozen)
-        && versions.is_empty()
+    if matches!(
+        declaration.release.state,
+        ReleaseState::Released | ReleaseState::Frozen
+    ) && versions.is_empty()
     {
         return ChangelogAnalysis {
             outcome: Outcome::failed(
@@ -756,7 +808,9 @@ fn check_workflow(inventory: &RepositoryInventory, declaration: &ReleaseDeclarat
     let Some(triggers) = yaml_mapping_value(root, "on") else {
         return workflow_trigger_failure(path, evidence);
     };
-    if !has_yaml_key_or_value(triggers, "workflow_dispatch") || has_yaml_key_or_value(triggers, "push") {
+    if !has_yaml_key_or_value(triggers, "workflow_dispatch")
+        || has_yaml_key_or_value(triggers, "push")
+    {
         return workflow_trigger_failure(path, evidence);
     }
     let mut unpinned = Vec::new();
@@ -764,7 +818,10 @@ fn check_workflow(inventory: &RepositoryInventory, declaration: &ReleaseDeclarat
     if !unpinned.is_empty() {
         return Outcome::failed(
             path,
-            format!("The manual release workflow has {} dependency reference(s) that are not pinned to immutable revisions.", unpinned.len()),
+            format!(
+                "The manual release workflow has {} dependency reference(s) that are not pinned to immutable revisions.",
+                unpinned.len()
+            ),
             "Pin every external action to a full 40-character Git commit and every docker action to an image digest.",
             evidence,
         );
@@ -854,7 +911,11 @@ fn check_taskfile(inventory: &RepositoryInventory, declaration: &ReleaseDeclarat
     let publish = yaml_mapping_value(tasks, declaration.automation.tasks.publish.as_str())
         .expect("declared task presence was checked above");
     let publish_text = serde_yaml::to_string(publish).unwrap_or_default();
-    let workflow = declaration.automation.github.workflow_path.to_string_lossy();
+    let workflow = declaration
+        .automation
+        .github
+        .workflow_path
+        .to_string_lossy();
     if !publish_text.contains(workflow.as_ref()) {
         return Outcome::unavailable(
             path,
@@ -892,7 +953,10 @@ fn check_versions(
         let Some(path) = authority.path.as_ref() else {
             return Outcome::failed(
                 PathBuf::from(DECLARATION_PATH),
-                format!("Component {} declares a local version authority without a path.", component.id),
+                format!(
+                    "Component {} declares a local version authority without a path.",
+                    component.id
+                ),
                 "Add the repository-relative authority path required by this authority kind.",
                 evidence,
             );
@@ -901,7 +965,10 @@ fn check_versions(
         let Some(entry) = inventory.get(path) else {
             return Outcome::unavailable(
                 path.clone(),
-                format!("The version authority for component {} is unavailable.", component.id),
+                format!(
+                    "The version authority for component {} is unavailable.",
+                    component.id
+                ),
                 "Restore the declared authority file or update the reviewed declaration.",
                 evidence,
             );
@@ -909,7 +976,10 @@ fn check_versions(
         if entry.kind != RepositoryEntryKind::File {
             return Outcome::failed(
                 path.clone(),
-                format!("The version authority for component {} is not a regular file.", component.id),
+                format!(
+                    "The version authority for component {} is not a regular file.",
+                    component.id
+                ),
                 "Use a regular repository-owned authority file.",
                 evidence,
             );
@@ -921,7 +991,10 @@ fn check_versions(
         let Some(selector) = selector else {
             return Outcome::failed(
                 PathBuf::from(DECLARATION_PATH),
-                format!("Component {} requires an explicit version selector.", component.id),
+                format!(
+                    "Component {} requires an explicit version selector.",
+                    component.id
+                ),
                 "Add the selector that identifies the version field in the authority document.",
                 evidence,
             );
@@ -931,7 +1004,10 @@ fn check_versions(
             Err(reason) => {
                 return Outcome::failed(
                     path.clone(),
-                    format!("The version authority for component {} is invalid: {reason}.", component.id),
+                    format!(
+                        "The version authority for component {} is invalid: {reason}.",
+                        component.id
+                    ),
                     "Repair the authority document or its declared selector so it yields one semantic version.",
                     evidence,
                 );
@@ -940,7 +1016,10 @@ fn check_versions(
         if !valid_semver(&version) {
             return Outcome::failed(
                 path.clone(),
-                format!("The version authority for component {} does not contain a valid semantic version.", component.id),
+                format!(
+                    "The version authority for component {} does not contain a valid semantic version.",
+                    component.id
+                ),
                 "Use MAJOR.MINOR.PATCH syntax with valid optional pre-release or build identifiers.",
                 evidence,
             );
@@ -948,7 +1027,10 @@ fn check_versions(
         versions.push(version);
     }
     if declaration.components.len() == 1
-        && matches!(declaration.release.state, ReleaseState::Released | ReleaseState::Frozen)
+        && matches!(
+            declaration.release.state,
+            ReleaseState::Released | ReleaseState::Frozen
+        )
         && versions.len() == 1
     {
         let Some(changelog) = changelog else {
@@ -1003,14 +1085,16 @@ fn extract_version(
         VersionAuthorityKind::CargoManifest
         | VersionAuthorityKind::PyprojectProject
         | VersionAuthorityKind::WorkspaceManifest => {
-            let value: toml::Value = toml::from_str(text).map_err(|_| "the authority is not valid TOML")?;
+            let value: toml::Value =
+                toml::from_str(text).map_err(|_| "the authority is not valid TOML")?;
             select_toml(&value, selector)
                 .and_then(toml::Value::as_str)
                 .map(str::to_owned)
                 .ok_or("the selector does not resolve to a string")
         }
         VersionAuthorityKind::PackageJson => {
-            let value: JsonValue = serde_json::from_str(text).map_err(|_| "the authority is not valid JSON")?;
+            let value: JsonValue =
+                serde_json::from_str(text).map_err(|_| "the authority is not valid JSON")?;
             select_json(&value, selector)
                 .and_then(JsonValue::as_str)
                 .map(str::to_owned)
@@ -1018,30 +1102,35 @@ fn extract_version(
         }
         VersionAuthorityKind::ContainerTag
         | VersionAuthorityKind::PublicationMetadata
-        | VersionAuthorityKind::CatalogRecord => match path.extension().and_then(|value| value.to_str()) {
-            Some("json") => {
-                let value: JsonValue = serde_json::from_str(text).map_err(|_| "the authority is not valid JSON")?;
-                select_json(&value, selector)
-                    .and_then(JsonValue::as_str)
-                    .map(str::to_owned)
-                    .ok_or("the selector does not resolve to a string")
+        | VersionAuthorityKind::CatalogRecord => {
+            match path.extension().and_then(|value| value.to_str()) {
+                Some("json") => {
+                    let value: JsonValue = serde_json::from_str(text)
+                        .map_err(|_| "the authority is not valid JSON")?;
+                    select_json(&value, selector)
+                        .and_then(JsonValue::as_str)
+                        .map(str::to_owned)
+                        .ok_or("the selector does not resolve to a string")
+                }
+                Some("toml") => {
+                    let value: toml::Value =
+                        toml::from_str(text).map_err(|_| "the authority is not valid TOML")?;
+                    select_toml(&value, selector)
+                        .and_then(toml::Value::as_str)
+                        .map(str::to_owned)
+                        .ok_or("the selector does not resolve to a string")
+                }
+                Some("yaml" | "yml") => {
+                    let value: YamlValue = serde_yaml::from_str(text)
+                        .map_err(|_| "the authority is not valid YAML")?;
+                    select_yaml(&value, selector)
+                        .and_then(YamlValue::as_str)
+                        .map(str::to_owned)
+                        .ok_or("the selector does not resolve to a string")
+                }
+                _ => Err("the generic authority extension is unsupported"),
             }
-            Some("toml") => {
-                let value: toml::Value = toml::from_str(text).map_err(|_| "the authority is not valid TOML")?;
-                select_toml(&value, selector)
-                    .and_then(toml::Value::as_str)
-                    .map(str::to_owned)
-                    .ok_or("the selector does not resolve to a string")
-            }
-            Some("yaml" | "yml") => {
-                let value: YamlValue = serde_yaml::from_str(text).map_err(|_| "the authority is not valid YAML")?;
-                select_yaml(&value, selector)
-                    .and_then(YamlValue::as_str)
-                    .map(str::to_owned)
-                    .ok_or("the selector does not resolve to a string")
-            }
-            _ => Err("the generic authority extension is unsupported"),
-        },
+        }
         VersionAuthorityKind::GitTag | VersionAuthorityKind::External => {
             Err("this authority does not use a local selector")
         }
@@ -1058,11 +1147,15 @@ fn default_selector(kind: VersionAuthorityKind) -> Option<&'static str> {
 }
 
 fn select_json<'a>(value: &'a JsonValue, selector: &str) -> Option<&'a JsonValue> {
-    selector.split('.').try_fold(value, |current, key| current.get(key))
+    selector
+        .split('.')
+        .try_fold(value, |current, key| current.get(key))
 }
 
 fn select_toml<'a>(value: &'a toml::Value, selector: &str) -> Option<&'a toml::Value> {
-    selector.split('.').try_fold(value, |current, key| current.get(key))
+    selector
+        .split('.')
+        .try_fold(value, |current, key| current.get(key))
 }
 
 fn select_yaml<'a>(value: &'a YamlValue, selector: &str) -> Option<&'a YamlValue> {
@@ -1090,7 +1183,9 @@ fn local_evidence(inventory: &RepositoryInventory, path: &Path) -> Vec<EvidenceR
             .get(path)
             .filter(|entry| entry.kind == RepositoryEntryKind::File)
             .map(|entry| digest(&entry.content)),
-        description: Some("Repository-local release evidence inspected without network access.".to_owned()),
+        description: Some(
+            "Repository-local release evidence inspected without network access.".to_owned(),
+        ),
     }]
 }
 
@@ -1105,7 +1200,9 @@ fn validate_relative_path(path: &Path, name: &str) -> std::result::Result<(), St
         })
         || path.to_str().is_none()
     {
-        Err(format!("the {name} must be a safe repository-relative UTF-8 path"))
+        Err(format!(
+            "the {name} must be a safe repository-relative UTF-8 path"
+        ))
     } else {
         Ok(())
     }
@@ -1120,9 +1217,9 @@ fn validate_schema_path(path: &Path, name: &str) -> std::result::Result<(), Stri
         .as_bytes()
         .first()
         .is_some_and(u8::is_ascii_alphanumeric)
-        || !value.bytes().all(|byte| {
-            byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'_' | b'/' | b'-')
-        })
+        || !value
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'_' | b'/' | b'-'))
     {
         Err(format!("the {name} does not match the Aether path syntax"))
     } else {
@@ -1175,7 +1272,9 @@ fn valid_semver_identifiers(value: &str, reject_numeric_leading_zero: bool) -> b
     !value.is_empty()
         && value.split('.').all(|part| {
             !part.is_empty()
-                && part.bytes().all(|byte| byte.is_ascii_alphanumeric() || byte == b'-')
+                && part
+                    .bytes()
+                    .all(|byte| byte.is_ascii_alphanumeric() || byte == b'-')
                 && (!reject_numeric_leading_zero
                     || !part.bytes().all(|byte| byte.is_ascii_digit())
                     || part == "0"
@@ -1208,10 +1307,7 @@ fn valid_date(value: &str) -> bool {
     (1..=maximum).contains(&day)
 }
 
-fn yaml_mapping_value<'a>(
-    mapping: &'a serde_yaml::Mapping,
-    key: &str,
-) -> Option<&'a YamlValue> {
+fn yaml_mapping_value<'a>(mapping: &'a serde_yaml::Mapping, key: &str) -> Option<&'a YamlValue> {
     mapping.get(YamlValue::String(key.to_owned()))
 }
 
@@ -1254,11 +1350,11 @@ fn immutable_action_reference(reference: &str) -> bool {
         return true;
     }
     if let Some(image) = reference.strip_prefix("docker://") {
-        return image
-            .split_once("@sha256:")
-            .is_some_and(|(_, digest)| digest.len() == 64 && digest.bytes().all(|byte| byte.is_ascii_hexdigit()));
+        return image.split_once("@sha256:").is_some_and(|(_, digest)| {
+            digest.len() == 64 && digest.bytes().all(|byte| byte.is_ascii_hexdigit())
+        });
     }
-    reference
-        .rsplit_once('@')
-        .is_some_and(|(_, revision)| revision.len() == 40 && revision.bytes().all(|byte| byte.is_ascii_hexdigit()))
+    reference.rsplit_once('@').is_some_and(|(_, revision)| {
+        revision.len() == 40 && revision.bytes().all(|byte| byte.is_ascii_hexdigit())
+    })
 }
