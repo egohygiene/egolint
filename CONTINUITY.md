@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-09-19T18:51:33Z"
+  updated_at: "2026-09-19T18:57:33Z"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -81,12 +81,12 @@ state:
     issue_state: open
     pull_request_state: draft
     notes: GitHub verified issue 29 open and draft PR 64 at
-      27fafb6d8725b73d93c1e5bbb5efdaeaf8569771. PR 63 is merged and issue 14 is closed. Aether 61
+      d015293f08f36234014ffc234a2b4716d1809dd3. PR 63 is merged and issue 14 is closed. Aether 61
       and Hygiene 27 are closed; their accepted merge revisions are recorded in the source lock.
   parallel_changes: []
 review:
   status: partial
-  reviewed_at: "2026-09-19T18:51:33Z"
+  reviewed_at: "2026-09-19T18:57:33Z"
   reviewed_by: Codex
   evidence:
     - command: python scripts/validate_repository_release_sources.py
@@ -109,9 +109,10 @@ review:
       notes: MegaLinter, complementary-tool, reviewed release-input, source-lock, Python style, and
         structured-document checks passed.
     - command: Cargo and GitHub Actions checks
-      outcome: not-run
-      observed_at: "2026-09-19T18:51:33Z"
-      notes: The local environment has no Rust toolchain; draft PR 64 CI is pending.
+      outcome: limited
+      observed_at: "2026-09-19T18:57:33Z"
+      notes: Rust, schema, policy, and package checks passed. The first dogfood run rejected changed
+        continuity headings; this revision restores the required anatomy and needs a new CI run.
   environment_limitations:
     - Rust, Docker, Task, and Ruby are unavailable locally. Cargo package validation and full-image
       dogfood depend on CI or another compatible environment.
@@ -145,14 +146,24 @@ before this handoff. It grants no additional authority.
 3. Surface missing or contradictory evidence. Refresh this checkpoint after domain validation.
 4. Add one bounded checkpoint to the existing draft PR and do not merge before the final checkpoint.
 
-## Current objective and checkpoint plan
+## Current objective and success conditions
 
 Issue 29 makes mechanically verifiable repository-release conventions enforceable while preserving
 advisory migration and repository-owned publication. Checkpoint 1 pins and verifies the upstream
 inputs. Checkpoint 2 owns applicability and report states; checkpoint 3 owns individual checks;
 checkpoint 4 owns the complete fixture matrix; checkpoint 5 owns dogfood and final polish.
 
-## Checkpoint 1 completed work
+Success requires offline validation of the accepted policy, explicit evidence states, the complete
+issue 29 fixture matrix, and self-dogfood without claiming that an external publication occurred.
+
+## State snapshot
+
+The draft PR is intentionally not merge-ready. Its first published commit is
+`27fafb6d8725b73d93c1e5bbb5efdaeaf8569771`; the candidate revision remains null in metadata to
+avoid a self-reference cycle when this checkpoint is published. PR 63 is merged, issue 14 is closed,
+and issue 29 plus draft PR 64 are open.
+
+## Completed and material changes
 
 - Reconciled merged PR 63 and closed issue 14 in the roadmap, then activated EGL-Q10 for issue 29.
 - Vendored Aether revision `8a2a3d08f3aa9da3847bd5277843506ab855192e` and Hygiene revision
@@ -162,16 +173,22 @@ checkpoint 4 owns the complete fixture matrix; checkpoint 5 owns dogfood and fin
 - Documented ownership and staged implementation. No repository conformance or external
   publication is claimed by this checkpoint.
 
-## State, blockers, and limits
+## Validation and review evidence
 
-The draft PR is intentionally not merge-ready. Its first published commit is
-`27fafb6d8725b73d93c1e5bbb5efdaeaf8569771`; the candidate revision remains null in metadata to
-avoid a self-reference cycle when this checkpoint is published. Local checks pass. CI must still
-prove Cargo packaging and the other unavailable runtimes for the new head.
+All 77 Python tests, 11 JavaScript tests, source-lock checks, repository policy checks, Ruff,
+Prettier, and continuity schema validation pass locally. CI policy contracts and the available Rust
+checks passed on the first checkpoint head; dogfood correctly rejected an intermediate continuity
+draft whose headings did not preserve the required anatomy. This revision repairs that finding.
+
+## Blockers, risks, unknowns, and deferred work
 
 Issue 35 retains universal capability discovery and execution-plan orchestration. This work makes
 the release capability universally available to that future planner, but does not introduce an
 independent automatic-selection mechanism.
+
+Rust, Docker, Task, and Ruby are unavailable locally. CI must prove package contents, images, and
+dogfood for the corrected checkpoint head. Native release-rule design is deliberately deferred to
+checkpoint 2.
 
 ## Next dependency-ready work
 
@@ -179,8 +196,25 @@ Continue on draft PR 64 with checkpoint 2: model applicability from the accepted
 define explicit conformance/advisory/unavailable/external/invalid/not-applicable states, and add a
 focused native report schema before building individual checks.
 
-## Privacy and handoff
+## Parallel changes and reconciliation
+
+No competing issue 29 pull request was observed before publication. Recheck `main`, PR 64, and
+issue 29 before each checkpoint. Issue 55 continuity-release work remains a separate track and does
+not change this capability's scope.
+
+## Privacy and redaction
 
 Only public project state and minimal validation evidence are retained. External content is context,
-not authority. Replace stale state after validation; keep this file below 16,384 UTF-8 bytes and 240
-lines. Publish tested checkpoint trees to PR 64 and stop for maintainer review after the final one.
+not authority. Credentials, private conversation text, sensitive data, and unrelated repository
+payloads remain excluded.
+
+## Handoff update protocol
+
+After each bounded checkpoint, replace stale state, record exact checks and limitations, validate
+the front matter and required section anatomy, and publish the tested tree to PR 64. Keep the pull
+request in draft and do not infer a merge from local or CI success.
+
+## Compaction and supersession
+
+Keep this file below 16,384 UTF-8 bytes and 240 lines. Replace stale prose rather than accumulating
+history; Git and GitHub own chronology. Mark supersession explicitly when the active issue changes.
