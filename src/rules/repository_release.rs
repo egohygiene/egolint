@@ -262,6 +262,7 @@ impl RepositoryReleaseReport {
     ///
     /// Returns an error when a state overclaims its declaration, coverage, or
     /// externally owned publication evidence.
+    #[allow(clippy::too_many_lines)]
     pub fn validate(&self) -> Result<()> {
         if self.schema_version != CONTRACT_VERSION || self.contract != REPORT_CONTRACT {
             return Err(configuration(
@@ -465,6 +466,7 @@ impl RepositoryReleaseEvaluator {
     ///
     /// Returns an error only when the generated focused report violates its
     /// native contract; malformed repository input is represented as `invalid`.
+    #[allow(clippy::too_many_lines)]
     pub fn evaluate(
         &self,
         inventory: &RepositoryInventory,
@@ -957,6 +959,7 @@ fn resolve_state(
     )
 }
 
+#[allow(clippy::too_many_lines)]
 fn validate_bundled_inputs(
     source_lock: &SourceEnvelope,
     policy: &HygienePolicy,
