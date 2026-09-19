@@ -11,6 +11,14 @@ require 'pathname'
 
 ADAPTER_VERSION = '1.0.0'
 EXPECTED_JSON_SKOOMA_VERSION = '0.2.7'
+EXPECTED_GEM_VERSIONS = {
+  'json_skooma' => EXPECTED_JSON_SKOOMA_VERSION,
+  'bigdecimal' => '4.1.3',
+  'hana' => '1.3.7',
+  'regexp_parser' => '2.12.0',
+  'uri-idna' => '0.3.1',
+  'zeitwerk' => '2.8.3',
+}.freeze
 MAX_INPUT_BYTES = 1_048_576
 SUPPORTED_DIALECTS = {
   'https://json-schema.org/draft/2019-09/schema' => '2019-09',
@@ -137,9 +145,13 @@ def error_report(status, reason, started_at)
 end
 
 def load_validator
+  EXPECTED_GEM_VERSIONS.each { |name, version| gem name, "=#{version}" }
   require 'json_skooma'
-  message = 'installed JSONSkooma version does not match the adapter pin'
-  raise ConfigurationError, message if JSONSkooma::VERSION != EXPECTED_JSON_SKOOMA_VERSION
+  actual = EXPECTED_GEM_VERSIONS.keys.to_h do |name|
+    [name, Gem.loaded_specs.fetch(name).version.to_s]
+  end
+  message = 'activated JSONSkooma gem graph does not match the adapter pins'
+  raise ConfigurationError, message unless actual == EXPECTED_GEM_VERSIONS
 
   JSONSkooma.create_registry('2019-09', '2020-12', assert_formats: true)
 end
