@@ -859,8 +859,24 @@ fn check_workflow(inventory: &RepositoryInventory, declaration: &ReleaseDeclarat
     if !manual_only_trigger(triggers) {
         return workflow_trigger_failure(path, evidence);
     }
+    let Some(jobs) = yaml_mapping_value(root, "jobs").and_then(YamlValue::as_mapping) else {
+        return Outcome::failed(
+            path,
+            "The configured manual release workflow does not define a jobs mapping.",
+            "Add at least one release job while preserving the manual-only trigger.",
+            evidence,
+        );
+    };
+    if jobs.is_empty() {
+        return Outcome::failed(
+            path,
+            "The configured manual release workflow has no release jobs.",
+            "Add at least one release job while preserving the manual-only trigger.",
+            evidence,
+        );
+    }
     let mut unpinned = Vec::new();
-    collect_unpinned_uses(&document, &mut unpinned);
+    collect_unpinned_uses(jobs, &mut unpinned);
     if !unpinned.is_empty() {
         return Outcome::failed(
             path,
@@ -956,13 +972,12 @@ fn check_taskfile(inventory: &RepositoryInventory, declaration: &ReleaseDeclarat
     }
     let publish = yaml_mapping_value(tasks, declaration.automation.tasks.publish.as_str())
         .expect("declared task presence was checked above");
-    let publish_text = serde_yaml::to_string(publish).unwrap_or_default();
     let workflow = declaration
         .automation
         .github
         .workflow_path
         .to_string_lossy();
-    if !publish_text.contains("gh workflow run") || !publish_text.contains(workflow.as_ref()) {
+    if !task_dispatches_workflow(publish, workflow.as_ref()) {
         return Outcome::unavailable(
             path,
             "The release:publish task exists, but its handoff to the declared manual workflow cannot be established statically.",
@@ -1365,29 +1380,47 @@ fn manual_only_trigger(value: &YamlValue) -> bool {
     }
 }
 
-fn collect_unpinned_uses(value: &YamlValue, unpinned: &mut Vec<String>) {
-    match value {
-        YamlValue::Mapping(mapping) => {
-            for (key, value) in mapping {
-                if key.as_str() == Some("uses") {
-                    if let Some(reference) = value.as_str() {
-                        if !immutable_action_reference(reference) {
-                            unpinned.push(reference.to_owned());
-                        }
-                    } else {
-                        unpinned.push("non-string uses value".to_owned());
-                    }
-                }
-                collect_unpinned_uses(value, unpinned);
+fn collect_unpinned_uses(jobs: &serde_yaml::Mapping, unpinned: &mut Vec<String>) {
+    for job in jobs.values().filter_map(YamlValue::as_mapping) {
+        collect_unpinned_reference(job, unpinned);
+        if let Some(steps) = yaml_mapping_value(job, "steps").and_then(YamlValue::as_sequence) {
+            for step in steps.iter().filter_map(YamlValue::as_mapping) {
+                collect_unpinned_reference(step, unpinned);
             }
         }
-        YamlValue::Sequence(values) => {
-            for value in values {
-                collect_unpinned_uses(value, unpinned);
-            }
-        }
-        _ => {}
     }
+}
+
+fn collect_unpinned_reference(mapping: &serde_yaml::Mapping, unpinned: &mut Vec<String>) {
+    let Some(reference) = yaml_mapping_value(mapping, "uses") else {
+        return;
+    };
+    if let Some(reference) = reference.as_str() {
+        if !immutable_action_reference(reference) {
+            unpinned.push(reference.to_owned());
+        }
+    } else {
+        unpinned.push("non-string uses value".to_owned());
+    }
+}
+
+fn task_dispatches_workflow(task: &YamlValue, workflow: &str) -> bool {
+    task.as_mapping()
+        .and_then(|task| yaml_mapping_value(task, "cmds"))
+        .and_then(YamlValue::as_sequence)
+        .is_some_and(|commands| {
+            commands.iter().any(|command| {
+                let command = command.as_str().or_else(|| {
+                    command
+                        .as_mapping()
+                        .and_then(|command| yaml_mapping_value(command, "cmd"))
+                        .and_then(YamlValue::as_str)
+                });
+                command.is_some_and(|command| {
+                    command.contains("gh workflow run") && command.contains(workflow)
+                })
+            })
+        })
 }
 
 fn immutable_action_reference(reference: &str) -> bool {
