@@ -7,20 +7,19 @@ from __future__ import annotations
 
 import importlib.util
 import json
-import subprocess
+from pathlib import Path
+import subprocess  # nosec B404
 import sys
 import tempfile
 import unittest
-from pathlib import Path
 from unittest import mock
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_PATH = REPOSITORY_ROOT / "scripts/json_skooma.py"
-SPECIFICATION = importlib.util.spec_from_file_location(
-    "json_skooma_adapter", SCRIPT_PATH
-)
+SPECIFICATION = importlib.util.spec_from_file_location("json_skooma_adapter", SCRIPT_PATH)
 if SPECIFICATION is None or SPECIFICATION.loader is None:
-    raise RuntimeError(f"Unable to load {SCRIPT_PATH}")
+    load_error = f"Unable to load {SCRIPT_PATH}"
+    raise RuntimeError(load_error)
 JSON_SKOOMA = importlib.util.module_from_spec(SPECIFICATION)
 sys.modules[SPECIFICATION.name] = JSON_SKOOMA
 SPECIFICATION.loader.exec_module(JSON_SKOOMA)
@@ -94,7 +93,9 @@ class JSONSkoomaApplicabilityTests(unittest.TestCase):
 
     def test_applicable_capability_uses_argv_and_a_bounded_timeout(self) -> None:
         fixture = FIXTURE_ROOT / "valid"
-        completed = subprocess.CompletedProcess(args=[], returncode=0)
+        completed: subprocess.CompletedProcess[str] = subprocess.CompletedProcess(
+            args=[], returncode=0
+        )
         arguments = [
             str(SCRIPT_PATH),
             "--workspace",
@@ -121,9 +122,7 @@ class JSONSkoomaApplicabilityTests(unittest.TestCase):
         self.assertEqual(command[0], "/opt/ruby")
         self.assertNotIn("sh", command)
         self.assertEqual(run.call_args.kwargs["timeout"], 17)
-        self.assertEqual(
-            run.call_args.kwargs["env"]["EGOLINT_JSON_SKOOMA_NETWORK"], "none"
-        )
+        self.assertEqual(run.call_args.kwargs["env"]["EGOLINT_JSON_SKOOMA_NETWORK"], "none")
 
     def test_mapping_paths_cannot_escape_the_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -136,15 +135,13 @@ class JSONSkoomaApplicabilityTests(unittest.TestCase):
                     {
                         "schema_version": 1,
                         "mode": "auto",
-                        "mappings": [
-                            {"schema": "../outside.json", "instances": ["data.json"]}
-                        ],
+                        "mappings": [{"schema": "../outside.json", "instances": ["data.json"]}],
                     }
                 ),
                 encoding="utf-8",
             )
 
-            with self.assertRaisesRegex(
+            with self.assertRaisesRegex(  # noqa: PT027
                 JSON_SKOOMA.ConfigurationError, "repository-relative"
             ):
                 JSON_SKOOMA.evaluate_applicability(workspace)

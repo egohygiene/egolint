@@ -8,12 +8,12 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import dataclass
 import json
 import os
+from pathlib import Path
 import subprocess  # nosec B404
 import time
-from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 ADAPTER_VERSION = "1.0.0"
@@ -21,6 +21,8 @@ VALIDATOR_VERSION = "0.2.7"
 DEFAULT_CONFIG = ".egolint/json-skooma.json"
 DEFAULT_REPORT = ".reports/egolint/complementary/json-skooma/latest.json"
 RUBY_PROJECT_MARKERS = ("Gemfile", ".ruby-version")
+MAX_MAPPINGS = 128
+MAX_INSTANCES_PER_MAPPING = 256
 
 
 class ConfigurationError(ValueError):
@@ -48,9 +50,7 @@ def is_within(root: Path, candidate: Path) -> bool:
     return True
 
 
-def resolve_input_path(
-    workspace: Path, raw_path: str, *, must_exist: bool = True
-) -> Path:
+def resolve_input_path(workspace: Path, raw_path: str, *, must_exist: bool = True) -> Path:
     """Resolve a repository-relative input without allowing escapes or symlinks."""
 
     candidate = Path(raw_path)
@@ -72,9 +72,7 @@ def ruby_project_markers(workspace: Path) -> tuple[str, ...]:
     """Return bounded root-level Ruby project evidence."""
 
     markers = [name for name in RUBY_PROJECT_MARKERS if (workspace / name).is_file()]
-    markers.extend(
-        path.name for path in sorted(workspace.glob("*.gemspec")) if path.is_file()
-    )
+    markers.extend(path.name for path in sorted(workspace.glob("*.gemspec")) if path.is_file())
     return tuple(sorted(set(markers)))
 
 
@@ -84,9 +82,7 @@ def load_config(path: Path) -> dict[str, Any]:
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError) as error:
-        raise ConfigurationError(
-            "JSONSkooma mapping must be valid UTF-8 JSON"
-        ) from error
+        raise ConfigurationError("JSONSkooma mapping must be valid UTF-8 JSON") from error
     if not isinstance(value, dict):
         raise ConfigurationError("JSONSkooma mapping must contain one object")
     if value.get("schema_version") != 1:
@@ -94,9 +90,7 @@ def load_config(path: Path) -> dict[str, Any]:
     allowed_keys = {"schema_version", "mode", "mappings"}
     unexpected = sorted(set(value) - allowed_keys)
     if unexpected:
-        raise ConfigurationError(
-            f"unsupported JSONSkooma mapping keys: {', '.join(unexpected)}"
-        )
+        raise ConfigurationError(f"unsupported JSONSkooma mapping keys: {', '.join(unexpected)}")
     mode = value.get("mode", "auto")
     if mode not in {"auto", "enabled", "disabled"}:
         raise ConfigurationError("JSONSkooma mode must be auto, enabled, or disabled")
@@ -109,16 +103,12 @@ def validate_mappings(workspace: Path, config: dict[str, Any]) -> None:
 
     mappings = config.get("mappings")
     if not isinstance(mappings, list) or not mappings:
-        raise ConfigurationError(
-            "an applicable JSONSkooma capability requires mappings"
-        )
-    if len(mappings) > 128:
-        raise ConfigurationError("JSONSkooma mappings exceed the 128-entry limit")
+        raise ConfigurationError("an applicable JSONSkooma capability requires mappings")
+    if len(mappings) > MAX_MAPPINGS:
+        raise ConfigurationError(f"JSONSkooma mappings exceed the {MAX_MAPPINGS}-entry limit")
     for index, mapping in enumerate(mappings):
         if not isinstance(mapping, dict) or set(mapping) != {"schema", "instances"}:
-            raise ConfigurationError(
-                f"mapping {index} must contain only schema and instances"
-            )
+            raise ConfigurationError(f"mapping {index} must contain only schema and instances")
         schema = mapping.get("schema")
         instances = mapping.get("instances")
         if not isinstance(schema, str) or not schema:
@@ -129,16 +119,16 @@ def validate_mappings(workspace: Path, config: dict[str, Any]) -> None:
             or not all(isinstance(path, str) and path for path in instances)
         ):
             raise ConfigurationError(f"mapping {index} instances must contain paths")
-        if len(instances) > 256:
-            raise ConfigurationError(f"mapping {index} exceeds the 256-instance limit")
+        if len(instances) > MAX_INSTANCES_PER_MAPPING:
+            raise ConfigurationError(
+                f"mapping {index} exceeds the {MAX_INSTANCES_PER_MAPPING}-instance limit"
+            )
         resolve_input_path(workspace, schema)
         for instance in instances:
             resolve_input_path(workspace, instance)
 
 
-def evaluate_applicability(
-    workspace: Path, config_name: str = DEFAULT_CONFIG
-) -> Applicability:
+def evaluate_applicability(workspace: Path, config_name: str = DEFAULT_CONFIG) -> Applicability:
     """Resolve auto/override behavior without importing or launching Ruby."""
 
     workspace = workspace.resolve(strict=True)
@@ -173,15 +163,11 @@ def evaluate_applicability(
         )
 
     validate_mappings(workspace, config)
-    reason = (
-        "explicitly-enabled" if config["mode"] == "enabled" else "ruby-schema-mapping"
-    )
+    reason = "explicitly-enabled" if config["mode"] == "enabled" else "ruby-schema-mapping"
     return Applicability("applicable", reason, config_path, config, markers)
 
 
-def base_report(
-    applicability: Applicability, duration_seconds: float
-) -> dict[str, Any]:
+def base_report(applicability: Applicability, duration_seconds: float) -> dict[str, Any]:
     """Create shared adapter evidence for skipped and unavailable states."""
 
     return {
@@ -214,7 +200,7 @@ def parse_arguments() -> argparse.Namespace:
     """Parse the adapter launcher command line."""
 
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--workspace", type=Path, default=Path("."))
+    parser.add_argument("--workspace", type=Path, default=Path())
     parser.add_argument("--config", default=DEFAULT_CONFIG)
     parser.add_argument("--report", default=DEFAULT_REPORT)
     parser.add_argument("--ruby-executable", default="ruby")
@@ -233,9 +219,7 @@ def main() -> int:
 
     options = parse_arguments()
     if options.version:
-        print(
-            f"egolint-json-skooma {ADAPTER_VERSION} (json_skooma {VALIDATOR_VERSION})"
-        )
+        print(f"egolint-json-skooma {ADAPTER_VERSION} (json_skooma {VALIDATOR_VERSION})")
         return 0
     started_at = time.monotonic()
     try:
@@ -287,9 +271,7 @@ def main() -> int:
     except (OSError, subprocess.TimeoutExpired) as error:
         payload = base_report(applicability, time.monotonic() - started_at)
         payload["status"] = "unavailable" if isinstance(error, OSError) else "timed_out"
-        payload["reason"] = (
-            "ruby-adapter-unavailable" if isinstance(error, OSError) else "timeout"
-        )
+        payload["reason"] = "ruby-adapter-unavailable" if isinstance(error, OSError) else "timeout"
         write_report(options.report, payload)
         return 3
     return int(completed.returncode)

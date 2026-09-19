@@ -58,16 +58,16 @@ def repository_file(workspace, raw_path)
   raise ConfigurationError, "input exceeds the #{MAX_INPUT_BYTES}-byte limit" if resolved.size > MAX_INPUT_BYTES
 
   resolved
-rescue Errno::ENOENT, Errno::EACCES => error
-  raise ConfigurationError, 'input path is unavailable', cause: error
+rescue Errno::ENOENT, Errno::EACCES => e
+  raise ConfigurationError, 'input path is unavailable', cause: e
 end
 
 def load_json(path)
   raise ConfigurationError, "input exceeds the #{MAX_INPUT_BYTES}-byte limit" if path.size > MAX_INPUT_BYTES
 
   JSON.parse(path.read(encoding: 'UTF-8'))
-rescue JSON::ParserError, EncodingError => error
-  raise ConfigurationError, 'input must be valid UTF-8 JSON', cause: error
+rescue JSON::ParserError, EncodingError => e
+  raise ConfigurationError, 'input must be valid UTF-8 JSON', cause: e
 end
 
 def each_reference(value, &block)
@@ -119,7 +119,7 @@ def normalized_findings(output)
 end
 
 def write_report(destination, report)
-  rendered = JSON.pretty_generate(report) + "\n"
+  rendered = "#{JSON.pretty_generate(report)}\n"
   if destination == '-'
     $stdout.write(rendered)
     return
@@ -238,10 +238,10 @@ begin
   report = run(options, started_at)
   write_report(options[:report], report)
   exit(report['status'] == 'passed' ? 0 : 1)
-rescue ConfigurationError, KeyError, TypeError => error
-  write_report(options[:report], error_report('invalid_configuration', error.message, started_at))
+rescue ConfigurationError, KeyError, TypeError => e
+  write_report(options[:report], error_report('invalid_configuration', e.message, started_at))
   exit 2
-rescue StandardError => error
-  write_report(options[:report], error_report('execution_error', error.class.name, started_at))
+rescue StandardError => e
+  write_report(options[:report], error_report('execution_error', e.class.name, started_at))
   exit 3
 end
