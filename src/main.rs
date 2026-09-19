@@ -1018,6 +1018,7 @@ fn add_runtime_failure(adapter_exit_code: Option<i32>, tool_results: &mut Vec<To
     });
 }
 
+#[allow(clippy::too_many_arguments)]
 fn add_native_tool_results(
     tool_results: &mut Vec<ToolResult>,
     findings: &[Finding],
