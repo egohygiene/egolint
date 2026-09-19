@@ -4,6 +4,7 @@ pub mod inventory;
 pub mod portability;
 pub mod repository_continuity;
 pub mod repository_contract;
+pub mod repository_gitignore;
 pub mod repository_intelligence;
 pub mod repository_presentation;
 pub mod suppressions;

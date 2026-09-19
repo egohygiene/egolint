@@ -1,0 +1,3 @@
+# Empathy Rust build overlay; select the Cargo workspace/project root explicitly.
+# Anchoring keeps unrelated nested target/ source directories visible.
+/target/

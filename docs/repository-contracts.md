@@ -57,3 +57,11 @@ The pinned Hygiene repository-context v2 projection composes root `AGENTS.md`, r
 Focused schema, freshness, rollout, exception, and Git comparison behavior belongs to the separate
 [repository continuity validator](repository-continuity.md), which reuses
 `EGO-CONTRACT-FILE-001` instead of duplicating missing-file findings.
+
+## Ignore content and behavior
+
+A required repository-owned `.gitignore` passes this envelope on presence and kind alone. Use
+[`egolint gitignore`](repository-gitignore.md) for the separate pinned-composition and actual-Git
+semantic contract. The focused command inventories ignore policies and Git metadata without
+passing ordinary file payloads through the general native inventory. Its results retain the same
+normalized finding and report boundaries.

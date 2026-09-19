@@ -1,0 +1,528 @@
+{
+  "schema_version": "1.1.0",
+  "id": "empathy/repository-foundation",
+  "version": "1.1.0",
+  "owner": "egohygiene/empathy",
+  "holon_contract": {
+    "owner": "egohygiene/holon",
+    "schema_version": "1.0.0",
+    "capability": "community-health",
+    "compatible_repository_classes": [
+      "library",
+      "product",
+      "publication",
+      "tool"
+    ]
+  },
+  "categories": [
+    "agent-context",
+    "community-health",
+    "documentation",
+    "metadata",
+    "quality",
+    "release",
+    "security"
+  ],
+  "profiles": [
+    {
+      "id": "universal",
+      "dimension": "core",
+      "description": "Smallest coherent repository foundation",
+      "requires": [],
+      "conflicts": []
+    },
+    {
+      "id": "community-health",
+      "dimension": "governance",
+      "description": "Repository-local community health and review surfaces",
+      "requires": ["universal"],
+      "conflicts": []
+    },
+    {
+      "id": "quality-baseline",
+      "dimension": "quality",
+      "description": "Deterministic lint configuration and reusable quality caller",
+      "requires": ["universal"],
+      "conflicts": []
+    },
+    {
+      "id": "risk-hardened",
+      "dimension": "risk",
+      "description": "Hardened dependency, secret, and static-analysis posture",
+      "requires": ["quality-baseline"],
+      "conflicts": []
+    },
+    {
+      "id": "release-automated",
+      "dimension": "release",
+      "description": "Repository-owned release intent with automated release metadata",
+      "requires": ["quality-baseline"],
+      "conflicts": []
+    },
+    {
+      "id": "documentation",
+      "dimension": "publication",
+      "description": "Repository architecture and documentation source",
+      "requires": ["universal"],
+      "conflicts": []
+    },
+    {
+      "id": "agent-context",
+      "dimension": "agent",
+      "description": "Pinned ecosystem context plus repository-owned agent guidance",
+      "requires": ["documentation"],
+      "conflicts": []
+    },
+    {
+      "id": "language-rust",
+      "dimension": "language",
+      "description": "Rust package or workspace metadata",
+      "requires": ["quality-baseline"],
+      "conflicts": []
+    },
+    {
+      "id": "language-node",
+      "dimension": "language",
+      "description": "Node.js package or workspace metadata",
+      "requires": ["quality-baseline"],
+      "conflicts": []
+    },
+    {
+      "id": "language-python",
+      "dimension": "language",
+      "description": "Python project metadata",
+      "requires": ["quality-baseline"],
+      "conflicts": []
+    },
+    {
+      "id": "product",
+      "dimension": "repository-class",
+      "description": "Consumer-owned product identity input",
+      "requires": ["agent-context"],
+      "conflicts": ["publication"]
+    },
+    {
+      "id": "publication",
+      "dimension": "repository-class",
+      "description": "Publication source manifest",
+      "requires": ["agent-context"],
+      "conflicts": ["product"]
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "readme",
+      "path": "README.md",
+      "kind": "file",
+      "category": "documentation",
+      "presence": "required",
+      "ownership": "repository-owned",
+      "profiles": [],
+      "executable": false,
+      "markers": [],
+      "description": "Repository-specific introduction and navigation"
+    },
+    {
+      "id": "license",
+      "path": "LICENSE",
+      "kind": "file",
+      "category": "metadata",
+      "presence": "required",
+      "ownership": "repository-owned",
+      "profiles": [],
+      "executable": false,
+      "markers": [],
+      "description": "Repository-selected license text"
+    },
+    {
+      "id": "editorconfig",
+      "path": ".editorconfig",
+      "kind": "file",
+      "category": "metadata",
+      "presence": "required",
+      "ownership": "required",
+      "profiles": [],
+      "executable": false,
+      "markers": [],
+      "description": "Cross-editor whitespace and line-ending baseline"
+    },
+    {
+      "id": "gitattributes",
+      "path": ".gitattributes",
+      "kind": "file",
+      "category": "metadata",
+      "presence": "required",
+      "ownership": "required",
+      "profiles": [],
+      "executable": false,
+      "markers": [],
+      "description": "Git text, EOL, binary, and generated-file behavior"
+    },
+    {
+      "id": "gitignore",
+      "path": ".gitignore",
+      "kind": "file",
+      "category": "metadata",
+      "presence": "required",
+      "ownership": "repository-owned",
+      "profiles": [],
+      "executable": false,
+      "markers": [],
+      "description": "Repository-owned exclusions with explicit, scoped baseline composition",
+      "composition": {
+        "format": "empathy.gitignore/v1",
+        "baseline": {
+          "id": "universal",
+          "path": "foundation/ignore/universal.gitignore",
+          "sha256": "79280ac4f3147ead97a0b21b01f40241238f08fa5d63abe3f81c8b64e7f179f0"
+        },
+        "overlays": [
+          {
+            "id": "rust-build",
+            "path": "foundation/ignore/rust.gitignore",
+            "sha256": "16627c4b93c30be2aa2c977a48ee3157d0a7b8ff44e02008b9085f0bd8d94f96",
+            "profile": "language-rust"
+          }
+        ]
+      }
+    },
+    {
+      "id": "taskfile",
+      "path": "Taskfile.yml",
+      "kind": "file",
+      "category": "quality",
+      "presence": "required",
+      "ownership": "repository-owned",
+      "profiles": [],
+      "executable": false,
+      "markers": [],
+      "description": "Stable local task interface"
+    },
+    {
+      "id": "architecture",
+      "path": "ARCHITECTURE.md",
+      "kind": "file",
+      "category": "documentation",
+      "presence": "required",
+      "ownership": "repository-owned",
+      "profiles": [],
+      "executable": false,
+      "markers": [],
+      "description": "Repository-local architecture and boundaries"
+    },
+    {
+      "id": "codeowners",
+      "path": ".github/CODEOWNERS",
+      "kind": "file",
+      "category": "community-health",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["community-health"],
+      "executable": false,
+      "markers": [],
+      "description": "Repository review ownership"
+    },
+    {
+      "id": "pull-request-template",
+      "path": ".github/PULL_REQUEST_TEMPLATE.md",
+      "kind": "file",
+      "category": "community-health",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["community-health"],
+      "executable": false,
+      "markers": [],
+      "description": "Repository review checklist"
+    },
+    {
+      "id": "issue-template-config",
+      "path": ".github/ISSUE_TEMPLATE/config.yml",
+      "kind": "file",
+      "category": "community-health",
+      "presence": "profile",
+      "ownership": "required",
+      "profiles": ["community-health"],
+      "executable": false,
+      "markers": [],
+      "description": "Issue intake configuration"
+    },
+    {
+      "id": "contributing",
+      "path": "CONTRIBUTING.md",
+      "kind": "file",
+      "category": "community-health",
+      "presence": "optional",
+      "ownership": "repository-owned",
+      "profiles": [],
+      "executable": false,
+      "markers": [],
+      "description": "Repository-specific contribution guide when external contribution is supported"
+    },
+    {
+      "id": "security-policy",
+      "path": "SECURITY.md",
+      "kind": "file",
+      "category": "security",
+      "presence": "optional",
+      "ownership": "repository-owned",
+      "profiles": [],
+      "executable": false,
+      "markers": [],
+      "description": "Repository-specific vulnerability reporting policy"
+    },
+    {
+      "id": "code-of-conduct",
+      "path": "CODE_OF_CONDUCT.md",
+      "kind": "file",
+      "category": "community-health",
+      "presence": "optional",
+      "ownership": "repository-owned",
+      "profiles": [],
+      "executable": false,
+      "markers": [],
+      "description": "Local code of conduct only when organization defaults are insufficient"
+    },
+    {
+      "id": "megalinter-config",
+      "path": ".mega-linter.yml",
+      "kind": "file",
+      "category": "quality",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["quality-baseline"],
+      "executable": false,
+      "markers": [],
+      "description": "Repository-selected EgoLint and MegaLinter policy overlay"
+    },
+    {
+      "id": "megalinter-workflow",
+      "path": ".github/workflows/megalinter.yml",
+      "kind": "file",
+      "category": "quality",
+      "presence": "profile",
+      "ownership": "required",
+      "profiles": ["quality-baseline"],
+      "executable": false,
+      "markers": [],
+      "description": "Thin repository caller for reusable quality automation"
+    },
+    {
+      "id": "dependabot",
+      "path": ".github/dependabot.yml",
+      "kind": "file",
+      "category": "security",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["risk-hardened"],
+      "executable": false,
+      "markers": [],
+      "description": "Repository ecosystem dependency update intent"
+    },
+    {
+      "id": "dependency-review-workflow",
+      "path": ".github/workflows/dependency-review.yml",
+      "kind": "file",
+      "category": "security",
+      "presence": "profile",
+      "ownership": "required",
+      "profiles": ["risk-hardened"],
+      "executable": false,
+      "markers": [],
+      "description": "Dependency change gate"
+    },
+    {
+      "id": "codeql-workflow",
+      "path": ".github/workflows/codeql.yml",
+      "kind": "file",
+      "category": "security",
+      "presence": "profile",
+      "ownership": "required",
+      "profiles": ["risk-hardened"],
+      "executable": false,
+      "markers": [],
+      "description": "Static security analysis caller"
+    },
+    {
+      "id": "secret-baseline",
+      "path": ".secrets.baseline",
+      "kind": "file",
+      "category": "security",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["risk-hardened"],
+      "executable": false,
+      "markers": [],
+      "description": "Reviewed repository secret-scanner baseline"
+    },
+    {
+      "id": "release-manifest",
+      "path": ".release-please-manifest.json",
+      "kind": "file",
+      "category": "release",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["release-automated"],
+      "executable": false,
+      "markers": [],
+      "description": "Repository release state"
+    },
+    {
+      "id": "release-config",
+      "path": "release-please-config.json",
+      "kind": "file",
+      "category": "release",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["release-automated"],
+      "executable": false,
+      "markers": [],
+      "description": "Repository release strategy"
+    },
+    {
+      "id": "documentation-root",
+      "path": "docs",
+      "kind": "directory",
+      "category": "documentation",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["documentation"],
+      "executable": false,
+      "markers": [],
+      "description": "Repository-owned detailed documentation"
+    },
+    {
+      "id": "agent-instructions",
+      "path": "AGENTS.md",
+      "kind": "file",
+      "category": "agent-context",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["agent-context"],
+      "executable": false,
+      "markers": [],
+      "description": "Concise repository-specific agent entrypoint"
+    },
+    {
+      "id": "copilot-instructions",
+      "path": ".github/copilot-instructions.md",
+      "kind": "file",
+      "category": "agent-context",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["agent-context"],
+      "executable": false,
+      "markers": [],
+      "description": "Repository-specific Copilot projection"
+    },
+    {
+      "id": "ecosystem-context",
+      "path": "docs/ecosystem/CONTEXT.md",
+      "kind": "file",
+      "category": "agent-context",
+      "presence": "profile",
+      "ownership": "generated",
+      "profiles": ["agent-context"],
+      "executable": false,
+      "markers": [
+        "<!-- egohygiene-context: repository-context/v1 -->",
+        "repository: \"egohygiene/empathy\"",
+        "generated-by: \"egohygiene/hygiene:repository-context@1.0.0\""
+      ],
+      "description": "Pinned Hygiene ecosystem context projection"
+    },
+    {
+      "id": "rust-manifest",
+      "path": "Cargo.toml",
+      "kind": "file",
+      "category": "metadata",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["language-rust"],
+      "executable": false,
+      "markers": [],
+      "description": "Rust workspace intent"
+    },
+    {
+      "id": "node-manifest",
+      "path": "package.json",
+      "kind": "file",
+      "category": "metadata",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["language-node"],
+      "executable": false,
+      "markers": [],
+      "description": "Node.js workspace intent"
+    },
+    {
+      "id": "python-manifest",
+      "path": "pyproject.toml",
+      "kind": "file",
+      "category": "metadata",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["language-python"],
+      "executable": false,
+      "markers": [],
+      "description": "Python project intent"
+    },
+    {
+      "id": "identity-input",
+      "path": ".identity/identity.toml",
+      "kind": "file",
+      "category": "metadata",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["product"],
+      "executable": false,
+      "markers": [],
+      "description": "Consumer-owned product identity input"
+    },
+    {
+      "id": "publication-manifest",
+      "path": "publication.json",
+      "kind": "file",
+      "category": "metadata",
+      "presence": "profile",
+      "ownership": "repository-owned",
+      "profiles": ["publication"],
+      "executable": false,
+      "markers": [],
+      "description": "Publication-specific source manifest"
+    }
+  ],
+  "repository_owned_fields": [
+    { "id": "display_name", "type": "string", "required": true },
+    { "id": "description", "type": "string", "required": true },
+    { "id": "maintainers", "type": "string-array", "required": true },
+    { "id": "topics", "type": "string-array", "required": false },
+    { "id": "domains", "type": "string-array", "required": false },
+    { "id": "license_expression", "type": "string", "required": true }
+  ],
+  "generated_outputs": [
+    {
+      "path": "foundation/contracts/empathy.gitignore-plan.json",
+      "owner": "egohygiene/empathy",
+      "source": "foundation/catalog.json + foundation/empathy.manifest.json + foundation/ignore/*",
+      "checked_in": true
+    },
+    {
+      "path": "docs/foundation/INVENTORY.md",
+      "owner": "egohygiene/empathy",
+      "source": "foundation/catalog.json",
+      "checked_in": true
+    },
+    {
+      "path": "foundation/contracts/empathy.repository-contract.toml",
+      "owner": "egohygiene/empathy",
+      "source": "foundation/catalog.json + foundation/empathy.manifest.json",
+      "checked_in": true
+    },
+    {
+      "path": "docs/ecosystem/CONTEXT.md",
+      "owner": "egohygiene/hygiene",
+      "source": "catalog/repositories.yaml + catalog/repository-context.json",
+      "checked_in": true
+    }
+  ]
+}

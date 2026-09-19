@@ -1,0 +1,13 @@
+schema-version = 1
+id = "filament-gitignore"
+repository = "egohygiene/filament"
+source-revision = "b44f798bb49259f9f48416b4ffebde1103e135c0"
+source-root = "vendor/empathy"
+composition-path = "foundation/gitignore-plan.json"
+composition-sha256 = "aa2eee88be4b0922be640c30b0ed22ea381d25339a11e524221bd6620eb996ab"
+profiles = ["universal"]
+
+[[scopes]]
+root = "."
+overlays = []
+local-additions = ""

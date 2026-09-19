@@ -1,0 +1,34 @@
+schema-version = 1
+id = "scoped-rust-gitignore"
+repository = "egohygiene/scoped-fixture"
+source-revision = "b44f798bb49259f9f48416b4ffebde1103e135c0"
+source-root = "vendor/empathy"
+composition-path = "foundation/gitignore-plan.json"
+composition-sha256 = "2e9fed02ad03f94db43b69d5cd0cad001b029c297ed3538c6161f4f019a68819"
+profiles = ["language-rust", "quality-baseline", "universal"]
+
+[[scopes]]
+root = "."
+overlays = []
+local-additions = ""
+
+[[scopes]]
+root = "crates/widget"
+overlays = ["rust-build"]
+local-additions = "/scratch/\n!/target/\n/target/*\n!/target/keep.txt\n"
+
+[[probes]]
+path = "crates/widget/target/keep.txt"
+ignored = false
+
+[[probes]]
+path = "crates/widget/target/build.o"
+ignored = true
+
+[[probes]]
+path = "crates/widget/scratch/cache"
+ignored = true
+
+[[probes]]
+path = "crates/other/target/source.rs"
+ignored = false
