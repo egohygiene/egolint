@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-09-19T17:38:06Z"
+  updated_at: "2026-09-19T17:53:05Z"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -69,38 +69,35 @@ state:
       provider: github
       id: egohygiene/egolint#63
       url: https://github.com/egohygiene/egolint/pull/63
-    handoff_state: corrective-dogfood-rerun-pending
+    handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: "2026-09-19T17:38:06Z"
+    observed_at: "2026-09-19T17:53:05Z"
     default_branch_revision: ec97ed8b3f1a4a2198aec03355600ea6c9caa1e1
     issue_state: open
     pull_request_state: draft
     notes:
       GitHub verified issue 14 and draft PR 63 remain open. The published candidate currently ends
-      at d7650bf97b74190c5855f0be3ce80994967a9a00. Its main CI run passed, while dogfood exposed
-      strict-profile findings in the new source and one older Markdown line. Local corrections are
-      validated and still require publication and a final rerun. The next issue 29 dependencies are
-      closed.
+      at 6078ae4c54dab179424741ce3212d84b8028efb3. All five workflows passed, including CI run
+      35458923645 and dogfood run 35458923820. The next issue 29 dependencies are closed.
   parallel_changes: []
 review:
-  status: partial
-  reviewed_at: "2026-09-19T17:38:06Z"
+  status: passed
+  reviewed_at: "2026-09-19T17:53:05Z"
   reviewed_by: Codex
   evidence:
-    - command: GitHub Actions CI run 35457955536
+    - command: GitHub Actions CI run 35458923645
       outcome: passed
-      observed_at: "2026-09-19T17:38:06Z"
+      observed_at: "2026-09-19T17:53:05Z"
       notes:
         Every job passed. The full-policy image built the pinned gem graph and passed valid,
         invalid, skip, override, external-reference, exact-diagnostic, and footprint checks.
-    - command: GitHub Actions dogfood run 35457955578 and artifact 10589795149
-      outcome: corrective-rerun-required
-      observed_at: "2026-09-19T17:38:06Z"
+    - command: GitHub Actions dogfood run 35458923820 and artifact 10589547030
+      outcome: passed
+      observed_at: "2026-09-19T17:53:05Z"
       notes:
-        The artifact identified new Ruff, Ruff-format, Mypy, Bandit, and RuboCop findings plus one
-        pre-existing Markdown line-length finding. The candidate now addresses those exact findings;
-        publication and CI confirmation remain pending.
+        Every blocking MegaLinter adapter passed, including Markdownlint, Bandit, Mypy, Ruff,
+        Ruff-format, and RuboCop. Advisory baseline findings remain visible in the private artifact.
     - command: Python unittest discovery and repository contract checks
       outcome: passed
       observed_at: "2026-09-19T17:38:06Z"
@@ -161,8 +158,8 @@ maintainer reviews and merges; do not self-merge.
 
 The candidate branches from verified main `ec97ed8b3f1a4a2198aec03355600ea6c9caa1e1`, the merge of
 PR 62. Issue 14 and draft PR 63 are open. The published branch still ends at
-`d7650bf97b74190c5855f0be3ce80994967a9a00`; its revision remains intentionally null here to avoid a
-self-reference cycle after the locally validated dogfood corrections are published.
+`6078ae4c54dab179424741ce3212d84b8028efb3`; its revision remains intentionally null here to avoid a
+self-reference cycle when this final checkpoint is published.
 
 ## Completed and material changes
 
@@ -183,15 +180,14 @@ self-reference cycle after the locally validated dogfood corrections are publish
 
 All 72 Python tests, 11 JavaScript tests, packaging/policy/complementary/release checks, and the
 exact Ruff profile passed locally. Selector unit tests prove no Ruby subprocess for skip cases. CI
-run 35457955536 passed every job and proves the exact gem build plus the containerized JSONSkooma
-fixture suite. Dogfood run 35457955578 exposed strict-profile findings in the new files and an older
-Markdown line-length finding; those exact findings are corrected locally and need a final CI rerun.
+run 35458923645 passed every job and proves the exact gem build plus the containerized JSONSkooma
+fixture suite. Dogfood run 35458923820 passed every blocking adapter after the strict-profile
+corrections.
 
 ## Blockers, risks, unknowns, and deferred work
 
-- Current handoff gate: publish the dogfood corrections, verify the final PR 63 CI and dogfood runs,
-  and obtain maintainer review/merge.
-- The six-gem full-image build and Ruby adapter cannot be exercised locally; CI run 35457955536 owns
+- Current handoff gate: obtain maintainer review and merge of draft PR 63.
+- The six-gem full-image build and Ruby adapter cannot be exercised locally; CI run 35458923645 owns
   their successful smoke proof, exact diagnostics, and installed-size budget.
 - Fleet search is bounded to indexed accessible default branches and cannot prove future absence.
 - No representative upstream benchmark exists; no broad throughput claim is made.
