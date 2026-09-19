@@ -325,9 +325,7 @@ class IntegrationDistributionTests(unittest.TestCase):
                     "repository-presentation-report": (
                         ".reports/egolint/repository-presentation.json"
                     ),
-                    "repository-release-report": (
-                        ".reports/egolint/repository-release.json"
-                    ),
+                    "repository-release-report": (".reports/egolint/repository-release.json"),
                     "debt-json": ".reports/egolint/debt.json",
                     "debt-markdown": ".reports/egolint/debt.md",
                     "raw-megalinter-json": ".reports/egolint/mega-linter-report.json",
