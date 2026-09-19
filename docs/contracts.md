@@ -89,6 +89,7 @@ egolint schema repository-continuity
 egolint schema repository-continuity-report
 egolint schema repository-gitignore
 egolint schema repository-gitignore-report
+egolint schema repository-release-report
 ```
 
 `validate` resolves every configuration layer, evaluates native portability policy plus requested
@@ -127,6 +128,15 @@ lifecycle. EgoLint vendors exact reviewed revisions and verifies their bytes bef
 See [repository release validation](repository-release-validation.md) for the ownership boundary,
 accepted revisions, and staged implementation plan.
 
-The current source-lock checkpoint proves input integrity and cross-source compatibility only. It
-does not claim that this repository, or any consumer repository, already conforms to the release
-policy.
+Repository-release applicability is a universal native capability for `lint`, `validate`, and
+`fix`. It discovers `.egohygiene/release.json` without a network request and always writes the
+closed `egolint.repository-release-report/v1` contract to
+`.reports/egolint/repository-release.json`. Missing declarations remain `unavailable`; malformed or
+unsupported declarations are `invalid`; incubating rollout is `advisory`; explicitly delegated
+evidence is `external`; and an authorized planner may pass
+`--release-adoption-state "not-applicable"` when release policy has no meaningful application.
+
+Checkpoint 2 intentionally supplies no completed conformance checks, so automatic evaluation
+cannot emit `compliant` yet. The report contract rejects that state unless every applicable slot has
+complete local validation with no failure, external evidence, or unavailable evidence. Every state
+also records that network access was not performed and external publication was not verified.

@@ -14,9 +14,11 @@ workflows, or infer conformance from the existence of a tag alone.
 | Evidence retention                  | Relay             | Preserve accepted reports and release-gate evidence outside this repository.                              |
 | Publication adapters                | Owning repository | Build, sign, attest, and publish artifacts through explicitly configured release workflows.               |
 
-Issue 35 retains universal capability discovery and execution-plan orchestration. Repository release
-validation is designed to be available to every repository while returning explicit
-`not-applicable`, `unavailable`, or advisory evidence when a rule cannot meaningfully run.
+Issue 35 retains general capability discovery and execution-plan orchestration. Repository release
+applicability itself is now a universal native capability: `lint`, `validate`, and `fix` inspect the
+policy-selected declaration path automatically and emit a focused report even when the declaration
+is absent. An authorized planner can select an explicit adoption state; otherwise EgoLint derives
+rollout from the declaration lifecycle and the accepted Hygiene profile.
 
 ## Accepted source revisions
 
@@ -39,6 +41,30 @@ python "scripts/validate_repository_release_sources.py"
 The check rejects unlocked sources, path traversal, symlinks, byte drift, incompatible Aether
 references, and profile/lifecycle drift between the two contracts.
 
+## Applicability and report states
+
+The native resolver does not need a network connection and never treats an external declaration as
+proof of publication. It composes slot defaults with profile and lifecycle overrides, then applies
+the repository adoption state. Required slots become advisory for advisory or exempt rollout;
+explicit `not-applicable` makes every slot not applicable even when no release declaration exists.
+
+`egolint.repository-release-report/v1` is generated from closed Rust types and written to
+`.reports/egolint/repository-release.json`:
+
+| State            | Meaning                                                                                  |
+| ---------------- | ---------------------------------------------------------------------------------------- |
+| `compliant`      | Complete local checks cover every applicable slot without failures or unavailable input. |
+| `advisory`       | Hygiene rollout or an authorized exemption keeps applicable checks nonblocking.          |
+| `unavailable`    | The declaration, declared evidence, or complete local validation is unavailable.         |
+| `external`       | The declaration assigns evidence to another owner; reachability was not checked.         |
+| `invalid`        | The declaration cannot establish trusted applicability or a completed check failed.      |
+| `not_applicable` | An authorized planner explicitly selected non-applicability.                             |
+
+Checkpoint 2 resolves applicability only, so ordinary required repositories remain `unavailable`
+until checkpoint 3 supplies complete check coverage. This prevents an empty validator from
+reporting false conformance. Use `egolint schema repository-release-report` to emit the exact
+machine contract. Human-readable commands print the same state and the non-publication boundary.
+
 ## Checkpoint plan
 
 1. Pin and verify the immutable Aether and Hygiene inputs; reconcile the preceding roadmap state.
@@ -49,5 +75,5 @@ references, and profile/lifecycle drift between the two contracts.
    contract-only, archived, advisory, external, unavailable, and invalid fixtures.
 5. Dogfood the completed capability, document operations and limits, and perform final CI polish.
 
-Each checkpoint lands on the same draft pull request. Maintainer merge remains blocked until the
-final checkpoint and review.
+Checkpoint 1 landed in PR 64. Each remaining checkpoint uses its own focused pull request and stops
+for maintainer review before merge.
