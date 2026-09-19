@@ -287,12 +287,15 @@ fn validate_declaration(document: &ReleaseDeclaration) -> std::result::Result<()
     let Some(workflow_name) = workflow.strip_prefix(".github/workflows/") else {
         return Err("the release workflow path must name a GitHub Actions YAML file".to_owned());
     };
+    let workflow_extension = Path::new(workflow_name)
+        .extension()
+        .and_then(std::ffi::OsStr::to_str);
     if workflow_name.is_empty()
         || workflow_name.contains('/')
         || !workflow_name
             .bytes()
             .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'_' | b'-'))
-        || !(workflow_name.ends_with(".yml") || workflow_name.ends_with(".yaml"))
+        || !matches!(workflow_extension, Some("yml" | "yaml"))
     {
         return Err("the release workflow path must name a GitHub Actions YAML file".to_owned());
     }
@@ -393,7 +396,7 @@ pub(super) fn evaluate(
                     .outcome
                     .clone(),
                 "manual_workflow" => check_workflow(inventory, document),
-                "release_rollback_docs" => check_rollback(document),
+                "release_rollback_docs" => check_rollback(inventory),
                 "task_handoffs" => check_taskfile(inventory, document),
                 "version_authority" => check_versions(inventory, document, changelog.as_ref()),
                 _ => unreachable!("rule mapping was checked above"),
@@ -630,6 +633,7 @@ struct ChangelogAnalysis {
     latest_version: Option<String>,
 }
 
+#[allow(clippy::too_many_lines)]
 fn analyze_changelog(
     inventory: &RepositoryInventory,
     declaration: &ReleaseDeclaration,
@@ -843,12 +847,12 @@ fn workflow_trigger_failure(path: PathBuf, evidence: Vec<EvidenceReference>) -> 
     )
 }
 
-fn check_rollback(declaration: &ReleaseDeclaration) -> Outcome {
+fn check_rollback(inventory: &RepositoryInventory) -> Outcome {
     Outcome::passed(
         PathBuf::from(DECLARATION_PATH),
         "The declaration names an accepted rollback strategy with nonempty repository-owned instructions.",
         "Keep rollback instructions current and review them with each release-path change.",
-        local_declaration_evidence(),
+        local_declaration_evidence(inventory),
     )
 }
 
@@ -932,6 +936,7 @@ fn check_taskfile(inventory: &RepositoryInventory, declaration: &ReleaseDeclarat
     )
 }
 
+#[allow(clippy::too_many_lines)]
 fn check_versions(
     inventory: &RepositoryInventory,
     declaration: &ReleaseDeclaration,
@@ -939,7 +944,7 @@ fn check_versions(
 ) -> Outcome {
     let mut versions = Vec::new();
     let mut has_external = false;
-    let mut evidence = local_declaration_evidence();
+    let mut evidence = local_declaration_evidence(inventory);
     for component in &declaration.components {
         let authority = &component.version_authority;
         match authority.kind {
@@ -1082,9 +1087,7 @@ fn extract_version(
 ) -> std::result::Result<String, &'static str> {
     let text = std::str::from_utf8(bytes).map_err(|_| "the authority is not UTF-8")?;
     match kind {
-        VersionAuthorityKind::CargoManifest
-        | VersionAuthorityKind::PyprojectProject
-        | VersionAuthorityKind::WorkspaceManifest => {
+        VersionAuthorityKind::CargoManifest | VersionAuthorityKind::PyprojectProject => {
             let value: toml::Value =
                 toml::from_str(text).map_err(|_| "the authority is not valid TOML")?;
             select_toml(&value, selector)
@@ -1102,7 +1105,8 @@ fn extract_version(
         }
         VersionAuthorityKind::ContainerTag
         | VersionAuthorityKind::PublicationMetadata
-        | VersionAuthorityKind::CatalogRecord => {
+        | VersionAuthorityKind::CatalogRecord
+        | VersionAuthorityKind::WorkspaceManifest => {
             match path.extension().and_then(|value| value.to_str()) {
                 Some("json") => {
                     let value: JsonValue = serde_json::from_str(text)
@@ -1164,14 +1168,8 @@ fn select_yaml<'a>(value: &'a YamlValue, selector: &str) -> Option<&'a YamlValue
     })
 }
 
-fn local_declaration_evidence() -> Vec<EvidenceReference> {
-    vec![EvidenceReference {
-        schema_version: CONTRACT_VERSION,
-        kind: EvidenceKind::Configuration,
-        path: PathBuf::from(DECLARATION_PATH),
-        sha256: None,
-        description: Some("Repository-owned Aether release declaration.".to_owned()),
-    }]
+fn local_declaration_evidence(inventory: &RepositoryInventory) -> Vec<EvidenceReference> {
+    local_evidence(inventory, Path::new(DECLARATION_PATH))
 }
 
 fn local_evidence(inventory: &RepositoryInventory, path: &Path) -> Vec<EvidenceReference> {

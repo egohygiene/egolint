@@ -273,7 +273,7 @@ pub enum ReleaseExternalPublication {
     NotVerified,
 }
 
-/// Versioned, closed report for release applicability and future checks.
+/// Versioned, closed report for release applicability and mechanical checks.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "snake_case")]
 pub struct RepositoryReleaseReport {
@@ -959,7 +959,7 @@ enum DeclarationInspection {
         digest: Option<String>,
         reason: String,
     },
-    Present(DeclarationData),
+    Present(Box<DeclarationData>),
 }
 
 fn inspect_declaration(inventory: &RepositoryInventory) -> DeclarationInspection {
@@ -997,7 +997,7 @@ fn inspect_declaration(inventory: &RepositoryInventory) -> DeclarationInspection
     let profile = document.repository.release_profile;
     let lifecycle = document.repository.lifecycle;
     let (external_evidence_items, unavailable_evidence_items) = evidence_counts(&value);
-    DeclarationInspection::Present(DeclarationData {
+    DeclarationInspection::Present(Box::new(DeclarationData {
         digest,
         repository: repository_id,
         profile,
@@ -1005,7 +1005,7 @@ fn inspect_declaration(inventory: &RepositoryInventory) -> DeclarationInspection
         document,
         external_evidence_items,
         unavailable_evidence_items,
-    })
+    }))
 }
 
 fn invalid_declaration(digest: String, reason: &str) -> DeclarationInspection {
@@ -1074,6 +1074,11 @@ fn declaration_finding(report: &RepositoryReleaseReport) -> Option<Finding> {
     };
     let normalized_message = format!("{message} Remediation: {remediation}");
     let fingerprint = stable_fingerprint(DECLARATION_RULE, &location, &normalized_message);
+    let severity = if report.applicability.adoption_state == Some(ReleaseAdoptionState::Required) {
+        Severity::Error
+    } else {
+        Severity::Warning
+    };
     Some(Finding {
         schema_version: CONTRACT_VERSION,
         id: format!("{DECLARATION_RULE}-{fingerprint}"),
@@ -1081,7 +1086,7 @@ fn declaration_finding(report: &RepositoryReleaseReport) -> Option<Finding> {
             tool_id: TOOL_ID.to_owned(),
             rule_id: DECLARATION_RULE.to_owned(),
         },
-        severity: Severity::Warning,
+        severity,
         message: normalized_message,
         location: Some(location),
         ownership: RuleOwnership {
@@ -1737,5 +1742,57 @@ mod tests {
                 .iter()
                 .any(|finding| finding.rule.rule_id == "EGOLINT_RELEASE_CHANGELOG")
         );
+    }
+
+    #[test]
+    fn explicit_required_adoption_makes_a_missing_declaration_blocking() {
+        let evaluation = RepositoryReleaseEvaluator::bundled()
+            .expect("bundled policy")
+            .evaluate(
+                &RepositoryInventory::default(),
+                Some(ReleaseAdoptionState::Required),
+            )
+            .expect("valid evaluation");
+
+        assert_eq!(evaluation.report.state, ReleaseEvidenceState::Unavailable);
+        assert_eq!(evaluation.findings.len(), 1);
+        assert_eq!(evaluation.findings[0].severity, Severity::Error);
+        assert_eq!(
+            evaluation.findings[0].rule.rule_id,
+            "EGOLINT_RELEASE_AETHER_DECLARATION"
+        );
+    }
+
+    #[test]
+    fn safe_single_component_version_drift_is_blocking() {
+        let inventory = declaration("active", "required");
+        let mut entries = inventory.entries().to_vec();
+        let declaration = entries
+            .iter_mut()
+            .find(|entry| entry.path == Path::new(DECLARATION_PATH))
+            .expect("declaration fixture");
+        let text = String::from_utf8(declaration.content.clone()).expect("UTF-8 fixture");
+        declaration.content = text
+            .replace("\"state\": \"unreleased\"", "\"state\": \"released\"")
+            .into_bytes();
+        let manifest = entries
+            .iter_mut()
+            .find(|entry| entry.path == Path::new("Cargo.toml"))
+            .expect("manifest fixture");
+        manifest.content = b"[package]\nname = \"egolint\"\nversion = \"0.2.0\"\n".to_vec();
+        let inventory = RepositoryInventory::from_entries(entries).expect("drift inventory");
+
+        let evaluation = RepositoryReleaseEvaluator::bundled()
+            .expect("bundled policy")
+            .evaluate(&inventory, None)
+            .expect("valid evaluation");
+
+        assert!(
+            evaluation.findings.iter().any(|finding| {
+                finding.rule.rule_id == "EGOLINT_RELEASE_VERSION_AUTHORITY"
+                    && finding.severity == Severity::Error
+            })
+        );
+        assert_eq!(evaluation.report.state, ReleaseEvidenceState::Invalid);
     }
 }

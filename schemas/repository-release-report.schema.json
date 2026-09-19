@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "RepositoryReleaseReport",
-  "description": "Versioned, closed report for release applicability and future checks.",
+  "description": "Versioned, closed report for release applicability and mechanical checks.",
   "type": "object",
   "properties": {
     "applicability": {
