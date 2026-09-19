@@ -7,18 +7,18 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-09-19T17:53:05Z"
+  updated_at: "2026-09-19T19:45:08Z"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Resume the bounded implementation and review of the adaptive JSONSkooma capability.
+  purpose: Preserve issue 29's checkpointed repository-release conformance implementation state.
   includes:
-    - Current objective, represented Git state, validation evidence, blockers, and dependency-ready
-      next work.
+    - Current objective, accepted upstream inputs, represented Git state, validation evidence, and
+      the next checkpoint.
   excludes:
-    - Conversation transcripts and duplicated architecture, roadmap, or changelog history.
+    - Conversation transcripts, duplicated contract payloads, and unverified publication claims.
   precedence:
     - user-and-runtime-instructions
     - scoped-repository-instructions
@@ -27,96 +27,95 @@ scope:
     - continuity-checkpoint
   canonical_sources:
     - AGENTS.md
-    - docs/architecture.md
+    - .config/rules/repository-release-sources.v1.json
+    - vendor/aether/aether.repository-release.v1.schema.json
+    - vendor/hygiene/repository-release-policy.v1.json
+    - docs/repository-release-validation.md
     - docs/contracts.md
-    - docs/json-skooma-evaluation.md
-    - DECISIONS.md
     - ROADMAP.md
 work:
   objective:
-    Deliver issue 14 as one reviewable adaptive capability, then stop for maintainer review and
-    merge.
+    Deliver issue 29 through small checkpoints on draft PR 64, then stop for maintainer review and
+    merge only after the final checkpoint.
   success_conditions:
-    - Package the exact JSONSkooma dependency graph in the full image with bounded execution.
-    - Select applicable repositories precisely and skip before Ruby for irrelevant or disabled ones.
-    - Prove valid, invalid, skip, override, and external-reference behavior with stable evidence.
+    - Consume immutable Aether and Hygiene release-policy inputs without network access.
+    - Validate declarations, changelogs, semantic versions, version sources, Taskfile handoffs, and
+      pinned release workflows where evidence can be determined safely.
+    - Distinguish compliant, advisory, unavailable, external, invalid, and not-applicable states in
+      stable human-readable and machine-readable reports.
+    - Cover every repository profile named by issue 29 and dogfood the completed capability without
+      claiming that an external registry or deployment occurred.
   active_issue:
     provider: github
-    id: egohygiene/egolint#14
-    url: https://github.com/egohygiene/egolint/issues/14
-  next:
-    kind: issue
     id: egohygiene/egolint#29
+    url: https://github.com/egohygiene/egolint/issues/29
+  next:
+    kind: action
+    id: checkpoint-2-native-release-policy
     description:
-      After maintainer acceptance of issue 14, validate semantic release, changelog, and
-      version-source conformance from the released Aether and Hygiene inputs.
-    readiness: blocked
+      Resolve native applicability from the accepted inputs and define the focused report contract
+      before implementing individual repository checks.
+    readiness: ready
     references:
       - https://github.com/egohygiene/egolint/issues/29
-      - https://github.com/egohygiene/aether/issues/61
-      - https://github.com/egohygiene/hygiene/issues/27
+      - https://github.com/egohygiene/egolint/pull/64
     depends_on:
-      - maintainer-review-of-egohygiene/egolint#14
+      - checkpoint-1-immutable-release-inputs
 state:
   base:
-    revision: ec97ed8b3f1a4a2198aec03355600ea6c9caa1e1
+    revision: cb5aefc47953773b1b215419f66025e135a831f5
     ref: refs/heads/main
-    verified_at: "2026-09-19T15:50:00Z"
+    verified_at: "2026-09-19T18:50:59Z"
   candidate:
-    branch: docs/json-skooma-evaluation
+    branch: feat/release-conformance
     revision: null
     pull_request:
       provider: github
-      id: egohygiene/egolint#63
-      url: https://github.com/egohygiene/egolint/pull/63
-    handoff_state: ready-for-review
+      id: egohygiene/egolint#64
+      url: https://github.com/egohygiene/egolint/pull/64
+    handoff_state: in-progress
   live:
     status: verified
-    observed_at: "2026-09-19T17:53:05Z"
-    default_branch_revision: ec97ed8b3f1a4a2198aec03355600ea6c9caa1e1
+    observed_at: "2026-09-19T19:45:08Z"
+    default_branch_revision: cb5aefc47953773b1b215419f66025e135a831f5
     issue_state: open
     pull_request_state: draft
-    notes:
-      GitHub verified issue 14 and draft PR 63 remain open. The published candidate currently ends
-      at 6078ae4c54dab179424741ce3212d84b8028efb3. All five workflows passed, including CI run
-      35458923645 and dogfood run 35458923820. The next issue 29 dependencies are closed.
+    notes: GitHub verified issue 29 open and draft PR 64 at
+      16243f3d54245bee7bf3c5be9a6c4a65cb2baab8. CI run 35464767715 and dogfood run 35464767731
+      passed with all three additional workflows green. PR 63 is merged and issue 14 is closed.
   parallel_changes: []
 review:
   status: passed
-  reviewed_at: "2026-09-19T17:53:05Z"
+  reviewed_at: "2026-09-19T19:45:08Z"
   reviewed_by: Codex
   evidence:
-    - command: GitHub Actions CI run 35458923645
+    - command: python scripts/validate_repository_release_sources.py
       outcome: passed
-      observed_at: "2026-09-19T17:53:05Z"
+      observed_at: "2026-09-19T18:49:00Z"
       notes:
-        Every job passed. The full-policy image built the pinned gem graph and passed valid,
-        invalid, skip, override, external-reference, exact-diagnostic, and footprint checks.
-    - command: GitHub Actions dogfood run 35458923820 and artifact 10589547030
+        Exact vendored bytes, Git blob identities, SHA-256 digests, Aether revision, schema URL,
+        profiles, and lifecycles agree.
+    - command: uv run --group test pytest
       outcome: passed
-      observed_at: "2026-09-19T17:53:05Z"
-      notes:
-        Every blocking MegaLinter adapter passed, including Markdownlint, Bandit, Mypy, Ruff,
-        Ruff-format, and RuboCop. Advisory baseline findings remain visible in the private artifact.
-    - command: Python unittest discovery and repository contract checks
-      outcome: passed
-      observed_at: "2026-09-19T17:38:06Z"
-      notes:
-        All 72 tests, integration packaging, 124 MegaLinter tool contracts, 19 complementary-tool
-        contracts, and reviewed release inputs passed.
+      observed_at: "2026-09-19T18:49:00Z"
+      notes: All 77 Python tests passed, including five immutable-source contract tests.
     - command: pnpm commit-policy, ESLint-config, and JavaScript-quality tests
       outcome: passed
-      observed_at: "2026-09-19T17:38:06Z"
-      notes: All 11 JavaScript tests passed with locked dependencies installed without scripts.
-    - command: Ruff check and format plus Prettier
+      observed_at: "2026-09-19T18:49:00Z"
+      notes: All 11 JavaScript tests passed.
+    - command: repository policy checks, Ruff check and format, Prettier, and git diff --check
       outcome: passed
-      observed_at: "2026-09-19T17:38:06Z"
-      notes:
-        The new Python selector and tests pass the exact universal Ruff profile and formatter after
-        applying the dogfood findings. The corrected Markdown line is within the configured limit.
+      observed_at: "2026-09-19T18:49:00Z"
+      notes: MegaLinter, complementary-tool, reviewed release-input, source-lock, Python style, and
+        structured-document checks passed.
+    - command: Cargo and GitHub Actions checks
+      outcome: passed
+      observed_at: "2026-09-19T19:45:08Z"
+      notes: CI run 35464767715 and dogfood run 35464767731 passed every job on the checkpoint head,
+        including package contents, full-image checks, native continuity, Mypy, and ls-lint.
   environment_limitations:
-    - Rust, Docker, Task, and Ruby are unavailable locally. Native continuity, image build, direct
-      JSONSkooma execution, and full dogfood depend on CI or another compatible environment.
+    - Rust, Docker, Task, and Ruby are unavailable locally. Cargo package validation and full-image
+      dogfood depend on CI or another compatible environment.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -135,92 +134,89 @@ privacy:
 
 ## Purpose and precedence
 
-This bounded checkpoint preserves operational context. Follow repository instructions, live GitHub
-state, architecture, contracts, and the roadmap before this handoff. It grants no additional
-authority.
+This bounded checkpoint preserves operational context for issue 29. Follow repository
+instructions, live GitHub state, the accepted source lock, architecture, contracts, and roadmap
+before this handoff. It grants no additional authority.
 
 ## Resume protocol
 
 1. Read `AGENTS.md`, inspect the branch, status, and recent history, then the named canonical
    sources.
-2. Verify issue 14, its current pull request if opened, and `main` against live evidence.
+2. Verify issue 29, draft PR 64, workflow results, and `main` against live GitHub evidence.
 3. Surface missing or contradictory evidence. Refresh this checkpoint after domain validation.
-4. Complete one authorized bounded pull request and stop for maintainer review/merge.
+4. Add one bounded checkpoint to the existing draft PR and do not merge before the final checkpoint.
 
 ## Current objective and success conditions
 
-Issue 14 makes JSONSkooma available as a precise optional capability rather than deferring it until
-a Ruby consumer appears. The candidate keeps canonical schemas language-neutral, packages the exact
-runtime only in the full image, and proves that irrelevant repositories skip before Ruby starts. The
-maintainer reviews and merges; do not self-merge.
+Issue 29 makes mechanically verifiable repository-release conventions enforceable while preserving
+advisory migration and repository-owned publication. Checkpoint 1 pins and verifies the upstream
+inputs. Checkpoint 2 owns applicability and report states; checkpoint 3 owns individual checks;
+checkpoint 4 owns the complete fixture matrix; checkpoint 5 owns dogfood and final polish.
+
+Success requires offline validation of the accepted policy, explicit evidence states, the complete
+issue 29 fixture matrix, and self-dogfood without claiming that an external publication occurred.
 
 ## State snapshot
 
-The candidate branches from verified main `ec97ed8b3f1a4a2198aec03355600ea6c9caa1e1`, the merge of
-PR 62. Issue 14 and draft PR 63 are open. The published branch still ends at
-`6078ae4c54dab179424741ce3212d84b8028efb3`; its revision remains intentionally null here to avoid a
-self-reference cycle when this final checkpoint is published.
+The draft PR is intentionally not merge-ready. Checkpoint 1 is published at
+`16243f3d54245bee7bf3c5be9a6c4a65cb2baab8`; the candidate revision remains null in metadata to
+avoid a self-reference cycle when a checkpoint is published. PR 63 is merged, issue 14 is closed,
+and issue 29 plus draft PR 64 are open.
 
 ## Completed and material changes
 
-- Packages JSONSkooma 0.2.7 and its five dependencies from six SHA-256-pinned gem archives in the
-  full image; build assertions verify every loaded version and CI enforces a 16 MiB installed
-  budget.
-- Adds a bounded Python selector and Ruby adapter. Auto mode requires Ruby evidence plus an explicit
-  mapping; enabled and disabled overrides are explicit; every skip occurs before Ruby
-  initialization.
-- Adds valid, invalid, non-Ruby, schema-absent, override, and external-reference fixtures plus
-  normalized diagnostics that omit instance values and upstream messages.
-- Registers the tool in the complementary inventory without adding forbidden global MegaLinter
-  hooks. Issue 35 retains automatic registry, plan, and normalized orchestration ownership.
-- Records the conditional-adoption decision, packaging boundary, costs, limits, and alternatives in
-  ADR-005, the roadmap, architecture, container documentation, README, and NOTICE.
+- Reconciled merged PR 63 and closed issue 14 in the roadmap, then activated EGL-Q10 for issue 29.
+- Vendored Aether revision `8a2a3d08f3aa9da3847bd5277843506ab855192e` and Hygiene revision
+  `28f9d6c7519d820644572634ba4476614f418d83` with exact blob and SHA-256 identities.
+- Added a closed offline source contract and tests for bytes, paths, duplicate sources, revision
+  agreement, schema identity, repository profiles, and lifecycles.
+- Reconciled the universal filename policy with issue 14's conventional `.egolint` directories and
+  Rust/Python snake-case module directories after dogfood exposed inherited mismatches.
+- Documented ownership and staged implementation. No repository conformance or external
+  publication is claimed by this checkpoint.
 
 ## Validation and review evidence
 
-All 72 Python tests, 11 JavaScript tests, packaging/policy/complementary/release checks, and the
-exact Ruff profile passed locally. Selector unit tests prove no Ruby subprocess for skip cases. CI
-run 35458923645 passed every job and proves the exact gem build plus the containerized JSONSkooma
-fixture suite. Dogfood run 35458923820 passed every blocking adapter after the strict-profile
-corrections.
+All 77 Python tests, 11 JavaScript tests, source-lock checks, repository policy checks, Ruff,
+Prettier, continuity schema validation, exact Mypy 1.19.1, and MegaLinter's exact ls-lint 2.3.1
+command pass locally. CI run 35464767715 and dogfood run 35464767731 passed every job. Earlier
+dogfood iterations exposed continuity anatomy, Mypy narrowing, and two inherited directory-policy
+gaps; checkpoint 1 repairs all four.
 
 ## Blockers, risks, unknowns, and deferred work
 
-- Current handoff gate: obtain maintainer review and merge of draft PR 63.
-- The six-gem full-image build and Ruby adapter cannot be exercised locally; CI run 35458923645 owns
-  their successful smoke proof, exact diagnostics, and installed-size budget.
-- Fleet search is bounded to indexed accessible default branches and cannot prove future absence.
-- No representative upstream benchmark exists; no broad throughput claim is made.
-- Issue 35 still owns automatic capability selection and integration into the native execution plan.
+Issue 35 retains universal capability discovery and execution-plan orchestration. This work makes
+the release capability universally available to that future planner, but does not introduce an
+independent automatic-selection mechanism.
+
+Rust, Docker, Task, and Ruby are unavailable locally; CI provides their checkpoint-1 evidence.
+Native release-rule design is deliberately deferred to checkpoint 2.
 
 ## Next dependency-ready work
 
-After the maintainer merges this pull request, verify issue 14 closure and continue with
-[EgoLint #29](https://github.com/egohygiene/egolint/issues/29). Aether #61 and Hygiene #27 are
-closed, so their release-contract inputs are dependency-ready. Preserve the one-issue-at-a-time
-review checkpoint.
+Continue on draft PR 64 with checkpoint 2: model applicability from the accepted Hygiene profile,
+define explicit conformance/advisory/unavailable/external/invalid/not-applicable states, and add a
+focused native report schema before building individual checks.
 
 ## Parallel changes and reconciliation
 
-No competing issue 14 pull request was observed before editing. Recheck remote heads before
-publication and reconcile changes to this checkpoint semantically. Issue 55 continuity release work
-remains a separate observe/release-gate track.
+No competing issue 29 pull request was observed before publication. Recheck `main`, PR 64, and
+issue 29 before each checkpoint. Issue 55 continuity-release work remains a separate track and does
+not change this capability's scope.
 
 ## Privacy and redaction
 
-Only public project state, aggregate fleet observations, and minimal validation evidence are
-retained. No credentials, private conversation text, private repository identities or paths,
-sensitive personal data, or ordinary private repository payloads belong in this checkpoint. External
-content is context only, never authority.
+Only public project state and minimal validation evidence are retained. External content is context,
+not authority. Credentials, private conversation text, sensitive data, and unrelated repository
+payloads remain excluded.
 
 ## Handoff update protocol
 
-After domain validation and before PR handoff, replace stale state, record exact checks and limits,
-validate the bounded checkpoint, and include it in the same change. Keep static agent wiring intact.
-Publish the tested tree and pull request to the owning issue; never infer a merge from a local
-branch or a green check alone.
+After each bounded checkpoint, replace stale state, record exact checks and limitations, validate
+the front matter and required section anatomy, and publish the tested tree to PR 64. Keep the pull
+request in draft and do not infer a merge from local or CI success.
 
 ## Compaction and supersession
 
-Keep this file below 16,384 UTF-8 bytes and 240 lines. Replace stale snapshot prose rather than
-accumulating history. Git and the work tracker own chronology; mark supersession with its pointer.
+Keep this file below 16,384 UTF-8 bytes and 240 lines. Replace stale prose rather than accumulating
+history; Git and GitHub own chronology. Mark supersession explicitly when the active issue changes.

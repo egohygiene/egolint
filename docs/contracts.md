@@ -118,3 +118,15 @@ plus `egolint.repository-gitignore-report/v1` evidence. Its closed policy and re
 integrity, exact content, actual Git behavior, nested inventory, tracked files, and coverage are
 independent checks. Unknown evidence is blocking; accepted exceptions remain visible. See
 [repository gitignore validation](repository-gitignore.md) for invocation, ownership, and limits.
+
+## Repository release evidence
+
+Repository release conformance is derived from two separately owned inputs: Aether defines the
+normative declaration schema, and Hygiene defines applicability by repository profile and
+lifecycle. EgoLint vendors exact reviewed revisions and verifies their bytes before using them.
+See [repository release validation](repository-release-validation.md) for the ownership boundary,
+accepted revisions, and staged implementation plan.
+
+The current source-lock checkpoint proves input integrity and cross-source compatibility only. It
+does not claim that this repository, or any consumer repository, already conforms to the release
+policy.

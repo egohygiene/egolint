@@ -115,11 +115,11 @@ ls:
   # First-party source and package directories
   # ---------------------------------------------------------------------------
 
-  # Apply kebab-case directory naming only inside controlled first-party trees.
-  # This avoids policing imported template collections and ecosystem-owned
-  # directory conventions globally.
+  # Apply predictable directory naming only inside controlled first-party
+  # trees. Snake case remains valid for language modules such as Rust and
+  # Python; imported templates and ecosystem-owned trees are not policed here.
   "{apps,packages,src,scripts,tools,website}/**":
-    .dir: kebab-case
+    .dir: kebab-case | snake_case
 
   # Python packages should use snake_case directory names.
   "**/{python,py}/**":
@@ -204,6 +204,11 @@ ignore:
 
   - ".cache"
   - "**/.cache/**"
+
+  # Tool-owned configuration directories use externally defined dot names.
+  - ".egolint"
+  - "**/.egolint"
+  - "**/.egolint/**"
 
   # ---------------------------------------------------------------------------
   # Generated output

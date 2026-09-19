@@ -43,10 +43,10 @@ updated: 2026-09-19
 > plans, and commit lists are projections.
 
 **Lifecycle:** early alpha, pre-release  
-**Current gate:** Package issue #14's conditional JSONSkooma capability without displacing
-language-neutral schema contracts or initializing Ruby for inapplicable repositories. **North-star
-outcome:** A portable, evidence-backed lint platform for organization contracts, roadmaps,
-repositories, and generated artifacts.
+**Current gate:** Implement issue #29's offline repository-release conformance boundary from the
+accepted Aether declaration schema and Hygiene applicability profile. **North-star outcome:** A
+portable, evidence-backed lint platform for organization contracts, roadmaps, repositories, and
+generated artifacts.
 
 ### Visual roadmap publication
 
@@ -264,14 +264,14 @@ actual Git behavior without reading ordinary repository payloads or changing con
 
 <!-- roadmap-step
 id: EGL-Q09
-status: active
+status: complete
 depends_on: [EGL-Q04]
 issues: [14]
 -->
 
 #### EGL-Q09 — Decide the adaptive Ruby schema boundary
 
-**State:** `active` **Depends on:** `EGL-Q04`
+**State:** `complete` **Depends on:** `EGL-Q04`
 
 **Outcome:** Decide whether JSONSkooma adds unique Ruby-specific value without replacing canonical
 JSON Schema contracts or affecting repositories where Ruby schema execution is inapplicable.
@@ -283,7 +283,7 @@ JSON Schema contracts or affecting repositories where Ruby schema execution is i
 - [x] The conditional-adoption decision defines applicability, overrides, skip behavior, and costs.
 - [x] A pinned full-image adapter preserves normalized paths, keyword, dialect, and versions.
 - [x] Valid, invalid, non-Ruby, schema-absent, override, and external-reference fixtures prove the boundary.
-- [ ] The bounded issue #14 PR is reviewed and merged by the maintainer.
+- [x] The bounded issue #14 PR is reviewed and merged by the maintainer.
 
 **Current evidence (2026-09-19):**
 
@@ -294,8 +294,42 @@ JSON Schema contracts or affecting repositories where Ruby schema execution is i
 - Contract and container fixtures cover activation, findings, non-applicability, and overrides.
 - The adapter is available through the complementary inventory and full image without weakening the
   no-global-hooks MegaLinter invariant; issue #35 owns automatic capability orchestration.
-- After maintainer review, issue #29 is the next ordered dependency-ready EgoLint item; its Aether
-  and Hygiene dependencies are verified closed.
+- PR #63 merged to `main` as `cb5aefc47953773b1b215419f66025e135a831f5`; issue #14 is closed.
+
+<!-- roadmap-step
+id: EGL-Q10
+status: active
+depends_on: [EGL-Q04]
+issues: [29]
+-->
+
+#### EGL-Q10 — Validate repository release conformance
+
+**State:** `active` **Depends on:** `EGL-Q04`
+
+**Outcome:** Every applicable repository can produce offline, machine-readable evidence for its
+release declaration, changelog, version authority, and publication entrypoints.
+
+**Exit criteria:**
+
+- [ ] Aether's declaration schema and Hygiene's applicability profile are consumed from immutable,
+      verified revisions.
+- [ ] Native validation distinguishes conforming, nonconforming, not-applicable, advisory,
+      unavailable, and externally owned evidence without network writes.
+- [ ] Representative language, artifact, lifecycle, workspace, and invalid fixtures prove the
+      policy boundary.
+- [ ] EgoLint dogfoods the completed capability and documents operational limits.
+- [ ] The bounded issue #29 PR completes every checkpoint and is reviewed and merged by the
+      maintainer.
+
+**Current evidence (2026-09-19):**
+
+- Aether #61 and Hygiene #27 are closed. Their accepted merge revisions are pinned with both Git
+  blob identities and SHA-256 digests in the repository-release source lock.
+- Checkpoint 1 verifies vendored byte integrity and cross-source revision, schema, profile, and
+  lifecycle compatibility without claiming repository conformance.
+- Native rule evaluation, the report contract, the fixture matrix, and dogfood remain later
+  checkpoints on the same draft pull request.
 
 ### Roadmap-to-issue handoff
 

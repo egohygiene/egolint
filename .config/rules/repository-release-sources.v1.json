@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "contract": "egolint.repository-release-sources/v1",
+  "reviewed_at": "2026-09-19",
+  "sources": [
+    {
+      "id": "aether-repository-release-schema",
+      "repository": "egohygiene/aether",
+      "revision": "8a2a3d08f3aa9da3847bd5277843506ab855192e",
+      "source_path": "catalog/schemas/aether.repository-release.v1.schema.json",
+      "vendored_path": "vendor/aether/aether.repository-release.v1.schema.json",
+      "git_blob_sha1": "6631635a7e91212f888a0e10b68f5a35df41bce7",
+      "sha256": "8431ea7651336aa7695aee5b9aedce536b1e7c76c3cb15927f64a6206f9cc1f5"
+    },
+    {
+      "id": "hygiene-repository-release-profile",
+      "repository": "egohygiene/hygiene",
+      "revision": "28f9d6c7519d820644572634ba4476614f418d83",
+      "source_path": "catalog/repository-release-policy.json",
+      "vendored_path": "vendor/hygiene/repository-release-policy.v1.json",
+      "git_blob_sha1": "46277cbb57d753d447b20b3630b9f7ddd500548a",
+      "sha256": "20030513c311416c5130a15af897590892025b55cfd79d210be362d47748063f"
+    }
+  ]
+}
