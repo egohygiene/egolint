@@ -31,8 +31,9 @@ Egolint separates orchestration from the lint engine:
   `schema`, and configuration inspection; it does not contain a container runtime or require access
   to a Docker socket.
 - `ghcr.io/egohygiene/egolint-full` is the planned lint-engine image. It extends MegaLinter and
-  embeds the fast, holistic, security, and dependency-debt Ego Hygiene policies. The native CLI
-  launches this image and intentionally preserves MegaLinter's entrypoint.
+  embeds the fast, holistic, security, and dependency-debt Ego Hygiene policies plus conditional
+  capabilities such as JSONSkooma. The native CLI launches this image and intentionally preserves
+  MegaLinter's entrypoint.
 
 ## Current alpha surface
 
@@ -41,7 +42,7 @@ Egolint separates orchestration from the lint engine:
 | `egolint lint`      | Run linters with the repository mounted read-only.                                                       |
 | `egolint fix`       | Generate a bounded patch in an isolated copy; never edit the source worktree.                            |
 | `egolint apply-fix` | Apply and stage one reviewed patch only when its SHA-256, base commit, and expected post-tree all match. |
-| `egolint gitignore` | Validate pinned layered ignore content and isolated Git behavior; report unknown evidence explicitly. |
+| `egolint gitignore` | Validate pinned layered ignore content and isolated Git behavior; report unknown evidence explicitly.    |
 | `egolint validate`  | Run native portability, repository-contract, continuity, and semantic checks without a container.        |
 | `egolint plan`      | Print the redacted container invocation without running it.                                              |
 | `egolint doctor`    | Validate configuration and runtime readiness.                                                            |
@@ -149,6 +150,7 @@ variables, and CLI options. User and local files are skipped when `CI` is truthy
 - [Identity Brand Kit](docs/identity.md)
 - [Configuration](docs/configuration.md)
 - [Dogfooding and self-consumer proof](docs/dogfooding.md)
+- [Adaptive JSONSkooma capability](docs/json-skooma-evaluation.md)
 - [Versioned consumer integrations](integrations/README.md)
 - [Machine-readable contracts](docs/contracts.md)
 - [Repository Intelligence validation](docs/repository-intelligence.md)

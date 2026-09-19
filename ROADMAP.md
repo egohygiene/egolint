@@ -43,9 +43,10 @@ updated: 2026-09-19
 > plans, and commit lists are projections.
 
 **Lifecycle:** early alpha, pre-release  
-**Current gate:** Preserve the owned self-dogfood baseline while adding semantic Repository
-Intelligence validation through issue #24. **North-star outcome:** A portable, evidence-backed lint
-platform for organization contracts, roadmaps, repositories, and generated artifacts.
+**Current gate:** Package issue #14's conditional JSONSkooma capability without displacing
+language-neutral schema contracts or initializing Ruby for inapplicable repositories. **North-star
+outcome:** A portable, evidence-backed lint platform for organization contracts, roadmaps,
+repositories, and generated artifacts.
 
 ### Visual roadmap publication
 
@@ -230,14 +231,14 @@ declared GitHub links, and optional commit trailers without network access.
 
 <!-- roadmap-step
 id: EGL-Q08
-status: active
+status: complete
 depends_on: [EGL-Q01, EGL-Q04]
 issues: [61]
 -->
 
 #### EGL-Q08 — Validate layered gitignore semantics
 
-**State:** `active` **Depends on:** `EGL-Q01`, `EGL-Q04`
+**State:** `complete` **Depends on:** `EGL-Q01`, `EGL-Q04`
 
 **Outcome:** A standalone native command proves pinned ignore composition, content, and bounded
 actual Git behavior without reading ordinary repository payloads or changing consumer policies.
@@ -248,18 +249,53 @@ actual Git behavior without reading ordinary repository payloads or changing con
       and coverage have independent machine-readable evidence.
 - [x] Accepted Filament and scoped Rust/local inputs pass; weakened and unavailable evidence blocks.
 - [x] Standard findings, JSON/SARIF, schemas, offline fixtures, and a documented invocation exist.
-- [ ] The bounded issue #61 PR is reviewed and merged by the maintainer.
+- [x] The bounded issue #61 PR is reviewed and merged by the maintainer.
 
 **Current evidence (2026-09-19):**
 
-- The candidate consumes Empathy `b44f798bb49259f9f48416b4ffebde1103e135c0`; Holon #60 is verified
-  merged as `660b941f99618806fcadd589bcdae61c519f96e4`. These are source/adoption inputs, not a
-  requirement to repair MegaLinter or finish fleet rollout before local validation.
+- PR #62 merged to `main` as `ec97ed8b3f1a4a2198aec03355600ea6c9caa1e1`; issue #61 is closed.
+- The accepted capability consumes Empathy `b44f798bb49259f9f48416b4ffebde1103e135c0`;
+  Holon #60 is merged as `660b941f99618806fcadd589bcdae61c519f96e4`.
 - See `docs/repository-gitignore.md`, its compatibility fixtures, and `CONTINUITY.md` for validation
-  evidence and limits. Existing quest snapshots above retain their separately dated observations.
+  evidence and limits.
 - After merge, Empathy #92 is the next scheduled proof. Relay #5/#49 retain shared execution and
   release gates; Pace #30 retains fleet adoption. Master epic egohygiene/.github#32 keeps
   `.gitattributes` queued under Empathy #91 after gitignore closeout.
+
+<!-- roadmap-step
+id: EGL-Q09
+status: active
+depends_on: [EGL-Q04]
+issues: [14]
+-->
+
+#### EGL-Q09 — Decide the adaptive Ruby schema boundary
+
+**State:** `active` **Depends on:** `EGL-Q04`
+
+**Outcome:** Decide whether JSONSkooma adds unique Ruby-specific value without replacing canonical
+JSON Schema contracts or affecting repositories where Ruby schema execution is inapplicable.
+
+**Exit criteria:**
+
+- [x] Current and plausible future Ruby consumers are inventoried.
+- [x] JSONSkooma support, diagnostics, packaging, maintenance, and alternatives are compared.
+- [x] The conditional-adoption decision defines applicability, overrides, skip behavior, and costs.
+- [x] A pinned full-image adapter preserves normalized paths, keyword, dialect, and versions.
+- [x] Valid, invalid, non-Ruby, schema-absent, override, and external-reference fixtures prove the boundary.
+- [ ] The bounded issue #14 PR is reviewed and merged by the maintainer.
+
+**Current evidence (2026-09-19):**
+
+- `docs/json-skooma-evaluation.md` records the source-pinned comparison and conditional-adoption
+  decision.
+- The full image installs six SHA-256-pinned gem archives totaling 351,744 bytes. A Python selector
+  emits skip evidence without initializing Ruby; the lightweight image remains unaffected.
+- Contract and container fixtures cover activation, findings, non-applicability, and overrides.
+- The adapter is available through the complementary inventory and full image without weakening the
+  no-global-hooks MegaLinter invariant; issue #35 owns automatic capability orchestration.
+- After maintainer review, issue #29 is the next ordered dependency-ready EgoLint item; its Aether
+  and Hygiene dependencies are verified closed.
 
 ### Roadmap-to-issue handoff
 

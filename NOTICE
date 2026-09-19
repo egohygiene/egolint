@@ -12,6 +12,12 @@ entrypoint. It also contains many independent lint tools and locked Node policy
 dependencies, each governed by its own license. This repository's MIT license
 does not replace any of those terms.
 
+The full image also includes JSONSkooma 0.2.7 and its content-addressed Ruby
+dependency graph (`bigdecimal`, `hana`, `regexp_parser`, `uri-idna`, and
+`zeitwerk`) for the optional Ruby-local JSON Schema capability. Those gems are
+MIT licensed. JSONSkooma source and notices are available at
+https://github.com/skryukov/json_skooma/tree/v0.2.7.
+
 Some prose rules under `.config/lint/prose/styles/proselint` are derived from
 Proselint and are BSD-3-Clause licensed. Some rules under
 `.config/lint/prose/styles/write-good` are derived from write-good and remain

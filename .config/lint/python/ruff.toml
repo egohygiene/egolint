@@ -185,6 +185,13 @@ task-tags = [
   "T201",
 ]
 
+"scripts/json_skooma.py" = [
+  # The capability launcher is a command-line boundary with explicit mapping
+  # diagnostics. It executes a validated, repository-owned argv without a shell.
+  "S603",
+  "TRY003",
+]
+
 "tests/test_megalinter_policy.py" = [
   # The test invokes only the fixed local validator module and constructs one
   # explicit module-load failure diagnostic.

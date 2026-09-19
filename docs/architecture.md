@@ -58,6 +58,19 @@ Host external programs are invoked as an executable plus argv. User data is neve
 a host shell command. The full image deliberately inherits MegaLinter's internal Bash entrypoint for
 its trusted engine policy.
 
+## Adaptive Ruby schema capability
+
+The full image contains a content-addressed JSONSkooma adapter for Ruby-local application parity.
+Its Python selector inspects only bounded project markers and `.egolint/json-skooma.json`; when
+invoked, it emits an explicit `not_applicable` report without starting Ruby unless the capability
+applies. An applicable run then uses the pinned Ruby adapter with no shell interpolation, network
+access, or runtime installation.
+
+The adapter is exposed through the complementary-tool contract and as an executable in
+`egolint-full`. It is not attached to MegaLinter's global command hooks: repository policy forbids
+those hooks because they can obscure engine results. Issue #35 owns automatic selection through the
+versioned capability registry, plan explanation, and normalized cross-adapter result integration.
+
 ## Contract and evidence boundary
 
 The Rust domain owns versioned profile, finding, suppression, evidence, per-tool result, plan, and

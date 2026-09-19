@@ -63,7 +63,8 @@ local-additions = ""
 ```
 
 `source-root` may be `.` for an in-place reviewed source export. All input paths must be normalized,
-relative, literal paths outside Git metadata and the writable `.reports/egolint/` boundary. Inputs must be regular files; symlinks are rejected.
+relative, literal paths outside Git metadata and the writable `.reports/egolint/` boundary. Inputs
+must be regular files; symlinks are rejected.
 Unknown policy fields are rejected. Scopes must include the root and follow the composition's
 order. Profiles are the complete resolved list, including `universal`. Overlay order and local
 text must exactly match the composition. Empty local text is valid; nonempty local text must be
