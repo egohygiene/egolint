@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-09-19T16:22:56Z"
+  updated_at: "2026-09-19T16:25:53Z"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -63,18 +63,21 @@ state:
   candidate:
     branch: docs/json-skooma-evaluation
     revision: null
-    pull_request: null
-    handoff_state: in-progress
+    pull_request:
+      provider: github
+      id: egohygiene/egolint#63
+      url: https://github.com/egohygiene/egolint/pull/63
+    handoff_state: review-reference-recorded
   live:
     status: verified
-    observed_at: "2026-09-19T15:50:00Z"
+    observed_at: "2026-09-19T16:25:53Z"
     default_branch_revision: ec97ed8b3f1a4a2198aec03355600ea6c9caa1e1
     issue_state: open
-    pull_request_state: not-opened
+    pull_request_state: open-draft
     notes:
       GitHub verified PR 62 merged at current main and issue 61 closed. Issue 14 is open with no
-      duplicate pull request. Aether issue 61 and Hygiene issue 27, the dependencies of the next
-      ordered issue 29, are closed.
+      duplicate pull request before publication. PR 63 is the open draft review candidate. Aether
+      issue 61 and Hygiene issue 27, the dependencies of the next ordered issue 29, are closed.
   parallel_changes: []
 review:
   status: partial
@@ -141,8 +144,9 @@ self-merge.
 ## State snapshot
 
 The candidate branches from verified main `ec97ed8b3f1a4a2198aec03355600ea6c9caa1e1`, the merge of
-PR 62. Issue 61 is closed. Issue 14 is open and had no duplicate pull request at task start. The
-candidate revision and pull request remain null until the reviewed tree is published.
+PR 62. Issue 61 is closed. Issue 14 is open and had no duplicate pull request at task start. Draft
+PR 63 publishes the review candidate; its revision remains intentionally null to avoid a
+self-reference cycle in this checkpoint.
 
 ## Completed and material changes
 
@@ -163,8 +167,7 @@ containers, and direct JSONSkooma execution are unavailable locally and must not
 
 ## Blockers, risks, unknowns, and deferred work
 
-- Current handoff gate: publish the issue 14 draft pull request, verify CI, and obtain maintainer
-  review/merge.
+- Current handoff gate: verify PR 63 CI and obtain maintainer review/merge.
 - Fleet search is bounded to indexed accessible default branches and cannot prove future absence.
 - No representative upstream JSONSkooma benchmark exists; no throughput claim is made. A future
   prototype must measure cold/warm runtime, memory, timeouts, and packaged image delta.
