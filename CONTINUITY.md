@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-09-19T20:34:34Z"
+  updated_at: "2026-09-19T20:58:42Z"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -78,17 +78,17 @@ state:
     handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: "2026-09-19T20:34:34Z"
+    observed_at: "2026-09-19T20:58:42Z"
     default_branch_revision: 7e87df84eb282842f929c3f9cfc8789e7a7b406d
     issue_state: open
     pull_request_state: draft
     notes: GitHub verifies issue 29 open and draft PR 70 at
-      97a6f83b12dc2f1b6d4b87a4021f4012b26d8d68. CI run 35467256453 and dogfood run
-      35467256404 passed all jobs.
+      14de50e41108f0b150987dae0735ecf7a4b6ad25. CI run 35468586857 and dogfood run
+      35468586843 passed all jobs.
   parallel_changes: []
 review:
   status: passed
-  reviewed_at: "2026-09-19T20:34:34Z"
+  reviewed_at: "2026-09-19T20:58:42Z"
   reviewed_by: Codex
   evidence:
     - command: python scripts/validate_repository_release_sources.py
@@ -103,15 +103,15 @@ review:
       outcome: passed
       observed_at: "2026-09-19T20:08:00Z"
       notes: All five JavaScript contract and configuration tests passed.
-    - command: GitHub Actions CI run 35467256453
+    - command: GitHub Actions CI run 35468586857
       outcome: passed
-      observed_at: "2026-09-19T20:29:00Z"
+      observed_at: "2026-09-19T20:58:42Z"
       notes:
         Rustfmt, Clippy, 146 Rust tests, generated schemas, package contents, native tests on Linux,
         macOS, and Windows, both container images, and policy contracts passed.
-    - command: GitHub Actions dogfood run 35467256404
+    - command: GitHub Actions dogfood run 35468586843
       outcome: passed
-      observed_at: "2026-09-19T20:34:34Z"
+      observed_at: "2026-09-19T20:58:42Z"
       notes: The reference consumer completed and uploaded its dogfood evidence.
   environment_limitations:
     - Rust, Docker, Task, and Ruby are unavailable locally; their evidence comes from pinned CI.
@@ -173,14 +173,17 @@ self-reference cycle. Parent issue 29 is open after its accidental auto-close wa
   non-claims in both JSON and human-readable output.
 - Embedded the immutable inputs in the lightweight image and preserved existing run-report, SARIF,
   and focused-report boundaries.
+- Exposed the focused release report and authorized adoption override through the check-only GitHub
+  Action, and aligned local and release-workflow schema verification with CI.
 
 ## Validation and review evidence
 
-All 77 Python tests and 170 subtests, five JavaScript tests, immutable-source and policy checks,
-Prettier, and `git diff --check` pass locally. CI run 35467256453 passed Rustfmt, Clippy, 146 Rust
-tests, package contents, generated schemas, cross-platform native tests, policy contracts, and both
-container images on implementation head `97a6f83b12dc2f1b6d4b87a4021f4012b26d8d68`. Dogfood run
-35467256404 also passed and uploaded its reference-consumer evidence.
+All 77 Python tests and 170 subtests, 12 integration-distribution tests, five JavaScript tests,
+immutable-source and policy checks, configured Ruff formatting and lint, Prettier, shell syntax,
+YAML parsing, and `git diff --check` pass locally. CI run 35468586857 passed Rustfmt, Clippy, 146
+Rust tests, package contents, generated schemas, cross-platform native tests, policy contracts, and
+both container images on implementation head `14de50e41108f0b150987dae0735ecf7a4b6ad25`.
+Dogfood run 35468586843 also passed and uploaded its reference-consumer evidence.
 
 ## Blockers, risks, unknowns, and deferred work
 
