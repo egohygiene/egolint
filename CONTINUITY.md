@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-09-19T00:52:00Z'
+  updated_at: '2026-09-19T00:56:00Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -63,21 +63,25 @@ state:
   candidate:
     branch: feat/gitignore-conformance
     revision: null
-    pull_request: null
-    handoff_state: ready-for-review
+    pull_request:
+      provider: github
+      id: egohygiene/egolint#62
+      url: https://github.com/egohygiene/egolint/pull/62
+    handoff_state: review-reference-recorded
   live:
     status: verified
-    observed_at: '2026-09-19T00:52:00Z'
+    observed_at: '2026-09-19T00:56:00Z'
     default_branch_revision: fc6f0c0496c8b8d4c0690fdd2fdb69a9538866fa
     issue_state: open
-    pull_request_state: not-applicable
-    notes: GitHub verified main, issue 61 open, Holon PR 60 merged and issue 58 closed, and EgoLint
-      issue 55 still open. No issue 61 PR existed at this pre-publication checkpoint; discover its review
-      link from issue 61 and the master epic after publication. Recheck mutable state before resuming.
+    pull_request_state: open
+    notes: GitHub verified PR 62 open and mergeable on the recorded base, issue 61 open, Holon PR 60
+      merged and issue 58 closed, and issue 55 still open. Initial candidate CI passed Rust, three-OS
+      native rules, schemas, contracts, JavaScript, and Identity; its CLI-image job found the omitted
+      catalog COPY, corrected in this follow-up. Verify the new head and image/remaining CI before merging.
   parallel_changes: []
 review:
   status: partial
-  reviewed_at: '2026-09-19T00:52:00Z'
+  reviewed_at: '2026-09-19T00:56:00Z'
   reviewed_by: Codex
   evidence:
   - command: cargo fmt --all --check; cargo clippy --all-targets --all-features --locked -- -D warnings;
@@ -106,6 +110,12 @@ review:
     notes: Owning issue 61 and Holon PR 60 supplied as live-evidence URLs. Structure, freshness, local
       Git, and declared external evidence are valid; the expected upstream-release warning preserves
       observe.
+  - command: GitHub Actions CI 35410796431 and associated PR 62 workflows on 9b22c4d7fab8381a354636c6f8ea46867a27e483
+    outcome: failed
+    observed_at: '2026-09-19T00:56:00Z'
+    notes: Rust core, Linux/macOS/Windows native rules, schemas, contracts, JavaScript workflows, and
+      Identity passed. CLI image failed on missing catalog COPY; this follow-up adds it. New-head CI
+      must verify packaging.
   environment_limitations:
   - Docker is unavailable locally; multi-OS, container, and full dogfood CI results must be verified
     on the published candidate.
@@ -149,8 +159,8 @@ The candidate branches from verified main `fc6f0c0496c8b8d4c0690fdd2fdb69a953886
 Holon PR 60 is verified merged as `660b941f99618806fcadd589bcdae61c519f96e4`, satisfying issue 58.
 Empathy source `b44f798bb49259f9f48416b4ffebde1103e135c0` and Filament pilot
 `c3eb64b8087face7504e7571dc8396c19525649f` remain the accepted semantic inputs. The candidate's
-own revision is intentionally null; obtain the tested/published tree and PR from issue 61/epic 32.
-This pre-publication snapshot does not claim that the candidate is merged.
+own revision is intentionally null; PR 62 and issue 61/epic 32 record the published tree.
+PR 62 is an open review candidate; this checkpoint does not claim a merge.
 
 ## Completed and material changes
 
@@ -168,7 +178,9 @@ This pre-publication snapshot does not claim that the candidate is merged.
 Pinned Rust formatting, deny-warnings Clippy, all 140 Rust tests, 62 Python tests, 11 JavaScript
 tests, 18 CLI schema comparisons, crate packaging, and native continuity validation passed locally. Git fixtures use disposable
 repositories and synthetic payloads. CI on the published head must supply multi-OS/container and
-full dogfood evidence; no local Docker result is claimed. The PR/epic records post-publication CI.
+full dogfood evidence; no local Docker result is claimed. Initial-head CI passed Rust, three-OS native rules, schemas, contracts, JavaScript, and Identity.
+Its CLI-image job found a missing catalog COPY; this follow-up fixes that packaging boundary.
+The PR/epic records new-head CI and any remaining checks.
 
 ## Blockers, risks, unknowns, and deferred work
 

@@ -13,6 +13,7 @@ COPY .config/rules/portability.toml .config/rules/portability.toml
 COPY .config/rules/repository-continuity.v1.toml .config/rules/repository-continuity.v1.toml
 COPY .config/rules/repository-intelligence.v1.toml .config/rules/repository-intelligence.v1.toml
 COPY .config/rules/repository-presentation.v1.toml .config/rules/repository-presentation.v1.toml
+COPY .config/rules/repository-gitignore.v1.json .config/rules/repository-gitignore.v1.json
 COPY .config/rules/javascript-architecture.v1.json .config/rules/javascript-architecture.v1.json
 COPY .config/megalinter/tool-matrix.json .config/megalinter/tool-matrix.json
 COPY .config/megalinter/snapshots/ .config/megalinter/snapshots/
