@@ -28,15 +28,13 @@ const HYGIENE_POLICY_ID: &str = "egohygiene.repository-release-policy/v1";
 const HYGIENE_POLICY_VERSION: &str = "1.0.0-alpha.1";
 const AETHER_CONTRACT_ID: &str = "egohygiene.repository-release/v1";
 const AETHER_CONTRACT_VERSION: &str = "1.0.0";
-const AETHER_SCHEMA_URL: &str =
-    "https://egohygiene.io/schemas/aether/repository-release/v1.json";
+const AETHER_SCHEMA_URL: &str = "https://egohygiene.io/schemas/aether/repository-release/v1.json";
 const AETHER_SOURCE_REVISION: &str = "8a2a3d08f3aa9da3847bd5277843506ab855192e";
 const HYGIENE_SOURCE_REVISION: &str = "28f9d6c7519d820644572634ba4476614f418d83";
 const SOURCE_LOCK: &str = include_str!("../../.config/rules/repository-release-sources.v1.json");
 const AETHER_SCHEMA: &str =
     include_str!("../../vendor/aether/aether.repository-release.v1.schema.json");
-const HYGIENE_POLICY: &str =
-    include_str!("../../vendor/hygiene/repository-release-policy.v1.json");
+const HYGIENE_POLICY: &str = include_str!("../../vendor/hygiene/repository-release-policy.v1.json");
 const MAXIMUM_DECLARATION_BYTES: usize = 4 * 1024 * 1024;
 
 /// Repository profile named by the Aether declaration and Hygiene policy.
@@ -266,7 +264,9 @@ impl RepositoryReleaseReport {
     /// externally owned publication evidence.
     pub fn validate(&self) -> Result<()> {
         if self.schema_version != CONTRACT_VERSION || self.contract != REPORT_CONTRACT {
-            return Err(configuration("unsupported repository-release report contract"));
+            return Err(configuration(
+                "unsupported repository-release report contract",
+            ));
         }
         if self.declaration.path != Path::new(DECLARATION_PATH) {
             return Err(configuration("repository-release declaration path drifted"));
@@ -277,8 +277,14 @@ impl RepositoryReleaseReport {
         {
             return Err(configuration("repository-release rationale is invalid"));
         }
-        if self.repository.as_deref().is_some_and(|name| !valid_repository(name)) {
-            return Err(configuration("repository-release repository must use owner/name form"));
+        if self
+            .repository
+            .as_deref()
+            .is_some_and(|name| !valid_repository(name))
+        {
+            return Err(configuration(
+                "repository-release repository must use owner/name form",
+            ));
         }
         match self.declaration.state {
             ReleaseDeclarationState::Present if self.declaration.sha256.is_none() => {
@@ -298,20 +304,22 @@ impl RepositoryReleaseReport {
                 || slot.authority.trim().is_empty()
                 || !slot_ids.insert(slot.id.as_str())
             {
-                return Err(configuration("repository-release slots must be unique and named"));
+                return Err(configuration(
+                    "repository-release slots must be unique and named",
+                ));
             }
         }
         let required = count_requirement(&self.applicability.slots, ReleaseRequirement::Required);
         let advisory = count_requirement(&self.applicability.slots, ReleaseRequirement::Advisory);
-        let not_applicable = count_requirement(
-            &self.applicability.slots,
-            ReleaseRequirement::NotApplicable,
-        );
+        let not_applicable =
+            count_requirement(&self.applicability.slots, ReleaseRequirement::NotApplicable);
         if self.summary.required_slots != required
             || self.summary.advisory_slots != advisory
             || self.summary.not_applicable_slots != not_applicable
         {
-            return Err(configuration("repository-release slot counts do not match applicability"));
+            return Err(configuration(
+                "repository-release slot counts do not match applicability",
+            ));
         }
         let applicable = required + advisory;
         match self.state {
@@ -323,7 +331,9 @@ impl RepositoryReleaseReport {
                     || self.summary.external_evidence_items != 0
                     || self.summary.unavailable_evidence_items != 0 =>
             {
-                return Err(configuration("compliant release evidence requires complete local validation"));
+                return Err(configuration(
+                    "compliant release evidence requires complete local validation",
+                ));
             }
             ReleaseEvidenceState::Advisory
                 if !matches!(
@@ -331,23 +341,31 @@ impl RepositoryReleaseReport {
                     Some(ReleaseAdoptionState::Advisory | ReleaseAdoptionState::Exempt)
                 ) =>
             {
-                return Err(configuration("advisory evidence requires advisory or exempt adoption"));
+                return Err(configuration(
+                    "advisory evidence requires advisory or exempt adoption",
+                ));
             }
             ReleaseEvidenceState::Unavailable
                 if self.declaration.state != ReleaseDeclarationState::Missing
                     && self.summary.unavailable_evidence_items == 0
                     && self.summary.validation_complete =>
             {
-                return Err(configuration("unavailable evidence requires a missing or incomplete source"));
+                return Err(configuration(
+                    "unavailable evidence requires a missing or incomplete source",
+                ));
             }
             ReleaseEvidenceState::External if self.summary.external_evidence_items == 0 => {
-                return Err(configuration("external evidence requires an explicitly external item"));
+                return Err(configuration(
+                    "external evidence requires an explicitly external item",
+                ));
             }
             ReleaseEvidenceState::Invalid
                 if self.declaration.state != ReleaseDeclarationState::Invalid
                     && self.summary.checks_failed == 0 =>
             {
-                return Err(configuration("invalid evidence requires an invalid declaration or failed check"));
+                return Err(configuration(
+                    "invalid evidence requires an invalid declaration or failed check",
+                ));
             }
             ReleaseEvidenceState::NotApplicable
                 if self.applicability.adoption_state
@@ -358,7 +376,9 @@ impl RepositoryReleaseReport {
                         .iter()
                         .any(|slot| slot.requirement != ReleaseRequirement::NotApplicable) =>
             {
-                return Err(configuration("not-applicable evidence requires explicit non-applicability"));
+                return Err(configuration(
+                    "not-applicable evidence requires explicit non-applicability",
+                ));
             }
             _ => {}
         }
@@ -681,6 +701,7 @@ struct HygienePolicy {
     version: String,
     status: String,
     owner: String,
+    updated: String,
     purpose: String,
     aether_contract: HygieneAetherContract,
     requirements: Vec<ReleaseRequirement>,
@@ -946,7 +967,9 @@ fn validate_bundled_inputs(
         || source_lock.sources.len() != 2
         || source_lock.reviewed_at != "2026-09-19"
     {
-        return Err(configuration("repository-release source lock is unsupported"));
+        return Err(configuration(
+            "repository-release source lock is unsupported",
+        ));
     }
     let source_ids = source_lock
         .sources
@@ -959,7 +982,9 @@ fn validate_bundled_inputs(
             "hygiene-repository-release-profile",
         ])
     {
-        return Err(configuration("repository-release source identities drifted"));
+        return Err(configuration(
+            "repository-release source identities drifted",
+        ));
     }
     for source in &source_lock.sources {
         let (expected_repository, expected_revision, expected_path, expected_digest, bytes) =
@@ -994,6 +1019,7 @@ fn validate_bundled_inputs(
         || policy.version != HYGIENE_POLICY_VERSION
         || policy.owner != "egohygiene/hygiene"
         || policy.status != "proposed"
+        || policy.updated != "2026-08-31"
         || policy.purpose.trim().is_empty()
         || policy.aether_contract.id != AETHER_CONTRACT_ID
         || policy.aether_contract.version != AETHER_CONTRACT_VERSION
@@ -1068,8 +1094,16 @@ fn validate_bundled_inputs(
             return Err(configuration("repository-release policy slots are invalid"));
         }
     }
-    validate_overrides(&policy.profile_overrides, &slot_ids, expected_profiles.len())?;
-    validate_overrides(&policy.lifecycle_overrides, &slot_ids, expected_lifecycles.len())?;
+    validate_overrides(
+        &policy.profile_overrides,
+        &slot_ids,
+        expected_profiles.len(),
+    )?;
+    validate_overrides(
+        &policy.lifecycle_overrides,
+        &slot_ids,
+        expected_lifecycles.len(),
+    )?;
     validate_overrides(&policy.visibility_overrides, &slot_ids, 3)?;
     if policy.migration.new_repositories != ReleaseAdoptionState::Required
         || policy.migration.existing_active_repositories != ReleaseAdoptionState::Required
@@ -1118,14 +1152,18 @@ fn validate_source_reference(reference: &ReleasePolicyReference) -> Result<()> {
         || reference.hygiene_source.revision != HYGIENE_SOURCE_REVISION
         || reference.aether_source.revision != AETHER_SOURCE_REVISION
     {
-        return Err(configuration("repository-release report source identity drifted"));
+        return Err(configuration(
+            "repository-release report source identity drifted",
+        ));
     }
     for source in [&reference.hygiene_source, &reference.aether_source] {
         if !lowercase_hex(&source.sha256, 64)
             || !lowercase_hex(&source.git_blob_sha1, 40)
             || !lowercase_hex(&source.revision, 40)
         {
-            return Err(configuration("repository-release report source digest is invalid"));
+            return Err(configuration(
+                "repository-release report source digest is invalid",
+            ));
         }
     }
     Ok(())
@@ -1244,7 +1282,10 @@ mod tests {
             )
             .expect("archived report");
 
-        assert_eq!(report.policy.hygiene_source.revision, HYGIENE_SOURCE_REVISION);
+        assert_eq!(
+            report.policy.hygiene_source.revision,
+            HYGIENE_SOURCE_REVISION
+        );
         assert_eq!(report.policy.aether_source.revision, AETHER_SOURCE_REVISION);
         assert_eq!(report.summary.required_slots, 4);
         assert_eq!(report.summary.advisory_slots, 1);
@@ -1360,11 +1401,13 @@ mod tests {
 
         assert_eq!(report.state, ReleaseEvidenceState::NotApplicable);
         assert_eq!(report.summary.not_applicable_slots, 7);
-        assert!(report
-            .applicability
-            .slots
-            .iter()
-            .all(|slot| slot.requirement == ReleaseRequirement::NotApplicable));
+        assert!(
+            report
+                .applicability
+                .slots
+                .iter()
+                .all(|slot| slot.requirement == ReleaseRequirement::NotApplicable)
+        );
     }
 
     #[test]

@@ -1,1 +1,392 @@
-{}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RepositoryReleaseReport",
+  "description": "Versioned, closed report for release applicability and future checks.",
+  "type": "object",
+  "properties": {
+    "applicability": {
+      "$ref": "#/$defs/ReleaseApplicability"
+    },
+    "boundary": {
+      "$ref": "#/$defs/ReleaseEvidenceBoundary"
+    },
+    "contract": {
+      "type": "string"
+    },
+    "declaration": {
+      "$ref": "#/$defs/ReleaseDeclarationReference"
+    },
+    "policy": {
+      "$ref": "#/$defs/ReleasePolicyReference"
+    },
+    "rationale": {
+      "type": "string"
+    },
+    "repository": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "state": {
+      "$ref": "#/$defs/ReleaseEvidenceState"
+    },
+    "summary": {
+      "$ref": "#/$defs/ReleaseEvaluationSummary"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract",
+    "policy",
+    "declaration",
+    "applicability",
+    "state",
+    "summary",
+    "boundary",
+    "rationale"
+  ],
+  "$defs": {
+    "ReleaseAdoptionState": {
+      "description": "Repository-wide adoption state selected by policy or an authorized planner.",
+      "type": "string",
+      "enum": [
+        "required",
+        "advisory",
+        "exempt",
+        "not_applicable"
+      ]
+    },
+    "ReleaseApplicability": {
+      "description": "Deterministic applicability result consumed by later release checks.",
+      "type": "object",
+      "properties": {
+        "adoption_state": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReleaseAdoptionState"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lifecycle": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReleaseLifecycle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "repository_profile": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RepositoryReleaseProfile"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "slots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReleaseSlotApplicability"
+          }
+        },
+        "source": {
+          "$ref": "#/$defs/ReleaseApplicabilitySource"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "slots"
+      ]
+    },
+    "ReleaseApplicabilitySource": {
+      "description": "Whether repository facts were selected explicitly or derived from policy.",
+      "type": "string",
+      "enum": [
+        "explicit",
+        "lifecycle_policy",
+        "unavailable"
+      ]
+    },
+    "ReleaseDeclarationReference": {
+      "description": "Privacy-safe identity and state of the local declaration.",
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state": {
+          "$ref": "#/$defs/ReleaseDeclarationState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "state"
+      ]
+    },
+    "ReleaseDeclarationState": {
+      "description": "Structural state of the repository-owned Aether declaration.",
+      "type": "string",
+      "enum": [
+        "present",
+        "missing",
+        "invalid"
+      ]
+    },
+    "ReleaseEvaluationSummary": {
+      "description": "Bounded counts explaining the focused state without retaining file payloads.",
+      "type": "object",
+      "properties": {
+        "advisory_slots": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "checks_completed": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "checks_failed": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "external_evidence_items": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "not_applicable_slots": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "required_slots": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "unavailable_evidence_items": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "validation_complete": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "required_slots",
+        "advisory_slots",
+        "not_applicable_slots",
+        "validation_complete",
+        "checks_completed",
+        "checks_failed",
+        "external_evidence_items",
+        "unavailable_evidence_items"
+      ]
+    },
+    "ReleaseEvidenceBoundary": {
+      "description": "Explicit non-claims retained in every focused report.",
+      "type": "object",
+      "properties": {
+        "external_publication": {
+          "$ref": "#/$defs/ReleaseExternalPublication"
+        },
+        "network_access": {
+          "$ref": "#/$defs/ReleaseNetworkAccess"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "network_access",
+        "external_publication"
+      ]
+    },
+    "ReleaseEvidenceState": {
+      "description": "Stable focused-report state. These values never assert publication success.",
+      "type": "string",
+      "enum": [
+        "compliant",
+        "advisory",
+        "unavailable",
+        "external",
+        "invalid",
+        "not_applicable"
+      ]
+    },
+    "ReleaseExternalPublication": {
+      "description": "What Egolint knows about externally owned delivery adapters.",
+      "type": "string",
+      "enum": [
+        "not_verified"
+      ]
+    },
+    "ReleaseLifecycle": {
+      "description": "Repository lifecycle named by the Aether declaration and Hygiene policy.",
+      "type": "string",
+      "enum": [
+        "active",
+        "incubating",
+        "internal",
+        "archived"
+      ]
+    },
+    "ReleaseNetworkAccess": {
+      "description": "Network behavior of the native evaluator.",
+      "type": "string",
+      "enum": [
+        "not_performed"
+      ]
+    },
+    "ReleasePolicyReference": {
+      "description": "Exact accepted Hygiene profile and its Aether contract binding.",
+      "type": "object",
+      "properties": {
+        "aether_contract_id": {
+          "type": "string"
+        },
+        "aether_contract_version": {
+          "type": "string"
+        },
+        "aether_schema_url": {
+          "type": "string"
+        },
+        "aether_source": {
+          "$ref": "#/$defs/ReleaseSourceLock"
+        },
+        "hygiene_source": {
+          "$ref": "#/$defs/ReleaseSourceLock"
+        },
+        "id": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "status",
+        "owner",
+        "hygiene_source",
+        "aether_contract_id",
+        "aether_contract_version",
+        "aether_schema_url",
+        "aether_source"
+      ]
+    },
+    "ReleaseRequirement": {
+      "description": "Effective applicability of one Hygiene policy slot.",
+      "type": "string",
+      "enum": [
+        "required",
+        "advisory",
+        "not_applicable"
+      ]
+    },
+    "ReleaseSlotApplicability": {
+      "description": "Effective applicability for one versioned Hygiene slot.",
+      "type": "object",
+      "properties": {
+        "authority": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "requirement": {
+          "$ref": "#/$defs/ReleaseRequirement"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "authority",
+        "requirement"
+      ]
+    },
+    "ReleaseSourceLock": {
+      "description": "Immutable source identity recorded in the accepted source lock.",
+      "type": "object",
+      "properties": {
+        "git_blob_sha1": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "source_path": {
+          "type": "string"
+        },
+        "vendored_path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "repository",
+        "revision",
+        "source_path",
+        "vendored_path",
+        "git_blob_sha1",
+        "sha256"
+      ]
+    },
+    "RepositoryReleaseProfile": {
+      "description": "Repository profile named by the Aether declaration and Hygiene policy.",
+      "type": "string",
+      "enum": [
+        "cli-library",
+        "container-image",
+        "contract",
+        "internal-only",
+        "npm-package",
+        "publication",
+        "python-package",
+        "static-site",
+        "workspace"
+      ]
+    }
+  }
+}

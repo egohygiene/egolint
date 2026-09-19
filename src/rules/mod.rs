@@ -40,13 +40,13 @@ pub use repository_presentation::{
     RepositoryPresentationPolicy, RepositoryPresentationReport, write_presentation_report_atomic,
 };
 pub use repository_release::{
-    DECLARATION_PATH as REPOSITORY_RELEASE_DECLARATION, ReleaseAdoptionState,
-    ReleaseApplicability, ReleaseApplicabilitySource, ReleaseDeclarationReference,
-    ReleaseDeclarationState, ReleaseEvaluationSummary, ReleaseEvidenceBoundary,
-    ReleaseEvidenceState, ReleaseExternalPublication, ReleaseLifecycle, ReleaseNetworkAccess,
-    ReleasePolicyReference, ReleaseRequirement, ReleaseSlotApplicability, ReleaseSourceLock,
-    ReleaseValidationEvidence, REPORT_PATH as REPOSITORY_RELEASE_REPORT,
-    RepositoryReleaseEvaluator, RepositoryReleaseProfile, RepositoryReleaseReport,
-    TOOL_ID as REPOSITORY_RELEASE_TOOL_ID, write_release_report_atomic,
+    DECLARATION_PATH as REPOSITORY_RELEASE_DECLARATION, REPORT_PATH as REPOSITORY_RELEASE_REPORT,
+    ReleaseAdoptionState, ReleaseApplicability, ReleaseApplicabilitySource,
+    ReleaseDeclarationReference, ReleaseDeclarationState, ReleaseEvaluationSummary,
+    ReleaseEvidenceBoundary, ReleaseEvidenceState, ReleaseExternalPublication, ReleaseLifecycle,
+    ReleaseNetworkAccess, ReleasePolicyReference, ReleaseRequirement, ReleaseSlotApplicability,
+    ReleaseSourceLock, ReleaseValidationEvidence, RepositoryReleaseEvaluator,
+    RepositoryReleaseProfile, RepositoryReleaseReport, TOOL_ID as REPOSITORY_RELEASE_TOOL_ID,
+    write_release_report_atomic,
 };
 pub use suppressions::apply_suppressions;

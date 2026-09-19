@@ -16,15 +16,15 @@ use egolint::rules::{
     RepositoryContract, RepositoryContractEvaluator, RepositoryIntelligenceEvaluator,
     RepositoryIntelligencePolicy, RepositoryIntelligenceReport, RepositoryInventory,
     RepositoryPresentationEvaluator, RepositoryPresentationPolicy, RepositoryPresentationReport,
-    RepositoryReleaseEvaluator, RepositoryReleaseReport, RepresentedCommit,
-    collect_commit_history, write_continuity_report_atomic, write_intelligence_report_atomic,
+    RepositoryReleaseEvaluator, RepositoryReleaseReport, RepresentedCommit, collect_commit_history,
+    write_continuity_report_atomic, write_intelligence_report_atomic,
     write_presentation_report_atomic, write_release_report_atomic,
 };
 use egolint::rules::{
     PresentationMode, REPOSITORY_CONTINUITY_REPORT, REPOSITORY_INTELLIGENCE_REPORT,
     REPOSITORY_PRESENTATION_REPORT, REPOSITORY_RELEASE_DECLARATION, REPOSITORY_RELEASE_REPORT,
-    ReleaseAdoptionState, ReleaseDeclarationState, ReleaseEvidenceState,
-    ReleaseValidationEvidence, apply_suppressions,
+    ReleaseAdoptionState, ReleaseDeclarationState, ReleaseEvidenceState, ReleaseValidationEvidence,
+    apply_suppressions,
 };
 use egolint::sarif::{EGOLINT_SARIF_REPORT, write_sarif_atomic};
 use egolint::{
@@ -696,18 +696,14 @@ fn evaluate_native(
         kind: EvidenceKind::Policy,
         path: PathBuf::from("vendor/hygiene/repository-release-policy.v1.json"),
         sha256: Some(release_report.policy.hygiene_source.sha256.clone()),
-        description: Some(
-            "Immutable Hygiene repository-release applicability profile.".to_owned(),
-        ),
+        description: Some("Immutable Hygiene repository-release applicability profile.".to_owned()),
     });
     evidence.push(EvidenceReference {
         schema_version: CONTRACT_VERSION,
         kind: EvidenceKind::Other,
         path: PathBuf::from(REPOSITORY_RELEASE_REPORT),
         sha256: None,
-        description: Some(
-            "Focused offline repository-release applicability evidence.".to_owned(),
-        ),
+        description: Some("Focused offline repository-release applicability evidence.".to_owned()),
     });
     if release_report.declaration.state == ReleaseDeclarationState::Present {
         evidence.push(EvidenceReference {
