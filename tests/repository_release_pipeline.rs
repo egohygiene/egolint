@@ -91,7 +91,11 @@ fn consumer() -> TempDir {
         "AGENTS.md",
         "Release facts: .egohygiene/release.json\n",
     );
-    write(root.path(), "CHANGELOG.md", "# Changelog\n\n## [Unreleased]\n");
+    write(
+        root.path(),
+        "CHANGELOG.md",
+        "# Changelog\n\n## [Unreleased]\n",
+    );
     write(
         root.path(),
         "Cargo.toml",
@@ -153,9 +157,7 @@ fn focused_run_cli_and_sarif_share_release_finding_identity() {
         .as_array()
         .expect("run findings")
         .iter()
-        .find(|finding| {
-            finding["rule"]["rule_id"] == "EGOLINT_RELEASE_MANUAL_WORKFLOW"
-        })
+        .find(|finding| finding["rule"]["rule_id"] == "EGOLINT_RELEASE_MANUAL_WORKFLOW")
         .expect("run workflow finding");
     assert_eq!(finding["severity"], "error");
     assert_eq!(finding["location"]["path"], ".github/workflows/release.yml");
