@@ -91,6 +91,8 @@ jobs:
             "scripts/complementary_tools.py" --check
           "/tmp/egolint-ci-python/bin/python" \
             "scripts/validate_release_inputs.py"
+          "/tmp/egolint-ci-python/bin/python" \
+            "scripts/validate_repository_release_sources.py"
 
       - name: Run Python contract tests
         run: |
