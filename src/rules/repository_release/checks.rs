@@ -856,9 +856,7 @@ fn check_workflow(inventory: &RepositoryInventory, declaration: &ReleaseDeclarat
     let Some(triggers) = yaml_mapping_value(root, "on") else {
         return workflow_trigger_failure(path, evidence);
     };
-    if !has_yaml_key_or_value(triggers, "workflow_dispatch")
-        || has_yaml_key_or_value(triggers, "push")
-    {
+    if !manual_only_trigger(triggers) {
         return workflow_trigger_failure(path, evidence);
     }
     let mut unpinned = Vec::new();
@@ -964,18 +962,18 @@ fn check_taskfile(inventory: &RepositoryInventory, declaration: &ReleaseDeclarat
         .github
         .workflow_path
         .to_string_lossy();
-    if !publish_text.contains(workflow.as_ref()) {
+    if !publish_text.contains("gh workflow run") || !publish_text.contains(workflow.as_ref()) {
         return Outcome::unavailable(
             path,
             "The release:publish task exists, but its handoff to the declared manual workflow cannot be established statically.",
-            "Make release:publish explicitly reference the declared workflow path without embedding credentials.",
+            "Make release:publish dispatch the declared path with gh workflow run without performing publication locally.",
             evidence,
         );
     }
     Outcome::passed(
         path,
-        "The Taskfile exposes all four release handoffs and explicitly names the declared manual workflow.",
-        "Keep release:publish as a credential-free handoff to the reviewed manual workflow.",
+        "The Taskfile exposes all four release handoffs and dispatches the declared manual workflow.",
+        "Keep release:publish as a bounded dispatch that does not perform or claim publication.",
         evidence,
     )
 }
@@ -1353,11 +1351,16 @@ fn yaml_mapping_value<'a>(mapping: &'a serde_yaml::Mapping, key: &str) -> Option
     mapping.get(YamlValue::String(key.to_owned()))
 }
 
-fn has_yaml_key_or_value(value: &YamlValue, target: &str) -> bool {
+fn manual_only_trigger(value: &YamlValue) -> bool {
     match value {
-        YamlValue::String(value) => value == target,
-        YamlValue::Sequence(values) => values.iter().any(|value| value.as_str() == Some(target)),
-        YamlValue::Mapping(mapping) => yaml_mapping_value(mapping, target).is_some(),
+        YamlValue::String(value) => value == "workflow_dispatch",
+        YamlValue::Sequence(values) => {
+            values.len() == 1
+                && values.first().and_then(YamlValue::as_str) == Some("workflow_dispatch")
+        }
+        YamlValue::Mapping(mapping) => {
+            mapping.len() == 1 && yaml_mapping_value(mapping, "workflow_dispatch").is_some()
+        }
         _ => false,
     }
 }

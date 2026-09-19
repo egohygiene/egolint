@@ -75,9 +75,9 @@ sanitized evidence, message, and remediation.
 | `agents_profile_pointer` | `EGOLINT_RELEASE_AGENTS_PROFILE_POINTER` | `AGENTS.md` is a regular UTF-8 file and points to `.egohygiene/release.json`.                          |
 | `aether_declaration`     | `EGOLINT_RELEASE_AETHER_DECLARATION`     | The closed declaration is valid; unavailable or externally owned evidence remains explicit.            |
 | `changelog`              | `EGOLINT_RELEASE_CHANGELOG`              | Root `CHANGELOG.md` has exact title and Unreleased headings plus valid promoted version/date headings. |
-| `manual_workflow`        | `EGOLINT_RELEASE_MANUAL_WORKFLOW`        | The configured workflow is manual-only and external actions use immutable commit or digest references. |
+| `manual_workflow`        | `EGOLINT_RELEASE_MANUAL_WORKFLOW`        | The configured workflow has only manual dispatch and pins actions to immutable commits or digests.     |
 | `release_rollback_docs`  | `EGOLINT_RELEASE_ROLLBACK_DOCS`          | The declaration contains an accepted rollback strategy and bounded repository-owned instructions.      |
-| `task_handoffs`          | `EGOLINT_RELEASE_TASK_HANDOFFS`          | The four declared Taskfile targets exist and publish explicitly names the declared manual workflow.    |
+| `task_handoffs`          | `EGOLINT_RELEASE_TASK_HANDOFFS`          | The four Taskfile targets exist and publish dispatches the exact declared manual workflow.             |
 | `version_authority`      | `EGOLINT_RELEASE_VERSION_AUTHORITY`      | Every component has one parseable authority and local values use semantic-version syntax.              |
 
 Static version drift is checked only when it is safe: one released or frozen component, one local

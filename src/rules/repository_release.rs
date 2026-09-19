@@ -1725,6 +1725,58 @@ mod tests {
     }
 
     #[test]
+    fn additional_workflow_trigger_is_a_blocking_finding() {
+        let inventory = declaration("active", "required");
+        let mut entries = inventory.entries().to_vec();
+        let workflow = entries
+            .iter_mut()
+            .find(|entry| entry.path == Path::new(".github/workflows/release.yml"))
+            .expect("workflow fixture");
+        workflow.content = b"name: Release\non:\n  workflow_dispatch:\n  schedule:\n    - cron: '0 0 * * *'\njobs:\n  release:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n".to_vec();
+        let inventory = RepositoryInventory::from_entries(entries).expect("hostile inventory");
+
+        let evaluation = RepositoryReleaseEvaluator::bundled()
+            .expect("bundled policy")
+            .evaluate(&inventory, None)
+            .expect("valid evaluation");
+
+        assert!(evaluation.findings.iter().any(|finding| {
+            finding.rule.rule_id == "EGOLINT_RELEASE_MANUAL_WORKFLOW"
+                && finding.severity == Severity::Error
+        }));
+    }
+
+    #[test]
+    fn taskfile_reference_without_dispatch_remains_unavailable() {
+        let inventory = declaration("active", "required");
+        let mut entries = inventory.entries().to_vec();
+        let taskfile = entries
+            .iter_mut()
+            .find(|entry| entry.path == Path::new("Taskfile.yml"))
+            .expect("Taskfile fixture");
+        let text = String::from_utf8(taskfile.content.clone()).expect("UTF-8 fixture");
+        taskfile.content = text.replace("gh workflow run", "echo").into_bytes();
+        let inventory = RepositoryInventory::from_entries(entries).expect("uncertain inventory");
+
+        let evaluation = RepositoryReleaseEvaluator::bundled()
+            .expect("bundled policy")
+            .evaluate(&inventory, None)
+            .expect("valid evaluation");
+        let task_check = evaluation
+            .report
+            .checks
+            .iter()
+            .find(|check| check.rule_id == "EGOLINT_RELEASE_TASK_HANDOFFS")
+            .expect("task handoff check");
+
+        assert_eq!(task_check.state, ReleaseCheckState::Unavailable);
+        assert!(evaluation.findings.iter().any(|finding| {
+            finding.rule.rule_id == "EGOLINT_RELEASE_TASK_HANDOFFS"
+                && finding.severity == Severity::Error
+        }));
+    }
+
+    #[test]
     fn advisory_rollout_preserves_failed_checks_as_warnings() {
         let inventory = declaration("incubating", "required");
         let mut entries = inventory.entries().to_vec();
