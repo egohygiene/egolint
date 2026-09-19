@@ -23,9 +23,12 @@ directly through `repository-contract` and `suppression`; a suppression requires
 `evaluation-date` input so expiry is reproducible in CI. Repository continuity additionally accepts
 an explicit base, head, disposition, transition, optional same-base parallel heads, and separately
 verified live evidence, and exposes the privacy-safe `repository-continuity-report` path. The same
-evaluation date makes exception expiry reproducible. The composite action currently targets Linux
-runners with Bash, GNU `realpath`, Rustup/Cargo, and Docker; native CLI rule packs remain the
-portable path for macOS and Windows workstations.
+evaluation date makes exception expiry reproducible. Universal repository-release applicability is
+evaluated offline on every run and exposed through `repository-release-report`; an authorized
+planner can pass `release-adoption-state` when the inferred rollout must be overridden, including
+an explicit `not-applicable`. The composite action currently targets Linux runners with Bash, GNU
+`realpath`, Rustup/Cargo, and Docker; native CLI rule packs remain the portable path for macOS and
+Windows workstations.
 [`github/action.example.yml`](github/action.example.yml) is a least-privilege consumer workflow with
 explicit commit- and image-digest sentinels to replace. Changed-only checks require enough Git
 history to compute the comparison; the example therefore uses a full checkout instead of silently

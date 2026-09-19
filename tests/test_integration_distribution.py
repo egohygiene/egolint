@@ -158,6 +158,7 @@ class IntegrationDistributionTests(unittest.TestCase):
                 "repository-continuity-report",
                 "repository-intelligence-report",
                 "repository-presentation-report",
+                "repository-release-report",
                 "debt-json",
                 "debt-markdown",
                 "raw-megalinter-json",
@@ -172,6 +173,7 @@ class IntegrationDistributionTests(unittest.TestCase):
             "repository-continuity.json",
             "repository-intelligence.json",
             "repository-presentation.json",
+            "repository-release.json",
             "debt.json",
             "debt.md",
         ):
@@ -244,6 +246,7 @@ class IntegrationDistributionTests(unittest.TestCase):
                     "INPUT_MEGALINTER_CONFIG": "",
                     "INPUT_REPOSITORY_CONTRACT": "contracts/repository.toml",
                     "INPUT_REPOSITORY_CONTINUITY": "policy/continuity.toml",
+                    "INPUT_RELEASE_ADOPTION_STATE": "not-applicable",
                     "INPUT_CONTINUITY_BASE": "a" * 40,
                     "INPUT_CONTINUITY_HEAD": "working-tree",
                     "INPUT_CONTINUITY_DISPOSITION": "updated",
@@ -304,6 +307,8 @@ class IntegrationDistributionTests(unittest.TestCase):
             self.assertIn("policy/suppression.json", arguments)
             self.assertIn("--evaluation-date", arguments)
             self.assertIn("2026-08-19", arguments)
+            self.assertIn("--release-adoption-state", arguments)
+            self.assertIn("not-applicable", arguments)
 
             action_outputs = dict(
                 line.split("=", 1) for line in output.read_text(encoding="utf-8").splitlines()
@@ -319,6 +324,9 @@ class IntegrationDistributionTests(unittest.TestCase):
                     ),
                     "repository-presentation-report": (
                         ".reports/egolint/repository-presentation.json"
+                    ),
+                    "repository-release-report": (
+                        ".reports/egolint/repository-release.json"
                     ),
                     "debt-json": ".reports/egolint/debt.json",
                     "debt-markdown": ".reports/egolint/debt.md",
@@ -430,7 +438,7 @@ class IntegrationDistributionTests(unittest.TestCase):
         self.assertIn("subject-digest:", workflow)
         self.assertRegex(
             workflow,
-            r"\breport \\\n\s+debt \\\n\s+repository-contract \\\n\s+repository-intelligence \\\n\s+repository-intelligence-report \\\n\s+repository-presentation \\\n\s+repository-presentation-report \\\n\s+repository-continuity \\\n\s+repository-continuity-report; do",
+            r"\breport \\\n\s+debt \\\n\s+repository-contract \\\n\s+repository-intelligence \\\n\s+repository-intelligence-report \\\n\s+repository-presentation \\\n\s+repository-presentation-report \\\n\s+repository-continuity \\\n\s+repository-continuity-report \\\n\s+repository-gitignore \\\n\s+repository-gitignore-report \\\n\s+repository-release-report; do",
         )
         self.assertNotRegex(workflow, r"tags:.*:(latest|edge)\s*$")
 
