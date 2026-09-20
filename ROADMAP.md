@@ -330,8 +330,11 @@ release declaration, changelog, version authority, and publication entrypoints.
 - Checkpoint 2 on PR #70 makes applicability universal, composes lifecycle and explicit rollout,
   and defines closed focused-report states without permitting empty validation to claim
   conformance.
-- Individual native checks, the complete fixture matrix, and final dogfood remain checkpoints 3–5
-  on focused pull requests tracked by issue #29.
+- Checkpoint 3 on draft PR #71 maps all seven policy slots to stable offline rules for declarations,
+  changelogs, version authorities, Taskfile handoffs, and manual workflow pins. Pinned CI validation
+  and review remain in progress.
+- The complete fixture matrix and final dogfood remain checkpoints 4–5 on focused pull requests
+  tracked by issue #29.
 
 ### Roadmap-to-issue handoff
 

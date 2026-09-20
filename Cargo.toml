@@ -31,6 +31,7 @@ include = [
   "/tests/empathy_compatibility.rs",
   "/tests/fix_pipeline.rs",
   "/tests/repository_gitignore_pipeline.rs",
+  "/tests/repository_release_pipeline.rs",
   "/tests/javascript_architecture_pipeline.rs",
   "/tests/fixtures/compatibility/**",
   "/tests/fixtures/contracts/**",

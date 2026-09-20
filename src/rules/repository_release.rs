@@ -10,10 +10,15 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
-use crate::contracts::CONTRACT_VERSION;
+use crate::contracts::{
+    CONTRACT_VERSION, EvidenceKind, EvidenceReference, Finding, RuleIdentity, RuleOwnership,
+    Severity, SourceLocation,
+};
 use crate::error::{EgolintError, Result};
 
 use super::{RepositoryEntryKind, RepositoryInventory};
+
+mod checks;
 
 /// Stable tool identifier used by the universal native capability.
 pub const TOOL_ID: &str = "EGOLINT_REPOSITORY_RELEASE";
@@ -36,6 +41,10 @@ const AETHER_SCHEMA: &str =
     include_str!("../../vendor/aether/aether.repository-release.v1.schema.json");
 const HYGIENE_POLICY: &str = include_str!("../../vendor/hygiene/repository-release-policy.v1.json");
 const MAXIMUM_DECLARATION_BYTES: usize = 4 * 1024 * 1024;
+
+const POLICY_PATH: &str = "vendor/hygiene/repository-release-policy.v1.json";
+
+const DECLARATION_RULE: &str = "EGOLINT_RELEASE_AETHER_DECLARATION";
 
 /// Repository profile named by the Aether declaration and Hygiene policy.
 #[derive(
@@ -191,6 +200,32 @@ pub struct ReleaseSlotApplicability {
     pub requirement: ReleaseRequirement,
 }
 
+/// Result of one source-pinned Hygiene release-policy slot.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum ReleaseCheckState {
+    Passed,
+    Failed,
+    Unavailable,
+    External,
+    NotApplicable,
+}
+
+/// Stable native evidence for one repository-release check.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields, rename_all = "snake_case")]
+pub struct ReleaseCheckResult {
+    pub slot_id: String,
+    pub rule_id: String,
+    pub requirement: ReleaseRequirement,
+    pub authority: String,
+    pub state: ReleaseCheckState,
+    pub message: String,
+    pub remediation: String,
+    pub location: SourceLocation,
+    pub evidence: Vec<EvidenceReference>,
+}
+
 /// Deterministic applicability result consumed by later release checks.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "snake_case")]
@@ -238,7 +273,7 @@ pub enum ReleaseExternalPublication {
     NotVerified,
 }
 
-/// Versioned, closed report for release applicability and future checks.
+/// Versioned, closed report for release applicability and mechanical checks.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "snake_case")]
 pub struct RepositoryReleaseReport {
@@ -249,10 +284,18 @@ pub struct RepositoryReleaseReport {
     pub policy: ReleasePolicyReference,
     pub declaration: ReleaseDeclarationReference,
     pub applicability: ReleaseApplicability,
+    pub checks: Vec<ReleaseCheckResult>,
     pub state: ReleaseEvidenceState,
     pub summary: ReleaseEvaluationSummary,
     pub boundary: ReleaseEvidenceBoundary,
     pub rationale: String,
+}
+
+/// Native repository-release result shared by reports, findings, and SARIF.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RepositoryReleaseEvaluation {
+    pub report: RepositoryReleaseReport,
+    pub findings: Vec<Finding>,
 }
 
 impl RepositoryReleaseReport {
@@ -310,6 +353,51 @@ impl RepositoryReleaseReport {
                 ));
             }
         }
+        if self.checks.len() != self.applicability.slots.len() {
+            return Err(configuration(
+                "repository-release checks must cover every resolved slot",
+            ));
+        }
+        let slots_by_id = self
+            .applicability
+            .slots
+            .iter()
+            .map(|slot| (slot.id.as_str(), slot))
+            .collect::<BTreeMap<_, _>>();
+        let mut check_ids = BTreeSet::new();
+        for check in &self.checks {
+            let Some(slot) = slots_by_id.get(check.slot_id.as_str()) else {
+                return Err(configuration(
+                    "repository-release check references an unknown slot",
+                ));
+            };
+            if check.rule_id != checks::rule_id_for_slot(&check.slot_id)
+                || check.requirement != slot.requirement
+                || check.authority != slot.authority
+                || !check_ids.insert(check.slot_id.as_str())
+                || check.message.trim().is_empty()
+                || check.remediation.trim().is_empty()
+                || check.message.len() > 4_096
+                || check.remediation.len() > 4_096
+                || check.message.chars().any(char::is_control)
+                || check.remediation.chars().any(char::is_control)
+            {
+                return Err(configuration(
+                    "repository-release check identity or text is invalid",
+                ));
+            }
+            if (check.requirement == ReleaseRequirement::NotApplicable)
+                != (check.state == ReleaseCheckState::NotApplicable)
+            {
+                return Err(configuration(
+                    "repository-release check state contradicts applicability",
+                ));
+            }
+            check.location.validate()?;
+            for evidence in &check.evidence {
+                evidence.validate()?;
+            }
+        }
         let required = count_requirement(&self.applicability.slots, ReleaseRequirement::Required);
         let advisory = count_requirement(&self.applicability.slots, ReleaseRequirement::Advisory);
         let not_applicable =
@@ -323,6 +411,44 @@ impl RepositoryReleaseReport {
             ));
         }
         let applicable = required + advisory;
+        let checks_completed = self
+            .checks
+            .iter()
+            .filter(|check| {
+                matches!(
+                    check.state,
+                    ReleaseCheckState::Passed
+                        | ReleaseCheckState::Failed
+                        | ReleaseCheckState::External
+                )
+            })
+            .count() as u64;
+        let checks_failed = self
+            .checks
+            .iter()
+            .filter(|check| check.state == ReleaseCheckState::Failed)
+            .count() as u64;
+        let unavailable_checks = self
+            .checks
+            .iter()
+            .filter(|check| check.state == ReleaseCheckState::Unavailable)
+            .count() as u64;
+        let external_checks = self
+            .checks
+            .iter()
+            .filter(|check| check.state == ReleaseCheckState::External)
+            .count() as u64;
+        let validation_complete = checks_completed == applicable && unavailable_checks == 0;
+        if self.summary.checks_completed != checks_completed
+            || self.summary.checks_failed != checks_failed
+            || self.summary.validation_complete != validation_complete
+            || self.summary.external_evidence_items < external_checks
+            || self.summary.unavailable_evidence_items < unavailable_checks
+        {
+            return Err(configuration(
+                "repository-release validation summary does not match checks",
+            ));
+        }
         match self.state {
             ReleaseEvidenceState::Compliant
                 if self.declaration.state != ReleaseDeclarationState::Present
@@ -330,7 +456,11 @@ impl RepositoryReleaseReport {
                     || self.summary.checks_failed != 0
                     || self.summary.checks_completed < applicable
                     || self.summary.external_evidence_items != 0
-                    || self.summary.unavailable_evidence_items != 0 =>
+                    || self.summary.unavailable_evidence_items != 0
+                    || self.checks.iter().any(|check| {
+                        check.state != ReleaseCheckState::Passed
+                            && check.state != ReleaseCheckState::NotApplicable
+                    }) =>
             {
                 return Err(configuration(
                     "compliant release evidence requires complete local validation",
@@ -340,7 +470,7 @@ impl RepositoryReleaseReport {
                 if !matches!(
                     self.applicability.adoption_state,
                     Some(ReleaseAdoptionState::Advisory | ReleaseAdoptionState::Exempt)
-                ) =>
+                ) || self.declaration.state != ReleaseDeclarationState::Present =>
             {
                 return Err(configuration(
                     "advisory evidence requires advisory or exempt adoption",
@@ -375,7 +505,11 @@ impl RepositoryReleaseReport {
                         .applicability
                         .slots
                         .iter()
-                        .any(|slot| slot.requirement != ReleaseRequirement::NotApplicable) =>
+                        .any(|slot| slot.requirement != ReleaseRequirement::NotApplicable)
+                    || self
+                        .checks
+                        .iter()
+                        .any(|check| check.state != ReleaseCheckState::NotApplicable) =>
             {
                 return Err(configuration(
                     "not-applicable evidence requires explicit non-applicability",
@@ -399,14 +533,6 @@ impl RepositoryReleaseReport {
             REPORT_PATH,
         )
     }
-}
-
-/// Validation coverage supplied by the release checks implemented in a later checkpoint.
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
-pub struct ReleaseValidationEvidence {
-    pub complete: bool,
-    pub checks_completed: u64,
-    pub checks_failed: u64,
 }
 
 /// Source-pinned release applicability evaluator.
@@ -459,8 +585,9 @@ impl RepositoryReleaseEvaluator {
     /// Resolve local declaration applicability without network access.
     ///
     /// `explicit_adoption` is intended for an authorized planner. Without it,
-    /// rollout is derived from the accepted lifecycle policy. Incomplete
-    /// validation can never produce `compliant`.
+    /// rollout is derived from the accepted lifecycle policy. The evaluator
+    /// derives validation coverage from the local repository; callers cannot
+    /// supply or inflate completion counters.
     ///
     /// # Errors
     ///
@@ -471,51 +598,61 @@ impl RepositoryReleaseEvaluator {
         &self,
         inventory: &RepositoryInventory,
         explicit_adoption: Option<ReleaseAdoptionState>,
-        validation: ReleaseValidationEvidence,
-    ) -> Result<RepositoryReleaseReport> {
+    ) -> Result<RepositoryReleaseEvaluation> {
         let declaration = inspect_declaration(inventory);
-        let (reference, repository, profile, lifecycle, external, unavailable, invalid_reason) =
-            match declaration {
-                DeclarationInspection::Missing => (
-                    ReleaseDeclarationReference {
-                        path: PathBuf::from(DECLARATION_PATH),
-                        state: ReleaseDeclarationState::Missing,
-                        sha256: None,
-                    },
-                    None,
-                    None,
-                    None,
-                    0,
-                    0,
-                    None,
-                ),
-                DeclarationInspection::Invalid { digest, reason } => (
-                    ReleaseDeclarationReference {
-                        path: PathBuf::from(DECLARATION_PATH),
-                        state: ReleaseDeclarationState::Invalid,
-                        sha256: digest,
-                    },
-                    None,
-                    None,
-                    None,
-                    0,
-                    0,
-                    Some(reason),
-                ),
-                DeclarationInspection::Present(data) => (
-                    ReleaseDeclarationReference {
-                        path: PathBuf::from(DECLARATION_PATH),
-                        state: ReleaseDeclarationState::Present,
-                        sha256: Some(data.digest),
-                    },
-                    Some(data.repository),
-                    Some(data.profile),
-                    Some(data.lifecycle),
-                    data.external_evidence_items,
-                    data.unavailable_evidence_items,
-                    None,
-                ),
-            };
+        let (
+            reference,
+            repository,
+            profile,
+            lifecycle,
+            document,
+            declared_external,
+            declared_unavailable,
+            invalid_reason,
+        ) = match declaration {
+            DeclarationInspection::Missing => (
+                ReleaseDeclarationReference {
+                    path: PathBuf::from(DECLARATION_PATH),
+                    state: ReleaseDeclarationState::Missing,
+                    sha256: None,
+                },
+                None,
+                None,
+                None,
+                None,
+                0,
+                0,
+                None,
+            ),
+            DeclarationInspection::Invalid { digest, reason } => (
+                ReleaseDeclarationReference {
+                    path: PathBuf::from(DECLARATION_PATH),
+                    state: ReleaseDeclarationState::Invalid,
+                    sha256: digest,
+                },
+                None,
+                None,
+                None,
+                None,
+                0,
+                0,
+                Some(reason),
+            ),
+            DeclarationInspection::Present(data) => (
+                ReleaseDeclarationReference {
+                    path: PathBuf::from(DECLARATION_PATH),
+                    state: ReleaseDeclarationState::Present,
+                    sha256: Some(data.digest),
+                },
+                Some(data.repository),
+                Some(data.profile),
+                Some(data.lifecycle),
+                Some(data.document),
+                data.external_evidence_items,
+                data.unavailable_evidence_items,
+                None,
+            ),
+        };
 
         let adoption = explicit_adoption.or_else(|| lifecycle.map(|value| self.rollout(value)));
         let applicability_source = if explicit_adoption.is_some() {
@@ -545,10 +682,41 @@ impl RepositoryReleaseEvaluator {
         let required_slots = count_requirement(&slots, ReleaseRequirement::Required);
         let advisory_slots = count_requirement(&slots, ReleaseRequirement::Advisory);
         let not_applicable_slots = count_requirement(&slots, ReleaseRequirement::NotApplicable);
+        let check_results =
+            checks::evaluate(inventory, document.as_ref(), &slots, &self.policy_reference)?;
+        let checks_completed = check_results
+            .iter()
+            .filter(|check| {
+                matches!(
+                    check.state,
+                    ReleaseCheckState::Passed
+                        | ReleaseCheckState::Failed
+                        | ReleaseCheckState::External
+                )
+            })
+            .count() as u64;
+        let checks_failed = check_results
+            .iter()
+            .filter(|check| check.state == ReleaseCheckState::Failed)
+            .count() as u64;
+        let unavailable_checks = check_results
+            .iter()
+            .filter(|check| check.state == ReleaseCheckState::Unavailable)
+            .count() as u64;
+        let external_checks = check_results
+            .iter()
+            .filter(|check| check.state == ReleaseCheckState::External)
+            .count() as u64;
+        let validation_complete =
+            checks_completed == required_slots + advisory_slots && unavailable_checks == 0;
+        let external = declared_external.max(external_checks);
+        let unavailable = declared_unavailable.max(unavailable_checks);
         let (state, rationale) = resolve_state(
             reference.state,
             adoption,
-            validation,
+            validation_complete,
+            checks_completed,
+            checks_failed,
             required_slots + advisory_slots,
             external,
             unavailable,
@@ -567,14 +735,15 @@ impl RepositoryReleaseEvaluator {
                 source: applicability_source,
                 slots,
             },
+            checks: check_results,
             state,
             summary: ReleaseEvaluationSummary {
                 required_slots,
                 advisory_slots,
                 not_applicable_slots,
-                validation_complete: validation.complete,
-                checks_completed: validation.checks_completed,
-                checks_failed: validation.checks_failed,
+                validation_complete,
+                checks_completed,
+                checks_failed,
                 external_evidence_items: external,
                 unavailable_evidence_items: unavailable,
             },
@@ -585,7 +754,19 @@ impl RepositoryReleaseEvaluator {
             rationale,
         };
         report.validate()?;
-        Ok(report)
+        let mut findings = checks::findings(&report.checks);
+        if report.applicability.slots.is_empty() {
+            if let Some(finding) = declaration_finding(&report) {
+                findings.push(finding);
+            }
+        }
+        findings.sort_by(|left, right| {
+            left.rule
+                .rule_id
+                .cmp(&right.rule.rule_id)
+                .then_with(|| left.id.cmp(&right.id))
+        });
+        Ok(RepositoryReleaseEvaluation { report, findings })
     }
 
     fn rollout(&self, lifecycle: ReleaseLifecycle) -> ReleaseAdoptionState {
@@ -767,6 +948,7 @@ struct DeclarationData {
     repository: String,
     profile: RepositoryReleaseProfile,
     lifecycle: ReleaseLifecycle,
+    document: checks::ReleaseDeclaration,
     external_evidence_items: u64,
     unavailable_evidence_items: u64,
 }
@@ -777,7 +959,7 @@ enum DeclarationInspection {
         digest: Option<String>,
         reason: String,
     },
-    Present(DeclarationData),
+    Present(Box<DeclarationData>),
 }
 
 fn inspect_declaration(inventory: &RepositoryInventory) -> DeclarationInspection {
@@ -807,49 +989,23 @@ fn inspect_declaration(inventory: &RepositoryInventory) -> DeclarationInspection
             };
         }
     };
-    let schema_version = value.get("schema_version").and_then(Value::as_str);
-    let schema_url = value.get("$schema").and_then(Value::as_str);
-    if schema_version != Some(AETHER_CONTRACT_ID)
-        || schema_url.is_some_and(|candidate| candidate != AETHER_SCHEMA_URL)
-    {
-        return DeclarationInspection::Invalid {
-            digest: Some(digest),
-            reason: "the release declaration does not select the accepted Aether contract"
-                .to_owned(),
-        };
-    }
-    let Some(repository) = value.get("repository") else {
-        return invalid_declaration(digest, "the release declaration has no repository facts");
+    let document = match checks::parse_declaration(value.clone()) {
+        Ok(document) => document,
+        Err(reason) => return invalid_declaration(digest, &reason),
     };
-    let Some(repository_id) = repository.get("id").and_then(Value::as_str) else {
-        return invalid_declaration(digest, "the release declaration has no repository identity");
-    };
-    if !valid_repository(repository_id) {
-        return invalid_declaration(digest, "the release declaration repository is invalid");
-    }
-    let Some(profile) = repository
-        .get("release_profile")
-        .and_then(Value::as_str)
-        .and_then(parse_json_enum)
-    else {
-        return invalid_declaration(digest, "the release declaration profile is unsupported");
-    };
-    let Some(lifecycle) = repository
-        .get("lifecycle")
-        .and_then(Value::as_str)
-        .and_then(parse_json_enum)
-    else {
-        return invalid_declaration(digest, "the release declaration lifecycle is unsupported");
-    };
+    let repository_id = document.repository.id.clone();
+    let profile = document.repository.release_profile;
+    let lifecycle = document.repository.lifecycle;
     let (external_evidence_items, unavailable_evidence_items) = evidence_counts(&value);
-    DeclarationInspection::Present(DeclarationData {
+    DeclarationInspection::Present(Box::new(DeclarationData {
         digest,
-        repository: repository_id.to_owned(),
+        repository: repository_id,
         profile,
         lifecycle,
+        document,
         external_evidence_items,
         unavailable_evidence_items,
-    })
+    }))
 }
 
 fn invalid_declaration(digest: String, reason: &str) -> DeclarationInspection {
@@ -893,11 +1049,70 @@ fn evidence_counts(value: &Value) -> (u64, u64) {
     )
 }
 
+fn declaration_finding(report: &RepositoryReleaseReport) -> Option<Finding> {
+    let (message, remediation) = match report.declaration.state {
+        ReleaseDeclarationState::Missing => (
+            "The repository release declaration is unavailable.",
+            format!(
+                "Create {DECLARATION_PATH} from the pinned Aether contract, or have an authorized planner select not-applicable."
+            ),
+        ),
+        ReleaseDeclarationState::Invalid => (
+            report.rationale.as_str(),
+            format!(
+                "Repair {DECLARATION_PATH} so it satisfies the pinned Aether repository-release schema."
+            ),
+        ),
+        ReleaseDeclarationState::Present => return None,
+    };
+    let location = SourceLocation {
+        path: PathBuf::from(DECLARATION_PATH),
+        start_line: None,
+        start_column: None,
+        end_line: None,
+        end_column: None,
+    };
+    let normalized_message = format!("{message} Remediation: {remediation}");
+    let fingerprint = stable_fingerprint(DECLARATION_RULE, &location, &normalized_message);
+    let severity = if report.applicability.adoption_state == Some(ReleaseAdoptionState::Required) {
+        Severity::Error
+    } else {
+        Severity::Warning
+    };
+    Some(Finding {
+        schema_version: CONTRACT_VERSION,
+        id: format!("{DECLARATION_RULE}-{fingerprint}"),
+        rule: RuleIdentity {
+            tool_id: TOOL_ID.to_owned(),
+            rule_id: DECLARATION_RULE.to_owned(),
+        },
+        severity,
+        message: normalized_message,
+        location: Some(location),
+        ownership: RuleOwnership {
+            owner: "egohygiene/egolint".to_owned(),
+            policy_source: format!("{POLICY_PATH}#aether_declaration"),
+            configuration_path: Some(PathBuf::from(POLICY_PATH)),
+        },
+        fingerprint: Some(fingerprint),
+        evidence: vec![EvidenceReference {
+            schema_version: CONTRACT_VERSION,
+            kind: EvidenceKind::Configuration,
+            path: PathBuf::from(DECLARATION_PATH),
+            sha256: report.declaration.sha256.clone(),
+            description: Some("Repository-owned Aether release declaration.".to_owned()),
+        }],
+        suppressed_by: None,
+    })
+}
+
 #[allow(clippy::too_many_arguments)]
 fn resolve_state(
     declaration: ReleaseDeclarationState,
     adoption: Option<ReleaseAdoptionState>,
-    validation: ReleaseValidationEvidence,
+    validation_complete: bool,
+    checks_completed: u64,
+    checks_failed: u64,
     applicable_slots: u64,
     external: u64,
     unavailable: u64,
@@ -919,19 +1134,27 @@ fn resolve_state(
             "the repository release declaration is not available".to_owned(),
         );
     }
-    if validation.checks_failed > 0 {
+    if matches!(
+        adoption,
+        Some(ReleaseAdoptionState::Advisory | ReleaseAdoptionState::Exempt)
+    ) {
+        let rationale = if checks_failed > 0 || unavailable > 0 || external > 0 {
+            "the accepted rollout keeps visible incomplete or failing release requirements advisory"
+        } else {
+            "the accepted rollout keeps applicable release requirements advisory"
+        };
+        return (ReleaseEvidenceState::Advisory, rationale.to_owned());
+    }
+    if checks_failed > 0 {
         return (
             ReleaseEvidenceState::Invalid,
             "one or more completed repository release checks failed".to_owned(),
         );
     }
-    if matches!(
-        adoption,
-        Some(ReleaseAdoptionState::Advisory | ReleaseAdoptionState::Exempt)
-    ) {
+    if unavailable > 0 {
         return (
-            ReleaseEvidenceState::Advisory,
-            "the accepted rollout keeps applicable release requirements advisory".to_owned(),
+            ReleaseEvidenceState::Unavailable,
+            "the declaration marks one or more release evidence sources unavailable".to_owned(),
         );
     }
     if external > 0 {
@@ -941,13 +1164,7 @@ fn resolve_state(
                 .to_owned(),
         );
     }
-    if unavailable > 0 {
-        return (
-            ReleaseEvidenceState::Unavailable,
-            "the declaration marks one or more release evidence sources unavailable".to_owned(),
-        );
-    }
-    if !validation.complete || validation.checks_completed < applicable_slots {
+    if !validation_complete || checks_completed < applicable_slots {
         return (
             ReleaseEvidenceState::Unavailable,
             "applicability resolved, but complete conformance checks are not available".to_owned(),
@@ -1097,6 +1314,20 @@ fn validate_bundled_inputs(
             return Err(configuration("repository-release policy slots are invalid"));
         }
     }
+    let expected_slot_ids = BTreeSet::from([
+        "agents_profile_pointer",
+        "aether_declaration",
+        "changelog",
+        "manual_workflow",
+        "release_rollback_docs",
+        "task_handoffs",
+        "version_authority",
+    ]);
+    if slot_ids != expected_slot_ids {
+        return Err(configuration(
+            "repository-release policy slots drifted from native rule coverage",
+        ));
+    }
     validate_overrides(
         &policy.profile_overrides,
         &slot_ids,
@@ -1189,13 +1420,6 @@ fn count_requirement(slots: &[ReleaseSlotApplicability], target: ReleaseRequirem
         .count() as u64
 }
 
-fn parse_json_enum<T>(value: &str) -> Option<T>
-where
-    T: for<'de> Deserialize<'de>,
-{
-    serde_json::from_value(Value::String(value.to_owned())).ok()
-}
-
 fn serialized<T: Serialize>(value: &T) -> String {
     serde_json::to_value(value)
         .ok()
@@ -1225,6 +1449,16 @@ fn digest(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
 
+fn stable_fingerprint(rule_id: &str, location: &SourceLocation, message: &str) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(rule_id.as_bytes());
+    hasher.update(b"\0");
+    hasher.update(location.path.to_string_lossy().as_bytes());
+    hasher.update(b"\0");
+    hasher.update(message.as_bytes());
+    format!("{:x}", hasher.finalize())[..16].to_owned()
+}
+
 fn configuration(message: &str) -> EgolintError {
     EgolintError::Configuration(message.to_owned())
 }
@@ -1235,6 +1469,11 @@ mod tests {
     use crate::rules::RepositoryEntry;
 
     fn declaration(lifecycle: &str, evidence_state: &str) -> RepositoryInventory {
+        let release_state = if lifecycle == "archived" {
+            "frozen"
+        } else {
+            "unreleased"
+        };
         let contents = format!(
             r#"{{
   "$schema": "{AETHER_SCHEMA_URL}",
@@ -1244,46 +1483,105 @@ mod tests {
     "lifecycle": "{lifecycle}",
     "release_profile": "cli-library"
   }},
-  "delivery": {{"channels": [{{"kind": "github-release", "state": "planned"}}]}},
+  "release": {{
+    "state": "{release_state}",
+    "tag_prefix": "v",
+    "immutable_tags": true,
+    "major_alias": "disabled"
+  }},
+  "changelog": {{
+    "path": "CHANGELOG.md",
+    "format": "keep-a-changelog/1.1",
+    "unreleased_heading": "Unreleased"
+  }},
+  "components": [{{
+    "id": "egolint",
+    "kind": "crate",
+    "version_authority": {{"kind": "cargo-manifest", "path": "Cargo.toml"}}
+  }}],
+  "delivery": {{"channels": [{{"kind": "github-release", "state": "configured"}}]}},
   "evidence": {{
     "source": "{evidence_state}",
     "change": "required",
     "provenance": "required",
     "sbom": "required",
-    "signature": "required"
+    "signature": "required",
+    "rollback": {{
+      "strategy": "revert-and-successor-tag",
+      "instructions": "Revert the change and publish a reviewed successor tag."
+    }}
   }},
-  "automation": {{"github": {{"state": "planned"}}}}
+  "automation": {{
+    "taskfile_path": "Taskfile.yml",
+    "tasks": {{
+      "plan": "release:plan",
+      "prepare": "release:prepare",
+      "verify": "release:verify",
+      "publish": "release:publish"
+    }},
+    "github": {{
+      "manual_dispatch_required": true,
+      "workflow_path": ".github/workflows/release.yml",
+      "state": "configured"
+    }}
+  }}
 }}"#
         );
-        RepositoryInventory::from_entries(vec![RepositoryEntry::file(
-            DECLARATION_PATH,
-            Some(100_644),
-            contents.into_bytes(),
-        )])
+        RepositoryInventory::from_entries(vec![
+            RepositoryEntry::file(
+                DECLARATION_PATH,
+                Some(100_644),
+                contents.into_bytes(),
+            ),
+            RepositoryEntry::file(
+                "AGENTS.md",
+                Some(100_644),
+                b"Release facts: .egohygiene/release.json\n".to_vec(),
+            ),
+            RepositoryEntry::file(
+                "CHANGELOG.md",
+                Some(100_644),
+                b"# Changelog\n\n## [Unreleased]\n\n## [0.1.0] - 2026-09-19\n".to_vec(),
+            ),
+            RepositoryEntry::file(
+                "Cargo.toml",
+                Some(100_644),
+                b"[package]\nname = \"egolint\"\nversion = \"0.1.0\"\n".to_vec(),
+            ),
+            RepositoryEntry::file(
+                "Taskfile.yml",
+                Some(100_644),
+                b"version: '3'\ntasks:\n  'release:plan': {cmds: ['true']}\n  'release:prepare': {cmds: ['true']}\n  'release:verify': {cmds: ['true']}\n  'release:publish': {cmds: ['gh workflow run .github/workflows/release.yml']}\n"
+                    .to_vec(),
+            ),
+            RepositoryEntry::file(
+                ".github/workflows/release.yml",
+                Some(100_644),
+                b"name: Release\non:\n  workflow_dispatch:\njobs:\n  release:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n"
+                    .to_vec(),
+            ),
+        ])
         .expect("valid test inventory")
     }
 
     fn evaluate(
         inventory: &RepositoryInventory,
         adoption: Option<ReleaseAdoptionState>,
-        validation: ReleaseValidationEvidence,
     ) -> RepositoryReleaseReport {
         RepositoryReleaseEvaluator::bundled()
             .expect("bundled policy")
-            .evaluate(inventory, adoption, validation)
+            .evaluate(inventory, adoption)
             .expect("valid report")
+            .report
     }
 
     #[test]
     fn bundled_policy_is_source_pinned_and_archived_slots_are_scoped() {
         let evaluator = RepositoryReleaseEvaluator::bundled().expect("bundled policy");
         let report = evaluator
-            .evaluate(
-                &declaration("archived", "required"),
-                None,
-                ReleaseValidationEvidence::default(),
-            )
-            .expect("archived report");
+            .evaluate(&declaration("archived", "required"), None)
+            .expect("archived report")
+            .report;
 
         assert_eq!(
             report.policy.hygiene_source.revision,
@@ -1293,52 +1591,27 @@ mod tests {
         assert_eq!(report.summary.required_slots, 4);
         assert_eq!(report.summary.advisory_slots, 1);
         assert_eq!(report.summary.not_applicable_slots, 2);
-        assert_eq!(report.state, ReleaseEvidenceState::Unavailable);
+        assert_eq!(report.state, ReleaseEvidenceState::Compliant);
+        assert_eq!(report.checks.len(), 7);
     }
 
     #[test]
     fn every_evidence_state_has_a_valid_positive_report() {
         let active = declaration("active", "required");
-        let applicable_slots = 7;
-        let compliant = evaluate(
-            &active,
-            None,
-            ReleaseValidationEvidence {
-                complete: true,
-                checks_completed: applicable_slots,
-                checks_failed: 0,
-            },
-        );
-        let advisory = evaluate(
-            &declaration("incubating", "required"),
-            None,
-            ReleaseValidationEvidence::default(),
-        );
-        let unavailable = evaluate(
-            &RepositoryInventory::default(),
-            None,
-            ReleaseValidationEvidence::default(),
-        );
-        let external = evaluate(
-            &declaration("active", "external"),
-            None,
-            ReleaseValidationEvidence::default(),
-        );
+        let compliant = evaluate(&active, None);
+        let advisory = evaluate(&declaration("incubating", "required"), None);
+        let unavailable = evaluate(&RepositoryInventory::default(), None);
+        let external = evaluate(&declaration("active", "external"), None);
         let invalid_inventory = RepositoryInventory::from_entries(vec![RepositoryEntry::file(
             DECLARATION_PATH,
             None,
             b"not json".to_vec(),
         )])
         .expect("hostile inventory");
-        let invalid = evaluate(
-            &invalid_inventory,
-            None,
-            ReleaseValidationEvidence::default(),
-        );
+        let invalid = evaluate(&invalid_inventory, None);
         let not_applicable = evaluate(
             &RepositoryInventory::default(),
             Some(ReleaseAdoptionState::NotApplicable),
-            ReleaseValidationEvidence::default(),
         );
 
         for (report, expected) in [
@@ -1360,20 +1633,8 @@ mod tests {
 
     #[test]
     fn every_evidence_state_rejects_a_hostile_overclaim() {
-        let unavailable = evaluate(
-            &declaration("active", "required"),
-            None,
-            ReleaseValidationEvidence::default(),
-        );
-        let compliant = evaluate(
-            &declaration("active", "required"),
-            None,
-            ReleaseValidationEvidence {
-                complete: true,
-                checks_completed: 7,
-                checks_failed: 0,
-            },
-        );
+        let unavailable = evaluate(&RepositoryInventory::default(), None);
+        let compliant = evaluate(&declaration("active", "required"), None);
         for state in [
             ReleaseEvidenceState::Compliant,
             ReleaseEvidenceState::Advisory,
@@ -1399,7 +1660,6 @@ mod tests {
         let report = evaluate(
             &RepositoryInventory::default(),
             Some(ReleaseAdoptionState::NotApplicable),
-            ReleaseValidationEvidence::default(),
         );
 
         assert_eq!(report.state, ReleaseEvidenceState::NotApplicable);
@@ -1415,16 +1675,181 @@ mod tests {
 
     #[test]
     fn human_rendering_preserves_external_ownership_boundaries() {
-        let report = evaluate(
-            &declaration("active", "external"),
-            None,
-            ReleaseValidationEvidence::default(),
-        );
-        let rendered = report.render_text();
+        let evaluation = RepositoryReleaseEvaluator::bundled()
+            .expect("bundled policy")
+            .evaluate(&declaration("active", "external"), None)
+            .expect("valid evaluation");
+        let rendered = evaluation.report.render_text();
 
         assert!(rendered.contains("repository-release: external"));
         assert!(rendered.contains("network not performed"));
         assert!(rendered.contains("external publication not verified"));
         assert!(!rendered.contains("published successfully"));
+        assert!(evaluation.findings.iter().any(|finding| {
+            finding.rule.rule_id == "EGOLINT_RELEASE_AETHER_DECLARATION"
+                && finding.severity == Severity::Warning
+        }));
+    }
+
+    #[test]
+    fn unpinned_workflow_dependency_is_a_stable_blocking_finding() {
+        let inventory = declaration("active", "required");
+        let mut entries = inventory.entries().to_vec();
+        let workflow = entries
+            .iter_mut()
+            .find(|entry| entry.path == Path::new(".github/workflows/release.yml"))
+            .expect("workflow fixture");
+        workflow.content = b"name: Release\non:\n  workflow_dispatch:\njobs:\n  release:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n".to_vec();
+        let inventory = RepositoryInventory::from_entries(entries).expect("hostile inventory");
+
+        let evaluation = RepositoryReleaseEvaluator::bundled()
+            .expect("bundled policy")
+            .evaluate(&inventory, None)
+            .expect("valid evaluation");
+        let finding = evaluation
+            .findings
+            .iter()
+            .find(|finding| finding.rule.rule_id == "EGOLINT_RELEASE_MANUAL_WORKFLOW")
+            .expect("workflow finding");
+
+        assert_eq!(finding.severity, Severity::Error);
+        assert_eq!(
+            finding
+                .location
+                .as_ref()
+                .map(|location| location.path.as_path()),
+            Some(Path::new(".github/workflows/release.yml"))
+        );
+        assert!(finding.fingerprint.is_some());
+        assert_eq!(evaluation.report.state, ReleaseEvidenceState::Invalid);
+    }
+
+    #[test]
+    fn additional_workflow_trigger_is_a_blocking_finding() {
+        let inventory = declaration("active", "required");
+        let mut entries = inventory.entries().to_vec();
+        let workflow = entries
+            .iter_mut()
+            .find(|entry| entry.path == Path::new(".github/workflows/release.yml"))
+            .expect("workflow fixture");
+        workflow.content = b"name: Release\non:\n  workflow_dispatch:\n  schedule:\n    - cron: '0 0 * * *'\njobs:\n  release:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n".to_vec();
+        let inventory = RepositoryInventory::from_entries(entries).expect("hostile inventory");
+
+        let evaluation = RepositoryReleaseEvaluator::bundled()
+            .expect("bundled policy")
+            .evaluate(&inventory, None)
+            .expect("valid evaluation");
+
+        assert!(evaluation.findings.iter().any(|finding| {
+            finding.rule.rule_id == "EGOLINT_RELEASE_MANUAL_WORKFLOW"
+                && finding.severity == Severity::Error
+        }));
+    }
+
+    #[test]
+    fn taskfile_reference_without_dispatch_remains_unavailable() {
+        let inventory = declaration("active", "required");
+        let mut entries = inventory.entries().to_vec();
+        let taskfile = entries
+            .iter_mut()
+            .find(|entry| entry.path == Path::new("Taskfile.yml"))
+            .expect("Taskfile fixture");
+        let text = String::from_utf8(taskfile.content.clone()).expect("UTF-8 fixture");
+        taskfile.content = text.replace("gh workflow run", "echo").into_bytes();
+        let inventory = RepositoryInventory::from_entries(entries).expect("uncertain inventory");
+
+        let evaluation = RepositoryReleaseEvaluator::bundled()
+            .expect("bundled policy")
+            .evaluate(&inventory, None)
+            .expect("valid evaluation");
+        let task_check = evaluation
+            .report
+            .checks
+            .iter()
+            .find(|check| check.rule_id == "EGOLINT_RELEASE_TASK_HANDOFFS")
+            .expect("task handoff check");
+
+        assert_eq!(task_check.state, ReleaseCheckState::Unavailable);
+        assert!(evaluation.findings.iter().any(|finding| {
+            finding.rule.rule_id == "EGOLINT_RELEASE_TASK_HANDOFFS"
+                && finding.severity == Severity::Error
+        }));
+    }
+
+    #[test]
+    fn advisory_rollout_preserves_failed_checks_as_warnings() {
+        let inventory = declaration("incubating", "required");
+        let mut entries = inventory.entries().to_vec();
+        entries.retain(|entry| entry.path != Path::new("CHANGELOG.md"));
+        let inventory = RepositoryInventory::from_entries(entries).expect("advisory inventory");
+
+        let evaluation = RepositoryReleaseEvaluator::bundled()
+            .expect("bundled policy")
+            .evaluate(&inventory, None)
+            .expect("valid evaluation");
+
+        assert_eq!(evaluation.report.state, ReleaseEvidenceState::Advisory);
+        assert!(
+            evaluation
+                .findings
+                .iter()
+                .all(|finding| finding.severity == Severity::Warning)
+        );
+        assert!(
+            evaluation
+                .findings
+                .iter()
+                .any(|finding| finding.rule.rule_id == "EGOLINT_RELEASE_CHANGELOG")
+        );
+    }
+
+    #[test]
+    fn explicit_required_adoption_makes_a_missing_declaration_blocking() {
+        let evaluation = RepositoryReleaseEvaluator::bundled()
+            .expect("bundled policy")
+            .evaluate(
+                &RepositoryInventory::default(),
+                Some(ReleaseAdoptionState::Required),
+            )
+            .expect("valid evaluation");
+
+        assert_eq!(evaluation.report.state, ReleaseEvidenceState::Unavailable);
+        assert_eq!(evaluation.findings.len(), 1);
+        assert_eq!(evaluation.findings[0].severity, Severity::Error);
+        assert_eq!(
+            evaluation.findings[0].rule.rule_id,
+            "EGOLINT_RELEASE_AETHER_DECLARATION"
+        );
+    }
+
+    #[test]
+    fn safe_single_component_version_drift_is_blocking() {
+        let inventory = declaration("active", "required");
+        let mut entries = inventory.entries().to_vec();
+        let declaration = entries
+            .iter_mut()
+            .find(|entry| entry.path == Path::new(DECLARATION_PATH))
+            .expect("declaration fixture");
+        let text = String::from_utf8(declaration.content.clone()).expect("UTF-8 fixture");
+        declaration.content = text
+            .replace("\"state\": \"unreleased\"", "\"state\": \"released\"")
+            .into_bytes();
+        let manifest = entries
+            .iter_mut()
+            .find(|entry| entry.path == Path::new("Cargo.toml"))
+            .expect("manifest fixture");
+        manifest.content = b"[package]\nname = \"egolint\"\nversion = \"0.2.0\"\n".to_vec();
+        let inventory = RepositoryInventory::from_entries(entries).expect("drift inventory");
+
+        let evaluation = RepositoryReleaseEvaluator::bundled()
+            .expect("bundled policy")
+            .evaluate(&inventory, None)
+            .expect("valid evaluation");
+
+        assert!(evaluation.findings.iter().any(|finding| {
+            finding.rule.rule_id == "EGOLINT_RELEASE_VERSION_AUTHORITY"
+                && finding.severity == Severity::Error
+        }));
+        assert_eq!(evaluation.report.state, ReleaseEvidenceState::Invalid);
     }
 }

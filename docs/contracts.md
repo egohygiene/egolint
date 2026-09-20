@@ -136,7 +136,9 @@ unsupported declarations are `invalid`; incubating rollout is `advisory`; explic
 evidence is `external`; and an authorized planner may pass
 `--release-adoption-state "not-applicable"` when release policy has no meaningful application.
 
-Checkpoint 2 intentionally supplies no completed conformance checks, so automatic evaluation
-cannot emit `compliant` yet. The report contract rejects that state unless every applicable slot has
-complete local validation with no failure, external evidence, or unavailable evidence. Every state
-also records that network access was not performed and external publication was not verified.
+Checkpoint 3 derives seven source-pinned mechanical checks from repository evidence; callers
+cannot provide or inflate completion counters. Stable findings from failed, unavailable, and
+external checks flow through the focused report, standard run report, tool result, suppressions,
+and SARIF. The report contract permits `compliant` only when every applicable local check passes
+with no external or unavailable evidence. Every state also records that network access was not
+performed and external publication was not verified.
