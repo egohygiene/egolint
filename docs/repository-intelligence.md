@@ -5,9 +5,48 @@ projections. The validator is offline and deterministic: Hygiene owns the source
 owns semantic rules and normalized diagnostics, and Relay may later orchestrate the released CLI
 without reimplementing those rules.
 
-The current Hygiene pins are explicitly `proposed`. Selecting them does not ratify ADR-002 or create
-organization-wide policy. The bundled catalog keeps that authority state visible and must change
-through review when the upstream contracts are approved or versioned.
+Catalog `0.1.0-alpha.2` consumes the ratified Hygiene ADR policy. Its two ADR contract pins have
+`accepted` authority; the roadmap and projection contracts retain their separate `proposed` pins.
+Policy acceptance never supplies a consumer decision's human approval or changes its lifecycle.
+
+## Ratified ADR compatibility
+
+The ADR source revision is `c589587395750cd1c79c6fa0bef010189c547249` in `egohygiene/hygiene`.
+Its [ratification record](https://github.com/egohygiene/hygiene/blob/c589587395750cd1c79c6fa0bef010189c547249/docs/decisions/RATIFICATION.md)
+records explicit human approval and activation through Hygiene PR #48. The policy is accepted and
+the contract catalog marks both ADR contracts active; this is the basis for `accepted` authority,
+rather than an inference from merged implementation.
+
+| Contract | Version | Authority | Source revision |
+| --- | --- | --- | --- |
+| `egohygiene.architecture-decision/v1` | `1.1.0` | `accepted` | `c589587395750cd1c79c6fa0bef010189c547249` |
+| `egohygiene.architecture-decision-policy-reference/v1` | `1.0.0` | `accepted` | `c589587395750cd1c79c6fa0bef010189c547249` |
+| `hygiene.roadmap/v1alpha1` | `0.1.0` | `proposed` | `f598ed659a43dd759d4ede41c27f9e5daf991aa7` |
+| `egohygiene.repository-intelligence/v1` | `1.0.0-alpha.1` | `proposed` | `f598ed659a43dd759d4ede41c27f9e5daf991aa7` |
+
+The two ADR schema files are byte-identical between these revisions. Their SHA-256 digests are:
+
+| Source path | SHA-256 |
+| --- | --- |
+| `schemas/architecture-decision.v1.schema.json` | `491eae26e498ee311bb37d5eff23a51d682eb687196c80a3df10ac1ce98e04d4` |
+| `schemas/architecture-decision-policy-reference.v1.schema.json` | `fdf451cfa38ba666ec579aa75d2acbd52a56b95e73c7437565b79dfcfb689216` |
+
+Consumer migration requires updating both ADR entries in the local TOML policy to the exact
+accepted pins, plus `policy.source.revision` in the local policy-reference JSON. Contract versions,
+source paths, decision schemas, diagnostic IDs, and report schema version 1 remain unchanged.
+The bundled fixture shows the complete supported tuple for every contract. The native validator
+does not fetch, rewrite, or silently upgrade consumer policy.
+
+Older proposed ADR pins, arbitrary revisions, moving refs, and mismatched versions, authority,
+repositories, or paths produce `EGO-INTEL-CONTRACT-001`. Historical replay can use a separately
+pinned older EgoLint build; that is not a ratified-policy conformance claim. Advisory enforcement
+still records invalid or incomplete semantics even when findings do not block execution.
+
+Relay adoption is a separate review gate: pin the reviewed EgoLint commit, refresh the runtime
+lock and verified source digests, and rerun its native ADR fixtures before removing the explicit
+policy-compatibility limitation. This change does not itself refresh Relay, release EgoLint, enable
+required mode, validate diagram semantics, or authorize fleet rollout. Legacy and unknown ADR
+coverage remain incomplete.
 
 ## Inputs and outputs
 
@@ -96,6 +135,11 @@ Positive fixtures include a proposed ADR, a valid accepted/superseded pair, a tw
 local and declared external references, and valid commit trailers. Hostile fixtures cover invalid
 lifecycle authority, duplicate and dangling ADR identities, index drift, malformed URLs,
 inconsistent roadmap states, missing dependencies, malformed trailers, and both graph cycle types.
+
+Ratification regressions additionally cover every contract-pin field, old and moving policy
+references, independent draft-contract authority, deterministic mismatch reports, and an implemented
+accepted decision without explicit approval. An implemented proposal may remain proposed. The
+native checks can be repeated with `cargo test --locked --lib repository_intelligence`.
 
 Repository-owned Markdown remains canonical. The JSON report is generated evidence and must not be
 edited into a competing decision or roadmap source.

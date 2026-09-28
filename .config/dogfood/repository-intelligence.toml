@@ -3,7 +3,7 @@ id = "egolint.repository-intelligence-validation/v1"
 repository = "egohygiene/egolint"
 
 [profile]
-id = "proposed-contract-advisory"
+id = "repository-contract-advisory"
 enforcement = "advisory"
 enabled-rules = [
   "EGO-INTEL-CONTRACT-001",
@@ -22,17 +22,17 @@ enabled-rules = [
 [[contracts]]
 id = "egohygiene.architecture-decision/v1"
 version = "1.1.0"
-authority = "proposed"
+authority = "accepted"
 source-repository = "egohygiene/hygiene"
-source-revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
+source-revision = "c589587395750cd1c79c6fa0bef010189c547249"
 source-path = "schemas/architecture-decision.v1.schema.json"
 
 [[contracts]]
 id = "egohygiene.architecture-decision-policy-reference/v1"
 version = "1.0.0"
-authority = "proposed"
+authority = "accepted"
 source-repository = "egohygiene/hygiene"
-source-revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
+source-revision = "c589587395750cd1c79c6fa0bef010189c547249"
 source-path = "schemas/architecture-decision-policy-reference.v1.schema.json"
 
 [[contracts]]
