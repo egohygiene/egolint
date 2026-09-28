@@ -1,5 +1,5 @@
 schema-version = 1
-catalog-version = "0.1.0-alpha.1"
+catalog-version = "0.1.0-alpha.2"
 owner = "egohygiene/egolint"
 tool-id = "EGOLINT_REPOSITORY_INTELLIGENCE"
 policy-source = ".config/rules/repository-intelligence.v1.toml"
@@ -7,17 +7,17 @@ policy-source = ".config/rules/repository-intelligence.v1.toml"
 [[upstream-contracts]]
 id = "egohygiene.architecture-decision/v1"
 version = "1.1.0"
-authority = "proposed"
+authority = "accepted"
 source-repository = "egohygiene/hygiene"
-source-revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
+source-revision = "c589587395750cd1c79c6fa0bef010189c547249"
 source-path = "schemas/architecture-decision.v1.schema.json"
 
 [[upstream-contracts]]
 id = "egohygiene.architecture-decision-policy-reference/v1"
 version = "1.0.0"
-authority = "proposed"
+authority = "accepted"
 source-repository = "egohygiene/hygiene"
-source-revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
+source-revision = "c589587395750cd1c79c6fa0bef010189c547249"
 source-path = "schemas/architecture-decision-policy-reference.v1.schema.json"
 
 [[upstream-contracts]]

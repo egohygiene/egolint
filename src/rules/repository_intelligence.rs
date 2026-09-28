@@ -2474,6 +2474,216 @@ mod tests {
         assert_eq!(evaluation.report.summary.commits_inspected, 1);
     }
 
+    fn evaluate_fixture(
+        policy: &RepositoryIntelligencePolicy,
+        replacements: &[(&str, &str)],
+    ) -> IntelligenceEvaluation {
+        let mut entries = valid_inventory().entries().to_vec();
+        for (path, content) in replacements {
+            let item = entries
+                .iter_mut()
+                .find(|item| item.path == Path::new(path))
+                .expect("fixture path exists");
+            item.content = content.as_bytes().to_vec();
+        }
+        RepositoryIntelligenceEvaluator::new(policy, Path::new("policy.toml"), represented())
+            .expect("evaluator")
+            .evaluate(
+                &RepositoryInventory::from_entries(entries).expect("fixture inventory"),
+                &CommitHistory {
+                    records: Vec::new(),
+                    truncated: false,
+                },
+            )
+            .expect("semantic evaluation")
+    }
+
+    #[test]
+    fn ratified_pins_preserve_independent_contract_authority() {
+        let policy = policy();
+        let evaluation = evaluate_fixture(&policy, &[]);
+        assert_eq!(
+            evaluation.report.status,
+            IntelligenceValidationStatus::Valid
+        );
+        assert!(evaluation.findings.is_empty());
+        assert_eq!(evaluation.report.catalog_version, "0.1.0-alpha.2");
+        for pin in &evaluation.report.contracts {
+            let adr = matches!(pin.id.as_str(), ADR_CONTRACT | ADR_REFERENCE_CONTRACT);
+            assert_eq!(pin.authority, if adr { "accepted" } else { "proposed" });
+            assert_eq!(
+                pin.source_revision,
+                if adr {
+                    "c589587395750cd1c79c6fa0bef010189c547249"
+                } else {
+                    "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
+                }
+            );
+        }
+    }
+
+    #[test]
+    fn unsupported_catalog_pins_fail_without_implicit_compatibility() {
+        let baseline = policy();
+        for index in 0..baseline.contracts.len() {
+            for field in [
+                "version",
+                "authority",
+                "source-repository",
+                "source-revision",
+                "source-path",
+            ] {
+                let mut value = serde_json::to_value(&baseline).expect("policy JSON");
+                value["contracts"][index][field] = serde_json::json!(match field {
+                    "version" => "9.0.0",
+                    "authority" if index < 2 => "proposed",
+                    "authority" => "accepted",
+                    "source-repository" => "egohygiene/other",
+                    "source-revision" => "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                    _ => "schemas/other.schema.json",
+                });
+                let changed =
+                    serde_json::from_value(value).expect("well-formed unsupported policy");
+                let evaluation = evaluate_fixture(&changed, &[]);
+                assert_eq!(
+                    evaluation.report.status,
+                    IntelligenceValidationStatus::Invalid
+                );
+                assert!(
+                    evaluation.report.diagnostics.iter().any(|diagnostic| {
+                        diagnostic.rule_id == CONTRACT_RULE
+                            && diagnostic
+                                .location
+                                .as_ref()
+                                .is_some_and(|loc| loc.path == Path::new("policy.toml"))
+                    }),
+                    "missing contract finding for {index} {field}"
+                );
+            }
+        }
+        let mut old = baseline;
+        for pin in &mut old.contracts {
+            if matches!(pin.id.as_str(), ADR_CONTRACT | ADR_REFERENCE_CONTRACT) {
+                pin.source_revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7".to_owned();
+                pin.authority = "proposed".to_owned();
+            }
+        }
+        let reference = POLICY_REFERENCE.replace(
+            "c589587395750cd1c79c6fa0bef010189c547249",
+            "f598ed659a43dd759d4ede41c27f9e5daf991aa7",
+        );
+        let evaluation = evaluate_fixture(
+            &old,
+            &[("docs/decisions/policy-reference.json", &reference)],
+        );
+        assert_eq!(
+            evaluation.report.status,
+            IntelligenceValidationStatus::Invalid
+        );
+        assert_eq!(
+            evaluation
+                .report
+                .diagnostics
+                .iter()
+                .filter(|d| d.rule_id == CONTRACT_RULE)
+                .count(),
+            3
+        );
+    }
+
+    #[test]
+    fn policy_reference_rejects_old_moving_and_mismatched_sources() {
+        let policy = policy();
+        for (pointer, replacement) in [
+            (
+                "/policy/source/revision",
+                "f598ed659a43dd759d4ede41c27f9e5daf991aa7",
+            ),
+            (
+                "/policy/source/revision",
+                "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            ),
+            ("/policy/source/revision", "main"),
+            ("/policy/source/revision", "c589587"),
+            ("/policy/source/repository", "egohygiene/other"),
+            ("/policy/source/path", "docs/decisions/OTHER.md"),
+            ("/policy/version", "1.0.0"),
+            ("/policy/contract", "egohygiene.other/v1"),
+        ] {
+            let mut reference: serde_json::Value =
+                serde_json::from_str(POLICY_REFERENCE).expect("reference");
+            *reference.pointer_mut(pointer).expect("existing field") =
+                serde_json::json!(replacement);
+            let bytes = serde_json::to_string(&reference).expect("reference JSON");
+            let replacements = [("docs/decisions/policy-reference.json", bytes.as_str())];
+            let evaluation = evaluate_fixture(&policy, &replacements);
+            assert_eq!(
+                evaluation.report.status,
+                IntelligenceValidationStatus::Invalid
+            );
+            assert!(
+                evaluation.report.diagnostics.iter().any(|diagnostic| {
+                    diagnostic.rule_id == CONTRACT_RULE
+                        && diagnostic.location.as_ref().is_some_and(|loc| {
+                            loc.path == Path::new("docs/decisions/policy-reference.json")
+                        })
+                }),
+                "missing contract finding for {pointer} {replacement}"
+            );
+            let replay = evaluate_fixture(&policy, &replacements);
+            assert_eq!(
+                serde_json::to_vec(&evaluation.report).unwrap(),
+                serde_json::to_vec(&replay.report).unwrap()
+            );
+        }
+    }
+
+    #[test]
+    fn ratified_policy_never_supplies_a_consumer_decision_approval() {
+        let policy = policy();
+        let unapproved = VALID_ADR_THREE.replace(
+            "approval:\n  date: 2026-08-25\n  by: egohygiene-maintainer\n  evidence: https://github.com/egohygiene/egolint/pull/24",
+            "approval: null",
+        );
+        assert_ne!(unapproved, VALID_ADR_THREE);
+        // Implementation and a linked PR do not supply the missing human disposition.
+        let evaluation = evaluate_fixture(
+            &policy,
+            &[(
+                "docs/decisions/ADR-003-versioned-projection.md",
+                &unapproved,
+            )],
+        );
+        assert_eq!(
+            evaluation.report.status,
+            IntelligenceValidationStatus::Invalid
+        );
+        assert!(
+            evaluation
+                .report
+                .diagnostics
+                .iter()
+                .any(|d| d.rule_id == ADR_LIFECYCLE_RULE)
+        );
+        let implemented_proposal = VALID_ADR.replace(
+            "implementation_status: in_progress",
+            "implementation_status: implemented",
+        );
+        assert_ne!(implemented_proposal, VALID_ADR);
+        let evaluation = evaluate_fixture(
+            &policy,
+            &[(
+                "docs/decisions/ADR-001-validation-contract.md",
+                &implemented_proposal,
+            )],
+        );
+        assert_eq!(
+            evaluation.report.status,
+            IntelligenceValidationStatus::Valid
+        );
+        assert!(evaluation.findings.is_empty());
+    }
+
     #[test]
     fn hostile_fixtures_report_lifecycle_links_states_trailers_and_cycles() {
         let policy = policy();

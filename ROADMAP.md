@@ -8,7 +8,7 @@ status: provisional
 owners:
   - egohygiene
 created: 2026-08-19
-updated: 2026-09-19
+updated: 2026-09-28
 governed_by:
   - architecture-roadmap
 depends_on:
@@ -33,7 +33,7 @@ repository: egohygiene/egolint
 visibility: public
 publication: central
 route: /roadmap/egolint/
-updated: 2026-09-19
+updated: 2026-09-28
 -->
 
 ## 2026-08-25 execution snapshot
@@ -43,8 +43,9 @@ updated: 2026-09-19
 > plans, and commit lists are projections.
 
 **Lifecycle:** early alpha, pre-release  
-**Current gate:** Implement issue #29's offline repository-release conformance boundary from the
-accepted Aether declaration schema and Hygiene applicability profile. **North-star outcome:** A
+**Current gate:** Review issue #73's ratified ADR compatibility fix, then refresh Relay's immutable
+validator profile in a separate checkpoint. Issue #29 retains its remaining release-conformance
+checkpoints. **North-star outcome:** A
 portable, evidence-backed lint platform for organization contracts, roadmaps, repositories, and
 generated artifacts.
 
@@ -330,11 +331,42 @@ release declaration, changelog, version authority, and publication entrypoints.
 - Checkpoint 2 on PR #70 makes applicability universal, composes lifecycle and explicit rollout,
   and defines closed focused-report states without permitting empty validation to claim
   conformance.
-- Checkpoint 3 on draft PR #71 maps all seven policy slots to stable offline rules for declarations,
-  changelogs, version authorities, Taskfile handoffs, and manual workflow pins. Pinned CI validation
-  and review remain in progress.
+- Checkpoint 3 on PR #71 merged as `8b99ec4377eb84044fac411dff6b8074317ec094`, verified on
+  2026-09-28. It maps all seven policy slots to stable offline rules for declarations, changelogs,
+  version authorities, Taskfile handoffs, and manual workflow pins.
 - The complete fixture matrix and final dogfood remain checkpoints 4–5 on focused pull requests
   tracked by issue #29.
+
+<!-- roadmap-step
+id: EGL-Q11
+status: active
+depends_on: [EGL-Q04]
+issues: [73]
+-->
+
+#### EGL-Q11 — Align ADR validation with ratified Hygiene policy
+
+**State:** `active`
+
+**Depends on:** `EGL-Q04`
+
+**Outcome:** Exact accepted ADR pins validate offline without supplying decision approval or
+changing unrelated proposed contracts.
+
+**Exit criteria:**
+
+- [ ] The catalog, fixtures, and migration guidance consume the ratified source through review.
+- [ ] Positive, incompatible-pin, lifecycle, and deterministic-report tests pass locally.
+- [ ] Relay adopts the reviewed EgoLint commit and reruns its ADR fixtures in a separate PR.
+
+**Current evidence (2026-09-28):**
+
+- The bounded issue #73 candidate updates both ADR pins to Hygiene
+  `c589587395750cd1c79c6fa0bef010189c547249`; roadmap and projection pins remain proposed.
+- `docs/repository-intelligence.md` records compatibility and migration requirements. EgoLint's
+  dogfood policy continues to declare ADR coverage unknown.
+- Relay #99 checkpoints 1–5 and recovery PR #120 are merged. Hosted acceptance is deferred to a
+  final cleanup checkpoint; required mode, releases, publication, and fleet rollout remain gated.
 
 ### Roadmap-to-issue handoff
 

@@ -6,7 +6,7 @@
     "version": "1.1.0",
     "source": {
       "repository": "egohygiene/hygiene",
-      "revision": "f598ed659a43dd759d4ede41c27f9e5daf991aa7",
+      "revision": "c589587395750cd1c79c6fa0bef010189c547249",
       "path": "docs/decisions/POLICY.md"
     }
   },
