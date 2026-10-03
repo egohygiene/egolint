@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "IssueTitleProposal",
+  "description": "A proposal built only from an explicit type and reviewed subject.",
+  "type": "object",
+  "properties": {
+    "contract": {
+      "description": "Exact definition and source evidence used by this formatter.",
+      "$ref": "#/$defs/IssueTitleProvenance"
+    },
+    "required_label": {
+      "description": "Required provider label for the selected primary type.",
+      "type": "string"
+    },
+    "schema_version": {
+      "description": "Version of this Egolint proposal shape.",
+      "type": "integer",
+      "format": "uint32",
+      "maximum": 1,
+      "minimum": 1
+    },
+    "title": {
+      "description": "Canonical prefix followed by the reviewed subject unchanged.",
+      "type": "string"
+    },
+    "type": {
+      "description": "Explicitly selected primary type; this does not mutate provider labels.",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract",
+    "type",
+    "required_label",
+    "title"
+  ],
+  "$defs": {
+    "IssueTitleAuthority": {
+      "description": "The bundled upstream definition is proposed, not an accepted rollout policy.",
+      "oneOf": [
+        {
+          "description": "Requires upstream review and explicit consumer adoption before enforcement.",
+          "type": "string",
+          "const": "candidate"
+        }
+      ]
+    },
+    "IssueTitleProvenance": {
+      "description": "Stable provenance for all five source artifacts; no runtime clock or host path.",
+      "type": "object",
+      "properties": {
+        "authority": {
+          "description": "Review status of the selected definition.",
+          "$ref": "#/$defs/IssueTitleAuthority"
+        },
+        "contract_id": {
+          "description": "Organization contract identifier.",
+          "type": "string"
+        },
+        "contract_version": {
+          "description": "Selected semantic contract version.",
+          "type": "string"
+        },
+        "repository": {
+          "description": "Owning repository, independent of the consumer.",
+          "type": "string"
+        },
+        "revision": {
+          "description": "Full immutable commit selected for every bundled source.",
+          "type": "string"
+        },
+        "source_digests": {
+          "description": "Source-relative path to SHA-256 digest, in stable key order.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "contract_id",
+        "contract_version",
+        "repository",
+        "revision",
+        "authority",
+        "source_digests"
+      ]
+    }
+  }
+}

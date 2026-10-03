@@ -153,6 +153,7 @@ variables, and CLI options. User and local files are skipped when `CI` is truthy
 - [Adaptive JSONSkooma capability](docs/json-skooma-evaluation.md)
 - [Versioned consumer integrations](integrations/README.md)
 - [Machine-readable contracts](docs/contracts.md)
+- [Canonical issue-title validation and formatting](docs/issue-titles.md)
 - [Repository Intelligence validation](docs/repository-intelligence.md)
 - [Repository presentation validation](docs/repository-presentation.md)
 - [Containers and image boundaries](docs/containers.md)

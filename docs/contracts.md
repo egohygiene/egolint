@@ -21,6 +21,11 @@ validation, invoked by the CLI before persistence, additionally enforces semanti
 normalized relative paths, real Gregorian dates, bounded text, digests, and cross-field report
 consistency.
 
+The focused [issue-title interface](issue-titles.md) exposes `issue-title-snapshot`,
+`issue-title-report`, and `issue-title-proposal` schemas. Its offline formatter and validator
+consume an immutable organization contract candidate; title conformance does not imply contract
+acceptance, repository adoption, or provider enforcement.
+
 ## Profile scope
 
 The fast profile records `changed_files_with_repository_policy`: MegaLinter targets changed files

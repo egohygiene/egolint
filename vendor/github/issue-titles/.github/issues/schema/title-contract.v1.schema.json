@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/egohygiene/.github/blob/main/.github/issues/schema/title-contract.v1.schema.json",
+  "title": "Ego Hygiene issue-title contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "contract_id",
+    "contract_version",
+    "owner",
+    "label_catalog",
+    "format",
+    "types",
+    "rules",
+    "adoption",
+    "semantics",
+    "conformance_examples"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "./schema/title-contract.v1.schema.json"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "contract_id": {
+      "const": "egohygiene.issue-title/v1"
+    },
+    "contract_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "owner": {
+      "const": "egohygiene/.github"
+    },
+    "label_catalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "version"
+      ],
+      "properties": {
+        "path": {
+          "const": "../labels/catalog.v1.json"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        }
+      }
+    },
+    "format": {
+      "const": "{emoji} [{type}] {subject}"
+    },
+    "types": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "emoji",
+          "label"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "emoji": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "pattern": "^type:[a-z][a-z0-9-]*$"
+          }
+        }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_type",
+        "missing_type",
+        "multiple_types",
+        "unknown_type",
+        "subject",
+        "separators",
+        "emoji_matching",
+        "subject_case",
+        "existing_subject",
+        "migration",
+        "normalization",
+        "unknown_prefix",
+        "relationships"
+      ],
+      "properties": {
+        "primary_type": {
+          "const": "exactly-one-known-type-label"
+        },
+        "missing_type": {
+          "const": "needs-classification"
+        },
+        "multiple_types": {
+          "const": "conflict"
+        },
+        "unknown_type": {
+          "const": "unsupported-type"
+        },
+        "subject": {
+          "const": "nonempty-trimmed-single-line"
+        },
+        "separators": {
+          "const": "single-ascii-space"
+        },
+        "emoji_matching": {
+          "const": "exact-codepoints"
+        },
+        "subject_case": {
+          "const": "preserve"
+        },
+        "existing_subject": {
+          "const": "preserve-wording-and-identifiers"
+        },
+        "migration": {
+          "const": "reviewed-explicit-subject"
+        },
+        "normalization": {
+          "const": "idempotent"
+        },
+        "unknown_prefix": {
+          "const": "preserve-until-reviewed"
+        },
+        "relationships": {
+          "const": "native-identifiers-not-title-parsing"
+        }
+      }
+    },
+    "adoption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "default_mode",
+        "reference",
+        "unavailable_contract"
+      ],
+      "properties": {
+        "scope": {
+          "const": "explicit-repository-adoption"
+        },
+        "default_mode": {
+          "const": "observe"
+        },
+        "reference": {
+          "const": "immutable-commit"
+        },
+        "unavailable_contract": {
+          "const": "report-unavailable"
+        }
+      }
+    },
+    "semantics": {
+      "const": "../../docs/issue-titles.md"
+    },
+    "conformance_examples": {
+      "const": "../../fixtures/issue-titles/cases.v1.json"
+    }
+  }
+}

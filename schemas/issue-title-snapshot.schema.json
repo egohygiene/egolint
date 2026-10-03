@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "IssueTitleSnapshot",
+  "description": "Explicit normalized input from a provider adapter; no omitted-label fallback.",
+  "type": "object",
+  "properties": {
+    "complete": {
+      "description": "Caller attests the title and full label set were observed together.",
+      "type": "boolean"
+    },
+    "labels": {
+      "description": "Exact observed label names; duplicates are treated as a set.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "schema_version": {
+      "description": "Only version 1 is supported.",
+      "type": "integer",
+      "format": "uint32",
+      "maximum": 1,
+      "minimum": 1
+    },
+    "title": {
+      "description": "Observed title, preserved without cleanup or inference.",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "complete",
+    "title",
+    "labels"
+  ]
+}

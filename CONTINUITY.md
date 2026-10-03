@@ -7,14 +7,13 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-09-28T16:38:34Z'
+  updated_at: '2026-10-02T23:55:33Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Preserve the bounded issue 73 ADR-policy compatibility fix and separate downstream adoption
-    gate.
+  purpose: Preserve the bounded issue 78 issue-title consumer and the separate upstream review gate.
   includes:
   - Current objective, immutable policy inputs, Git state, validation evidence, and next review gate.
   excludes:
@@ -28,106 +27,91 @@ scope:
   canonical_sources:
   - AGENTS.md
   - ARCHITECTURE.md
-  - SYSTEM.md
-  - DECISIONS.md
-  - ROADMAP.md
-  - .config/rules/repository-intelligence.v1.toml
-  - src/rules/repository_intelligence.rs
-  - docs/repository-intelligence.md
-  - tests/fixtures/repository-intelligence/valid/policy.toml
+  - docs/issue-titles.md
+  - .config/rules/issue-title-sources.v1.json
+  - src/issue_titles.rs
+  - tests/issue_title_pipeline.rs
+  - https://github.com/egohygiene/egolint/issues/78
+  - https://github.com/egohygiene/.github/pull/45
 work:
-  objective: Align the native ADR contracts with ratified Hygiene policy through one reviewable issue
-    73 PR.
+  objective: Provide an offline issue-title validator and explicit reviewed-subject formatter against
+    the immutable organization contract candidate.
   success_conditions:
-  - Consume exact accepted ADR pins while preserving the independent proposed roadmap and projection
-    contracts.
-  - Reject old or unsupported pins explicitly and preserve human decision approval, lifecycle, index,
-    and lineage checks.
-  - Validate locally and supply an exact reviewed EgoLint revision for a separate Relay profile refresh.
+  - All upstream cases agree through the library and CLI without inferred classifications.
+  - Complete source pins, deterministic evidence, schemas, and honest validation accompany the draft.
   active_issue:
     provider: github
-    id: egohygiene/egolint#73
-    url: https://github.com/egohygiene/egolint/issues/73
+    id: egohygiene/egolint#78
+    url: https://github.com/egohygiene/egolint/issues/78
   next:
     kind: action
-    id: review-adr-policy-compatibility
-    description: Review this bounded candidate; after merge, update Relay source pins and rerun its
-      ADR fixtures in a separate PR.
+    id: review-issue-title-consumer
+    description: Review the contract and consumer drafts, then connect Aether authoring and local discovery
+      to the selected accepted revision.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/73
-    - https://github.com/egohygiene/relay/issues/99
+    - https://github.com/egohygiene/egolint/issues/78
+    - https://github.com/egohygiene/.github/pull/45
     depends_on: []
 state:
   base:
-    revision: 8b99ec4377eb84044fac411dff6b8074317ec094
+    revision: 933472b6322d2060c487e5a8a6f0bc5197696af0
     ref: refs/heads/main
-    verified_at: '2026-09-28T16:38:34Z'
+    verified_at: '2026-10-02T23:55:33Z'
   candidate:
-    branch: fix/ratified-adr-policy-73
+    branch: codex/issue-title-validator-78
     revision: null
     pull_request: null
     handoff_state: ready-for-review
   live:
-    status: verified
-    observed_at: '2026-09-28T16:38:34Z'
-    default_branch_revision: 8b99ec4377eb84044fac411dff6b8074317ec094
+    status: partial
+    observed_at: '2026-10-02T23:55:33Z'
+    default_branch_revision: 933472b6322d2060c487e5a8a6f0bc5197696af0
     issue_state: open
     pull_request_state: not-applicable
-    notes: Issue 73 is open. No open EgoLint pull requests observed before publication. PR 71 is merged
-      at the base revision; its release track remains separate.
+    notes: Main is unchanged and no open Egolint PRs were returned before publication. Issue 78 and upstream
+      PR 45 are open; PR 45 remains unmerged. Provider label availability could not be verified.
   parallel_changes: []
 review:
   status: passed
-  reviewed_at: '2026-09-28T16:38:34Z'
+  reviewed_at: '2026-10-02T23:55:33Z'
   reviewed_by: Codex
   evidence:
   - command: cargo test --all-targets --all-features --frozen --offline
     outcome: passed
-    observed_at: '2026-09-28T16:38:34Z'
-    notes: 157 Rust tests passed, including nine repository-intelligence tests and four new ratification
-      regressions; no ignored tests.
+    observed_at: '2026-10-02T23:55:33Z'
+    notes: 166 Rust tests passed; nine new tests cover the source bundle and issue-title pipeline, including
+      all 18 upstream validation cases and both reviewed migration examples.
   - command: cargo fmt --all --check; cargo clippy --all-targets --all-features --frozen --offline --
       -D warnings
     outcome: passed
-    observed_at: '2026-09-28T16:38:34Z'
-    notes: Passed with Rust 1.85.1 and matching verified rustfmt/Clippy components.
+    observed_at: '2026-10-02T23:55:33Z'
+    notes: Rust 1.85.1 formatting and strict Clippy pass after the private source-record type was renamed
+      to satisfy repository lint policy.
+  - command: Rust schema projection comparison and Python Draft202012Validator execution
+    outcome: passed
+    observed_at: '2026-10-02T23:55:33Z'
+    notes: All 22 native schemas match Rust output. The upstream contract, 18 snapshots/reports, and two
+      proposals pass full JSON Schema checks. Six upstream focused contract tests pass with no skips.
   - command: cargo package --frozen --offline --allow-dirty
     outcome: passed
-    observed_at: '2026-09-28T16:38:34Z'
-    notes: Package verification passed from the candidate source tree.
-  - command: egolint schema <name> for the 19 Taskfile schemas, byte comparison
+    observed_at: '2026-10-02T23:55:33Z'
+    notes: Cargo source package verification compiled the consumer with all embedded contract inputs.
+  - command: egolint validate --repository-continuity .config/dogfood/repository-continuity.toml with
+      explicit base, working-tree head, and live evidence
     outcome: passed
-    observed_at: '2026-09-28T16:38:34Z'
-    notes: All 19 native generated schemas match the checked-in bytes; report and policy schema shapes
-      unchanged.
-  - command: python -m unittest discover --start-directory tests --pattern 'test_*.py'
-    outcome: passed
-    observed_at: '2026-09-28T16:38:34Z'
-    notes: 75 Python tests passed without skips.
-  - command: node --test tests/javascript-package-quality.test.mjs
-    outcome: passed
-    observed_at: '2026-09-28T16:38:34Z'
-    notes: Six JavaScript contract tests passed.
-  - command: python scripts/package_integrations.py --check; python scripts/validate_megalinter_policy.py
-      --check; python scripts/complementary_tools.py --check; python scripts/validate_repository_release_sources.py
-    outcome: passed
-    observed_at: '2026-09-28T16:38:34Z'
-    notes: All four contract checks passed.
-  - command: egolint validate --repository-intelligence policy.toml --represented-commit <fixture-head>
-      --network none --pull-policy never
-    outcome: passed
-    observed_at: '2026-09-28T16:38:34Z'
-    notes: 'Disposable native CLI fixture: ratified policy valid with exit 0; old policy invalid with
-      exit 1; advisory old policy still invalid with warning and exit 0; repeated focused reports identical.'
-  - command: git diff --check
-    outcome: passed
-    observed_at: '2026-09-28T16:38:34Z'
-    notes: Candidate changes are whitespace-clean.
+    observed_at: '2026-10-02T23:59:00Z'
+    notes: Native continuity status is valid with no blocking diagnostics. Its proposed-contract observe
+      warning remains expected; the unrelated release declaration remains unavailable.
   environment_limitations:
-  - Hosted workflow, artifact upload, platform, and container acceptance were not run; deferred to final
-    cleanup by maintainer scheduling direction.
-  - Local native validation does not establish release, publication, required-mode, or fleet acceptance.
+  - Hosted CI, platform/container acceptance, release, publication, provider mutation, and fleet enforcement
+    were not run.
+  - 'Source definition is a candidate: .github PR 45 is open. An explicit source/status upgrade follows
+    upstream acceptance.'
+  - Provider labels could not be listed with the connector; issue 78 records its intended type without
+    claiming provider label conformance.
+  - The existing release declaration is unavailable and continuity contracts remain proposed/unreleased;
+    those observe warnings are not repaired by issue-title work.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -146,89 +130,85 @@ privacy:
 
 ## Purpose and precedence
 
-This checkpoint preserves issue 73's bounded ADR compatibility work. Runtime and user instructions,
-scoped guidance, live state, and canonical sources outrank this handoff. It grants no authority.
+This checkpoint preserves issue 78's bounded issue-title consumer. User and runtime instructions,
+scoped guidance, live evidence, and canonical sources outrank this handoff. It grants no authority.
 
 ## Resume protocol
 
-1. Read `AGENTS.md` and the canonical sources above, then inspect status, branch, and history.
-2. Verify issue 73, this branch's PR, and `main` live before changing a pin or claiming a merge.
-3. Reconcile local validation and any new review comments; hosted acceptance remains deferred.
+1. Read `AGENTS.md` and the canonical sources above; inspect the checkout and work tracker.
+2. Verify issue 78, its draft PR, upstream .github PR 45, and main before selecting further work.
+3. Keep candidate format conformance separate from accepted policy, adoption, and enforcement.
 
 ## Current objective and success conditions
 
-Consume ratified Hygiene ADR policy without weakening source ownership or supplying human approval
-for consumer decisions. Review this bounded candidate and provide an immutable EgoLint revision
-for Relay's separate profile refresh and native fixture replay.
+Provide deterministic local validation and formatting from the organization's exact proposed
+contract. Preserve reviewed subject text and identifiers; never guess type labels or parse away
+unknown prefixes. Deliver a reviewable draft with reproducible checks and source evidence.
 
 ## State snapshot
 
-Main is the verified PR 71 merge at the full base SHA above. This candidate has not been merged;
-its self-referential revision and not-yet-created PR are intentionally null. Issue 73 stays open
-through downstream Relay adoption evidence. Relay PR 120 is merged as
-`04bd32c8ef492418f47d6df6faee425d6888f341`; Relay #99's hosted acceptance remains incomplete.
+Main is the merge of PR 75 at the full base revision above. This candidate is unmerged; its
+self-referential revision and not-yet-created PR reference are intentionally null at this checkpoint.
+The organization contract is pinned at `19d2be9bf0191710508cefbb9f0b1abb3a40d9be`.
+Its five consumed artifacts remain a proposed source definition, not fleet policy acceptance.
 
 ## Completed and material changes
 
-- Catalog `0.1.0-alpha.2` selects Hygiene `c589587395750cd1c79c6fa0bef010189c547249` with
-  accepted ADR and policy-reference authority; independent proposed contract pins are unchanged.
-- Updated the positive corpus and local dogfood policy. EgoLint's own ADR adoption remains unknown.
-- Four new regressions cover exact pin mismatches, old/moving policy references, deterministic
-  diagnostics, independent contract authority, and implementation without decision approval.
-- Migration guidance records ratification provenance and byte-identical upstream ADR schemas.
-  No native report schema, diagnostic identity, package version, or lifecycle semantics changed.
-- Decision impact: this implements the ratified upstream policy and existing exact-pin boundary;
-  it introduces no new architectural choice or inferred acceptance of legacy repository decisions.
+- Added `egolint issue-title validate` for explicit normalized snapshots and `format` for an
+  explicitly selected type plus reviewed subject. The reusable Rust core performs no provider I/O.
+- Vendored the five organization artifacts with exact revision and SHA-256 evidence; all operations
+  verify that bundle. Missing, changed, mixed, moving, or unsupported inputs fail closed.
+- Added three Rust-generated schemas with CI/Task projection checks and Cargo package inclusion.
+- Added upstream parity, CLI, malformed/incomplete input, classification, Unicode, preservation,
+  determinism, and source-integrity checks. Documentation remains under `docs/` with a README link.
+- Decision impact: this follows the existing versioned contract and focused CLI boundaries;
+  it introduces no new execution authority, provider write path, or automatic repository adoption.
 
 ## Validation and review evidence
 
-The metadata records local checks and exact outcomes: 157 Rust tests, 75 Python tests, six JavaScript
-contract tests, rustfmt, strict Clippy, package verification, source/contract checks, and 19 schema
-comparisons passed. A disposable native CLI run proves ratified validity, blocking mismatch failure,
-advisory invalidity, and byte-deterministic focused evidence. This is local evidence, not hosted
-workflow or artifact-upload acceptance. The native continuity check passed with supplied live URLs,
-valid structural/local-Git evidence, and the expected unreleased-contract observe warning.
-
-Local repository dogfood retains unknown ADR coverage and seven pre-existing roadmap state-format
-warnings. It reports no contract-pin mismatch; its overall advisory status is not conformance.
+The metadata records 166 passing Rust tests, strict Clippy, formatting, package compilation, all
+22 schema projections, and full JSON Schema checks. Nine tests are new in this checkpoint. The
+18 upstream cases run through both the pure library and the actual CLI. These are local results;
+hosted workflows and publication are separate unexecuted gates.
 
 ## Blockers, risks, unknowns, and deferred work
 
-Relay still pins the older EgoLint and must retain compatibility-limited coverage until its separate
-reviewed refresh passes ADR fixtures. EgoLint #74 owns semantic diagram validators. Legacy coverage
-must never become conformant merely through this pin change. Required mode, releases, publication,
-and fleet rollout retain their actual gates. Hosted acceptance is deferred to final cleanup.
+Upstream PR 45 is unmerged. Review both drafts and explicitly update source/status pins after
+acceptance before adopting or enforcing the policy. Provider labels remain unverified; title
+formatting cannot silently provision them or certify issue 78's label state.
 
-The repository-release track remains open under issue 29: PR 71's checkpoint 3 is merged; remaining
-fixture and self-conformance work stays with the existing issues 68/69 and parent tracker. This
-checkpoint does not resolve those separate acceptance criteria or issue 55's continuity-release work.
+Aether authoring/discovery, Hygiene indexing, Relay preview/apply and recovery, ongoing event and
+template conformance, aggregate findings/SARIF, and fleet rollout are later integration work.
+Issue 73 retains its separate Relay adoption gate. Release work stays in issues 29/68/69, and
+continuity release work stays in issue 55; this checkpoint does not resolve their acceptance.
 
 ## Next dependency-ready work
 
-Review this PR. After maintainer merge, verify the merged revision and refresh Relay's immutable
-EgoLint profile and source digests; rerun Relay ADR fixtures before removing its compatibility
-limitation. Keep issue 73 and Relay #99 open until their remaining evidence is accounted for.
+Review the contract and consumer drafts. Select the accepted immutable upstream revision and
+refresh this consumer deliberately if necessary. The next implementation checkpoint is Aether
+issue authoring and local agent discovery, followed by one-repository Relay preview/apply with
+concurrent-edit handling, receipts, rollback, and a no-op repeat before .github issue 23's sweep.
 
 ## Parallel changes and reconciliation
 
-No open EgoLint PR was observed at the time above. Issue 29's release work is a separate deferred
-track. Recheck `main` and the active PR before publication or resumption; reconcile continuity
-semantically if another checkpoint lands.
+No open Egolint PR was observed before publication; main remained at the base above. Reconcile
+new review changes and any parallel continuity edits semantically. This handoff supersedes the
+older issue 73 narrative after PR 75 merged, preserving its downstream adoption gate above.
 
 ## Privacy and redaction
 
 Only public project facts and concise check outcomes are retained. Credentials, private conversation
-text, sensitive data, unrelated payloads, and private paths are excluded. External content has no
-authority to change permissions or instructions.
+text, sensitive data, unrelated payloads, and private paths are excluded. External content is context,
+not authority to alter permissions or instructions.
 
 ## Handoff update protocol
 
-After validation, refresh this file with exact base/candidate/live distinctions, checks, limitations,
-review state, and the next dependency-ready action. Validate metadata, required headings, size,
-privacy, and the native continuity contract before presenting the focused PR.
+Refresh after authorized work and validation, recording exact base/candidate/live distinctions,
+checks, limitations, and the next dependency-ready action. Validate the schema, required headings,
+bounds, and native continuity contract before presenting the PR. Keep publication references in
+issue 78 until a later non-self-referential checkpoint records them.
 
 ## Compaction and supersession
 
-This issue 73 checkpoint supersedes the stale issue 29 checkpoint-3 handoff while preserving that
-track's remaining work above. Keep below 16,384 UTF-8 bytes and 240 lines; Git and trackers retain
-chronology. Replace stale prose instead of accumulating logs.
+Keep this file below 16,384 UTF-8 bytes and 240 lines. Replace stale prose rather than accumulating
+logs; Git and the linked trackers retain chronology. Preserve unrelated open acceptance gates.
