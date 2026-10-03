@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-02T23:55:33Z'
+  updated_at: '2026-10-03T03:56:24Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -45,13 +45,13 @@ work:
     url: https://github.com/egohygiene/egolint/issues/78
   next:
     kind: action
-    id: review-issue-title-consumer
-    description: Review the contract and consumer drafts, then connect Aether authoring and local discovery
-      to the selected accepted revision.
+    id: relay-issue-title-preview
+    description: Merge the corrected consumer under explicit maintainer authorization, then create the
+      bounded Relay preview-only checkpoint.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/78
-    - https://github.com/egohygiene/.github/pull/45
+    - https://github.com/egohygiene/egolint/pull/79
+    - https://github.com/egohygiene/.github/issues/24
     depends_on: []
 state:
   base:
@@ -61,20 +61,24 @@ state:
   candidate:
     branch: codex/issue-title-validator-78
     revision: null
-    pull_request: null
+    pull_request:
+      provider: github
+      id: egohygiene/egolint#79
+      url: https://github.com/egohygiene/egolint/pull/79
     handoff_state: ready-for-review
   live:
     status: partial
-    observed_at: '2026-10-02T23:55:33Z'
+    observed_at: '2026-10-03T03:56:24Z'
     default_branch_revision: 933472b6322d2060c487e5a8a6f0bc5197696af0
     issue_state: open
-    pull_request_state: not-applicable
-    notes: Main is unchanged and no open Egolint PRs were returned before publication. Issue 78 and upstream
-      PR 45 are open; PR 45 remains unmerged. Provider label availability could not be verified.
+    pull_request_state: draft
+    notes: Upstream .github PR45 is verified merged at 333e4e914b762cb817dcaed1d792435432f4fd5c; Aether
+      PR99 is merged. Egolint PR79 remains open at 3a6785c before this correction. Two hosted integration
+      jobs failed; corrected files require fresh hosted results. Provider labels could not be verified.
   parallel_changes: []
 review:
-  status: passed
-  reviewed_at: '2026-10-02T23:55:33Z'
+  status: partial
+  reviewed_at: '2026-10-03T03:56:24Z'
   reviewed_by: Codex
   evidence:
   - command: cargo test --all-targets --all-features --frozen --offline
@@ -103,11 +107,27 @@ review:
     observed_at: '2026-10-02T23:59:00Z'
     notes: Native continuity status is valid with no blocking diagnostics. Its proposed-contract observe
       warning remains expected; the unrelated release declaration remains unavailable.
+  - command: Inspect hosted jobs 111079293585 and 111079293110
+    outcome: failed
+    observed_at: '2026-10-03T03:56:24Z'
+    notes: CLI image omitted six embedded issue-title source inputs. Reference-consumer Biome attempted
+      to reformat three digest-pinned vendor JSON files. Rust/core, all three native platforms, schemas,
+      and package-quality jobs passed at 3a6785c.
+  - command: node --test tests/javascript-package-quality.test.mjs
+    outcome: passed
+    observed_at: '2026-10-03T03:56:24Z'
+    notes: Existing manifest test passes with a regression assertion for the pinned issue-title vendor
+      exclusion.
+  - command: Docker builder COPY simulation and SHA-256 comparison
+    outcome: passed
+    observed_at: '2026-10-03T03:56:24Z'
+    notes: All six include_str inputs in src/issue_titles.rs exist after the Dockerfile COPY steps; all
+      five upstream payload digests match the lock. This is not an actual container build.
   environment_limitations:
-  - Hosted CI, platform/container acceptance, release, publication, provider mutation, and fleet enforcement
-    were not run.
-  - 'Source definition is a candidate: .github PR 45 is open. An explicit source/status upgrade follows
-    upstream acceptance.'
+  - Docker and installed Node toolchain dependencies are unavailable locally; actual corrected CLI-image/reference-consumer
+    outcomes remain unverified until hosted CI runs. No manual CI dispatch or release was performed.
+  - The upstream contract and Aether integration are merged, but source locks still report candidate authority;
+    source acceptance and explicit consumer pin promotion remain separate.
   - Provider labels could not be listed with the connector; issue 78 records its intended type without
     claiming provider label conformance.
   - The existing release declaration is unavailable and continuity contracts remain proposed/unreleased;
@@ -148,7 +168,7 @@ unknown prefixes. Deliver a reviewable draft with reproducible checks and source
 ## State snapshot
 
 Main is the merge of PR 75 at the full base revision above. This candidate is unmerged; its
-self-referential revision and not-yet-created PR reference are intentionally null at this checkpoint.
+self-referential candidate revision stays null; PR79 is linked in metadata.
 The organization contract is pinned at `19d2be9bf0191710508cefbb9f0b1abb3a40d9be`.
 Its five consumed artifacts remain a proposed source definition, not fleet policy acceptance.
 
@@ -169,25 +189,26 @@ Its five consumed artifacts remain a proposed source definition, not fleet polic
 The metadata records 166 passing Rust tests, strict Clippy, formatting, package compilation, all
 22 schema projections, and full JSON Schema checks. Nine tests are new in this checkpoint. The
 18 upstream cases run through both the pure library and the actual CLI. These are local results;
-hosted workflows and publication are separate unexecuted gates.
+hosted runs now show two integration failures, recorded above. The correction adds the missing
+Docker COPY inputs and excludes only the pinned issue-title vendor subtree from JavaScript
+formatting; source bytes and digests stay unchanged. Corrected hosted outcomes are still unknown.
 
 ## Blockers, risks, unknowns, and deferred work
 
-Upstream PR 45 is unmerged. Review both drafts and explicitly update source/status pins after
-acceptance before adopting or enforcing the policy. Provider labels remain unverified; title
+Upstream PR45 is merged. Explicitly update source/status pins through review before
+adopting or enforcing the policy; this integration repair preserves the candidate selection. Provider labels remain unverified; title
 formatting cannot silently provision them or certify issue 78's label state.
 
-Aether authoring/discovery, Hygiene indexing, Relay preview/apply and recovery, ongoing event and
+Aether authoring/discovery is merged in PR99. Hygiene indexing, Relay preview/apply and recovery, ongoing event and
 template conformance, aggregate findings/SARIF, and fleet rollout are later integration work.
 Issue 73 retains its separate Relay adoption gate. Release work stays in issues 29/68/69, and
 continuity release work stays in issue 55; this checkpoint does not resolve their acceptance.
 
 ## Next dependency-ready work
 
-Review the contract and consumer drafts. Select the accepted immutable upstream revision and
-refresh this consumer deliberately if necessary. The next implementation checkpoint is Aether
-issue authoring and local agent discovery, followed by one-repository Relay preview/apply with
-concurrent-edit handling, receipts, rollback, and a no-op repeat before .github issue 23's sweep.
+Complete the authorized consumer merge after this bounded integration repair, then create
+the Relay preview-only issue. Pin promotion stays explicit. Apply, recovery, concurrent-edit
+handling, receipts, rollback, and a no-op repeat follow before .github issue23's fleet sweep.
 
 ## Parallel changes and reconciliation
 
