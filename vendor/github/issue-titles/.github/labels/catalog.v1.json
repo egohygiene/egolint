@@ -1,0 +1,183 @@
+{
+  "$schema": "./schema/catalog.v1.schema.json",
+  "schema_version": 1,
+  "catalog_version": "1.0.0",
+  "owner": "egohygiene/.github",
+  "defaults": {
+    "required": true,
+    "removal_policy": "retain"
+  },
+  "universal": [
+    {
+      "name": "priority:p0",
+      "description": "Correctness, security, or data-integrity blocker.",
+      "color": "b60205",
+      "category": "priority"
+    },
+    {
+      "name": "priority:p1",
+      "description": "Required foundation or near-term release work.",
+      "color": "d93f0b",
+      "category": "priority"
+    },
+    {
+      "name": "priority:p2",
+      "description": "Important planned capability.",
+      "color": "fbca04",
+      "category": "priority"
+    },
+    {
+      "name": "priority:p3",
+      "description": "Research, exploration, or later direction.",
+      "color": "c5def5",
+      "category": "priority"
+    },
+    {
+      "name": "type:architecture",
+      "description": "Architecture, boundaries, or system-design work.",
+      "color": "1f4d8f",
+      "category": "type"
+    },
+    {
+      "name": "type:feature",
+      "description": "New or expanded user-visible capability.",
+      "color": "0e8a16",
+      "category": "type"
+    },
+    {
+      "name": "type:bug",
+      "description": "Incorrect or unexpected behavior.",
+      "color": "dc2626",
+      "category": "type"
+    },
+    {
+      "name": "type:documentation",
+      "description": "Documentation or knowledge-organization work.",
+      "color": "64748b",
+      "category": "type"
+    },
+    {
+      "name": "type:research",
+      "description": "Research, discovery, or evidence gathering.",
+      "color": "0f766e",
+      "category": "type"
+    },
+    {
+      "name": "type:maintenance",
+      "description": "Maintenance, cleanup, or dependency work.",
+      "color": "6b7280",
+      "category": "type"
+    },
+    {
+      "name": "area:automation",
+      "description": "Automation, continuous integration, and delivery.",
+      "color": "0369a1",
+      "category": "area"
+    },
+    {
+      "name": "area:developer-experience",
+      "description": "Developer workflows, tooling, and ergonomics.",
+      "color": "7c5c1e",
+      "category": "area"
+    },
+    {
+      "name": "area:governance",
+      "description": "Organization policy, contracts, and coordination.",
+      "color": "6d28d9",
+      "category": "area"
+    },
+    {
+      "name": "area:security",
+      "description": "Security, privacy, provenance, and trust boundaries.",
+      "color": "b91c1c",
+      "category": "area"
+    },
+    {
+      "name": "cross-repo",
+      "description": "Work coordinated across multiple repositories.",
+      "color": "5319e7",
+      "category": "coordination"
+    },
+    {
+      "name": "needs-routing",
+      "description": "Work that does not yet have a durable repository owner.",
+      "color": "d4c5f9",
+      "category": "coordination"
+    },
+    {
+      "name": "blocked",
+      "description": "Work waiting on an explicit dependency or decision.",
+      "color": "b60205",
+      "category": "status"
+    },
+    {
+      "name": "ready",
+      "description": "Work with sufficient scope, ownership, and acceptance criteria.",
+      "color": "0e8a16",
+      "category": "status"
+    }
+  ],
+  "overlays": [
+    {
+      "id": "ecosystem",
+      "description": "Named Ego Hygiene ecosystem capabilities.",
+      "labels": [
+        {"name": "☁️ aether", "description": "Local AI, agents, prompts, skills, and workflows ☁️", "color": "4338ca"},
+        {"name": "🌱 mindgarden", "description": "Knowledge management, digital garden, and long-term thinking 🌱", "color": "3a7d44"},
+        {"name": "🎬 dreamscape", "description": "Creative operating system and AI orchestration 🎬", "color": "6d28d9"}
+      ]
+    },
+    {
+      "id": "engineering",
+      "description": "Engineering changes, platforms, packages, and specifications.",
+      "labels": [
+        {"name": "♻️ refactor", "description": "Repository cleanup, restructuring, modernization, and technical debt ♻️", "color": "16a34a"},
+        {"name": "⚙️ infra", "description": "Infrastructure, repositories, tooling, and configuration ⚙️", "color": "274472"},
+        {"name": "⚡ dx", "description": "Developer experience, tooling, and ergonomics ⚡", "color": "7c5c1e"},
+        {"name": "🏗️ architecture", "description": "Architecture, foundations, and system design 🏗️", "color": "1f4d8f"},
+        {"name": "🐛 bug", "description": "Something isn't working 🐛", "color": "dc2626"},
+        {"name": "📄 documentation", "description": "Documentation improvements and knowledge organization 📄", "color": "64748b"},
+        {"name": "📋 backlog", "description": "Captured ideas and future work 📋", "color": "4b5563"},
+        {"name": "📐 schema", "description": "Schemas, specifications, contracts, and data models 📐", "color": "7c3aed"},
+        {"name": "📦 package", "description": "Reusable packages and shared libraries 📦", "color": "0369a1"},
+        {"name": "📱 flutter", "description": "Flutter application and Flutter Foundation 📱", "color": "0175c2"},
+        {"name": "🔄 lifecycle", "description": "Application lifecycles, managers, and orchestration 🔄", "color": "0f766e"},
+        {"name": "🔌 plugin", "description": "Plugin architecture, registries, and extensibility 🔌", "color": "2563eb"}
+      ]
+    },
+    {
+      "id": "creative-publishing",
+      "description": "Creative production, publishing, design, and outreach.",
+      "labels": [
+        {"name": "✍️ writing", "description": "Writing workflow, editorial improvements, and authoring ✍️", "color": "7c3aed"},
+        {"name": "🌐 website", "description": "Website, documentation site, and public experience 🌐", "color": "0284c7"},
+        {"name": "🎥 video", "description": "Video production, animation, and cinematic content 🎥", "color": "b91c1c"},
+        {"name": "🎨 design", "description": "Design system, UI, UX, branding, and visuals 🎨", "color": "4e8065"},
+        {"name": "🎵 music", "description": "Music, albums, lyrics, and audio production 🎵", "color": "7f1d1d"},
+        {"name": "📖 magazine", "description": "Magazine, comic, editorial, and visual storytelling 📖", "color": "9333ea"},
+        {"name": "📚 article", "description": "Long-form articles and essays 📚", "color": "2563eb"},
+        {"name": "📝 publishing", "description": "Publishing platform, workflows, and distribution 📝", "color": "0e7490"},
+        {"name": "📣 marketing", "description": "Marketing, social media, SEO, and outreach 📣", "color": "15803d"}
+      ]
+    },
+    {
+      "id": "human-practice",
+      "description": "Human domains, practices, philosophy, and journeys.",
+      "labels": [
+        {"name": "🌍 domain", "description": "Life domains, domain models, and domain-specific functionality 🌍", "color": "15803d"},
+        {"name": "🎯 practice", "description": "Practices, rituals, habits, and exercises 🎯", "color": "15803d"},
+        {"name": "🏛️ philosophy", "description": "Purpose, principles, ontology, and conceptual evolution 🏛️", "color": "6d28d9"},
+        {"name": "🗺️ journey", "description": "Journey modeling, progress, and timeline systems 🗺️", "color": "0891b2"}
+      ]
+    },
+    {
+      "id": "research-funding",
+      "description": "Research and the resources that support it.",
+      "labels": [
+        {"name": "🔬 research", "description": "Research, literature, evidence, and references 🔬", "color": "0f766e"},
+        {"name": "💰 funding", "description": "Grants, sponsorships, partnerships, and monetization 💰", "color": "b45309"}
+      ]
+    }
+  ],
+  "deprecations": []
+}

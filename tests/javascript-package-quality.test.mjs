@@ -162,4 +162,5 @@ test("consumer manifests make publint applicability explicit", async () => {
     assert.ok(selfConsumer.ignore.includes("schemas/*.schema.json"));
     assert.ok(selfConsumer.ignore.includes("vendor/aether/**"));
     assert.ok(selfConsumer.ignore.includes("vendor/hygiene/**"));
+    assert.ok(selfConsumer.ignore.includes("vendor/github/issue-titles/**"));
 });

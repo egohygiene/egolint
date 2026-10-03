@@ -1,0 +1,283 @@
+{
+  "schema_version": 1,
+  "contract_id": "egohygiene.issue-title/v1",
+  "contract_version": "1.0.0",
+  "cases": [
+    {
+      "id": "valid-architecture",
+      "input": {
+        "title": "🏗️ [architecture] Document example 1",
+        "labels": [
+          "type:architecture",
+          "priority:p2"
+        ]
+      },
+      "expected": {
+        "status": "conformant",
+        "type": "architecture"
+      }
+    },
+    {
+      "id": "valid-feature",
+      "input": {
+        "title": "✨ [feature] Document example 2",
+        "labels": [
+          "type:feature",
+          "priority:p2"
+        ]
+      },
+      "expected": {
+        "status": "conformant",
+        "type": "feature"
+      }
+    },
+    {
+      "id": "valid-bug",
+      "input": {
+        "title": "🐛 [bug] Document example 3",
+        "labels": [
+          "type:bug",
+          "priority:p2"
+        ]
+      },
+      "expected": {
+        "status": "conformant",
+        "type": "bug"
+      }
+    },
+    {
+      "id": "valid-documentation",
+      "input": {
+        "title": "📄 [documentation] Document example 4",
+        "labels": [
+          "type:documentation",
+          "priority:p2"
+        ]
+      },
+      "expected": {
+        "status": "conformant",
+        "type": "documentation"
+      }
+    },
+    {
+      "id": "valid-research",
+      "input": {
+        "title": "🔬 [research] Document example 5",
+        "labels": [
+          "type:research",
+          "priority:p2"
+        ]
+      },
+      "expected": {
+        "status": "conformant",
+        "type": "research"
+      }
+    },
+    {
+      "id": "valid-maintenance",
+      "input": {
+        "title": "🧹 [maintenance] Document example 6",
+        "labels": [
+          "type:maintenance",
+          "priority:p2"
+        ]
+      },
+      "expected": {
+        "status": "conformant",
+        "type": "maintenance"
+      }
+    },
+    {
+      "id": "checkpoint-id-preserved",
+      "input": {
+        "title": "✨ [feature] [FLO-OBS-01] Checkpoint 2: Export reports",
+        "labels": [
+          "type:feature"
+        ]
+      },
+      "expected": {
+        "status": "conformant",
+        "type": "feature"
+      }
+    },
+    {
+      "id": "prefix-mismatch",
+      "input": {
+        "title": "🐛 [bug] Export reports",
+        "labels": [
+          "type:feature"
+        ]
+      },
+      "expected": {
+        "status": "nonconformant",
+        "type": "feature"
+      }
+    },
+    {
+      "id": "missing-type",
+      "input": {
+        "title": "✨ [feature] Export reports",
+        "labels": [
+          "area:automation"
+        ]
+      },
+      "expected": {
+        "status": "needs-classification",
+        "type": null
+      }
+    },
+    {
+      "id": "multiple-types",
+      "input": {
+        "title": "✨ [feature] Export reports",
+        "labels": [
+          "type:feature",
+          "type:bug"
+        ]
+      },
+      "expected": {
+        "status": "conflict",
+        "type": null
+      }
+    },
+    {
+      "id": "unknown-type",
+      "input": {
+        "title": "🚀 [delivery] Export reports",
+        "labels": [
+          "type:delivery"
+        ]
+      },
+      "expected": {
+        "status": "unsupported-type",
+        "type": null
+      }
+    },
+    {
+      "id": "known-and-unknown-type",
+      "input": {
+        "title": "✨ [feature] Export reports",
+        "labels": [
+          "type:feature",
+          "type:delivery"
+        ]
+      },
+      "expected": {
+        "status": "unsupported-type",
+        "type": null
+      }
+    },
+    {
+      "id": "empty-subject",
+      "input": {
+        "title": "✨ [feature] ",
+        "labels": [
+          "type:feature"
+        ]
+      },
+      "expected": {
+        "status": "nonconformant",
+        "type": "feature"
+      }
+    },
+    {
+      "id": "unformatted-title",
+      "input": {
+        "title": "[FLO-OBS-01] Export reports",
+        "labels": [
+          "type:feature"
+        ]
+      },
+      "expected": {
+        "status": "nonconformant",
+        "type": "feature"
+      }
+    },
+    {
+      "id": "wrong-emoji",
+      "input": {
+        "title": "🐛 [feature] Export reports",
+        "labels": [
+          "type:feature"
+        ]
+      },
+      "expected": {
+        "status": "nonconformant",
+        "type": "feature"
+      }
+    },
+    {
+      "id": "multiline-subject",
+      "input": {
+        "title": "✨ [feature] Export\nreports",
+        "labels": [
+          "type:feature"
+        ]
+      },
+      "expected": {
+        "status": "nonconformant",
+        "type": "feature"
+      }
+    },
+    {
+      "id": "double-separator",
+      "input": {
+        "title": "✨  [feature] Export reports",
+        "labels": [
+          "type:feature"
+        ]
+      },
+      "expected": {
+        "status": "nonconformant",
+        "type": "feature"
+      }
+    },
+    {
+      "id": "trailing-space",
+      "input": {
+        "title": "✨ [feature] Export reports ",
+        "labels": [
+          "type:feature"
+        ]
+      },
+      "expected": {
+        "status": "nonconformant",
+        "type": "feature"
+      }
+    }
+  ],
+  "migrations": [
+    {
+      "id": "reviewed-legacy-title",
+      "before": {
+        "title": "🧭 [Release checkpoint 7] Provide pinned tools",
+        "labels": [
+          "type:maintenance"
+        ]
+      },
+      "reviewed_subject": "[Release checkpoint 7] Provide pinned tools",
+      "after": {
+        "title": "🧹 [maintenance] [Release checkpoint 7] Provide pinned tools",
+        "labels": [
+          "type:maintenance"
+        ]
+      }
+    },
+    {
+      "id": "already-conformant-no-op",
+      "before": {
+        "title": "✨ [feature] [FLO-OBS-01] Export reports",
+        "labels": [
+          "type:feature"
+        ]
+      },
+      "reviewed_subject": "[FLO-OBS-01] Export reports",
+      "after": {
+        "title": "✨ [feature] [FLO-OBS-01] Export reports",
+        "labels": [
+          "type:feature"
+        ]
+      }
+    }
+  ]
+}

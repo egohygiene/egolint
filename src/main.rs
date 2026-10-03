@@ -5,6 +5,9 @@ use std::process::ExitCode;
 
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use egolint::error::exit_code;
+use egolint::issue_titles::{
+    IssueTitlePolicy, IssueTitleProposal, IssueTitleReport, IssueTitleSnapshot, IssueTitleStatus,
+};
 use egolint::rules::repository_gitignore::{
     self, RepositoryGitignorePolicy, RepositoryGitignoreReport, evaluate_gitignore,
     write_gitignore_report_atomic,
@@ -67,6 +70,11 @@ enum Command {
     Validate(RunArgs),
     /// Validate layered ignore content and Git behavior without reading file payloads.
     Gitignore(GitignoreArgs),
+    /// Check observed issue titles or format explicitly reviewed subjects offline.
+    IssueTitle {
+        #[command(subcommand)]
+        command: IssueTitleCommand,
+    },
     /// Print the redacted execution plan without starting a container.
     Plan(RunArgs),
     /// Validate configuration and container-runtime readiness.
@@ -97,6 +105,25 @@ enum ConfigCommand {
         /// Output encoding.
         #[arg(long, value_enum, default_value_t = OutputFormat::Text)]
         format: OutputFormat,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+enum IssueTitleCommand {
+    /// Validate a normalized version-1 title and label snapshot; emits JSON.
+    Validate {
+        /// JSON snapshot file, relative to --workspace unless absolute.
+        #[arg(long)]
+        input: PathBuf,
+    },
+    /// Propose a title from an explicit type and reviewed subject; emits JSON.
+    Format {
+        /// Canonical lowercase type token from the pinned mapping.
+        #[arg(long = "type")]
+        kind: String,
+        /// Explicitly reviewed subject, preserved without trimming or prefix stripping.
+        #[arg(long)]
+        reviewed_subject: String,
     },
 }
 
@@ -269,6 +296,9 @@ enum SchemaKind {
     RepositoryGitignore,
     RepositoryGitignoreReport,
     RepositoryReleaseReport,
+    IssueTitleSnapshot,
+    IssueTitleReport,
+    IssueTitleProposal,
 }
 
 fn main() -> ExitCode {
@@ -312,6 +342,7 @@ fn run(cli: Cli) -> Result<i32, EgolintError> {
         Command::Gitignore(arguments) => {
             execute_gitignore(&workspace, cli.config.as_deref(), &arguments)
         }
+        Command::IssueTitle { command } => execute_issue_title(&workspace, command),
         Command::Plan(arguments) => {
             let (_, plan) = build(
                 &workspace,
@@ -342,6 +373,45 @@ fn run(cli: Cli) -> Result<i32, EgolintError> {
         Command::Schema { kind } => {
             print_schema(kind)?;
             Ok(0)
+        }
+    }
+}
+
+fn execute_issue_title(workspace: &Path, command: IssueTitleCommand) -> Result<i32, EgolintError> {
+    let policy = IssueTitlePolicy::bundled()?;
+    match command {
+        IssueTitleCommand::Validate { input } => {
+            let path = workspace.join(input);
+            let bytes = std::fs::read(&path).map_err(|source| {
+                if source.kind() == std::io::ErrorKind::NotFound {
+                    EgolintError::MissingPath(path.clone())
+                } else {
+                    EgolintError::Filesystem {
+                        path: path.clone(),
+                        source,
+                    }
+                }
+            })?;
+            let snapshot: IssueTitleSnapshot = serde_json::from_slice(&bytes).map_err(|_| {
+                EgolintError::Configuration(
+                    "invalid issue-title snapshot: expected schema_version, complete, title, and labels".into(),
+                )
+            })?;
+            let report = policy.validate(&snapshot)?;
+            println!("{}", serde_json::to_string_pretty(&report)?);
+            Ok(match report.status {
+                IssueTitleStatus::Conformant => exit_code::CLEAN,
+                IssueTitleStatus::Unavailable => exit_code::CONFIGURATION,
+                _ => exit_code::FINDINGS,
+            })
+        }
+        IssueTitleCommand::Format {
+            kind,
+            reviewed_subject,
+        } => {
+            let proposal = policy.format(&kind, &reviewed_subject)?;
+            println!("{}", serde_json::to_string_pretty(&proposal)?);
+            Ok(exit_code::CLEAN)
         }
     }
 }
@@ -1385,6 +1455,9 @@ fn print_schema(kind: SchemaKind) -> Result<(), EgolintError> {
             schemars::schema_for!(RepositoryContinuityReport)
         }
         SchemaKind::RepositoryReleaseReport => schemars::schema_for!(RepositoryReleaseReport),
+        SchemaKind::IssueTitleSnapshot => schemars::schema_for!(IssueTitleSnapshot),
+        SchemaKind::IssueTitleReport => schemars::schema_for!(IssueTitleReport),
+        SchemaKind::IssueTitleProposal => schemars::schema_for!(IssueTitleProposal),
     };
     println!("{}", serde_json::to_string_pretty(&schema)?);
     Ok(())

@@ -127,6 +127,12 @@ tasks:
         schemas/repository-gitignore-report.schema.json
       - cargo run --quiet --locked -- schema repository-release-report >
         schemas/repository-release-report.schema.json
+      - cargo run --quiet --locked -- schema issue-title-snapshot >
+        schemas/issue-title-snapshot.schema.json
+      - cargo run --quiet --locked -- schema issue-title-report >
+        schemas/issue-title-report.schema.json
+      - cargo run --quiet --locked -- schema issue-title-proposal >
+        schemas/issue-title-proposal.schema.json
 
   schemas:check:
     desc: "Fail when checked-in JSON Schemas differ from the Rust types"
@@ -153,7 +159,10 @@ tasks:
           repository-continuity-report \
           repository-gitignore \
           repository-gitignore-report \
-          repository-release-report; do
+          repository-release-report \
+          issue-title-snapshot \
+          issue-title-report \
+          issue-title-proposal; do
           cargo run --quiet --locked -- schema "$schema" > "$temporary_directory/$schema.schema.json"
           diff --unified \
             "schemas/$schema.schema.json" \

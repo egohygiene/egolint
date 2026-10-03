@@ -1,0 +1,67 @@
+{
+  "$schema": "./schema/title-contract.v1.schema.json",
+  "schema_version": 1,
+  "contract_id": "egohygiene.issue-title/v1",
+  "contract_version": "1.0.0",
+  "owner": "egohygiene/.github",
+  "label_catalog": {
+    "path": "../labels/catalog.v1.json",
+    "version": "1.0.0"
+  },
+  "format": "{emoji} [{type}] {subject}",
+  "types": [
+    {
+      "type": "architecture",
+      "emoji": "🏗️",
+      "label": "type:architecture"
+    },
+    {
+      "type": "feature",
+      "emoji": "✨",
+      "label": "type:feature"
+    },
+    {
+      "type": "bug",
+      "emoji": "🐛",
+      "label": "type:bug"
+    },
+    {
+      "type": "documentation",
+      "emoji": "📄",
+      "label": "type:documentation"
+    },
+    {
+      "type": "research",
+      "emoji": "🔬",
+      "label": "type:research"
+    },
+    {
+      "type": "maintenance",
+      "emoji": "🧹",
+      "label": "type:maintenance"
+    }
+  ],
+  "rules": {
+    "primary_type": "exactly-one-known-type-label",
+    "missing_type": "needs-classification",
+    "multiple_types": "conflict",
+    "unknown_type": "unsupported-type",
+    "subject": "nonempty-trimmed-single-line",
+    "separators": "single-ascii-space",
+    "emoji_matching": "exact-codepoints",
+    "subject_case": "preserve",
+    "existing_subject": "preserve-wording-and-identifiers",
+    "migration": "reviewed-explicit-subject",
+    "normalization": "idempotent",
+    "unknown_prefix": "preserve-until-reviewed",
+    "relationships": "native-identifiers-not-title-parsing"
+  },
+  "adoption": {
+    "scope": "explicit-repository-adoption",
+    "default_mode": "observe",
+    "reference": "immutable-commit",
+    "unavailable_contract": "report-unavailable"
+  },
+  "semantics": "../../docs/issue-titles.md",
+  "conformance_examples": "../../fixtures/issue-titles/cases.v1.json"
+}

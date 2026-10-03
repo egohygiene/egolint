@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "contract": "egolint.issue-title-sources/v1",
+  "authority": "candidate",
+  "sources": [
+    {
+      "repository": "egohygiene/.github",
+      "revision": "19d2be9bf0191710508cefbb9f0b1abb3a40d9be",
+      "source_path": ".github/issues/title-contract.v1.json",
+      "vendored_path": "vendor/github/issue-titles/.github/issues/title-contract.v1.json",
+      "sha256": "205202bda3c3b069a105924499ba7213a6a99645658e500cc910dfa085eeb30e"
+    },
+    {
+      "repository": "egohygiene/.github",
+      "revision": "19d2be9bf0191710508cefbb9f0b1abb3a40d9be",
+      "source_path": ".github/issues/schema/title-contract.v1.schema.json",
+      "vendored_path": "vendor/github/issue-titles/.github/issues/schema/title-contract.v1.schema.json",
+      "sha256": "9df220330ad07758122567620f557aa11aad85522914fe3f4cdc7de6a5ca7295"
+    },
+    {
+      "repository": "egohygiene/.github",
+      "revision": "19d2be9bf0191710508cefbb9f0b1abb3a40d9be",
+      "source_path": ".github/labels/catalog.v1.json",
+      "vendored_path": "vendor/github/issue-titles/.github/labels/catalog.v1.json",
+      "sha256": "7063a61608a66454310e5a7746b1514d1d11018da08427bfb49f4612326ff6ff"
+    },
+    {
+      "repository": "egohygiene/.github",
+      "revision": "19d2be9bf0191710508cefbb9f0b1abb3a40d9be",
+      "source_path": "docs/issue-titles.md",
+      "vendored_path": "vendor/github/issue-titles/docs/issue-titles.md",
+      "sha256": "243b5fdfec3fff82623fdcb43fa490829af9380d5f0b1d568f9f32b277de0660"
+    },
+    {
+      "repository": "egohygiene/.github",
+      "revision": "19d2be9bf0191710508cefbb9f0b1abb3a40d9be",
+      "source_path": "fixtures/issue-titles/cases.v1.json",
+      "vendored_path": "vendor/github/issue-titles/fixtures/issue-titles/cases.v1.json",
+      "sha256": "c21989c506e363c7b7845e0f63bdaf14f2e0de78f9d6c421d04e0f5a444edab2"
+    }
+  ]
+}

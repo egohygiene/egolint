@@ -5,7 +5,10 @@ use Semantic Versioning once its public contracts stabilize.
 
 ## [Unreleased]
 
-No changes yet.
+### Added
+
+- Offline issue-title validation and explicit reviewed-subject formatting with a checksum-verified
+  organization contract candidate, deterministic provenance, and generated input/result schemas.
 
 ## [0.1.0-alpha.1] - 2026-09-01
 
