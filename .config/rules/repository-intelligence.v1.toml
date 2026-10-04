@@ -1,5 +1,5 @@
 schema-version = 1
-catalog-version = "0.1.0-alpha.2"
+catalog-version = "0.1.0-alpha.3"
 owner = "egohygiene/egolint"
 tool-id = "EGOLINT_REPOSITORY_INTELLIGENCE"
 policy-source = ".config/rules/repository-intelligence.v1.toml"
@@ -35,6 +35,15 @@ authority = "proposed"
 source-repository = "egohygiene/hygiene"
 source-revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
 source-path = "schemas/repository-intelligence.v1.schema.json"
+
+# Exact alternative; the alpha.1 source-validation policy remains supported.
+[[compatible-upstream-contracts]]
+id = "egohygiene.repository-intelligence/v1"
+version = "1.0.0-alpha.2"
+authority = "proposed"
+source-repository = "egohygiene/hygiene"
+source-revision = "639a003d5ddc4d242c2cf190eeb59a9fc522d199"
+source-path = "schemas/repository-intelligence.alpha2.schema.json"
 
 [[rules]]
 id = "EGO-INTEL-CONTRACT-001"

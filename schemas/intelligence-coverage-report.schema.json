@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CoverageReport",
+  "description": "Deterministic machine-readable result for the standalone coverage check.",
+  "type": "object",
+  "properties": {
+    "authority": {
+      "description": "Contract implementation remains proposed, regardless of merge state.",
+      "type": "string"
+    },
+    "contract": {
+      "description": "Owner contract identifier, not consumer repository identity.",
+      "type": "string"
+    },
+    "contract_version": {
+      "description": "Exact supported input version, absent for unavailable/unsupported input.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "coverage": {
+      "description": "Explicit claims, legacy uncertainty, or unavailable evidence.",
+      "$ref": "#/$defs/CoverageKnowledge"
+    },
+    "diagnostic": {
+      "description": "One stable diagnostic, without untrusted provider data.",
+      "type": "string"
+    },
+    "domains": {
+      "description": "Preserved claims only after the entire coverage check succeeds.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/CollectionClaim"
+      }
+    },
+    "schema_version": {
+      "description": "Version of this `EgoLint` report shape.",
+      "type": "integer",
+      "format": "uint32",
+      "maximum": 1,
+      "minimum": 1
+    },
+    "scope": {
+      "description": "Explicit scope: this supplements full source/schema/graph validation.",
+      "type": "string"
+    },
+    "source_revision": {
+      "description": "Exact owner definition revision.",
+      "type": "string"
+    },
+    "status": {
+      "description": "Validity of the declared coverage claims.",
+      "$ref": "#/$defs/CoverageStatus"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "scope",
+    "contract",
+    "source_revision",
+    "authority",
+    "status",
+    "coverage",
+    "diagnostic"
+  ],
+  "$defs": {
+    "CollectionClaim": {
+      "description": "A preserved claim whose values are checked against the pinned owner schema.",
+      "type": "object",
+      "properties": {
+        "collection": {
+          "description": "Collection state; independent of freshness and conformance.",
+          "type": "string"
+        },
+        "freshness": {
+          "description": "Collector-supplied freshness, never refreshed by this check.",
+          "type": "string"
+        },
+        "observed_at": {
+          "description": "Observation time, or explicit null when no observation was obtained.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reason": {
+          "description": "Fixed owner-defined reason code; no provider message is retained.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "collection",
+        "freshness",
+        "reason"
+      ]
+    },
+    "CoverageKnowledge": {
+      "description": "Whether a compatible projection provides any collection-completeness claims.",
+      "oneOf": [
+        {
+          "description": "Alpha.2 explicitly declares all domains, which may themselves be partial.",
+          "type": "string",
+          "const": "explicit"
+        },
+        {
+          "description": "Alpha.1 says nothing about collection completeness.",
+          "type": "string",
+          "const": "legacy_unknown"
+        },
+        {
+          "description": "Input cannot supply usable coverage evidence.",
+          "type": "string",
+          "const": "unavailable"
+        }
+      ]
+    },
+    "CoverageStatus": {
+      "description": "Semantic validity of collection claims only, never whole-projection conformance.",
+      "oneOf": [
+        {
+          "description": "Supported claims are consistent with represented root-domain records.",
+          "type": "string",
+          "const": "valid"
+        },
+        {
+          "description": "Malformed, unsupported or contradictory coverage input.",
+          "type": "string",
+          "const": "invalid"
+        },
+        {
+          "description": "A protected input was withheld without identities or counts.",
+          "type": "string",
+          "const": "unavailable"
+        }
+      ]
+    }
+  }
+}

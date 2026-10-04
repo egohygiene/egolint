@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "contract": "egohygiene.repository-intelligence/v1",
+  "versions": ["1.0.0-alpha.1", "1.0.0-alpha.2"],
+  "authority": "proposed",
+  "repository": "egohygiene/hygiene",
+  "revision": "639a003d5ddc4d242c2cf190eeb59a9fc522d199",
+  "artifacts": [
+    {
+      "source_path": "schemas/repository-intelligence.v1.schema.json",
+      "vendored_path": "vendor/hygiene/intelligence/repository-intelligence.v1.schema.json",
+      "sha256": "7200047785c32cea8963eb78ee74a01befa85d9aab0eabcb4039507ac3c50374"
+    },
+    {
+      "source_path": "schemas/repository-intelligence.alpha2.schema.json",
+      "vendored_path": "vendor/hygiene/intelligence/repository-intelligence.alpha2.schema.json",
+      "sha256": "7fd7b19c22b2df8c4c6b6f6e8b7c36ae9082a1c415786dc23e33090790c45cf1"
+    },
+    {
+      "source_path": "catalog/repository-intelligence-vocabulary.json",
+      "vendored_path": "vendor/hygiene/intelligence/repository-intelligence-vocabulary.json",
+      "sha256": "e61ac19d7907b80d3e1d3e9158d34039a5da43208c309b81919105a9450f8cd7"
+    },
+    {
+      "source_path": "docs/ecosystem/REPOSITORY_INTELLIGENCE_COVERAGE.md",
+      "vendored_path": "vendor/hygiene/intelligence/REPOSITORY_INTELLIGENCE_COVERAGE.md",
+      "sha256": "e2889b9481d05afeb3f8e030887ccf1420827ab2ee4cfb524cdfea0a09e1e5f5"
+    }
+  ],
+  "fixtures": [
+    {
+      "source_path": "fixtures/repository-intelligence/complete-quest.json",
+      "fixture_path": "tests/fixtures/repository-intelligence/coverage/complete-quest.json",
+      "sha256": "7571348da763a9ec60aa8af60e2290fbf6d153da39ef9760d8c71ab90651c8db"
+    },
+    {
+      "source_path": "fixtures/repository-intelligence/coverage/full.json",
+      "fixture_path": "tests/fixtures/repository-intelligence/coverage/full.json",
+      "sha256": "d10f04b1d856448964b4d4fdfbc82ff48068de1efc8f3e56796c66be01f1a480"
+    },
+    {
+      "source_path": "fixtures/repository-intelligence/coverage/roadmap-only.json",
+      "fixture_path": "tests/fixtures/repository-intelligence/coverage/roadmap-only.json",
+      "sha256": "95f0692ce68c7526d685cbb966207ccaa8065e35a435a29c117ad16c80060bb6"
+    },
+    {
+      "source_path": "fixtures/repository-intelligence/coverage/provider-denied.json",
+      "fixture_path": "tests/fixtures/repository-intelligence/coverage/provider-denied.json",
+      "sha256": "082f30eaf4c0224c6966f4f0ba9bd1f701e2c28ea11d59277465653ce8c1200d"
+    },
+    {
+      "source_path": "fixtures/repository-intelligence/coverage/observed-empty.json",
+      "fixture_path": "tests/fixtures/repository-intelligence/coverage/observed-empty.json",
+      "sha256": "4e3227f8023053df7248716b98e3256a0e004f6b2ad3c91f477c984d2ffd9de3"
+    },
+    {
+      "source_path": "fixtures/repository-intelligence/coverage/stale.json",
+      "fixture_path": "tests/fixtures/repository-intelligence/coverage/stale.json",
+      "sha256": "4e92f04a3f94784fd9de57c1b4099ef06f578b7a69772374f3033ce070e95791"
+    },
+    {
+      "source_path": "fixtures/repository-intelligence/coverage/partial.json",
+      "fixture_path": "tests/fixtures/repository-intelligence/coverage/partial.json",
+      "sha256": "6d7de93498e4dfeb539daf1042d1551ab67aeac646082f927bf77f54e74c166d"
+    },
+    {
+      "source_path": "fixtures/repository-intelligence/coverage/failed.json",
+      "fixture_path": "tests/fixtures/repository-intelligence/coverage/failed.json",
+      "sha256": "895b171b1e34385e449fbd4a4cbe8231af5b697ce3fbecffdd691626a371299b"
+    },
+    {
+      "source_path": "fixtures/repository-intelligence/coverage/not-applicable.json",
+      "fixture_path": "tests/fixtures/repository-intelligence/coverage/not-applicable.json",
+      "sha256": "89d72d28e42a73da932ad1c3632e6029a339925a6d29055c81d6b365067f3b58"
+    }
+  ]
+}

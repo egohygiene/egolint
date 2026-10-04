@@ -1,0 +1,821 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://egohygiene.io/schemas/hygiene/repository-intelligence.v1.schema.json",
+  "title": "Ego Hygiene Repository Intelligence projection v1",
+  "description": "A deterministic, provenance-aware graph projection of repository intent, decisions, delivery, validation, releases, and deployments.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_version",
+    "projection_id",
+    "repository",
+    "visibility",
+    "represented_commit",
+    "observed_at",
+    "generator",
+    "sources",
+    "entities",
+    "relationships",
+    "events",
+    "redactions",
+    "extensions"
+  ],
+  "properties": {
+    "schema": {
+      "const": "egohygiene.repository-intelligence/v1"
+    },
+    "contract_version": {
+      "const": "1.0.0-alpha.1"
+    },
+    "projection_id": {
+      "type": "string",
+      "pattern": "^egohygiene/(\\.github|[a-z0-9][a-z0-9.-]*)@[0-9a-f]{40}$"
+    },
+    "repository": {
+      "$ref": "#/$defs/repository"
+    },
+    "visibility": {
+      "$ref": "#/$defs/visibility"
+    },
+    "represented_commit": {
+      "$ref": "#/$defs/commitSha"
+    },
+    "observed_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "generator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "contract"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"
+        },
+        "contract": {
+          "const": "egohygiene.repository-intelligence/v1"
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    },
+    "entities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/entity"
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relationship"
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/event"
+      }
+    },
+    "redactions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/redaction"
+      }
+    },
+    "extensions": {
+      "$ref": "#/$defs/extensions"
+    }
+  },
+  "$defs": {
+    "repository": {
+      "type": "string",
+      "pattern": "^egohygiene/(\\.github|[a-z0-9][a-z0-9.-]*)$"
+    },
+    "commitSha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "visibility": {
+      "enum": ["public", "internal", "private"]
+    },
+    "assertion": {
+      "enum": ["authoritative", "inferred", "unknown"]
+    },
+    "freshness": {
+      "enum": ["current", "stale", "unknown", "not_applicable"]
+    },
+    "entityKind": {
+      "enum": [
+        "repository",
+        "roadmap_step",
+        "architecture_decision",
+        "issue",
+        "pull_request",
+        "commit",
+        "check",
+        "release",
+        "deployment"
+      ]
+    },
+    "entityId": {
+      "type": "string",
+      "pattern": "^ri:egohygiene/(\\.github|[a-z0-9][a-z0-9.-]*):(repository|roadmap-step|architecture-decision|issue|pull-request|commit|check|release|deployment):[A-Za-z0-9][A-Za-z0-9._~@/+:-]*$"
+    },
+    "sourceId": {
+      "type": "string",
+      "pattern": "^source:[a-z0-9][a-z0-9._-]*$"
+    },
+    "relationshipId": {
+      "type": "string",
+      "pattern": "^relationship:[a-z0-9][a-z0-9._-]*$"
+    },
+    "eventId": {
+      "type": "string",
+      "pattern": "^event:[a-z0-9][a-z0-9._-]*$"
+    },
+    "extensions": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z0-9][a-z0-9.-]*/[A-Za-z0-9][A-Za-z0-9._-]*$": true
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "url",
+        "repository",
+        "revision",
+        "observed_at",
+        "visibility",
+        "assertion",
+        "freshness"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/sourceId"
+        },
+        "kind": {
+          "enum": [
+            "roadmap",
+            "architecture_decision",
+            "git",
+            "github_issue",
+            "github_pull_request",
+            "check_provider",
+            "release",
+            "deployment",
+            "manual"
+          ]
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "repository": {
+          "$ref": "#/$defs/repository"
+        },
+        "revision": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/commitSha"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "observed_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "visibility": {
+          "$ref": "#/$defs/visibility"
+        },
+        "assertion": {
+          "$ref": "#/$defs/assertion"
+        },
+        "freshness": {
+          "$ref": "#/$defs/freshness"
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "assertion"],
+      "properties": {
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "assertion": {
+          "$ref": "#/$defs/assertion"
+        }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "repository",
+        "key",
+        "title",
+        "canonical_url",
+        "visibility",
+        "state",
+        "freshness",
+        "provenance",
+        "attributes",
+        "extensions"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/entityId"
+        },
+        "kind": {
+          "$ref": "#/$defs/entityKind"
+        },
+        "repository": {
+          "$ref": "#/$defs/repository"
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "title": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 240
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "canonical_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "visibility": {
+          "$ref": "#/$defs/visibility"
+        },
+        "state": {
+          "$ref": "#/$defs/state"
+        },
+        "freshness": {
+          "$ref": "#/$defs/freshness"
+        },
+        "provenance": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/sourceId"
+          }
+        },
+        "attributes": {
+          "type": "object"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "roadmap_step"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "properties": {
+                  "value": {
+                    "enum": [
+                      "complete",
+                      "active",
+                      "ready",
+                      "blocked",
+                      "planned",
+                      "deferred",
+                      "cancelled"
+                    ]
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "required": ["outcome", "exit_criteria"],
+                "properties": {
+                  "outcome": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "exit_criteria": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["text", "complete"],
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "complete": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "architecture_decision"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "properties": {
+                  "value": {
+                    "enum": ["proposed", "accepted", "rejected", "superseded", "deprecated"]
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "required": ["decision_scope", "implementation_status"],
+                "properties": {
+                  "decision_scope": {
+                    "enum": ["repository", "organization"]
+                  },
+                  "implementation_status": {
+                    "enum": [
+                      "not_started",
+                      "in_progress",
+                      "implemented",
+                      "verified",
+                      "not_applicable",
+                      "unknown"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "issue"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "properties": {
+                  "value": {
+                    "enum": ["open", "closed"]
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "required": ["number"],
+                "properties": {
+                  "number": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "pull_request"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "state": {
+                "properties": {
+                  "value": {
+                    "enum": ["open", "merged", "closed"]
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "required": ["number", "draft"],
+                "properties": {
+                  "number": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "draft": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "commit"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "attributes": {
+                "type": "object",
+                "required": ["sha"],
+                "properties": {
+                  "sha": {
+                    "$ref": "#/$defs/commitSha"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "check"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "attributes": {
+                "type": "object",
+                "required": ["name", "status", "conclusion"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "enum": ["queued", "in_progress", "completed"]
+                  },
+                  "conclusion": {
+                    "enum": [
+                      "success",
+                      "failure",
+                      "neutral",
+                      "cancelled",
+                      "skipped",
+                      "timed_out",
+                      "action_required",
+                      "unknown"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "release"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "attributes": {
+                "type": "object",
+                "required": ["tag_name", "published_at"],
+                "properties": {
+                  "tag_name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "published_at": {
+                    "$ref": "#/$defs/timestamp"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "deployment"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "attributes": {
+                "type": "object",
+                "required": ["environment", "status"],
+                "properties": {
+                  "environment": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "enum": [
+                      "pending",
+                      "in_progress",
+                      "success",
+                      "failure",
+                      "inactive",
+                      "unknown"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "source",
+        "target",
+        "direction",
+        "assertion",
+        "freshness",
+        "provenance",
+        "extensions"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/relationshipId"
+        },
+        "type": {
+          "enum": [
+            "implements",
+            "informs",
+            "supersedes",
+            "blocks",
+            "depends-on",
+            "releases",
+            "deploys",
+            "tracks",
+            "verifies",
+            "evidences"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/entityId"
+        },
+        "target": {
+          "$ref": "#/$defs/entityId"
+        },
+        "direction": {
+          "const": "directed"
+        },
+        "assertion": {
+          "$ref": "#/$defs/assertion"
+        },
+        "freshness": {
+          "$ref": "#/$defs/freshness"
+        },
+        "provenance": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/sourceId"
+          }
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "actor": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "id", "url", "assertion"],
+          "properties": {
+            "kind": {
+              "enum": ["human", "bot", "team", "unknown"]
+            },
+            "id": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "url": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "format": "uri"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "assertion": {
+              "$ref": "#/$defs/assertion"
+            }
+          }
+        }
+      ]
+    },
+    "change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "from", "to"],
+      "properties": {
+        "field": {
+          "type": "string",
+          "minLength": 1
+        },
+        "from": true,
+        "to": true
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "subject",
+        "occurred_at",
+        "recorded_at",
+        "actor",
+        "changes",
+        "visibility",
+        "assertion",
+        "freshness",
+        "provenance",
+        "extensions"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/eventId"
+        },
+        "type": {
+          "enum": [
+            "repository.observed",
+            "roadmap_step.created",
+            "roadmap_step.status_changed",
+            "architecture_decision.proposed",
+            "architecture_decision.accepted",
+            "architecture_decision.rejected",
+            "architecture_decision.deprecated",
+            "architecture_decision.superseded",
+            "issue.opened",
+            "issue.closed",
+            "issue.reopened",
+            "pull_request.opened",
+            "pull_request.merged",
+            "pull_request.closed",
+            "commit.created",
+            "check.completed",
+            "release.published",
+            "deployment.completed"
+          ]
+        },
+        "subject": {
+          "$ref": "#/$defs/entityId"
+        },
+        "occurred_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "recorded_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "actor": {
+          "$ref": "#/$defs/actor"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/change"
+          }
+        },
+        "visibility": {
+          "$ref": "#/$defs/visibility"
+        },
+        "assertion": {
+          "$ref": "#/$defs/assertion"
+        },
+        "freshness": {
+          "$ref": "#/$defs/freshness"
+        },
+        "provenance": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/sourceId"
+          }
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "reason", "count"],
+      "properties": {
+        "field": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "enum": [
+            "visibility_policy",
+            "sensitive_metadata",
+            "unavailable",
+            "not_collected"
+          ]
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

@@ -1,10 +1,14 @@
 //! Egolint command-line interface.
 
+use std::io::Read;
 use std::path::{Component, Path, PathBuf};
 use std::process::ExitCode;
 
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use egolint::error::exit_code;
+use egolint::intelligence_coverage::{
+    CoverageReport, CoverageStatus, MAX_INPUT_BYTES, validate_coverage,
+};
 use egolint::issue_titles::{
     IssueTitlePolicy, IssueTitleProposal, IssueTitleReport, IssueTitleSnapshot, IssueTitleStatus,
 };
@@ -75,6 +79,11 @@ enum Command {
         #[command(subcommand)]
         command: IssueTitleCommand,
     },
+    /// Check projection collection claims offline; composes with source/graph validation.
+    Intelligence {
+        #[command(subcommand)]
+        command: IntelligenceCommand,
+    },
     /// Print the redacted execution plan without starting a container.
     Plan(RunArgs),
     /// Validate configuration and container-runtime readiness.
@@ -124,6 +133,16 @@ enum IssueTitleCommand {
         /// Explicitly reviewed subject, preserved without trimming or prefix stripping.
         #[arg(long)]
         reviewed_subject: String,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+enum IntelligenceCommand {
+    /// Check alpha.1/alpha.2 coverage claims; emits a scoped JSON report, not whole-graph conformance.
+    ValidateCoverage {
+        /// Captured projection JSON, relative to --workspace unless absolute.
+        #[arg(long)]
+        input: PathBuf,
     },
 }
 
@@ -289,6 +308,7 @@ enum SchemaKind {
     RepositoryContract,
     RepositoryIntelligence,
     RepositoryIntelligenceReport,
+    IntelligenceCoverageReport,
     RepositoryPresentation,
     RepositoryPresentationReport,
     RepositoryContinuity,
@@ -343,6 +363,7 @@ fn run(cli: Cli) -> Result<i32, EgolintError> {
             execute_gitignore(&workspace, cli.config.as_deref(), &arguments)
         }
         Command::IssueTitle { command } => execute_issue_title(&workspace, command),
+        Command::Intelligence { command } => execute_intelligence(&workspace, command),
         Command::Plan(arguments) => {
             let (_, plan) = build(
                 &workspace,
@@ -375,6 +396,36 @@ fn run(cli: Cli) -> Result<i32, EgolintError> {
             Ok(0)
         }
     }
+}
+
+fn execute_intelligence(
+    workspace: &Path,
+    command: IntelligenceCommand,
+) -> Result<i32, EgolintError> {
+    let IntelligenceCommand::ValidateCoverage { input } = command;
+    let path = workspace.join(input);
+    let input_error = || {
+        EgolintError::Configuration(
+            "coverage input must be a readable regular JSON file within the 4 MiB limit".into(),
+        )
+    };
+    let metadata = std::fs::symlink_metadata(&path).map_err(|_| input_error())?;
+    if !metadata.is_file() || metadata.len() > MAX_INPUT_BYTES as u64 {
+        return Err(input_error());
+    }
+    let mut bytes = Vec::new();
+    std::fs::File::open(&path)
+        .map_err(|_| input_error())?
+        .take(MAX_INPUT_BYTES as u64 + 1)
+        .read_to_end(&mut bytes)
+        .map_err(|_| input_error())?;
+    let report = validate_coverage(&bytes)?;
+    println!("{}", serde_json::to_string_pretty(&report)?);
+    Ok(match report.status {
+        CoverageStatus::Valid => exit_code::CLEAN,
+        CoverageStatus::Invalid => exit_code::FINDINGS,
+        CoverageStatus::Unavailable => exit_code::CONFIGURATION,
+    })
 }
 
 fn execute_issue_title(workspace: &Path, command: IssueTitleCommand) -> Result<i32, EgolintError> {
@@ -1455,6 +1506,7 @@ fn print_schema(kind: SchemaKind) -> Result<(), EgolintError> {
             schemars::schema_for!(RepositoryContinuityReport)
         }
         SchemaKind::RepositoryReleaseReport => schemars::schema_for!(RepositoryReleaseReport),
+        SchemaKind::IntelligenceCoverageReport => schemars::schema_for!(CoverageReport),
         SchemaKind::IssueTitleSnapshot => schemars::schema_for!(IssueTitleSnapshot),
         SchemaKind::IssueTitleReport => schemars::schema_for!(IssueTitleReport),
         SchemaKind::IssueTitleProposal => schemars::schema_for!(IssueTitleProposal),

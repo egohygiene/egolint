@@ -5,7 +5,7 @@ projections. The validator is offline and deterministic: Hygiene owns the source
 owns semantic rules and normalized diagnostics, and Relay may later orchestrate the released CLI
 without reimplementing those rules.
 
-Catalog `0.1.0-alpha.2` consumes the ratified Hygiene ADR policy. Its two ADR contract pins have
+Catalog `0.1.0-alpha.3` consumes the ratified Hygiene ADR policy. Its two ADR contract pins have
 `accepted` authority; the roadmap and projection contracts retain their separate `proposed` pins.
 Policy acceptance never supplies a consumer decision's human approval or changes its lifecycle.
 
@@ -143,3 +143,99 @@ native checks can be repeated with `cargo test --locked --lib repository_intelli
 
 Repository-owned Markdown remains canonical. The JSON report is generated evidence and must not be
 edited into a competing decision or roadmap source.
+
+## Collection coverage compatibility (alpha.2)
+
+Hygiene's [coverage contract](https://github.com/egohygiene/hygiene/blob/639a003d5ddc4d242c2cf190eeb59a9fc522d199/docs/ecosystem/REPOSITORY_INTELLIGENCE_COVERAGE.md)
+and Observatory #25 distinguish uncollected, denied, partial, observed-empty,
+observed, failed and explicitly not-applicable domains, separately from freshness.
+EgoLint now accepts the following **additional exact pin** for source validation:
+
+```toml
+[[contracts]]
+id = "egohygiene.repository-intelligence/v1"
+version = "1.0.0-alpha.2"
+authority = "proposed"
+source-repository = "egohygiene/hygiene"
+source-revision = "639a003d5ddc4d242c2cf190eeb59a9fc522d199"
+source-path = "schemas/repository-intelligence.alpha2.schema.json"
+```
+
+Replace the existing Intelligence entry when selecting this version; do not add
+a duplicate contract ID. Every coordinate must match. The supported alpha.1 pin
+above remains valid; ADR and roadmap pins, authority and validation stay unchanged.
+The source catalog increments to `0.1.0-alpha.3`; source-policy/report schemas
+remain version 1. Merge status does not ratify the proposed Intelligence contract.
+
+After collecting a projection, run the native, read-only coverage check:
+
+```sh
+egolint intelligence validate-coverage --input collected-projection.json
+egolint schema intelligence-coverage-report
+```
+
+The library equivalent is `egolint::intelligence_coverage::validate_coverage`.
+It consumes at most 4 MiB of captured JSON, performs no network or provider access,
+and emits JSON on stdout without writing files or executing repository code.
+The CLI accepts regular files only and rejects symlinks. Relative paths resolve
+against `--workspace`; errors never echo the supplied path or JSON payload.
+Duplicate JSON keys fail closed. Output is deterministic across capture paths
+and record order; no wall-clock timestamp is introduced.
+
+This command's explicit report `scope` is **`collection-coverage`**. It checks
+exact input version, root-domain context, all nine coverage domains, required
+fields, fixed reason/freshness combinations, UTC observation times and their
+upper bound, and contradictions between claims and represented root entities or
+events. It reads allowed combinations from the checksum-verified owner schema.
+Inventory and lifecycle history remain separate. External records do not count
+as observations of the root repository. It does not certify the complete Hygiene
+projection schema, graph relationship semantics, source truth, authorization,
+provider pagination, freshness policy, or policy conformance.
+
+The owning Hygiene schema/graph check and EgoLint's existing source lint are
+therefore still required. A valid coverage report means the supplied claims are
+consistent; it cannot prove that a provider was actually queried. In particular,
+`partial`, `unavailable`, `uncollected`, `failed`, and stale empty observations
+never establish a current zero. Only a collector with a complete authorized
+inventory may assert `observed` or `observed_empty`.
+
+| Input/result | Report | Exit |
+| --- | --- | --- |
+| Supported alpha.2 claims, including partial/uncollected | `status: valid`, `coverage: explicit`, all claims preserved in `domains` | 0 |
+| Alpha.1 without coverage | `status: valid`, `coverage: legacy_unknown`, `domains: null` | 0 |
+| Malformed, unsupported, missing or contradictory claims | `status: invalid`, fixed diagnostic, no claims | 1 |
+| Private/internal/unknown visibility or protected records | `status: unavailable`, fixed diagnostic, no identities/counts/claims | 2 |
+| Unreadable, non-regular or oversized file | Fixed bounded input error | 2 |
+
+Exit 0 is not a publication or completeness grant. An alpha.1 graph may contain
+many records but cannot acquire inferred collection completeness. Attaching
+alpha.2 coverage under alpha.1 is rejected. Failed reports preserve no partial
+claims; diagnostics contain fixed codes only, without attacker-controlled keys,
+provider messages, URLs, repository names or counts. Even denied inputs return
+only the public owner-contract identity and pin, never their repository identity.
+
+The [source lock](../.config/rules/repository-intelligence-coverage-sources.v1.json)
+records the exact revision and hashes for the two unchanged owner schemas, graph
+vocabulary, coverage specification, legacy fixture and eight alpha.2 fixtures.
+Only contracts and public synthetic fixtures are bundled; no sibling implementation
+is copied. The runtime verifies its embedded contract bytes before evaluation.
+The report schema is generated in CI and the Cargo package includes every input.
+
+### Relay adoption checkpoint
+
+For Relay #115, and the subsequent #112/#113 collection/build integration:
+
+1. Pin the reviewed EgoLint revision and packaged source digests. Select the exact
+   alpha.2 alternative above in the source policy, retaining the accepted ADR pins.
+2. Validate the immutable ADR/roadmap corpus using the existing
+   `validate --repository-intelligence ... --represented-commit ...` command.
+3. Assemble captured projection input, run Hygiene's full schema/reference graph
+   checks, and invoke `intelligence validate-coverage`. Consume its JSON report
+   and exit code directly, without parsing console descriptions.
+4. Feed that same validated input to the pinned Observatory alpha.2 normalizer.
+   Repin Relay's existing renderer to display domain uncertainty before enabling
+   publication. Replay both legacy and alpha.2 cases; never relabel payloads or
+   treat `legacy_unknown` as complete coverage.
+
+This checkpoint supplies validator compatibility. Collector integration, renderer
+repinning, consumer adoption and deployment remain Relay-owned follow-up work.

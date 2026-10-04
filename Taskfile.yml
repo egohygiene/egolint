@@ -127,6 +127,8 @@ tasks:
         schemas/repository-gitignore-report.schema.json
       - cargo run --quiet --locked -- schema repository-release-report >
         schemas/repository-release-report.schema.json
+      - cargo run --quiet --locked -- schema intelligence-coverage-report >
+        schemas/intelligence-coverage-report.schema.json
       - cargo run --quiet --locked -- schema issue-title-snapshot >
         schemas/issue-title-snapshot.schema.json
       - cargo run --quiet --locked -- schema issue-title-report >
@@ -153,6 +155,7 @@ tasks:
           repository-contract \
           repository-intelligence \
           repository-intelligence-report \
+          intelligence-coverage-report \
           repository-presentation \
           repository-presentation-report \
           repository-continuity \

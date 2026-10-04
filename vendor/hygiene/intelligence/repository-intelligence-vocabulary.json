@@ -1,0 +1,151 @@
+{
+  "schema": "egohygiene.repository-intelligence-vocabulary/v1",
+  "version": "1.0.0-alpha.1",
+  "status": "proposed",
+  "owner": "egohygiene/hygiene",
+  "relationship_types": [
+    {
+      "type": "blocks",
+      "description": "The source prevents the target from advancing until a named condition changes.",
+      "direction": "directed",
+      "inverse": "blocked-by",
+      "cardinality": "many-to-many",
+      "source_kinds": [
+        "roadmap_step",
+        "architecture_decision",
+        "issue",
+        "pull_request",
+        "check",
+        "release",
+        "deployment"
+      ],
+      "target_kinds": [
+        "roadmap_step",
+        "architecture_decision",
+        "issue",
+        "pull_request",
+        "release",
+        "deployment"
+      ],
+      "transitive": false
+    },
+    {
+      "type": "depends-on",
+      "description": "The source requires the target as an explicit prerequisite or compatible input.",
+      "direction": "directed",
+      "inverse": "required-by",
+      "cardinality": "many-to-many",
+      "source_kinds": [
+        "repository",
+        "roadmap_step",
+        "architecture_decision",
+        "issue",
+        "pull_request",
+        "release",
+        "deployment"
+      ],
+      "target_kinds": [
+        "repository",
+        "roadmap_step",
+        "architecture_decision",
+        "issue",
+        "pull_request",
+        "commit",
+        "release"
+      ],
+      "transitive": true
+    },
+    {
+      "type": "deploys",
+      "description": "The source deployment publishes or activates the target release or commit.",
+      "direction": "directed",
+      "inverse": "deployed-by",
+      "cardinality": "many-to-many",
+      "source_kinds": ["deployment"],
+      "target_kinds": ["release", "commit"],
+      "transitive": false
+    },
+    {
+      "type": "evidences",
+      "description": "The source is delivery or validation evidence for the target without redefining its canonical state.",
+      "direction": "directed",
+      "inverse": "evidenced-by",
+      "cardinality": "many-to-many",
+      "source_kinds": [
+        "issue",
+        "pull_request",
+        "commit",
+        "check",
+        "release",
+        "deployment"
+      ],
+      "target_kinds": ["roadmap_step", "architecture_decision"],
+      "transitive": false
+    },
+    {
+      "type": "implements",
+      "description": "The source delivers some or all of the behavior or outcome described by the target.",
+      "direction": "directed",
+      "inverse": "implemented-by",
+      "cardinality": "many-to-many",
+      "source_kinds": ["issue", "pull_request", "commit"],
+      "target_kinds": [
+        "roadmap_step",
+        "architecture_decision",
+        "issue",
+        "pull_request"
+      ],
+      "transitive": false
+    },
+    {
+      "type": "informs",
+      "description": "The source supplies rationale or constraints that shape the target without implementing it.",
+      "direction": "directed",
+      "inverse": "informed-by",
+      "cardinality": "many-to-many",
+      "source_kinds": ["roadmap_step", "architecture_decision", "issue"],
+      "target_kinds": ["roadmap_step", "architecture_decision", "issue", "pull_request"],
+      "transitive": false
+    },
+    {
+      "type": "releases",
+      "description": "The source release contains and makes the target work available under a release boundary.",
+      "direction": "directed",
+      "inverse": "released-in",
+      "cardinality": "many-to-many",
+      "source_kinds": ["release"],
+      "target_kinds": ["roadmap_step", "issue", "pull_request", "commit"],
+      "transitive": false
+    },
+    {
+      "type": "supersedes",
+      "description": "The source replaces the target while preserving the target as historical context.",
+      "direction": "directed",
+      "inverse": "superseded-by",
+      "cardinality": "many-to-many",
+      "source_kinds": ["roadmap_step", "architecture_decision", "release"],
+      "target_kinds": ["roadmap_step", "architecture_decision", "release"],
+      "transitive": true
+    },
+    {
+      "type": "tracks",
+      "description": "The source planning entity explicitly coordinates the target issue or pull request.",
+      "direction": "directed",
+      "inverse": "tracked-by",
+      "cardinality": "many-to-many",
+      "source_kinds": ["roadmap_step", "architecture_decision"],
+      "target_kinds": ["issue", "pull_request"],
+      "transitive": false
+    },
+    {
+      "type": "verifies",
+      "description": "The source check supplies validation evidence for the target delivery entity.",
+      "direction": "directed",
+      "inverse": "verified-by",
+      "cardinality": "many-to-many",
+      "source_kinds": ["check"],
+      "target_kinds": ["roadmap_step", "architecture_decision", "pull_request", "commit", "release", "deployment"],
+      "transitive": false
+    }
+  ]
+}
