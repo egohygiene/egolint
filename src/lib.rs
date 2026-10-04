@@ -5,6 +5,7 @@ pub mod contracts;
 pub mod debt;
 pub mod error;
 pub mod fix;
+pub mod intelligence_coverage;
 pub mod issue_titles;
 pub mod javascript_architecture;
 pub mod megalinter;

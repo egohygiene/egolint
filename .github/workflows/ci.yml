@@ -143,6 +143,7 @@ jobs:
             repository-contract \
             repository-intelligence \
             repository-intelligence-report \
+            intelligence-coverage-report \
             repository-presentation \
             repository-presentation-report \
             repository-continuity \

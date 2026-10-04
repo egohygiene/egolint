@@ -458,6 +458,7 @@ struct IntelligenceCatalog {
     tool_id: String,
     policy_source: String,
     upstream_contracts: Vec<IntelligenceContractPin>,
+    compatible_upstream_contracts: Vec<IntelligenceContractPin>,
     rules: Vec<IntelligenceRuleDefinition>,
 }
 
@@ -478,6 +479,7 @@ struct BundledCatalog {
     tool_id: String,
     policy_source: String,
     contracts: BTreeMap<String, IntelligenceContractPin>,
+    compatible_contracts: Vec<IntelligenceContractPin>,
     rules: BTreeMap<String, IntelligenceRuleDefinition>,
 }
 
@@ -502,6 +504,16 @@ impl BundledCatalog {
             if contracts.insert(contract.id.clone(), contract).is_some() {
                 return Err(EgolintError::Configuration(
                     "bundled Repository Intelligence catalog has duplicate contracts".to_owned(),
+                ));
+            }
+        }
+        for (position, pin) in catalog.compatible_upstream_contracts.iter().enumerate() {
+            if !contracts.contains_key(&pin.id)
+                || contracts.get(&pin.id) == Some(pin)
+                || catalog.compatible_upstream_contracts[..position].contains(pin)
+            {
+                return Err(EgolintError::Configuration(
+                    "bundled Repository Intelligence compatibility pins drifted".to_owned(),
                 ));
             }
         }
@@ -539,6 +551,7 @@ impl BundledCatalog {
             tool_id: catalog.tool_id,
             policy_source: catalog.policy_source,
             contracts,
+            compatible_contracts: catalog.compatible_upstream_contracts,
             rules,
         })
     }
@@ -795,14 +808,16 @@ impl<'a> RepositoryIntelligenceEvaluator<'a> {
                 .get(&contract_id)
                 .expect("catalog key came from catalog");
             match declared.get(contract_id.as_str()) {
-                Some(observed) if *observed == expected => {}
+                Some(observed)
+                    if *observed == expected
+                        || self.catalog.compatible_contracts.contains(observed) => {}
                 Some(observed) => self.emit(
                     context,
                     CONTRACT_RULE,
                     Some(location(&self.policy_path, None)),
                     format!(
-                        "contract {} does not match the supported {} {} pin at {}",
-                        observed.id, expected.authority, expected.version, expected.source_revision
+                        "contract {} does not match an exact supported pin in {}",
+                        observed.id, CATALOG_PATH
                     ),
                 )?,
                 None => self.emit(
@@ -2443,6 +2458,53 @@ mod tests {
     }
 
     #[test]
+    fn exact_alpha2_projection_pin_is_compatible_without_weakening_other_pins() {
+        let mut candidate = policy();
+        let index = candidate
+            .contracts
+            .iter()
+            .position(|pin| pin.id == "egohygiene.repository-intelligence/v1")
+            .unwrap();
+        let alpha2 = BundledCatalog::load().unwrap().compatible_contracts[0].clone();
+        candidate.contracts[index] = alpha2;
+        let evaluate = |policy: &RepositoryIntelligencePolicy| {
+            RepositoryIntelligenceEvaluator::new(policy, Path::new("policy.toml"), represented())
+                .unwrap()
+                .evaluate(
+                    &valid_inventory(),
+                    &CommitHistory {
+                        records: Vec::new(),
+                        truncated: false,
+                    },
+                )
+                .unwrap()
+                .report
+                .diagnostics
+                .iter()
+                .any(|item| item.rule_id == CONTRACT_RULE)
+        };
+        assert!(!evaluate(&candidate));
+        for coordinate in 0..5 {
+            let mut wrong = candidate.clone();
+            let pin = &mut wrong.contracts[index];
+            match coordinate {
+                0 => pin.version = "1.0.0-alpha.3".into(),
+                1 => pin.authority = "accepted".into(),
+                2 => pin.source_repository = "egohygiene/observatory".into(),
+                3 => pin.source_revision = "f598ed659a43dd759d4ede41c27f9e5daf991aa7".into(),
+                _ => {
+                    pin.source_path =
+                        PathBuf::from("schemas/repository-intelligence.v1.schema.json");
+                }
+            }
+            assert!(evaluate(&wrong));
+        }
+        let mut mixed = candidate;
+        mixed.contracts[0].source_revision = "639a003d5ddc4d242c2cf190eeb59a9fc522d199".into();
+        assert!(evaluate(&mixed));
+    }
+
+    #[test]
     fn positive_adr_roadmap_and_trailer_fixture_is_clean() {
         let policy = policy();
         let evaluator = RepositoryIntelligenceEvaluator::new(
@@ -2507,7 +2569,7 @@ mod tests {
             IntelligenceValidationStatus::Valid
         );
         assert!(evaluation.findings.is_empty());
-        assert_eq!(evaluation.report.catalog_version, "0.1.0-alpha.2");
+        assert_eq!(evaluation.report.catalog_version, "0.1.0-alpha.3");
         for pin in &evaluation.report.contracts {
             let adr = matches!(pin.id.as_str(), ADR_CONTRACT | ADR_REFERENCE_CONTRACT);
             assert_eq!(pin.authority, if adr { "accepted" } else { "proposed" });

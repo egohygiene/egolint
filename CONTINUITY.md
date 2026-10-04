@@ -7,13 +7,14 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-03T03:56:24Z'
+  updated_at: '2026-10-04T20:45:40Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Preserve the bounded issue 78 issue-title consumer and the separate upstream review gate.
+  purpose: Preserve the bounded Intelligence alpha.2 compatibility change and the next Relay ADR collector
+    gate.
   includes:
   - Current objective, immutable policy inputs, Git state, validation evidence, and next review gate.
   excludes:
@@ -27,111 +28,110 @@ scope:
   canonical_sources:
   - AGENTS.md
   - ARCHITECTURE.md
-  - docs/issue-titles.md
-  - .config/rules/issue-title-sources.v1.json
-  - src/issue_titles.rs
-  - tests/issue_title_pipeline.rs
-  - https://github.com/egohygiene/egolint/issues/78
-  - https://github.com/egohygiene/.github/pull/45
+  - docs/repository-intelligence.md
+  - .config/rules/repository-intelligence.v1.toml
+  - .config/rules/repository-intelligence-coverage-sources.v1.json
+  - src/intelligence_coverage.rs
+  - tests/intelligence_coverage_pipeline.rs
+  - https://github.com/egohygiene/hygiene/pull/67
+  - https://github.com/egohygiene/observatory/pull/27
+  - https://github.com/egohygiene/relay/issues/115
 work:
-  objective: Provide an offline issue-title validator and explicit reviewed-subject formatter against
-    the immutable organization contract candidate.
+  objective: Validate alpha.2 collection coverage offline while preserving exact alpha.1 source-pin compatibility
+    and legacy unknown coverage.
   success_conditions:
-  - All upstream cases agree through the library and CLI without inferred classifications.
-  - Complete source pins, deterministic evidence, schemas, and honest validation accompany the draft.
-  active_issue:
-    provider: github
-    id: egohygiene/egolint#78
-    url: https://github.com/egohygiene/egolint/issues/78
+  - Owner fixtures and negative cases agree through the library and CLI without inferred collection completeness.
+  - Immutable source pins, deterministic sanitized reports, package inputs, and reproducible checks accompany
+    the candidate.
+  active_issue: null
   next:
     kind: action
-    id: relay-issue-title-preview
-    description: Merge the corrected consumer under explicit maintainer authorization, then create the
-      bounded Relay preview-only checkpoint.
-    readiness: ready
+    id: relay-adr-collector-checkpoint-1
+    description: Review this EgoLint compatibility candidate, then pin the reviewed revision in Relay
+      issue 115 and collect existing canonical ADRs.
+    readiness: blocked
     references:
-    - https://github.com/egohygiene/egolint/pull/79
-    - https://github.com/egohygiene/.github/issues/24
-    depends_on: []
+    - https://github.com/egohygiene/relay/issues/115
+    depends_on:
+    - EgoLint compatibility review and immutable consumer repin
 state:
   base:
-    revision: 933472b6322d2060c487e5a8a6f0bc5197696af0
+    revision: 20ab67dd8e675126af8b68090c0ce2d434d42692
     ref: refs/heads/main
-    verified_at: '2026-10-02T23:55:33Z'
+    verified_at: '2026-10-04T20:45:40Z'
   candidate:
-    branch: codex/issue-title-validator-78
+    branch: codex/intelligence-alpha2-coverage
     revision: null
-    pull_request:
-      provider: github
-      id: egohygiene/egolint#79
-      url: https://github.com/egohygiene/egolint/pull/79
+    pull_request: null
     handoff_state: ready-for-review
   live:
-    status: partial
-    observed_at: '2026-10-03T03:56:24Z'
-    default_branch_revision: 933472b6322d2060c487e5a8a6f0bc5197696af0
-    issue_state: open
-    pull_request_state: draft
-    notes: Upstream .github PR45 is verified merged at 333e4e914b762cb817dcaed1d792435432f4fd5c; Aether
-      PR99 is merged. Egolint PR79 remains open at 3a6785c before this correction. Two hosted integration
-      jobs failed; corrected files require fresh hosted results. Provider labels could not be verified.
+    status: verified
+    observed_at: '2026-10-04T20:45:40Z'
+    default_branch_revision: 20ab67dd8e675126af8b68090c0ce2d434d42692
+    issue_state: not-applicable
+    pull_request_state: not-applicable
+    notes: GitHub main matches the base; no open EgoLint PR was listed. EgoLint PR79 is merged and issue78
+      is closed. This candidate has no dedicated EgoLint issue. Hygiene PR67 and Observatory PR27 were
+      verified merged before this task.
   parallel_changes: []
 review:
   status: partial
-  reviewed_at: '2026-10-03T03:56:24Z'
+  reviewed_at: '2026-10-04T20:45:40Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo test --all-targets --all-features --frozen --offline
+  - command: cargo test --all-targets --all-features --locked
     outcome: passed
-    observed_at: '2026-10-02T23:55:33Z'
-    notes: 166 Rust tests passed; nine new tests cover the source bundle and issue-title pipeline, including
-      all 18 upstream validation cases and both reviewed migration examples.
-  - command: cargo fmt --all --check; cargo clippy --all-targets --all-features --frozen --offline --
-      -D warnings
+    observed_at: '2026-10-04T20:45:40Z'
+    notes: 181 Rust tests passed, including 14 coverage integration tests and exact alpha.2 pin compatibility.
+  - command: cargo fmt --all --check; cargo clippy --all-targets --all-features --locked -- -D warnings
     outcome: passed
-    observed_at: '2026-10-02T23:55:33Z'
-    notes: Rust 1.85.1 formatting and strict Clippy pass after the private source-record type was renamed
-      to satisfy repository lint policy.
-  - command: Rust schema projection comparison and Python Draft202012Validator execution
+    observed_at: '2026-10-04T20:45:40Z'
+    notes: Formatting and strict Clippy passed with Rust 1.85.1.
+  - command: python -m unittest discover --start-directory tests --pattern test_*.py; pinned policy validators
     outcome: passed
-    observed_at: '2026-10-02T23:55:33Z'
-    notes: All 22 native schemas match Rust output. The upstream contract, 18 snapshots/reports, and two
-      proposals pass full JSON Schema checks. Six upstream focused contract tests pass with no skips.
-  - command: cargo package --frozen --offline --allow-dirty
+    observed_at: '2026-10-04T20:45:40Z'
+    notes: 75 Python tests and MegaLinter, complementary-tool, release-input, and release-source checks
+      passed.
+  - command: pnpm run commitlint:test; pnpm run eslint-config:test; node --test tests/javascript-package-quality.test.mjs;
+      pnpm run javascript-quality:check
     outcome: passed
-    observed_at: '2026-10-02T23:55:33Z'
-    notes: Cargo source package verification compiled the consumer with all embedded contract inputs.
-  - command: egolint validate --repository-continuity .config/dogfood/repository-continuity.toml with
-      explicit base, working-tree head, and live evidence
+    observed_at: '2026-10-04T20:45:40Z'
+    notes: Node policy tests and JavaScript quality checks passed.
+  - command: egolint schema projections; local Hygiene/Observatory parity harness
     outcome: passed
-    observed_at: '2026-10-02T23:59:00Z'
-    notes: Native continuity status is valid with no blocking diagnostics. Its proposed-contract observe
-      warning remains expected; the unrelated release declaration remains unavailable.
-  - command: Inspect hosted jobs 111079293585 and 111079293110
+    observed_at: '2026-10-04T20:45:40Z'
+    notes: All 23 checked-in schemas match native output. Nine owner fixtures agree with Hygiene/Observatory;
+      256 malformed coverage cases agree with the pinned Hygiene reference. Every emitted report validates
+      against its schema.
+  - command: cargo package --locked --allow-dirty; cargo run --quiet --locked -- plan --workspace . --profile
+      fast --format json
+    outcome: passed
+    observed_at: '2026-10-04T20:45:40Z'
+    notes: The source package compiled with all embedded contract artifacts; the fast plan succeeded.
+  - command: docker build --file Dockerfile; docker build --file Dockerfile.full (temporary CA-secret
+      variants)
     outcome: failed
-    observed_at: '2026-10-03T03:56:24Z'
-    notes: CLI image omitted six embedded issue-title source inputs. Reference-consumer Biome attempted
-      to reformat three digest-pinned vendor JSON files. Rust/core, all three native platforms, schemas,
-      and package-quality jobs passed at 3a6785c.
-  - command: node --test tests/javascript-package-quality.test.mjs
+    observed_at: '2026-10-04T20:45:40Z'
+    notes: Both were attempted with TLS verification. CLI build exhausted the 32 GiB workspace during
+      layer preparation; full-image dependency fetching also failed with connection errors. Disposable
+      build caches were removed and disk space recovered. No successful local image build or smoke test
+      is claimed.
+  - command: egolint validate --repository-continuity .config/dogfood/repository-continuity.toml
+      with the recorded base, working-tree head, updated disposition, pull-request transition,
+      evaluation date 2026-10-04, and verified live evidence
     outcome: passed
-    observed_at: '2026-10-03T03:56:24Z'
-    notes: Existing manifest test passes with a regression assertion for the pinned issue-title vendor
-      exclusion.
-  - command: Docker builder COPY simulation and SHA-256 comparison
-    outcome: passed
-    observed_at: '2026-10-03T03:56:24Z'
-    notes: All six include_str inputs in src/issue_titles.rs exist after the Dockerfile COPY steps; all
-      five upstream payload digests match the lock. This is not an actual container build.
+    observed_at: '2026-10-04T20:45:40Z'
+    notes: Native continuity reports valid structural, freshness-declaration, and local-Git layers
+      with verified external evidence. Only the expected proposed-contract observe warning remains.
   environment_limitations:
-  - Docker and installed Node toolchain dependencies are unavailable locally; actual corrected CLI-image/reference-consumer
-    outcomes remain unverified until hosted CI runs. No manual CI dispatch or release was performed.
-  - The upstream contract and Aether integration are merged, but source locks still report candidate authority;
-    source acceptance and explicit consumer pin promotion remain separate.
-  - Provider labels could not be listed with the connector; issue 78 records its intended type without
-    claiming provider label conformance.
-  - The existing release declaration is unavailable and continuity contracts remain proposed/unreleased;
-    those observe warnings are not repaired by issue-title work.
+  - Local container build/smoke verification remains unavailable after diagnosed disk and dependency-network
+    failures; hosted CI must verify both images.
+  - The previous main CI reference-consumer job failed in MegaLinter JSON_PRETTIER; other baseline CI
+    jobs passed. New candidate hosted results do not exist at this checkpoint.
+  - The Intelligence contract remains proposed; merge does not ratify it. This coverage-only validator
+    does not replace full Hygiene schema/graph checks or ADR/roadmap source validation.
+  - The existing release declaration remains unavailable, and continuity contracts remain proposed/unreleased;
+    their observe warnings are unrelated to this task.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -150,86 +150,91 @@ privacy:
 
 ## Purpose and precedence
 
-This checkpoint preserves issue 78's bounded issue-title consumer. User and runtime instructions,
-scoped guidance, live evidence, and canonical sources outrank this handoff. It grants no authority.
+This checkpoint preserves the bounded Repository Intelligence alpha.2 compatibility candidate.
+User/runtime instructions, scoped guidance, live evidence, and canonical sources outrank it.
+It grants no execution, merge, publication, or policy-acceptance authority.
 
 ## Resume protocol
 
-1. Read `AGENTS.md` and the canonical sources above; inspect the checkout and work tracker.
-2. Verify issue 78, its draft PR, upstream .github PR 45, and main before selecting further work.
-3. Keep candidate format conformance separate from accepted policy, adoption, and enforcement.
+1. Read `AGENTS.md`, this checkpoint, and the canonical sources above.
+2. Inspect the checkout, main, candidate PR when present, and Relay issue 115 before selecting work.
+3. Keep proposed-contract implementation, human acceptance, and consumer adoption separate.
 
 ## Current objective and success conditions
 
-Provide deterministic local validation and formatting from the organization's exact proposed
-contract. Preserve reviewed subject text and identifiers; never guess type labels or parse away
-unknown prefixes. Deliver a reviewable draft with reproducible checks and source evidence.
+Support the exact new Intelligence projection pin without breaking the existing alpha.1 pin.
+Check captured collection claims offline and preserve uncertainty: missing legacy coverage is
+unknown, and an empty record array does not prove an empty inventory. Reports must be deterministic
+and withhold protected provider identities, counts, paths, and payloads.
 
 ## State snapshot
 
-Main is the merge of PR 75 at the full base revision above. This candidate is unmerged; its
-self-referential candidate revision stays null; PR79 is linked in metadata.
-The organization contract is pinned at `19d2be9bf0191710508cefbb9f0b1abb3a40d9be`.
-Its five consumed artifacts remain a proposed source definition, not fleet policy acceptance.
+Main is the verified merge of EgoLint PR79 at the full base revision above; issue78 is closed.
+This candidate is unmerged; its own revision and unpublished PR are null.
+Hygiene PR67 and Observatory PR27 are merged. The coverage definition is `639a003d5ddc4d242c2cf190eeb59a9fc522d199`, with `proposed` authority.
 
 ## Completed and material changes
 
-- Added `egolint issue-title validate` for explicit normalized snapshots and `format` for an
-  explicitly selected type plus reviewed subject. The reusable Rust core performs no provider I/O.
-- Vendored the five organization artifacts with exact revision and SHA-256 evidence; all operations
-  verify that bundle. Missing, changed, mixed, moving, or unsupported inputs fail closed.
-- Added three Rust-generated schemas with CI/Task projection checks and Cargo package inclusion.
-- Added upstream parity, CLI, malformed/incomplete input, classification, Unicode, preservation,
-  determinism, and source-integrity checks. Documentation remains under `docs/` with a README link.
-- Decision impact: this follows the existing versioned contract and focused CLI boundaries;
-  it introduces no new execution authority, provider write path, or automatic repository adoption.
+- The source catalog adds the exact alpha.2 projection tuple as an alternative; the existing
+  alpha.1, accepted ADR, and proposed roadmap tuples retain their separate authority and revisions.
+- `egolint intelligence validate-coverage` and the pure Rust API validate all nine coverage domains,
+  owner-defined state combinations, observation times, and root-record consistency.
+- Alpha.1 produces `legacy_unknown`; partial, stale, unavailable, failed, and explicitly inapplicable
+  domains remain distinct. Fixed diagnostics do not echo rejected provider content.
+- Four byte-identical owner artifacts and nine fixtures have revision/SHA-256 evidence. The new
+  generated report schema, Cargo package, Docker COPY inputs, and schema CI projections are included.
+- Decision impact: this follows existing offline CLI and owner-contract boundaries. No new
+  dependency, provider access, repository write path, fleet rollout, or renderer is introduced.
 
 ## Validation and review evidence
 
-The metadata records 166 passing Rust tests, strict Clippy, formatting, package compilation, all
-22 schema projections, and full JSON Schema checks. Nine tests are new in this checkpoint. The
-18 upstream cases run through both the pure library and the actual CLI. These are local results;
-hosted runs now show two integration failures, recorded above. The correction adds the missing
-Docker COPY inputs and excludes only the pinned issue-title vendor subtree from JavaScript
-formatting; source bytes and digests stay unchanged. Corrected hosted outcomes are still unknown.
+The metadata records 181 passing Rust tests, 75 Python tests, strict Clippy, formatting, Node policy
+checks, all 23 schema projections, package compilation, and the fast plan. The 14 new integration
+tests exercise the real CLI, privacy, malformed/duplicate-key inputs, legacy compatibility,
+false-empty claims, timestamp ordering, immutable artifacts, determinism, and source preservation.
+Cross-owner checks cover nine shared fixtures and 256 malformed coverage cases.
+Local container attempts failed for the concrete environment reasons above; hosted image results
+remain required. The previous main reference-consumer failure is recorded separately from this change.
 
 ## Blockers, risks, unknowns, and deferred work
 
-Upstream PR45 is merged. Explicitly update source/status pins through review before
-adopting or enforcing the policy; this integration repair preserves the candidate selection. Provider labels remain unverified; title
-formatting cannot silently provision them or certify issue 78's label state.
+This report certifies collection-claim consistency only. Full Hygiene schema/reference-graph
+validation and existing EgoLint source lint remain required before publication. Collector claims
+still require authorized evidence; this offline check cannot prove provider truth or live freshness.
+Relay must explicitly pin the reviewed EgoLint revision and refresh its source/runtime locks.
+The alpha.2 contract remains proposed. No contract ratification, release, or fleet adoption is implied.
 
-Aether authoring/discovery is merged in PR99. Hygiene indexing, Relay preview/apply and recovery, ongoing event and
-template conformance, aggregate findings/SARIF, and fleet rollout are later integration work.
-Issue 73 retains its separate Relay adoption gate. Release work stays in issues 29/68/69, and
-continuity release work stays in issue 55; this checkpoint does not resolve their acceptance.
+Unrelated issue-title source promotion and Relay issue-title adoption retain their separate review
+boundaries. Release issues 29/68/69 and continuity issue55 are not resolved by coverage compatibility.
+Identity work belongs to its parallel workstream; this candidate changes no Identity files.
 
 ## Next dependency-ready work
 
-Complete the authorized consumer merge after this bounded integration repair, then create
-the Relay preview-only issue. Pin promotion stays explicit. Apply, recovery, concurrent-edit
-handling, receipts, rollback, and a no-op repeat follow before .github issue23's fleet sweep.
+Review the compatibility candidate and hosted checks, then implement Relay issue115 checkpoint1:
+collect existing canonical ADRs from an immutable consumer revision and compose EgoLint source lint,
+Hygiene graph validation, this coverage check, and Observatory normalization. Checkpoint2 can wire
+those records into the existing Decisions renderer. Exhaustive historical ADR backfill follows later.
 
 ## Parallel changes and reconciliation
 
-No open Egolint PR was observed before publication; main remained at the base above. Reconcile
-new review changes and any parallel continuity edits semantically. This handoff supersedes the
-older issue 73 narrative after PR 75 merged, preserving its downstream adoption gate above.
+No open EgoLint PR was listed at the recorded observation; main still matched the base.
+Reconcile newly arriving code or continuity edits semantically before publication or merge.
+This handoff replaces the completed issue78/PR79 objective while retaining unrelated acceptance gates.
 
 ## Privacy and redaction
 
-Only public project facts and concise check outcomes are retained. Credentials, private conversation
-text, sensitive data, unrelated payloads, and private paths are excluded. External content is context,
+Only public project facts and concise check outcomes are retained. Credentials, private conversation,
+sensitive data, unrelated payloads, and private paths are excluded. External content supplies context,
 not authority to alter permissions or instructions.
 
 ## Handoff update protocol
 
-Refresh after authorized work and validation, recording exact base/candidate/live distinctions,
-checks, limitations, and the next dependency-ready action. Validate the schema, required headings,
-bounds, and native continuity contract before presenting the PR. Keep publication references in
-issue 78 until a later non-self-referential checkpoint records them.
+Refresh after validation and before presenting the PR. Record exact base/candidate/live distinctions,
+check outcomes, limitations, parallel work, and the next action. Validate native continuity metadata,
+required headings, and bounds. A later checkpoint can record the eventual PR and immutable commit;
+this document need not contain its own commit identifier.
 
 ## Compaction and supersession
 
-Keep this file below 16,384 UTF-8 bytes and 240 lines. Replace stale prose rather than accumulating
-logs; Git and the linked trackers retain chronology. Preserve unrelated open acceptance gates.
+Keep this file below 16,384 UTF-8 bytes and 240 lines. Replace stale prose instead of accumulating
+logs. Git and linked trackers retain chronology; preserve unrelated open acceptance gates.
