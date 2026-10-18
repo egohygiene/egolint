@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0.0",
+  "status": "proposed",
+  "organization": "egohygiene",
+  "canonical_repository": "egohygiene/hygiene",
+  "updated": "2026-09-14",
+  "contracts": [
+    {
+      "id": "egohygiene.architecture-decision/v1",
+      "title": "Architecture decision front matter",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/architecture-decision.v1.schema.json",
+      "status": "active",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.architecture-decision-policy-reference/v1",
+      "title": "Repository ADR policy inheritance reference",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/architecture-decision-policy-reference.v1.schema.json",
+      "status": "active",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.organization-contract-index/v1",
+      "title": "Organization contract index",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/organization-contract-index.v1.schema.json",
+      "status": "proposed",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.repository-intelligence/v1",
+      "title": "Repository Intelligence graph projection",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/repository-intelligence.v1.schema.json",
+      "status": "proposed",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.repository-intelligence-vocabulary/v1",
+      "title": "Repository Intelligence relationship vocabulary",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/repository-intelligence-vocabulary.v1.schema.json",
+      "status": "proposed",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.repository-context/v1",
+      "title": "Repository-local ecosystem context",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/repository-context.v1.schema.json",
+      "status": "deprecated",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.repository-context/v2",
+      "title": "Repository-local ecosystem context with continuity composition",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/repository-context.v2.schema.json",
+      "status": "proposed",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.repository-continuity-policy/v1",
+      "title": "Organization repository continuity policy",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/repository-continuity-policy.v1.schema.json",
+      "status": "proposed",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.repository-presentation-profile/v1",
+      "title": "Repository presentation policy profile",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/repository-presentation-profile.v1.schema.json",
+      "status": "proposed",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.repository-presentation-evidence/v1",
+      "title": "Repository presentation conformance evidence",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/repository-presentation-evidence.v1.schema.json",
+      "status": "proposed",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.repository-release-policy/v1",
+      "title": "Repository release-convention baseline policy",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/repository-release-policy.v1.schema.json",
+      "status": "proposed",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.agent-ready-web-profile/v1",
+      "title": "Agent-Ready Web integrated publication and conformance profile",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/agent-ready-web-profile.v1.schema.json",
+      "status": "proposed",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.agent-ready-web-conformance/v1",
+      "title": "Agent-Ready Web site conformance evidence",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/agent-ready-web-conformance.v1.schema.json",
+      "status": "proposed",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.dependency-boundary-register/v1",
+      "title": "Cross-repository dependency-boundary register",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/dependency-boundary-register.v1.schema.json",
+      "status": "active",
+      "visibility": "public"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 schema-version = 1
-catalog-version = "0.1.0-alpha.3"
+catalog-version = "0.1.0-alpha.4"
 owner = "egohygiene/egolint"
 tool-id = "EGOLINT_REPOSITORY_INTELLIGENCE"
 policy-source = ".config/rules/repository-intelligence.v1.toml"
@@ -45,6 +45,19 @@ source-repository = "egohygiene/hygiene"
 source-revision = "639a003d5ddc4d242c2cf190eeb59a9fc522d199"
 source-path = "schemas/repository-intelligence.alpha2.schema.json"
 
+# Canonical Hygiene authority at the accepted ADR ratification revision.
+# The wider contract index may grow; only its ADR authority entries are checked.
+[canonical-policy-owner]
+repository = "egohygiene/hygiene"
+source-revision = "c589587395750cd1c79c6fa0bef010189c547249"
+catalog-path = "catalog/contracts.yaml"
+
+[canonical-policy-owner.artifact-sha256]
+"docs/decisions/POLICY.md" = "e8b1f3c379a56d389d7689d187b2932ff3cfdf5e80acc829d244fb2527fcd361"
+"docs/decisions/RATIFICATION.md" = "0d3569c85955ae0412b4cd6778c1d6cdc899f4fc9b93e89795343ea82af043d1"
+"schemas/architecture-decision.v1.schema.json" = "491eae26e498ee311bb37d5eff23a51d682eb687196c80a3df10ac1ce98e04d4"
+"schemas/architecture-decision-policy-reference.v1.schema.json" = "fdf451cfa38ba666ec579aa75d2acbd52a56b95e73c7437565b79dfcfb689216"
+
 [[rules]]
 id = "EGO-INTEL-CONTRACT-001"
 title = "Repository Intelligence contracts use supported immutable pins"
@@ -55,7 +68,7 @@ contracts = [
   "hygiene.roadmap/v1alpha1",
   "egohygiene.repository-intelligence/v1",
 ]
-remediation = "Replace moving or unsupported contract references with the exact Egolint-supported Hygiene revision and version."
+remediation = "Use the exact supported Hygiene contract pins; canonical-owner selection also requires the pinned authority files and ADR catalog entries."
 
 [[rules]]
 id = "EGO-INTEL-ADOPTION-001"

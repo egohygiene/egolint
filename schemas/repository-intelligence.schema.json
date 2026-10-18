@@ -73,6 +73,20 @@
         }
       ]
     },
+    "AdrPolicyOwner": {
+      "description": "Select the supported canonical policy authority without self-inheritance.",
+      "type": "object",
+      "properties": {
+        "source-revision": {
+          "description": "Exact supported ratification revision; never a moving branch or tag.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "source-revision"
+      ]
+    },
     "AdrSurface": {
       "description": "ADR surface declaration for incremental adoption.",
       "type": "object",
@@ -93,9 +107,23 @@
             "type": "string"
           }
         },
+        "policy-owner": {
+          "description": "Explicit canonical-owner selection, mutually exclusive with inheritance.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AdrPolicyOwner"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "policy-reference": {
-          "description": "Repository policy inheritance declaration.",
-          "type": "string"
+          "description": "Repository policy inheritance declaration for an ordinary consumer.",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "state": {
           "description": "Evidence availability.",
@@ -105,7 +133,6 @@
       "additionalProperties": false,
       "required": [
         "state",
-        "policy-reference",
         "decision-directory",
         "index"
       ]

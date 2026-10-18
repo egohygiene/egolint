@@ -7,6 +7,7 @@ use std::process::Command;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 use crate::contracts::{
     CONTRACT_VERSION, EvidenceKind, EvidenceReference, Finding, RuleIdentity, RuleOwnership,
@@ -123,8 +124,12 @@ pub struct IntelligenceContractPin {
 pub struct AdrSurface {
     /// Evidence availability.
     pub state: AdoptionState,
-    /// Repository policy inheritance declaration.
-    pub policy_reference: PathBuf,
+    /// Repository policy inheritance declaration for an ordinary consumer.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub policy_reference: Option<PathBuf>,
+    /// Explicit canonical-owner selection, mutually exclusive with inheritance.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub policy_owner: Option<AdrPolicyOwner>,
     /// Directory containing canonical ADR Markdown.
     pub decision_directory: PathBuf,
     /// Canonical human-readable ADR index.
@@ -132,6 +137,14 @@ pub struct AdrSurface {
     /// Pinned external decision identities allowed in cross-references.
     #[serde(default)]
     pub known_external_decisions: Vec<String>,
+}
+
+/// Select the supported canonical policy authority without self-inheritance.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields, rename_all = "kebab-case")]
+pub struct AdrPolicyOwner {
+    /// Exact supported ratification revision; never a moving branch or tag.
+    pub source_revision: String,
 }
 
 /// Roadmap surface declaration for incremental adoption.
@@ -233,12 +246,14 @@ impl RepositoryIntelligencePolicy {
             "known external roadmap step",
         )?;
         for (name, path) in [
-            ("ADR policy-reference", &self.adrs.policy_reference),
             ("ADR decision-directory", &self.adrs.decision_directory),
             ("ADR index", &self.adrs.index),
             ("roadmap", &self.roadmap.path),
         ] {
             validate_relative_path(path, name)?;
+        }
+        if let Some(path) = &self.adrs.policy_reference {
+            validate_relative_path(path, "ADR policy-reference")?;
         }
         if self.commit_history.maximum_commits == 0 || self.commit_history.maximum_commits > 50_000
         {
@@ -459,7 +474,80 @@ struct IntelligenceCatalog {
     policy_source: String,
     upstream_contracts: Vec<IntelligenceContractPin>,
     compatible_upstream_contracts: Vec<IntelligenceContractPin>,
+    canonical_policy_owner: CanonicalPolicyOwnerAuthority,
     rules: Vec<IntelligenceRuleDefinition>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "kebab-case")]
+struct CanonicalPolicyOwnerAuthority {
+    repository: String,
+    source_revision: String,
+    catalog_path: PathBuf,
+    artifact_sha256: BTreeMap<String, String>,
+}
+
+impl CanonicalPolicyOwnerAuthority {
+    fn validate(&self, contracts: &BTreeMap<String, IntelligenceContractPin>) -> Result<()> {
+        let authority = self;
+        let adr = contracts.get(ADR_CONTRACT).ok_or_else(|| {
+            EgolintError::Configuration("bundled ADR contract is missing".to_owned())
+        })?;
+        let reference = contracts.get(ADR_REFERENCE_CONTRACT).ok_or_else(|| {
+            EgolintError::Configuration("bundled ADR reference contract is missing".to_owned())
+        })?;
+        let artifact_paths = authority
+            .artifact_sha256
+            .keys()
+            .map(String::as_str)
+            .collect::<BTreeSet<_>>();
+        let expected_paths = [
+            "docs/decisions/POLICY.md",
+            "docs/decisions/RATIFICATION.md",
+            "schemas/architecture-decision.v1.schema.json",
+            "schemas/architecture-decision-policy-reference.v1.schema.json",
+        ]
+        .into_iter()
+        .collect::<BTreeSet<_>>();
+        if authority.repository != "egohygiene/hygiene"
+            || authority.repository != adr.source_repository
+            || authority.source_revision != adr.source_revision
+            || reference.source_repository != authority.repository
+            || reference.source_revision != authority.source_revision
+            || adr.authority != "accepted"
+            || reference.authority != "accepted"
+            || authority.catalog_path != Path::new("catalog/contracts.yaml")
+            || artifact_paths != expected_paths
+            || authority.artifact_sha256.values().any(|digest| {
+                digest.len() != 64
+                    || !digest
+                        .bytes()
+                        .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+            })
+        {
+            return Err(EgolintError::Configuration(
+                "bundled canonical ADR policy-owner authority drifted".to_owned(),
+            ));
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, Deserialize)]
+struct CanonicalContractIndex {
+    schema_version: String,
+    organization: String,
+    canonical_repository: String,
+    contracts: Vec<serde_yaml::Value>,
+}
+
+#[derive(Debug, Deserialize)]
+struct CanonicalContractEntry {
+    id: String,
+    owner: String,
+    source: PathBuf,
+    status: String,
+    visibility: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -480,6 +568,7 @@ struct BundledCatalog {
     policy_source: String,
     contracts: BTreeMap<String, IntelligenceContractPin>,
     compatible_contracts: Vec<IntelligenceContractPin>,
+    canonical_policy_owner: CanonicalPolicyOwnerAuthority,
     rules: BTreeMap<String, IntelligenceRuleDefinition>,
 }
 
@@ -517,6 +606,7 @@ impl BundledCatalog {
                 ));
             }
         }
+        catalog.canonical_policy_owner.validate(&contracts)?;
         let mut rules = BTreeMap::new();
         for rule in catalog.rules {
             if rule.title.trim().is_empty()
@@ -552,6 +642,7 @@ impl BundledCatalog {
             policy_source: catalog.policy_source,
             contracts,
             compatible_contracts: catalog.compatible_upstream_contracts,
+            canonical_policy_owner: catalog.canonical_policy_owner,
             rules,
         })
     }
@@ -1099,7 +1190,13 @@ impl RepositoryIntelligenceEvaluator<'_> {
         inventory: &RepositoryInventory,
         context: &mut EvaluationContext,
     ) -> Result<()> {
-        let reference = self.parse_policy_reference(inventory, context)?;
+        let extensions = if self.policy.adrs.policy_owner.is_some() {
+            self.validate_policy_owner(inventory, context)?;
+            Vec::new()
+        } else {
+            self.parse_policy_reference(inventory, context)?
+                .map_or_else(Vec::new, |reference| reference.extensions)
+        };
         let mut records = Vec::new();
         for entry in inventory.entries() {
             if entry.kind != RepositoryEntryKind::File
@@ -1149,8 +1246,90 @@ impl RepositoryIntelligenceEvaluator<'_> {
         }
         self.validate_adr_index(inventory, context)?;
         self.validate_adr_references(context)?;
-        if let Some(reference) = reference {
-            self.validate_required_extensions(&reference, context)?;
+        self.validate_required_extensions(&extensions, context)?;
+        Ok(())
+    }
+
+    fn validate_policy_owner(
+        &self,
+        inventory: &RepositoryInventory,
+        context: &mut EvaluationContext,
+    ) -> Result<()> {
+        let authority = &self.catalog.canonical_policy_owner;
+        let selection = self.policy.adrs.policy_owner.as_ref().ok_or_else(|| {
+            EgolintError::Configuration(
+                "canonical ADR policy-owner selection is missing".to_owned(),
+            )
+        })?;
+        if self.policy.repository != authority.repository
+            || selection.source_revision != authority.source_revision
+            || !valid_commit(&selection.source_revision)
+            || self.policy.adrs.policy_reference.is_some()
+            || self.policy.adrs.decision_directory != Path::new("docs/decisions")
+            || self.policy.adrs.index != Path::new("docs/decisions/README.md")
+        {
+            self.emit(
+                context,
+                CONTRACT_RULE,
+                Some(location(&self.policy_path, None)),
+                "canonical ADR policy-owner selection requires Hygiene identity, the supported immutable ratification revision, canonical paths, and no inheritance reference"
+                    .to_owned(),
+            )?;
+        }
+        for (path, expected) in &authority.artifact_sha256 {
+            let matches = inventory.get(Path::new(path)).is_some_and(|entry| {
+                entry.kind == RepositoryEntryKind::File
+                    && format!("{:x}", Sha256::digest(&entry.content)) == *expected
+            });
+            if !matches {
+                self.emit(
+                    context,
+                    CONTRACT_RULE,
+                    Some(location(Path::new(path), None)),
+                    "canonical ADR authority artifact must be a regular file with the supported ratification SHA-256"
+                        .to_owned(),
+                )?;
+            }
+        }
+        let index = inventory
+            .get(&authority.catalog_path)
+            .filter(|entry| entry.kind == RepositoryEntryKind::File)
+            .and_then(|entry| {
+                serde_yaml::from_slice::<CanonicalContractIndex>(&entry.content).ok()
+            });
+        let valid_index = index.is_some_and(|index| {
+            index.schema_version == "1.0.0"
+                && index.organization == "egohygiene"
+                && index.canonical_repository == authority.repository
+                && [ADR_CONTRACT, ADR_REFERENCE_CONTRACT].iter().all(|id| {
+                    let entries = index
+                        .contracts
+                        .iter()
+                        .filter(|entry| {
+                            entry.get("id").and_then(serde_yaml::Value::as_str) == Some(*id)
+                        })
+                        .collect::<Vec<_>>();
+                    entries.len() == 1
+                        && serde_yaml::from_value::<CanonicalContractEntry>(entries[0].clone())
+                            .is_ok_and(|entry| {
+                                self.catalog.contracts.get(*id).is_some_and(|pin| {
+                                    entry.id == *id
+                                        && entry.owner == authority.repository
+                                        && entry.source == pin.source_path
+                                        && entry.status == "active"
+                                        && entry.visibility == "public"
+                                })
+                            })
+                })
+        });
+        if !valid_index {
+            self.emit(
+                context,
+                CONTRACT_RULE,
+                Some(location(&authority.catalog_path, None)),
+                "canonical contract index must identify Hygiene and uniquely register both supported ADR contracts as active public authority at their canonical schema paths"
+                    .to_owned(),
+            )?;
         }
         Ok(())
     }
@@ -1160,7 +1339,24 @@ impl RepositoryIntelligenceEvaluator<'_> {
         inventory: &RepositoryInventory,
         context: &mut EvaluationContext,
     ) -> Result<Option<PolicyReference>> {
-        let path = &self.policy.adrs.policy_reference;
+        if self.policy.repository == self.catalog.canonical_policy_owner.repository {
+            self.emit(
+                context,
+                CONTRACT_RULE,
+                Some(location(&self.policy_path, None)),
+                "Hygiene owns the canonical ADR policy and must explicitly select policy-owner instead of inheriting from itself"
+                    .to_owned(),
+            )?;
+        }
+        let Some(path) = &self.policy.adrs.policy_reference else {
+            self.emit(
+                context,
+                ADR_METADATA_RULE,
+                Some(location(&self.policy_path, None)),
+                "an ordinary ADR consumer must declare its policy-reference path".to_owned(),
+            )?;
+            return Ok(None);
+        };
         let Some(entry) = inventory.get(path) else {
             self.emit(
                 context,
@@ -1793,11 +1989,10 @@ impl RepositoryIntelligenceEvaluator<'_> {
 
     fn validate_required_extensions(
         &self,
-        reference: &PolicyReference,
+        extensions: &[PolicyExtension],
         context: &mut EvaluationContext,
     ) -> Result<()> {
-        let required = reference
-            .extensions
+        let required = extensions
             .iter()
             .filter(|extension| extension.required && extension.kind == "metadata")
             .map(|extension| extension.id.as_str())
@@ -1818,8 +2013,7 @@ impl RepositoryIntelligenceEvaluator<'_> {
                 }
             }
             for extension in record.metadata.extensions.keys() {
-                if !reference
-                    .extensions
+                if !extensions
                     .iter()
                     .any(|registered| &registered.id == extension)
                 {
@@ -2457,6 +2651,366 @@ mod tests {
             .expect("represented commit")
     }
 
+    fn owner_policy() -> RepositoryIntelligencePolicy {
+        RepositoryIntelligencePolicy::from_toml(
+            include_str!("../../tests/fixtures/repository-intelligence/policy-owner/policy.toml"),
+            Path::new("policy.toml"),
+        )
+        .unwrap()
+    }
+
+    fn owner_entries() -> Vec<RepositoryEntry> {
+        let mut entries = valid_inventory().entries().to_vec();
+        entries.retain(|entry| entry.path != Path::new("docs/decisions/policy-reference.json"));
+        entries.extend([
+            entry("docs/decisions/POLICY.md", include_str!("../../vendor/hygiene/adr-policy-owner/docs/decisions/POLICY.md")),
+            entry("docs/decisions/RATIFICATION.md", include_str!("../../vendor/hygiene/adr-policy-owner/docs/decisions/RATIFICATION.md")),
+            entry("schemas/architecture-decision.v1.schema.json", include_str!("../../vendor/hygiene/adr-policy-owner/schemas/architecture-decision.v1.schema.json")),
+            entry("schemas/architecture-decision-policy-reference.v1.schema.json", include_str!("../../vendor/hygiene/adr-policy-owner/schemas/architecture-decision-policy-reference.v1.schema.json")),
+            entry("catalog/contracts.yaml", include_str!("../../vendor/hygiene/adr-policy-owner/catalog/contracts.yaml")),
+        ]);
+        entries
+    }
+
+    fn evaluate_entries(
+        policy: &RepositoryIntelligencePolicy,
+        entries: Vec<RepositoryEntry>,
+    ) -> IntelligenceEvaluation {
+        RepositoryIntelligenceEvaluator::new(policy, Path::new("policy.toml"), represented())
+            .unwrap()
+            .evaluate(
+                &RepositoryInventory::from_entries(entries).unwrap(),
+                &CommitHistory {
+                    records: Vec::new(),
+                    truncated: false,
+                },
+            )
+            .unwrap()
+    }
+
+    #[test]
+    fn canonical_owner_validates_without_inheritance_and_reports_deterministically() {
+        let policy = owner_policy();
+        let evaluation = evaluate_entries(&policy, owner_entries());
+        assert!(
+            evaluation.findings.is_empty(),
+            "{:?}",
+            evaluation.report.diagnostics
+        );
+        assert_eq!(
+            evaluation.report.status,
+            IntelligenceValidationStatus::Valid
+        );
+        assert_eq!(evaluation.report.summary.adrs_inspected, 3);
+        let mut reordered = owner_entries();
+        reordered.reverse();
+        assert_eq!(
+            serde_json::to_vec(&evaluation.report).unwrap(),
+            serde_json::to_vec(&evaluate_entries(&policy, reordered).report).unwrap()
+        );
+    }
+
+    #[test]
+    fn owner_selection_rejects_spoofed_identity_pins_paths_and_inheritance() {
+        for coordinate in 0..8 {
+            let mut policy = owner_policy();
+            match coordinate {
+                0 => policy.repository = "egohygiene/relay".into(),
+                1 => policy.adrs.policy_owner.as_mut().unwrap().source_revision = "main".into(),
+                2 => policy.adrs.policy_owner.as_mut().unwrap().source_revision = "c589587".into(),
+                3 => policy.adrs.policy_owner.as_mut().unwrap().source_revision = "b".repeat(40),
+                4 => {
+                    policy.adrs.policy_reference =
+                        Some("docs/decisions/policy-reference.json".into());
+                }
+                5 => policy.adrs.decision_directory = "other/decisions".into(),
+                6 => policy.adrs.index = "docs/decisions/OTHER.md".into(),
+                _ => policy.contracts[0].authority = "proposed".into(),
+            }
+            let report = evaluate_entries(&policy, owner_entries()).report;
+            assert_eq!(
+                report.status,
+                IntelligenceValidationStatus::Invalid,
+                "{coordinate}"
+            );
+            assert!(
+                report
+                    .diagnostics
+                    .iter()
+                    .any(|item| item.rule_id == CONTRACT_RULE),
+                "{coordinate}"
+            );
+        }
+    }
+
+    #[test]
+    fn owner_requires_each_pinned_authority_at_its_regular_canonical_path() {
+        let policy = owner_policy();
+        let authority = BundledCatalog::load().unwrap().canonical_policy_owner;
+        for path in authority.artifact_sha256.keys() {
+            for change in 0..4 {
+                let mut entries = owner_entries();
+                let index = entries
+                    .iter()
+                    .position(|entry| entry.path == Path::new(path))
+                    .unwrap();
+                match change {
+                    0 => {
+                        entries.remove(index);
+                    }
+                    1 => entries[index].content.push(b' '),
+                    2 => entries[index].kind = RepositoryEntryKind::Symlink,
+                    _ => entries[index].path = PathBuf::from(format!("spoof/{path}")),
+                }
+                let report = evaluate_entries(&policy, entries).report;
+                assert_eq!(
+                    report.status,
+                    IntelligenceValidationStatus::Invalid,
+                    "{path}: {change}"
+                );
+                assert!(report.diagnostics.iter().any(|item| {
+                    item.rule_id == CONTRACT_RULE
+                        && item
+                            .location
+                            .as_ref()
+                            .is_some_and(|location| location.path == Path::new(path))
+                }));
+            }
+        }
+    }
+
+    #[test]
+    fn owner_catalog_checks_adr_authority_without_freezing_unrelated_contracts() {
+        let policy = owner_policy();
+        for change in 0..15 {
+            let mut entries = owner_entries();
+            let entry = entries
+                .iter_mut()
+                .find(|entry| entry.path == Path::new("catalog/contracts.yaml"))
+                .unwrap();
+            let mut index: serde_json::Value = serde_json::from_slice(&entry.content).unwrap();
+            match change {
+                0 => index["schema_version"] = serde_json::json!("2.0.0"),
+                1 => index["organization"] = serde_json::json!("other"),
+                2 => index["canonical_repository"] = serde_json::json!("egohygiene/relay"),
+                3..=12 => {
+                    let position = (change - 3) / 5;
+                    match (change - 3) % 5 {
+                        0 => {
+                            index["contracts"][position]["owner"] =
+                                serde_json::json!("egohygiene/relay");
+                        }
+                        1 => {
+                            index["contracts"][position]["source"] =
+                                serde_json::json!("schemas/OTHER.json");
+                        }
+                        2 => index["contracts"][position]["status"] = serde_json::json!("proposed"),
+                        3 => {
+                            index["contracts"][position]["visibility"] =
+                                serde_json::json!("private");
+                        }
+                        _ => {
+                            index["contracts"][position]["id"] =
+                                serde_json::json!("egohygiene.other/v1");
+                        }
+                    }
+                }
+                13 => {
+                    let duplicate = index["contracts"][0].clone();
+                    index["contracts"].as_array_mut().unwrap().push(duplicate);
+                }
+                _ => index["contracts"] = serde_json::json!([]),
+            }
+            entry.content = serde_json::to_vec(&index).unwrap();
+            let report = evaluate_entries(&policy, entries).report;
+            assert!(
+                report
+                    .diagnostics
+                    .iter()
+                    .any(|item| item.rule_id == CONTRACT_RULE
+                        && item.location.as_ref().is_some_and(
+                            |location| location.path == Path::new("catalog/contracts.yaml")
+                        )),
+                "{change}"
+            );
+        }
+        let mut entries = owner_entries();
+        let entry = entries
+            .iter_mut()
+            .find(|entry| entry.path == Path::new("catalog/contracts.yaml"))
+            .unwrap();
+        let mut index: serde_json::Value = serde_json::from_slice(&entry.content).unwrap();
+        index["contracts"]
+            .as_array_mut()
+            .unwrap()
+            .push(serde_json::json!({"id": "egohygiene.unrelated/v1", "status": "proposed"}));
+        entry.content = serde_yaml::to_string(&index).unwrap().into_bytes();
+        assert!(evaluate_entries(&policy, entries).findings.is_empty());
+    }
+
+    #[test]
+    fn owner_catalog_must_be_present_regular_and_parseable_at_its_canonical_path() {
+        for change in 0..4 {
+            let mut entries = owner_entries();
+            let position = entries
+                .iter()
+                .position(|entry| entry.path == Path::new("catalog/contracts.yaml"))
+                .unwrap();
+            match change {
+                0 => {
+                    entries.remove(position);
+                }
+                1 => entries[position].kind = RepositoryEntryKind::Symlink,
+                2 => entries[position].content = b"contracts: [".to_vec(),
+                _ => entries[position].path = PathBuf::from("spoof/contracts.yaml"),
+            }
+            let report = evaluate_entries(&owner_policy(), entries).report;
+            assert!(report.diagnostics.iter().any(|item| {
+                item.rule_id == CONTRACT_RULE
+                    && item.location.as_ref().is_some_and(|location| {
+                        location.path == Path::new("catalog/contracts.yaml")
+                    })
+            }));
+        }
+    }
+
+    #[test]
+    fn consumer_inheritance_remains_mandatory_and_owner_cannot_self_inherit() {
+        let mut consumer = policy();
+        consumer.adrs.policy_reference = None;
+        assert!(
+            evaluate_fixture(&consumer, &[])
+                .report
+                .diagnostics
+                .iter()
+                .any(|item| item.rule_id == ADR_METADATA_RULE
+                    && item.message.contains("must declare"))
+        );
+        let mut entries = valid_inventory().entries().to_vec();
+        entries.retain(|entry| entry.path != Path::new("docs/decisions/policy-reference.json"));
+        assert!(
+            evaluate_entries(&policy(), entries)
+                .report
+                .diagnostics
+                .iter()
+                .any(|item| item.rule_id == ADR_METADATA_RULE && item.message.contains("missing"))
+        );
+        let mut owner = owner_policy();
+        owner.adrs.policy_owner = None;
+        owner.adrs.policy_reference = Some("docs/decisions/policy-reference.json".into());
+        let reference = POLICY_REFERENCE.replace("egohygiene/egolint", "egohygiene/hygiene");
+        let mut entries = owner_entries();
+        entries.push(entry("docs/decisions/policy-reference.json", &reference));
+        assert!(
+            evaluate_entries(&owner, entries)
+                .report
+                .diagnostics
+                .iter()
+                .any(|item| item.rule_id == CONTRACT_RULE
+                    && item.message.contains("inheriting from itself"))
+        );
+    }
+
+    #[test]
+    fn owner_selection_preserves_adr_anatomy_lifecycle_index_lineage_and_extensions() {
+        for (rule, before, after) in [
+            (ADR_METADATA_RULE, "## Context", "## Missing context"),
+            (ADR_LIFECYCLE_RULE, "status: proposed", "status: accepted"),
+            (
+                ADR_LINEAGE_RULE,
+                "related: [egohygiene/hygiene#ADR-002]",
+                "related: [ADR-999]",
+            ),
+            (
+                ADR_METADATA_RULE,
+                "extensions: {}",
+                "extensions: {unregistered: true}",
+            ),
+            (
+                ADR_LIFECYCLE_RULE,
+                "exceptions: []",
+                "exceptions: [{rule: anatomy, reason: bypass, status: approved, owner: maintainer}]",
+            ),
+        ] {
+            let mut entries = owner_entries();
+            let changed = VALID_ADR.replace(before, after);
+            assert_ne!(changed, VALID_ADR);
+            entries
+                .iter_mut()
+                .find(|entry| {
+                    entry.path == Path::new("docs/decisions/ADR-001-validation-contract.md")
+                })
+                .unwrap()
+                .content = changed.into_bytes();
+            assert!(
+                evaluate_entries(&owner_policy(), entries)
+                    .report
+                    .diagnostics
+                    .iter()
+                    .any(|item| item.rule_id == rule),
+                "{before}"
+            );
+        }
+        let mut entries = owner_entries();
+        entries.retain(|entry| entry.path != Path::new("docs/decisions/README.md"));
+        assert!(
+            evaluate_entries(&owner_policy(), entries)
+                .report
+                .diagnostics
+                .iter()
+                .any(|item| item.rule_id == ADR_INDEX_RULE)
+        );
+    }
+
+    #[test]
+    fn owner_legacy_identity_preserves_history_and_validates_exception_authority() {
+        let legacy = VALID_ADR.replace("ADR-001", "ADR-0001").replace(
+            "exceptions: []",
+            "exceptions: [{rule: legacy-identity, reason: Preserve the historical four-digit ID, status: approved, owner: maintainer, approval_evidence: https://github.com/egohygiene/hygiene/pull/48}]",
+        );
+        for approved in [true, false] {
+            let mut entries = owner_entries();
+            let record = entries
+                .iter_mut()
+                .find(|entry| {
+                    entry.path == Path::new("docs/decisions/ADR-001-validation-contract.md")
+                })
+                .unwrap();
+            record.path = PathBuf::from("docs/decisions/ADR-0001-validation-contract.md");
+            record.content = if approved {
+                legacy.as_bytes().to_vec()
+            } else {
+                legacy
+                    .replace(
+                        "approval_evidence: https://github.com/egohygiene/hygiene/pull/48",
+                        "approval_evidence: null",
+                    )
+                    .into_bytes()
+            };
+            entries
+                .iter_mut()
+                .find(|entry| entry.path == Path::new("docs/decisions/README.md"))
+                .unwrap()
+                .content = VALID_INDEX.replace("ADR-001", "ADR-0001").into_bytes();
+            let evaluation = evaluate_entries(&owner_policy(), entries);
+            if approved {
+                assert!(
+                    evaluation.findings.is_empty(),
+                    "{:?}",
+                    evaluation.report.diagnostics
+                );
+            } else {
+                assert!(
+                    evaluation
+                        .report
+                        .diagnostics
+                        .iter()
+                        .any(|item| item.rule_id == ADR_LIFECYCLE_RULE)
+                );
+            }
+        }
+    }
+
     #[test]
     fn exact_alpha2_projection_pin_is_compatible_without_weakening_other_pins() {
         let mut candidate = policy();
@@ -2569,7 +3123,7 @@ mod tests {
             IntelligenceValidationStatus::Valid
         );
         assert!(evaluation.findings.is_empty());
-        assert_eq!(evaluation.report.catalog_version, "0.1.0-alpha.3");
+        assert_eq!(evaluation.report.catalog_version, "0.1.0-alpha.4");
         for pin in &evaluation.report.contracts {
             let adr = matches!(pin.id.as_str(), ADR_CONTRACT | ADR_REFERENCE_CONTRACT);
             assert_eq!(pin.authority, if adr { "accepted" } else { "proposed" });

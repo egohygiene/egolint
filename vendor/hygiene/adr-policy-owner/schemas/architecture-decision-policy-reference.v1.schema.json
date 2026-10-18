@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://egohygiene.io/schemas/hygiene/architecture-decision-policy-reference.v1.schema.json",
+  "title": "Ego Hygiene repository ADR policy reference v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "repository",
+    "policy",
+    "decision_directory",
+    "index",
+    "extensions",
+    "exceptions"
+  ],
+  "properties": {
+    "schema": {
+      "const": "egohygiene.architecture-decision-policy-reference/v1"
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^egohygiene/(\\.github|[a-z0-9][a-z0-9.-]*)$"
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract", "version", "source"],
+      "properties": {
+        "contract": {
+          "const": "egohygiene.architecture-decision/v1"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["repository", "revision", "path"],
+          "properties": {
+            "repository": { "const": "egohygiene/hygiene" },
+            "revision": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            "path": { "const": "docs/decisions/POLICY.md" }
+          }
+        }
+      }
+    },
+    "decision_directory": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$"
+    },
+    "index": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+\\.md$"
+    },
+    "extensions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/extension" }
+    },
+    "exceptions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/exception" }
+    }
+  },
+  "$defs": {
+    "extension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "schema", "required"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^egohygiene\\.[a-z0-9][a-z0-9.-]*/v[0-9]+$"
+        },
+        "kind": { "enum": ["metadata", "validation"] },
+        "schema": {
+          "type": "string",
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))schemas/[A-Za-z0-9._/-]+\\.json$"
+        },
+        "required": { "type": "boolean" }
+      }
+    },
+    "exception": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule",
+        "reason",
+        "status",
+        "owner",
+        "approval_evidence",
+        "expires"
+      ],
+      "properties": {
+        "rule": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "status": { "enum": ["proposed", "approved", "expired"] },
+        "owner": { "type": "string", "minLength": 1 },
+        "approval_evidence": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://"
+            }
+          ]
+        },
+        "expires": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "format": "date" }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "status": { "const": "approved" } },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "approval_evidence": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https?://"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
