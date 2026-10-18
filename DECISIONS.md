@@ -140,8 +140,7 @@ do not change meaning; supersede it with a new record when the decision changes 
 
 ## Identifier format migration (2026-10-18)
 
-The maintainer selected four-digit numbering in [Hygiene
-#73](https://github.com/egohygiene/hygiene/issues/73). This padding-only migration changes current
+The maintainer selected four-digit numbering in [Hygiene #73](https://github.com/egohygiene/hygiene/issues/73). This padding-only migration changes current
 labels and anchors; logical numbers, decision content, dates and disposition remain unchanged. Git
 retains prior versions. New canonical records use `ADR-NNNN` under Hygiene policy v1.2.0.
 
