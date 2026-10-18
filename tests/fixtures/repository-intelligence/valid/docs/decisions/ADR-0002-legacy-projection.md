@@ -1,6 +1,6 @@
 ---
 schema: egohygiene.architecture-decision/v1
-id: ADR-002
+id: ADR-0002
 title: Use a legacy projection
 status: superseded
 date: 2026-08-24
@@ -11,7 +11,7 @@ issue: null
 pull_request: null
 related: []
 supersedes: []
-superseded_by: [ADR-003]
+superseded_by: [ADR-0003]
 affected_repositories: [egohygiene/egolint]
 affected_contracts: []
 implementation_status: not_applicable
@@ -24,7 +24,7 @@ approval:
 extensions: {}
 ---
 
-# ADR-002: Use a legacy projection
+# ADR-0002: Use a legacy projection
 
 ## Context
 The earlier shape is retained as history.
@@ -35,8 +35,8 @@ Deletion was rejected because it destroys lineage.
 ## Consequences and tradeoffs
 The index keeps one more historical row.
 ## Implementation and evidence links
-The replacement is ADR-003.
+The replacement is ADR-0003.
 ## Replacement or exit strategy
-ADR-003 is the accepted replacement.
+ADR-0003 is the accepted replacement.
 ## Follow-up work
 No additional work is known.

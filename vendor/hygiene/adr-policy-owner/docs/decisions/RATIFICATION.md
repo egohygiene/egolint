@@ -53,3 +53,18 @@ f598ed659a43dd759d4ede41c27f9e5daf991aa7 for organization use.
 This record does not convert implementation, merge, CI success, or agent output
 into human authority. Future disposition changes require their own explicit,
 durable approval evidence.
+
+## Four-digit naming amendment — 2026-10-18
+
+Maintainer `szmyty` explicitly selected four-digit identifiers and authorized the
+record migration, reviewed merges and shared authoring standard on 2026-10-18.
+[PR #72](https://github.com/egohygiene/hygiene/pull/72) durably records that
+specific human instruction and the implementation. Policy `1.2.0` keeps the v1
+metadata model and human lifecycle rules while making four digits canonical.
+The [migration map](../adr-workflow/2026-10-18-four-digit-ids.md) records every
+Hygiene ID/path change. This amendment does not approve any other proposal or
+resolve ADR-0001's missing structured historical architecture approval.
+
+The preceding v1.1.0 ratification remains historical evidence for its original
+IDs and immutable revision. Its relative navigation follows the current names;
+its approval statements and pinned source links retain their original meaning.

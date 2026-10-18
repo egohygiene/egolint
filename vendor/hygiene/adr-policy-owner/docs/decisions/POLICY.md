@@ -3,14 +3,14 @@ schema: aether.architecture-document/v1
 id: hygiene-architecture-decision-policy
 title: Organization Architecture Decision Record Policy
 kind: policy
-version: 1.1.0
+version: 1.2.0
 status: accepted
 owners:
   - egohygiene/hygiene
 created: 2026-08-20
-updated: 2026-09-12
+updated: 2026-10-18
 governed_by:
-  - ADR-002
+  - ADR-0002
 related:
   - hygiene-decisions
 supersedes: []
@@ -18,10 +18,10 @@ supersedes: []
 
 # Organization Architecture Decision Record Policy
 
-> **Accepted:** Maintainer `szmyty` ratified ADR-002 and this policy at the
-> pinned v1.1.0 implementation commit on 2026-09-12. See the
-> [ratification record](RATIFICATION.md) for durable approval and validation
-> evidence.
+> **Accepted:** Policy v1.1.0 was ratified on 2026-09-12. Maintainer
+> `szmyty` explicitly approved the four-digit naming amendment and migration
+> on 2026-10-18. See [the ratification record](RATIFICATION.md) and
+> [the reviewed naming amendment](https://github.com/egohygiene/hygiene/pull/72).
 
 ## 1. Purpose
 
@@ -84,17 +84,24 @@ choice, but first confirm that an existing ADR cannot be amended or superseded.
 New local records use:
 
 ```text
-docs/decisions/ADR-NNN-short-slug.md
+docs/decisions/ADR-NNNN-short-slug.md
 ```
 
-`NNN` is the next unused three-digit repository-local number. IDs are never
-reused. The globally unique machine key is `<owner>/<repository>#<id>`, for
-example `egohygiene/identity#ADR-004`.
+`NNNN` is the next unused four-digit repository-local number, zero-padded
+from `0001` through `9999`. IDs are never reused. The globally unique machine
+key is `<owner>/<repository>#<id>`, for example
+`egohygiene/identity#ADR-0004`.
 
-Historical IDs and filenames remain unchanged. A four-digit `ADR-NNNN` or an
-established repository-specific prefix may be retained only as migration
-history with a documented exception. New records must not copy a legacy
-prefix.
+Four digits are the canonical convention, not a legacy exception. A naming-only
+migration may normalize an existing three-digit ID to four digits only with
+explicit maintainer authorization, a per-record old/new ID and path map, collision
+checks and coordinated reference updates. Preserve the logical decision number,
+original dates, rationale, lifecycle, implementation state and approval evidence.
+The naming authorization does not ratify the underlying architectural choice.
+Keep immutable citations and dated receipts faithful to the IDs they observed;
+Git retains the prior files. New canonical records must use four digits.
+Established alternate prefixes and unnormalized historical records remain
+migration evidence until a separately reviewed adoption change handles them.
 
 Every adopting repository exposes `docs/decisions/README.md` as its canonical
 human index. It lists one row per canonical record with ID, title, current
@@ -259,7 +266,7 @@ history requires a different truthful value.
 
 ## 10. Related decisions and supersession
 
-Local decision references use `ADR-NNN`. Cross-repository references use the
+Local decision references use `ADR-NNNN`. Cross-repository references use the
 global key. A relation is symmetric only when its meaning requires it;
 supersession always links both directions.
 
@@ -379,6 +386,10 @@ See [`MIGRATION.md`](MIGRATION.md) for the rollout procedure,
 [`RATIFICATION.md`](RATIFICATION.md) for the explicit human activation gate.
 
 ## 16. Revision history
+
+- `1.2.0` (naming amendment approved 2026-10-18) standardizes four-digit IDs
+  under the existing v1 data model and authorizes explicit, mapped padding-only
+  migration. Consumers select its exact revision before enforcing this convention.
 
 - `1.1.0` (accepted 2026-09-12) adds the repository inheritance contract,
   namespaced extension rules, the rejected lifecycle disposition,

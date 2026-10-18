@@ -100,4 +100,4 @@ Empathy retains policy authority and Holon retains materialization/recovery owne
 
 This path requires a host Git executable. The lightweight CLI image does not currently promise
 Git availability; missing Git produces incomplete evidence, never a semantic pass. See
-[the validation contract](repository-gitignore.md) and ADR-004 for boundaries and downstream work.
+[the validation contract](repository-gitignore.md) and ADR-0004 for boundaries and downstream work.

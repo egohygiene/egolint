@@ -5,22 +5,22 @@ projections. The validator is offline and deterministic: Hygiene owns the source
 owns semantic rules and normalized diagnostics, and Relay may later orchestrate the released CLI
 without reimplementing those rules.
 
-Catalog `0.1.0-alpha.4` consumes the ratified Hygiene ADR policy. Its two ADR contract pins have
+Catalog `0.1.0-alpha.5` consumes the ratified Hygiene ADR policy. Its two ADR contract pins have
 `accepted` authority; the roadmap and projection contracts retain their separate `proposed` pins.
 Policy acceptance never supplies a consumer decision's human approval or changes its lifecycle.
 
 ## Ratified ADR compatibility
 
-The ADR source revision is `c589587395750cd1c79c6fa0bef010189c547249` in `egohygiene/hygiene`. Its
-[ratification record](https://github.com/egohygiene/hygiene/blob/c589587395750cd1c79c6fa0bef010189c547249/docs/decisions/RATIFICATION.md)
+The ADR source revision is `a05b14f8b9e2772124f879f818e09a911e996ad8` in `egohygiene/hygiene`. Its
+[ratification record](https://github.com/egohygiene/hygiene/blob/a05b14f8b9e2772124f879f818e09a911e996ad8/docs/decisions/RATIFICATION.md)
 records explicit human approval and activation through Hygiene PR #48. The policy is accepted and
 the contract catalog marks both ADR contracts active; this is the basis for `accepted` authority,
 rather than an inference from merged implementation.
 
 | Contract                                               | Version         | Authority  | Source revision                            |
 | ------------------------------------------------------ | --------------- | ---------- | ------------------------------------------ |
-| `egohygiene.architecture-decision/v1`                  | `1.1.0`         | `accepted` | `c589587395750cd1c79c6fa0bef010189c547249` |
-| `egohygiene.architecture-decision-policy-reference/v1` | `1.0.0`         | `accepted` | `c589587395750cd1c79c6fa0bef010189c547249` |
+| `egohygiene.architecture-decision/v1`                  | `1.2.0`         | `accepted` | `a05b14f8b9e2772124f879f818e09a911e996ad8` |
+| `egohygiene.architecture-decision-policy-reference/v1` | `1.0.0`         | `accepted` | `a05b14f8b9e2772124f879f818e09a911e996ad8` |
 | `hygiene.roadmap/v1alpha1`                             | `0.1.0`         | `proposed` | `f598ed659a43dd759d4ede41c27f9e5daf991aa7` |
 | `egohygiene.repository-intelligence/v1`                | `1.0.0-alpha.1` | `proposed` | `f598ed659a43dd759d4ede41c27f9e5daf991aa7` |
 
@@ -51,7 +51,7 @@ coverage remain incomplete.
 ## Canonical policy-owner selection
 
 Hygiene owns the ADR policy. Policy section 6 forbids Hygiene from declaring inheritance from
-itself. Catalog `0.1.0-alpha.4` adds an explicit owner selection for this case; ordinary
+itself. Catalog `0.1.0-alpha.5` adds an explicit owner selection for this case; ordinary
 repositories keep their existing `policy-reference`.
 
 ```toml
@@ -62,7 +62,7 @@ index = "docs/decisions/README.md"
 known-external-decisions = []
 
 [adrs.policy-owner]
-source-revision = "c589587395750cd1c79c6fa0bef010189c547249"
+source-revision = "a05b14f8b9e2772124f879f818e09a911e996ad8"
 ```
 
 The top-level `repository` must be `egohygiene/hygiene`. Retain all supported contract pins; omit
@@ -96,7 +96,7 @@ legacy source defects, or turn an incomplete corpus into valid evidence.
 
 The validator checks supplied identity and captured bytes offline. It cannot authenticate GitHub
 ownership: a trusted caller must bind the declared repository and represented revision to the source
-checkout. Reports keep the existing version-1 shape and rule IDs and expose catalog `0.1.0-alpha.4`.
+checkout. Reports keep the existing version-1 shape and rule IDs and expose catalog `0.1.0-alpha.5`.
 The policy schema adds the optional owner selection; old consumer policies remain compatible. Older
 binaries reject the new owner configuration, so rollback must restore the previous policy together
 with its pinned binary.
@@ -227,7 +227,7 @@ source-path = "schemas/repository-intelligence.alpha2.schema.json"
 Replace the existing Intelligence entry when selecting this version; do not add a duplicate contract
 ID. Every coordinate must match. The supported alpha.1 pin above remains valid; ADR and roadmap
 pins, authority and validation stay unchanged. Catalog `0.1.0-alpha.3` introduced this
-compatibility; `0.1.0-alpha.4` retains it. Source-policy/report envelopes remain version 1. Merge
+compatibility; `0.1.0-alpha.5` retains it. Source-policy/report envelopes remain version 1. Merge
 status does not ratify the proposed Intelligence contract.
 
 After collecting a projection, run the native, read-only coverage check:
@@ -297,3 +297,21 @@ For Relay #115, and the subsequent #112/#113 collection/build integration:
 
 This checkpoint supplies validator compatibility. Collector integration, renderer repinning,
 consumer adoption and deployment remain Relay-owned follow-up work.
+
+## Four-digit naming adoption — policy v1.2.0
+
+The default catalog `0.1.0-alpha.5` selects immutable Hygiene
+`a05b14f8b9e2772124f879f818e09a911e996ad8`, with four-digit canonical IDs and matching filenames/headings.
+A three-digit canonical record fails the metadata rule under this selection.
+The earlier exact v1.1.0 ordinary-consumer pins remain explicit compatibility
+alternatives; selecting an unsupported or mixed source still fails closed.
+
+Historical commit trailers retain their original spelling. Under v1.2.0 only,
+a three-digit trailer may resolve to its number-preserving four-digit target
+when that target actually exists locally or is explicitly declared externally.
+This does not invent a record, acquire another repository or grant authority.
+Current records and authoring examples use four digits.
+
+Owner authority fixtures bind the new policy, ratification and schema bytes.
+Rollback uses the prior complete policy/EgoLint/Relay selection together. Naming
+migration does not supply a decision's missing approval or publication evidence.

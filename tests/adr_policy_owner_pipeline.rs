@@ -45,9 +45,9 @@ fn workspace(owner: bool) -> TempDir {
     for path in [
         "ROADMAP.md",
         "docs/decisions/README.md",
-        "docs/decisions/ADR-001-validation-contract.md",
-        "docs/decisions/ADR-002-legacy-projection.md",
-        "docs/decisions/ADR-003-versioned-projection.md",
+        "docs/decisions/ADR-0001-validation-contract.md",
+        "docs/decisions/ADR-0002-legacy-projection.md",
+        "docs/decisions/ADR-0003-versioned-projection.md",
     ] {
         write(
             root.path(),
@@ -145,7 +145,7 @@ fn owner_and_ordinary_consumer_emit_valid_reports_without_source_mutation() {
         assert!(output.status.success(), "{output:?}\n{report}");
         assert_eq!(report["status"], "valid");
         assert_eq!(report["schema_version"], 1);
-        assert_eq!(report["catalog_version"], "0.1.0-alpha.4");
+        assert_eq!(report["catalog_version"], "0.1.0-alpha.5");
         assert_eq!(report["summary"]["adrs_inspected"], 3);
         assert_eq!(before, source_digests(root.path()));
         let (_, repeated) = cli(root.path());
@@ -195,7 +195,7 @@ fn missing_consumer_reference_and_unapproved_owner_decision_still_block() {
     let owner = workspace(true);
     let path = owner
         .path()
-        .join("docs/decisions/ADR-001-validation-contract.md");
+        .join("docs/decisions/ADR-0001-validation-contract.md");
     let raw = std::fs::read_to_string(&path).unwrap();
     std::fs::write(path, raw.replace("status: proposed", "status: accepted")).unwrap();
     let before = source_digests(owner.path());

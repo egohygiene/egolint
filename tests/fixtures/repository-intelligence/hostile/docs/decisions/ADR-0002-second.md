@@ -1,6 +1,6 @@
 ---
 schema: egohygiene.architecture-decision/v1
-id: ADR-002
+id: ADR-0002
 title: Second invalid decision
 status: accepted
 date: 2026-08-25
@@ -10,7 +10,7 @@ owners: [egohygiene/egolint]
 issue: null
 pull_request: null
 related: []
-supersedes: [ADR-001]
+supersedes: [ADR-0001]
 superseded_by: []
 affected_repositories: [egohygiene/egolint]
 affected_contracts: []
@@ -24,7 +24,7 @@ approval:
 extensions: {}
 ---
 
-# ADR-002: Second invalid decision
+# ADR-0002: Second invalid decision
 
 ## Context
 Context.

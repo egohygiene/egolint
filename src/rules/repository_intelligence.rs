@@ -1390,10 +1390,18 @@ impl RepositoryIntelligenceEvaluator<'_> {
                 return Ok(None);
             }
         };
-        let expected = self.catalog.contracts.get(ADR_CONTRACT).ok_or_else(|| {
-            EgolintError::Configuration("bundled ADR contract is missing".to_owned())
-        })?;
-        let identity_matches = reference.schema == ADR_REFERENCE_CONTRACT
+        let expected = self
+            .policy
+            .contracts
+            .iter()
+            .find(|pin| pin.id == ADR_CONTRACT)
+            .ok_or_else(|| {
+                EgolintError::Configuration("selected ADR contract is missing".to_owned())
+            })?;
+        let identity_matches = (self.catalog.contracts.get(ADR_CONTRACT) == Some(expected)
+            || self.catalog.compatible_contracts.contains(expected))
+            && expected.authority == "accepted"
+            && reference.schema == ADR_REFERENCE_CONTRACT
             && reference.repository == self.policy.repository
             && reference.policy.contract == ADR_CONTRACT
             && reference.policy.version == expected.version
@@ -1411,6 +1419,16 @@ impl RepositoryIntelligenceEvaluator<'_> {
                     .to_owned(),
             )?;
         }
+        self.validate_reference_extensions(&reference, path, context)?;
+        Ok(Some(reference))
+    }
+
+    fn validate_reference_extensions(
+        &self,
+        reference: &PolicyReference,
+        path: &Path,
+        context: &mut EvaluationContext,
+    ) -> Result<()> {
         let mut extension_ids = BTreeSet::new();
         for extension in &reference.extensions {
             let valid = valid_contract_id(&extension.id)
@@ -1438,7 +1456,7 @@ impl RepositoryIntelligenceEvaluator<'_> {
         for exception in &reference.exceptions {
             self.validate_policy_exception(exception, path, context)?;
         }
-        Ok(Some(reference))
+        Ok(())
     }
 
     fn parse_adr(
@@ -1499,8 +1517,14 @@ impl RepositoryIntelligenceEvaluator<'_> {
         body_line: u32,
         context: &mut EvaluationContext,
     ) -> Result<()> {
+        let four_digit_policy = self
+            .policy
+            .contracts
+            .iter()
+            .any(|pin| pin.id == ADR_CONTRACT && pin.version != "1.1.0");
         if metadata.schema != ADR_CONTRACT
             || !valid_adr_id(&metadata.id)
+            || (four_digit_policy && metadata.id.len() != 8)
             || metadata.title.trim().is_empty()
             || metadata.title.len() > 160
             || !valid_date(&metadata.date)
@@ -2153,12 +2177,24 @@ impl RepositoryIntelligenceEvaluator<'_> {
                     let value = value.trim();
                     let structurally_valid =
                         valid_adr_id(value) || valid_external_decision_ref(value);
+                    let normalized = if self
+                        .policy
+                        .contracts
+                        .iter()
+                        .any(|pin| pin.id == ADR_CONTRACT && pin.version != "1.1.0")
+                    {
+                        padded_historical_decision_ref(value)
+                    } else {
+                        value.to_owned()
+                    };
                     if value.is_empty()
                         || value.contains(',')
                         || !structurally_valid
                         || (self.policy.adrs.state == AdoptionState::Present
                             && !local_adrs.contains(value)
-                            && !external_adrs.contains(value))
+                            && !external_adrs.contains(value)
+                            && !local_adrs.contains(normalized.as_str())
+                            && !external_adrs.contains(normalized.as_str()))
                     {
                         self.emit(
                             context,
@@ -2338,6 +2374,24 @@ fn valid_commit(value: &str) -> bool {
         && value
             .bytes()
             .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+}
+
+fn padded_historical_decision_ref(value: &str) -> String {
+    let (repository, identifier) = value
+        .rsplit_once('#')
+        .map_or((None, value), |(repository, identifier)| {
+            (Some(repository), identifier)
+        });
+    let Some(number) = identifier.strip_prefix("ADR-") else {
+        return value.to_owned();
+    };
+    if number.len() != 3 || !number.bytes().all(|byte| byte.is_ascii_digit()) {
+        return value.to_owned();
+    }
+    repository.map_or_else(
+        || format!("ADR-0{number}"),
+        |repository| format!("{repository}#ADR-0{number}"),
+    )
 }
 
 fn valid_adr_id(value: &str) -> bool {
@@ -2594,13 +2648,13 @@ mod tests {
     const VALID_INDEX: &str =
         include_str!("../../tests/fixtures/repository-intelligence/valid/docs/decisions/README.md");
     const VALID_ADR: &str = include_str!(
-        "../../tests/fixtures/repository-intelligence/valid/docs/decisions/ADR-001-validation-contract.md"
+        "../../tests/fixtures/repository-intelligence/valid/docs/decisions/ADR-0001-validation-contract.md"
     );
     const VALID_ADR_TWO: &str = include_str!(
-        "../../tests/fixtures/repository-intelligence/valid/docs/decisions/ADR-002-legacy-projection.md"
+        "../../tests/fixtures/repository-intelligence/valid/docs/decisions/ADR-0002-legacy-projection.md"
     );
     const VALID_ADR_THREE: &str = include_str!(
-        "../../tests/fixtures/repository-intelligence/valid/docs/decisions/ADR-003-versioned-projection.md"
+        "../../tests/fixtures/repository-intelligence/valid/docs/decisions/ADR-0003-versioned-projection.md"
     );
     const VALID_ROADMAP: &str =
         include_str!("../../tests/fixtures/repository-intelligence/valid/ROADMAP.md");
@@ -2608,13 +2662,13 @@ mod tests {
         "../../tests/fixtures/repository-intelligence/hostile/docs/decisions/README.md"
     );
     const HOSTILE_ADR_ONE: &str = include_str!(
-        "../../tests/fixtures/repository-intelligence/hostile/docs/decisions/ADR-001-first.md"
+        "../../tests/fixtures/repository-intelligence/hostile/docs/decisions/ADR-0001-first.md"
     );
     const HOSTILE_ADR_TWO: &str = include_str!(
-        "../../tests/fixtures/repository-intelligence/hostile/docs/decisions/ADR-002-second.md"
+        "../../tests/fixtures/repository-intelligence/hostile/docs/decisions/ADR-0002-second.md"
     );
     const HOSTILE_ADR_DUPLICATE: &str = include_str!(
-        "../../tests/fixtures/repository-intelligence/hostile/docs/decisions/ADR-003-duplicate.md"
+        "../../tests/fixtures/repository-intelligence/hostile/docs/decisions/ADR-0003-duplicate.md"
     );
     const HOSTILE_ROADMAP: &str =
         include_str!("../../tests/fixtures/repository-intelligence/hostile/ROADMAP.md");
@@ -2634,10 +2688,13 @@ mod tests {
     fn valid_inventory() -> RepositoryInventory {
         RepositoryInventory::from_entries(vec![
             entry("ROADMAP.md", VALID_ROADMAP),
-            entry("docs/decisions/ADR-001-validation-contract.md", VALID_ADR),
-            entry("docs/decisions/ADR-002-legacy-projection.md", VALID_ADR_TWO),
+            entry("docs/decisions/ADR-0001-validation-contract.md", VALID_ADR),
             entry(
-                "docs/decisions/ADR-003-versioned-projection.md",
+                "docs/decisions/ADR-0002-legacy-projection.md",
+                VALID_ADR_TWO,
+            ),
+            entry(
+                "docs/decisions/ADR-0003-versioned-projection.md",
                 VALID_ADR_THREE,
             ),
             entry("docs/decisions/README.md", VALID_INDEX),
@@ -2717,7 +2774,7 @@ mod tests {
             match coordinate {
                 0 => policy.repository = "egohygiene/relay".into(),
                 1 => policy.adrs.policy_owner.as_mut().unwrap().source_revision = "main".into(),
-                2 => policy.adrs.policy_owner.as_mut().unwrap().source_revision = "c589587".into(),
+                2 => policy.adrs.policy_owner.as_mut().unwrap().source_revision = "a05b14f".into(),
                 3 => policy.adrs.policy_owner.as_mut().unwrap().source_revision = "b".repeat(40),
                 4 => {
                     policy.adrs.policy_reference =
@@ -2918,8 +2975,8 @@ mod tests {
             (ADR_LIFECYCLE_RULE, "status: proposed", "status: accepted"),
             (
                 ADR_LINEAGE_RULE,
-                "related: [egohygiene/hygiene#ADR-002]",
-                "related: [ADR-999]",
+                "related: [egohygiene/hygiene#ADR-0002]",
+                "related: [ADR-0999]",
             ),
             (
                 ADR_METADATA_RULE,
@@ -2938,7 +2995,7 @@ mod tests {
             entries
                 .iter_mut()
                 .find(|entry| {
-                    entry.path == Path::new("docs/decisions/ADR-001-validation-contract.md")
+                    entry.path == Path::new("docs/decisions/ADR-0001-validation-contract.md")
                 })
                 .unwrap()
                 .content = changed.into_bytes();
@@ -2963,17 +3020,17 @@ mod tests {
     }
 
     #[test]
-    fn owner_legacy_identity_preserves_history_and_validates_exception_authority() {
-        let legacy = VALID_ADR.replace("ADR-001", "ADR-0001").replace(
+    fn owner_exception_authority_is_independent_of_canonical_padding() {
+        let legacy = VALID_ADR.replace(
             "exceptions: []",
-            "exceptions: [{rule: legacy-identity, reason: Preserve the historical four-digit ID, status: approved, owner: maintainer, approval_evidence: https://github.com/egohygiene/hygiene/pull/48}]",
+            "exceptions: [{rule: legacy-identity, reason: Preserve the separately reviewed historical identity context, status: approved, owner: maintainer, approval_evidence: https://github.com/egohygiene/hygiene/pull/48}]",
         );
         for approved in [true, false] {
             let mut entries = owner_entries();
             let record = entries
                 .iter_mut()
                 .find(|entry| {
-                    entry.path == Path::new("docs/decisions/ADR-001-validation-contract.md")
+                    entry.path == Path::new("docs/decisions/ADR-0001-validation-contract.md")
                 })
                 .unwrap();
             record.path = PathBuf::from("docs/decisions/ADR-0001-validation-contract.md");
@@ -2991,7 +3048,7 @@ mod tests {
                 .iter_mut()
                 .find(|entry| entry.path == Path::new("docs/decisions/README.md"))
                 .unwrap()
-                .content = VALID_INDEX.replace("ADR-001", "ADR-0001").into_bytes();
+                .content = VALID_INDEX.as_bytes().to_vec();
             let evaluation = evaluate_entries(&owner_policy(), entries);
             if approved {
                 assert!(
@@ -3070,7 +3127,7 @@ mod tests {
         let history = CommitHistory {
             records: vec![CommitRecord {
                 sha: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".to_owned(),
-                message: "feat(intelligence): validate linkage\n\nRoadmap-Step: EGL-RI-002\nADR-Ref: ADR-001\n"
+                message: "feat(intelligence): validate linkage\n\nRoadmap-Step: EGL-RI-002\nADR-Ref: ADR-0001\n"
                     .to_owned(),
             }],
             truncated: false,
@@ -3115,6 +3172,104 @@ mod tests {
     }
 
     #[test]
+    fn new_policy_rejects_three_digit_canonical_records() {
+        let mut entries = owner_entries();
+        for record in &mut entries {
+            if record.path.to_string_lossy().contains("/ADR-")
+                || record.path == Path::new("docs/decisions/README.md")
+            {
+                record.path =
+                    PathBuf::from(record.path.to_string_lossy().replace("ADR-0001", "ADR-001"));
+                record.content = String::from_utf8(record.content.clone())
+                    .unwrap()
+                    .replace("ADR-0001", "ADR-001")
+                    .into_bytes();
+            }
+        }
+        let evaluation = evaluate_entries(&owner_policy(), entries);
+        assert!(
+            evaluation
+                .findings
+                .iter()
+                .any(|finding| finding.rule.rule_id == ADR_METADATA_RULE)
+        );
+        assert!(
+            !evaluation
+                .findings
+                .iter()
+                .any(|finding| finding.rule.rule_id == CONTRACT_RULE)
+        );
+    }
+
+    #[test]
+    fn old_three_digit_snapshots_require_the_explicit_old_policy_pin() {
+        let mut legacy = policy();
+        for pin in &mut legacy.contracts {
+            if matches!(pin.id.as_str(), ADR_CONTRACT | ADR_REFERENCE_CONTRACT) {
+                pin.source_revision = "c589587395750cd1c79c6fa0bef010189c547249".to_owned();
+                if pin.id == ADR_CONTRACT {
+                    pin.version = "1.1.0".to_owned();
+                }
+            }
+        }
+        let normalize = |value: &str| {
+            value
+                .replace("ADR-0001", "ADR-001")
+                .replace("ADR-0002", "ADR-002")
+                .replace("ADR-0003", "ADR-003")
+        };
+        for key in &mut legacy.adrs.known_external_decisions {
+            *key = normalize(key);
+        }
+        let mut entries = valid_inventory().entries().to_vec();
+        for record in &mut entries {
+            record.path = PathBuf::from(normalize(&record.path.to_string_lossy()));
+            let contents = String::from_utf8(record.content.clone()).unwrap();
+            record.content = normalize(&contents)
+                .replace(
+                    "a05b14f8b9e2772124f879f818e09a911e996ad8",
+                    "c589587395750cd1c79c6fa0bef010189c547249",
+                )
+                .replace("\"version\": \"1.2.0\"", "\"version\": \"1.1.0\"")
+                .into_bytes();
+        }
+        let evaluation = evaluate_entries(&legacy, entries);
+        assert!(evaluation.findings.is_empty(), "{:?}", evaluation.findings);
+    }
+
+    #[test]
+    fn historical_three_digit_trailers_resolve_only_existing_padded_targets() {
+        for (reference, expected) in [
+            ("ADR-001", false),
+            ("egohygiene/hygiene#ADR-002", false),
+            ("ADR-999", true),
+        ] {
+            let policy = policy();
+            let evaluator = RepositoryIntelligenceEvaluator::new(
+                &policy,
+                Path::new("policy.toml"),
+                represented(),
+            )
+            .unwrap();
+            let history = CommitHistory {
+                records: vec![CommitRecord {
+                    sha: "a".repeat(40),
+                    message: format!("docs: historical reference\n\nADR-Ref: {reference}\n"),
+                }],
+                truncated: false,
+            };
+            let evaluation = evaluator.evaluate(&valid_inventory(), &history).unwrap();
+            assert_eq!(
+                evaluation
+                    .findings
+                    .iter()
+                    .any(|finding| finding.rule.rule_id == TRAILER_RULE),
+                expected
+            );
+        }
+    }
+
+    #[test]
     fn ratified_pins_preserve_independent_contract_authority() {
         let policy = policy();
         let evaluation = evaluate_fixture(&policy, &[]);
@@ -3123,14 +3278,14 @@ mod tests {
             IntelligenceValidationStatus::Valid
         );
         assert!(evaluation.findings.is_empty());
-        assert_eq!(evaluation.report.catalog_version, "0.1.0-alpha.4");
+        assert_eq!(evaluation.report.catalog_version, "0.1.0-alpha.5");
         for pin in &evaluation.report.contracts {
             let adr = matches!(pin.id.as_str(), ADR_CONTRACT | ADR_REFERENCE_CONTRACT);
             assert_eq!(pin.authority, if adr { "accepted" } else { "proposed" });
             assert_eq!(
                 pin.source_revision,
                 if adr {
-                    "c589587395750cd1c79c6fa0bef010189c547249"
+                    "a05b14f8b9e2772124f879f818e09a911e996ad8"
                 } else {
                     "f598ed659a43dd759d4ede41c27f9e5daf991aa7"
                 }
@@ -3185,7 +3340,7 @@ mod tests {
             }
         }
         let reference = POLICY_REFERENCE.replace(
-            "c589587395750cd1c79c6fa0bef010189c547249",
+            "a05b14f8b9e2772124f879f818e09a911e996ad8",
             "f598ed659a43dd759d4ede41c27f9e5daf991aa7",
         );
         let evaluation = evaluate_fixture(
@@ -3266,7 +3421,7 @@ mod tests {
         let evaluation = evaluate_fixture(
             &policy,
             &[(
-                "docs/decisions/ADR-003-versioned-projection.md",
+                "docs/decisions/ADR-0003-versioned-projection.md",
                 &unapproved,
             )],
         );
@@ -3289,7 +3444,7 @@ mod tests {
         let evaluation = evaluate_fixture(
             &policy,
             &[(
-                "docs/decisions/ADR-001-validation-contract.md",
+                "docs/decisions/ADR-0001-validation-contract.md",
                 &implemented_proposal,
             )],
         );
@@ -3311,9 +3466,12 @@ mod tests {
         .expect("evaluator");
         let inventory = RepositoryInventory::from_entries(vec![
             entry("ROADMAP.md", HOSTILE_ROADMAP),
-            entry("docs/decisions/ADR-001-first.md", HOSTILE_ADR_ONE),
-            entry("docs/decisions/ADR-002-second.md", HOSTILE_ADR_TWO),
-            entry("docs/decisions/ADR-003-duplicate.md", HOSTILE_ADR_DUPLICATE),
+            entry("docs/decisions/ADR-0001-first.md", HOSTILE_ADR_ONE),
+            entry("docs/decisions/ADR-0002-second.md", HOSTILE_ADR_TWO),
+            entry(
+                "docs/decisions/ADR-0003-duplicate.md",
+                HOSTILE_ADR_DUPLICATE,
+            ),
             entry("docs/decisions/README.md", HOSTILE_INDEX),
             entry("docs/decisions/policy-reference.json", POLICY_REFERENCE),
         ])
@@ -3321,7 +3479,7 @@ mod tests {
         let history = CommitHistory {
             records: vec![CommitRecord {
                 sha: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".to_owned(),
-                message: "feat: hostile trailer\n\nRoadmap-Step MISSING\nADR-Ref: ADR-999\n"
+                message: "feat: hostile trailer\n\nRoadmap-Step MISSING\nADR-Ref: ADR-0999\n"
                     .to_owned(),
             }],
             truncated: false,

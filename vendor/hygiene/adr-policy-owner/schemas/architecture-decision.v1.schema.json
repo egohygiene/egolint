@@ -26,21 +26,63 @@
     "approval"
   ],
   "properties": {
-    "schema": { "const": "egohygiene.architecture-decision/v1" },
-    "id": { "type": "string", "pattern": "^ADR-[0-9]{3,4}$" },
-    "title": { "type": "string", "minLength": 1, "maxLength": 160 },
-    "status": {
-      "enum": ["proposed", "accepted", "rejected", "superseded", "deprecated"]
+    "schema": {
+      "const": "egohygiene.architecture-decision/v1"
     },
-    "date": { "type": "string", "format": "date" },
-    "decision_scope": { "enum": ["repository", "organization"] },
-    "visibility": { "enum": ["public", "internal", "private"] },
-    "owners": { "$ref": "#/$defs/nonEmptyUniqueStrings" },
-    "issue": { "$ref": "#/$defs/nullableGitHubUrl" },
-    "pull_request": { "$ref": "#/$defs/nullableGitHubUrl" },
-    "related": { "$ref": "#/$defs/decisionReferences" },
-    "supersedes": { "$ref": "#/$defs/decisionReferences" },
-    "superseded_by": { "$ref": "#/$defs/decisionReferences" },
+    "id": {
+      "type": "string",
+      "pattern": "^ADR-[0-9]{4}$",
+      "description": "Canonical four-digit identifier under policy v1.2.0. Older pinned policy/schema revisions retain their historical validation behavior."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "accepted",
+        "rejected",
+        "superseded",
+        "deprecated"
+      ]
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "decision_scope": {
+      "enum": [
+        "repository",
+        "organization"
+      ]
+    },
+    "visibility": {
+      "enum": [
+        "public",
+        "internal",
+        "private"
+      ]
+    },
+    "owners": {
+      "$ref": "#/$defs/nonEmptyUniqueStrings"
+    },
+    "issue": {
+      "$ref": "#/$defs/nullableGitHubUrl"
+    },
+    "pull_request": {
+      "$ref": "#/$defs/nullableGitHubUrl"
+    },
+    "related": {
+      "$ref": "#/$defs/decisionReferences"
+    },
+    "supersedes": {
+      "$ref": "#/$defs/decisionReferences"
+    },
+    "superseded_by": {
+      "$ref": "#/$defs/decisionReferences"
+    },
     "affected_repositories": {
       "type": "array",
       "minItems": 1,
@@ -70,11 +112,15 @@
     },
     "evidence": {
       "type": "array",
-      "items": { "$ref": "#/$defs/evidence" }
+      "items": {
+        "$ref": "#/$defs/evidence"
+      }
     },
     "exceptions": {
       "type": "array",
-      "items": { "$ref": "#/$defs/exception" }
+      "items": {
+        "$ref": "#/$defs/exception"
+      }
     },
     "extensions": {
       "type": "object",
@@ -87,69 +133,119 @@
     },
     "approval": {
       "oneOf": [
-        { "type": "null" },
-        { "$ref": "#/$defs/approval" }
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/approval"
+        }
       ]
     }
   },
   "allOf": [
     {
       "if": {
-        "properties": { "status": { "const": "proposed" } },
-        "required": ["status"]
-      },
-      "then": {
         "properties": {
-          "approval": { "type": "null" },
-          "superseded_by": { "maxItems": 0 }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "status": { "enum": ["accepted", "rejected", "superseded", "deprecated"] }
+          "status": {
+            "const": "proposed"
+          }
         },
-        "required": ["status"]
+        "required": [
+          "status"
+        ]
       },
       "then": {
         "properties": {
-          "approval": { "$ref": "#/$defs/approval" }
+          "approval": {
+            "type": "null"
+          },
+          "superseded_by": {
+            "maxItems": 0
+          }
         }
       }
     },
     {
       "if": {
-        "properties": { "status": { "const": "superseded" } },
-        "required": ["status"]
-      },
-      "then": {
         "properties": {
-          "superseded_by": { "minItems": 1 }
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {
-          "status": { "enum": ["rejected", "deprecated"] }
+          "status": {
+            "enum": [
+              "accepted",
+              "rejected",
+              "superseded",
+              "deprecated"
+            ]
+          }
         },
-        "required": ["status"]
+        "required": [
+          "status"
+        ]
       },
       "then": {
         "properties": {
-          "superseded_by": { "maxItems": 0 }
+          "approval": {
+            "$ref": "#/$defs/approval"
+          }
         }
       }
     },
     {
       "if": {
-        "properties": { "implementation_status": { "const": "verified" } },
-        "required": ["implementation_status"]
+        "properties": {
+          "status": {
+            "const": "superseded"
+          }
+        },
+        "required": [
+          "status"
+        ]
       },
       "then": {
         "properties": {
-          "evidence": { "minItems": 1 }
+          "superseded_by": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "rejected",
+              "deprecated"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "superseded_by": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "implementation_status": {
+            "const": "verified"
+          }
+        },
+        "required": [
+          "implementation_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "evidence": {
+            "minItems": 1
+          }
         }
       }
     }
@@ -159,11 +255,16 @@
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
-      "items": { "type": "string", "minLength": 1 }
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
     },
     "nullableGitHubUrl": {
       "oneOf": [
-        { "type": "null" },
+        {
+          "type": "null"
+        },
         {
           "type": "string",
           "format": "uri",
@@ -182,7 +283,11 @@
     "evidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "url", "description"],
+      "required": [
+        "type",
+        "url",
+        "description"
+      ],
       "properties": {
         "type": {
           "enum": [
@@ -203,16 +308,30 @@
           "format": "uri",
           "pattern": "^https?://"
         },
-        "description": { "type": "string", "minLength": 1, "maxLength": 240 }
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        }
       }
     },
     "approval": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["date", "by", "evidence"],
+      "required": [
+        "date",
+        "by",
+        "evidence"
+      ],
       "properties": {
-        "date": { "type": "string", "format": "date" },
-        "by": { "type": "string", "minLength": 1 },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "by": {
+          "type": "string",
+          "minLength": 1
+        },
         "evidence": {
           "type": "string",
           "format": "uri",
@@ -232,13 +351,31 @@
         "expires"
       ],
       "properties": {
-        "rule": { "type": "string", "minLength": 1 },
-        "reason": { "type": "string", "minLength": 1, "maxLength": 500 },
-        "status": { "enum": ["proposed", "approved", "expired"] },
-        "owner": { "type": "string", "minLength": 1 },
+        "rule": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "status": {
+          "enum": [
+            "proposed",
+            "approved",
+            "expired"
+          ]
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
         "approval_evidence": {
           "oneOf": [
-            { "type": "null" },
+            {
+              "type": "null"
+            },
             {
               "type": "string",
               "format": "uri",
@@ -248,16 +385,27 @@
         },
         "expires": {
           "oneOf": [
-            { "type": "null" },
-            { "type": "string", "format": "date" }
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            }
           ]
         }
       },
       "allOf": [
         {
           "if": {
-            "properties": { "status": { "const": "approved" } },
-            "required": ["status"]
+            "properties": {
+              "status": {
+                "const": "approved"
+              }
+            },
+            "required": [
+              "status"
+            ]
           },
           "then": {
             "properties": {

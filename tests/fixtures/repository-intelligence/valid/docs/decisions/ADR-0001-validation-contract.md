@@ -1,6 +1,6 @@
 ---
 schema: egohygiene.architecture-decision/v1
-id: ADR-001
+id: ADR-0001
 title: Validate Repository Intelligence source records
 status: proposed
 date: 2026-08-25
@@ -9,7 +9,7 @@ visibility: public
 owners: [egohygiene/egolint]
 issue: https://github.com/egohygiene/egolint/issues/24
 pull_request: null
-related: [egohygiene/hygiene#ADR-002]
+related: [egohygiene/hygiene#ADR-0002]
 supersedes: []
 superseded_by: []
 affected_repositories: [egohygiene/egolint]
@@ -21,7 +21,7 @@ approval: null
 extensions: {}
 ---
 
-# ADR-001: Validate Repository Intelligence source records
+# ADR-0001: Validate Repository Intelligence source records
 
 ## Context
 

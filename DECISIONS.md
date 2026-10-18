@@ -40,13 +40,13 @@ do not change meaning; supersede it with a new record when the decision changes 
 
 ## Index
 
-- ADR-001: Wrap rather than fork specialized linters
-- ADR-002: Keep holistic and universal profiles distinct
-- ADR-003: Aggregate reports under a stable repository-owned location
-- ADR-004: Validate ignore semantics through a focused metadata-only command
-- ADR-005: Package JSONSkooma as an adaptive Ruby schema capability
+- ADR-0001: Wrap rather than fork specialized linters
+- ADR-0002: Keep holistic and universal profiles distinct
+- ADR-0003: Aggregate reports under a stable repository-owned location
+- ADR-0004: Validate ignore semantics through a focused metadata-only command
+- ADR-0005: Package JSONSkooma as an adaptive Ruby schema capability
 
-## ADR-001: Wrap rather than fork specialized linters
+## ADR-0001: Wrap rather than fork specialized linters
 
 - **Status:** Accepted as the current architectural direction
 - **Date:** 2026-08-19
@@ -57,7 +57,7 @@ do not change meaning; supersede it with a new record when the decision changes 
 - **Reconsider when:** New evidence shows that the boundary prevents standalone usefulness, safety,
   portability, or maintainability.
 
-## ADR-002: Keep holistic and universal profiles distinct
+## ADR-0002: Keep holistic and universal profiles distinct
 
 - **Status:** Accepted as the current architectural direction
 - **Date:** 2026-08-19
@@ -68,7 +68,7 @@ do not change meaning; supersede it with a new record when the decision changes 
 - **Reconsider when:** New evidence shows that the boundary prevents standalone usefulness, safety,
   portability, or maintainability.
 
-## ADR-003: Aggregate reports under a stable repository-owned location
+## ADR-0003: Aggregate reports under a stable repository-owned location
 
 - **Status:** Accepted as the current architectural direction
 - **Date:** 2026-08-19
@@ -79,7 +79,7 @@ do not change meaning; supersede it with a new record when the decision changes 
 - **Reconsider when:** New evidence shows that the boundary prevents standalone usefulness, safety,
   portability, or maintainability.
 
-## ADR-004: Validate ignore semantics through a focused metadata-only command
+## ADR-0004: Validate ignore semantics through a focused metadata-only command
 
 - **Status:** Accepted through issue #61 and PR #62.
 - **Date:** 2026-09-19
@@ -97,7 +97,7 @@ do not change meaning; supersede it with a new record when the decision changes 
 - **Reconsider when:** The native inventory gains an equivalent metadata-only boundary or a new
   accepted composition version needs a separately reviewed adapter.
 
-## ADR-005: Package JSONSkooma as an adaptive Ruby schema capability
+## ADR-0005: Package JSONSkooma as an adaptive Ruby schema capability
 
 - **Status:** Proposed in issue #14; accepted only with maintainer review/merge.
 - **Date:** 2026-09-19
@@ -137,3 +137,19 @@ do not change meaning; supersede it with a new record when the decision changes 
   implemented.
 - **Open question:** Which parts of this draft should become active in the first independently
   versioned release?
+
+## Identifier format migration (2026-10-18)
+
+The maintainer selected four-digit numbering in
+[Hygiene #73](https://github.com/egohygiene/hygiene/issues/73). This padding-only migration changes
+current labels and anchors; logical numbers, decision content, dates and disposition remain
+unchanged. Git retains prior versions. New canonical records use `ADR-NNNN` under Hygiene policy
+v1.2.0.
+
+| Previous ID | Current ID | Record                                                                                                  |
+| ----------- | ---------- | ------------------------------------------------------------------------------------------------------- |
+| `ADR-001`   | `ADR-0001` | [DECISIONS.md](DECISIONS.md#adr-0001-wrap-rather-than-fork-specialized-linters)                         |
+| `ADR-002`   | `ADR-0002` | [DECISIONS.md](DECISIONS.md#adr-0002-keep-holistic-and-universal-profiles-distinct)                     |
+| `ADR-003`   | `ADR-0003` | [DECISIONS.md](DECISIONS.md#adr-0003-aggregate-reports-under-a-stable-repository-owned-location)        |
+| `ADR-004`   | `ADR-0004` | [DECISIONS.md](DECISIONS.md#adr-0004-validate-ignore-semantics-through-a-focused-metadata-only-command) |
+| `ADR-005`   | `ADR-0005` | [DECISIONS.md](DECISIONS.md#adr-0005-package-jsonskooma-as-an-adaptive-ruby-schema-capability)          |

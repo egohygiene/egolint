@@ -46,6 +46,7 @@ tests/fixtures/
 # contracts and must not be rewritten by local formatting tools.
 vendor/aether/
 vendor/hygiene/
+vendor/github/
 
 # -----------------------------------------------------------------------------
 # Cache Directories
