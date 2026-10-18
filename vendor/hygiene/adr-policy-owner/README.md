@@ -1,20 +1,19 @@
 # Canonical ADR policy-owner fixtures
 
 These five public authority files are copied byte-for-byte from
-[`egohygiene/hygiene` at `c589587395750cd1c79c6fa0bef010189c547249`](https://github.com/egohygiene/hygiene/tree/c589587395750cd1c79c6fa0bef010189c547249).
-They preserve the accepted ADR policy, ratification evidence, both schemas and
-the contract index used to test explicit canonical-owner selection in EgoLint #81.
+[Hygiene `a05b14f8b9e2772124f879f818e09a911e996ad8`](https://github.com/egohygiene/hygiene/tree/a05b14f8b9e2772124f879f818e09a911e996ad8),
+policy **1.2.0**, whose specific four-digit naming amendment was approved by the
+maintainer and recorded in [Hygiene PR #72](https://github.com/egohygiene/hygiene/pull/72).
+They are contract fixtures, not a copied validator implementation.
 
-The runtime authority lock is
-[the bundled rule catalog](../../../.config/rules/repository-intelligence.v1.toml).
-It records the four policy/ratification/schema SHA-256 digests. The complete
-contract index fixture has SHA-256
-`41e1ceb50382d0fe299ac583dabb9dbad90286966341c3b9ed4e3ddc6582577f`;
-runtime validation checks its header and unique ADR authority entries, allowing
-unrelated contract additions. The index's umbrella `proposed` status does not
-change the two active ADR contracts' accepted authority.
+The [native catalog](../../../.config/rules/repository-intelligence.v1.toml)
+locks the four policy/ratification/schema SHA-256 digests. The full contract index
+fixture has SHA-256 `2a8c4e114c2964acbf160ed6f0183013f175d07f6752878b9984542596b6622a`;
+runtime checks allow unrelated index additions while requiring unique active
+ADR authority entries.
 
-The ADR records used with these files are synthetic EgoLint fixtures from
-`tests/fixtures/repository-intelligence/valid`, not Hygiene's real ADR corpus.
-No Hygiene implementation or live private data is bundled. The owner fixture
-selects the accepted revision and omits the inheritance declaration entirely.
+Synthetic records use four-digit canonical IDs. Explicit compatibility tests
+retain the earlier v1.1.0 ordinary-consumer pin and its three-digit snapshots.
+Old canonical-owner runtimes remain reproducible through their exact earlier
+EgoLint/Relay revisions; current owner selection uses the new approved authority.
+No architecture approval or publication authority is supplied by these fixtures.

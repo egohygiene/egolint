@@ -3,7 +3,7 @@
   "status": "proposed",
   "organization": "egohygiene",
   "canonical_repository": "egohygiene/hygiene",
-  "updated": "2026-09-14",
+  "updated": "2026-09-21",
   "contracts": [
     {
       "id": "egohygiene.architecture-decision/v1",
@@ -33,7 +33,7 @@
       "id": "egohygiene.repository-intelligence/v1",
       "title": "Repository Intelligence graph projection",
       "owner": "egohygiene/hygiene",
-      "source": "schemas/repository-intelligence.v1.schema.json",
+      "source": "schemas/repository-intelligence.alpha2.schema.json",
       "status": "proposed",
       "visibility": "public"
     },
@@ -106,6 +106,22 @@
       "title": "Agent-Ready Web site conformance evidence",
       "owner": "egohygiene/hygiene",
       "source": "schemas/agent-ready-web-conformance.v1.schema.json",
+      "status": "proposed",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.public-site-surface-registry/v1",
+      "title": "Canonical public-site surface and route registry",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/public-site-surface-registry.v1.schema.json",
+      "status": "proposed",
+      "visibility": "public"
+    },
+    {
+      "id": "egohygiene.public-site-surface-declaration/v1",
+      "title": "Repository public-site surface declaration",
+      "owner": "egohygiene/hygiene",
+      "source": "schemas/public-site-surface-declaration.v1.schema.json",
       "status": "proposed",
       "visibility": "public"
     },

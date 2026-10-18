@@ -3,10 +3,10 @@
   "repository": "egohygiene/egolint",
   "policy": {
     "contract": "egohygiene.architecture-decision/v1",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "source": {
       "repository": "egohygiene/hygiene",
-      "revision": "c589587395750cd1c79c6fa0bef010189c547249",
+      "revision": "a05b14f8b9e2772124f879f818e09a911e996ad8",
       "path": "docs/decisions/POLICY.md"
     }
   },

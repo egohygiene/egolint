@@ -1,6 +1,6 @@
 ---
 schema: egohygiene.architecture-decision/v1
-id: ADR-001
+id: ADR-0001
 title: First invalid decision
 status: superseded
 date: 2026-02-30
@@ -9,9 +9,9 @@ visibility: public
 owners: []
 issue: https://github.com/egohygiene/egolint/pull/24
 pull_request: https://github.com/egohygiene/egolint/issues/24
-related: [ADR-999]
-supersedes: [ADR-002]
-superseded_by: [ADR-002]
+related: [ADR-0999]
+supersedes: [ADR-0002]
+superseded_by: [ADR-0002]
 affected_repositories: []
 affected_contracts: [not-a-contract]
 implementation_status: verified
@@ -21,7 +21,7 @@ approval: null
 extensions: {}
 ---
 
-# ADR-001: First invalid decision
+# ADR-0001: First invalid decision
 
 ## Decision
 

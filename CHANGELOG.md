@@ -7,6 +7,8 @@ use Semantic Versioning once its public contracts stabilize.
 
 ### Added
 
+- Four-digit ADR policy v1.2.0 support, explicit compatibility for older pinned consumers, and historical trailer lookup to mapped padded records.
+
 - Offline issue-title validation and explicit reviewed-subject formatting with a checksum-verified
   organization contract candidate, deterministic provenance, and generated input/result schemas.
 

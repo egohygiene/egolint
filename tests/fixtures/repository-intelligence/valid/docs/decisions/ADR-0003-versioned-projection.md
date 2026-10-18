@@ -1,6 +1,6 @@
 ---
 schema: egohygiene.architecture-decision/v1
-id: ADR-003
+id: ADR-0003
 title: Use a versioned projection
 status: accepted
 date: 2026-08-25
@@ -10,7 +10,7 @@ owners: [egohygiene/egolint]
 issue: https://github.com/egohygiene/egolint/issues/24
 pull_request: https://github.com/egohygiene/egolint/pull/24
 related: []
-supersedes: [ADR-002]
+supersedes: [ADR-0002]
 superseded_by: []
 affected_repositories: [egohygiene/egolint]
 affected_contracts: [egohygiene.repository-intelligence/v1]
@@ -27,7 +27,7 @@ approval:
 extensions: {}
 ---
 
-# ADR-003: Use a versioned projection
+# ADR-0003: Use a versioned projection
 
 ## Context
 Consumers require structured output.

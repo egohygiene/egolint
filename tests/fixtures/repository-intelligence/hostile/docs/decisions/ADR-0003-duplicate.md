@@ -1,6 +1,6 @@
 ---
 schema: egohygiene.architecture-decision/v1
-id: ADR-001
+id: ADR-0001
 title: Duplicate identity
 status: proposed
 date: 2026-08-25
@@ -21,7 +21,7 @@ approval: null
 extensions: {}
 ---
 
-# ADR-001: Duplicate identity
+# ADR-0001: Duplicate identity
 
 ## Context
 Duplicate.
