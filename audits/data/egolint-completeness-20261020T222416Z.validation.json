@@ -291,7 +291,13 @@
     },
     "cargo_lock_sha256": "ecca8f57ebf40c8207ae113a7e14e4522393a8a10dc5f6576b59b6f7b48a96ab",
     "pnpm_lock_sha256": "e91ba1c99201ad24be118495059fc61297ff5acc93b55adc862b4f95435a5c72",
-    "local_unavailable": ["Docker", "Podman", "Task runner", "macOS runtime", "Windows runtime"]
+    "local_unavailable": [
+      "Docker",
+      "Podman",
+      "Task runner",
+      "macOS runtime",
+      "Windows runtime"
+    ]
   },
   "baseline_commands": {
     "rust": [
@@ -355,7 +361,13 @@
         }
       },
       {
-        "command": ["cargo", "test", "--all-targets", "--all-features", "--locked"],
+        "command": [
+          "cargo",
+          "test",
+          "--all-targets",
+          "--all-features",
+          "--locked"
+        ],
         "started_at": "2026-10-20T22:12:31.793690+00:00",
         "finished_at": "2026-10-20T22:12:51.529214+00:00",
         "exit_code": 0,
@@ -367,7 +379,11 @@
     ],
     "python": [
       {
-        "command": ["python3", "scripts/validate_megalinter_policy.py", "--check"],
+        "command": [
+          "python3",
+          "scripts/validate_megalinter_policy.py",
+          "--check"
+        ],
         "started_at": "2026-10-20T22:13:16.397420+00:00",
         "finished_at": "2026-10-20T22:13:16.726238+00:00",
         "exit_code": 0,
@@ -397,7 +413,10 @@
         }
       },
       {
-        "command": ["python3", "scripts/validate_repository_release_sources.py"],
+        "command": [
+          "python3",
+          "scripts/validate_repository_release_sources.py"
+        ],
         "started_at": "2026-10-20T22:13:16.967882+00:00",
         "finished_at": "2026-10-20T22:13:17.000037+00:00",
         "exit_code": 0,
@@ -558,7 +577,12 @@
         }
       },
       {
-        "command": ["node", "scripts/javascript-package-quality.mjs", "--workspace", "."],
+        "command": [
+          "node",
+          "scripts/javascript-package-quality.mjs",
+          "--workspace",
+          "."
+        ],
         "started_at": "2026-10-20T22:15:48.142326+00:00",
         "finished_at": "2026-10-20T22:15:50.073260+00:00",
         "exit_code": 0,
@@ -899,13 +923,22 @@
         "path": "FOUNDATIONS.md",
         "id": "egolint-foundations",
         "status": "provisional",
-        "depends_on": ["egolint-purpose", "egolint-principles", "egolint-epistemology"]
+        "depends_on": [
+          "egolint-purpose",
+          "egolint-principles",
+          "egolint-epistemology"
+        ]
       },
       {
         "path": "MANIFESTO.md",
         "id": "egolint-manifesto",
         "status": "provisional",
-        "depends_on": ["egolint-purpose", "egolint-vision", "egolint-principles", "egolint-pillars"]
+        "depends_on": [
+          "egolint-purpose",
+          "egolint-vision",
+          "egolint-principles",
+          "egolint-pillars"
+        ]
       },
       {
         "path": "META.md",
@@ -952,7 +985,11 @@
         "path": "PILLARS.md",
         "id": "egolint-pillars",
         "status": "provisional",
-        "depends_on": ["egolint-purpose", "egolint-vision", "egolint-principles"]
+        "depends_on": [
+          "egolint-purpose",
+          "egolint-vision",
+          "egolint-principles"
+        ]
       },
       {
         "path": "PRINCIPLES.md",
@@ -2215,7 +2252,10 @@
                 }
               ],
               "report_present": true,
-              "rules": ["EGO-CONTINUITY-CONTRACT-001", "EGOLINT_RELEASE_AETHER_DECLARATION"],
+              "rules": [
+                "EGO-CONTINUITY-CONTRACT-001",
+                "EGOLINT_RELEASE_AETHER_DECLARATION"
+              ],
               "run_status": "clean"
             },
             "duplicate_parallel_changes": {
@@ -2246,7 +2286,10 @@
                 }
               ],
               "report_present": true,
-              "rules": ["EGO-CONTINUITY-CONTRACT-001", "EGOLINT_RELEASE_AETHER_DECLARATION"],
+              "rules": [
+                "EGO-CONTINUITY-CONTRACT-001",
+                "EGOLINT_RELEASE_AETHER_DECLARATION"
+              ],
               "run_status": "clean"
             },
             "missing_required_nullable_keys": {
@@ -2297,7 +2340,10 @@
                 }
               ],
               "report_present": true,
-              "rules": ["EGO-CONTINUITY-CONTRACT-001", "EGOLINT_RELEASE_AETHER_DECLARATION"],
+              "rules": [
+                "EGO-CONTINUITY-CONTRACT-001",
+                "EGOLINT_RELEASE_AETHER_DECLARATION"
+              ],
               "run_status": "clean"
             },
             "non_rfc3339_clock_width": {
@@ -2328,7 +2374,10 @@
                 }
               ],
               "report_present": true,
-              "rules": ["EGO-CONTINUITY-CONTRACT-001", "EGOLINT_RELEASE_AETHER_DECLARATION"],
+              "rules": [
+                "EGO-CONTINUITY-CONTRACT-001",
+                "EGOLINT_RELEASE_AETHER_DECLARATION"
+              ],
               "run_status": "clean"
             },
             "rfc3339_lowercase_delimiters": {
@@ -2393,7 +2442,10 @@
               ],
               "pinned_schema_errors": [],
               "report_present": true,
-              "rules": ["EGO-CONTINUITY-CONTRACT-001", "EGOLINT_RELEASE_AETHER_DECLARATION"],
+              "rules": [
+                "EGO-CONTINUITY-CONTRACT-001",
+                "EGOLINT_RELEASE_AETHER_DECLARATION"
+              ],
               "run_status": "clean"
             }
           },
@@ -2507,7 +2559,10 @@
               }
             ],
             "report_present": true,
-            "rules": ["EGO-PORT-WORKFLOW-001", "EGOLINT_RELEASE_AETHER_DECLARATION"],
+            "rules": [
+              "EGO-PORT-WORKFLOW-001",
+              "EGOLINT_RELEASE_AETHER_DECLARATION"
+            ],
             "run_status": "clean"
           },
           "exact_case_collision_control": {
@@ -2525,7 +2580,10 @@
               }
             ],
             "report_present": true,
-            "rules": ["EGO-PORT-CASE-001", "EGOLINT_RELEASE_AETHER_DECLARATION"],
+            "rules": [
+              "EGO-PORT-CASE-001",
+              "EGOLINT_RELEASE_AETHER_DECLARATION"
+            ],
             "run_status": "findings"
           },
           "file_directory_case_collision": {
@@ -4335,7 +4393,8 @@
       60
     ],
     "planned_starred": [
-      69, 29, 51, 54, 5, 35, 36, 37, 38, 39, 40, 41, 45, 49, 50, 48, 46, 76, 55, 60
+      69, 29, 51, 54, 5, 35, 36, 37, 38, 39, 40, 41, 45, 49, 50, 48, 46, 76, 55,
+      60
     ],
     "planned_counts": {
       "originals": 27,

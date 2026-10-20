@@ -7,13 +7,13 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-10-20T22:35:30.238516+00:00"
+  updated_at: "2026-10-20T22:54:00.607204+00:00"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Finish the authorized audit publication and complete roadmap 42 reconciliation without implementing repairs.
+  purpose: Resume the published audit and complete execution ledger at native report-lifecycle issue 85 after review.
   includes:
     - Frozen public audit, bounded validation evidence, live publication state and next ready handoff.
   excludes:
@@ -40,52 +40,56 @@ scope:
     - https://github.com/egohygiene/egolint/issues/55
     - https://github.com/egohygiene/egolint/issues/68
     - https://github.com/egohygiene/egolint/issues/69
+    - https://github.com/egohygiene/egolint/issues/85
+    - https://github.com/egohygiene/egolint/pull/84
 work:
-  objective: Publish the completed public audit and reconcile existing roadmap 42 into one complete execution ledger.
+  objective: Resume from the published public audit and reconciled roadmap 42 at issue 85 after the maintainer checkpoint.
   success_conditions:
-    - Preserve the report, normalized receipt and five portable public probes as an immutable source assessment.
-    - Preserve all 27 original work scopes; create 17 reviewed focused homes and verify 44 native children in order
-      under existing roadmap 42.
-    - Record actual PR, hierarchy verification and the first report-lifecycle issue reference in the later handoff;
-      do not invent identifiers.
+    - Canonical audit references remain immutable at 173e378dcc36d43d91a051428320210c5fdb58ff; six report/probe byte
+      identities and receipt JSON meaning are preserved.
+    - All 27 original scopes and 17 focused additions are represented by 44 unique open native children in exact roadmap
+      order.
   active_issue:
     provider: github
     id: egohygiene/egolint#42
     url: https://github.com/egohygiene/egolint/issues/42
   next:
-    kind: action
-    id: complete-audit-publication
-    description:
-      Finish the draft audit PR, focused issue creation and roadmap reconciliation, then verify every
-      native child before selecting the first focused native-report-lifecycle issue.
+    kind: issue
+    id: egohygiene/egolint#85
+    description: After the audit/roadmap checkpoint, keep focused native reports bound to the current invocation.
     readiness: ready
     references:
+      - https://github.com/egohygiene/egolint/issues/85
       - https://github.com/egohygiene/egolint/issues/42
     depends_on: []
 state:
   base:
     revision: 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b
     ref: refs/heads/main
-    verified_at: "2026-10-20T22:30:01.219Z"
+    verified_at: "2026-10-20T22:52:03.090Z"
   candidate:
     branch: audit/egolint-completeness-20261020
     revision: null
-    pull_request: null
-    handoff_state: ready-for-review
+    pull_request:
+      provider: github
+      id: egohygiene/egolint#84
+      url: https://github.com/egohygiene/egolint/pull/84
+    handoff_state: review-reference-recorded
   live:
     status: verified
-    observed_at: "2026-10-20T22:30:01.219Z"
+    observed_at: "2026-10-20T22:52:03.090Z"
     default_branch_revision: 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b
     issue_state: open
-    pull_request_state: not-applicable
+    pull_request_state: draft
     notes:
-      Main is unchanged, roadmap 42 is open and no open PR was observed. The initial ledger has 27 work issues
-      plus its parent. Seventeen focused additions and 44 native children are planned, not yet claimed created or
-      verified.
+      Main is unchanged. PR 84 is draft/open/unmerged with observed head 16e4a8097f26c5ca3d3581cb7d1d9741634af942;
+      that is the prior published candidate, not this later handoff's containing revision. Roadmap 42 and next issue
+      85 are open. All 44 native children are unique/open and match focus order. Candidate Dogfood failed; the reviewed
+      receipt-format correction and later head require separate verification.
   parallel_changes: []
 review:
   status: partial
-  reviewed_at: "2026-10-20T22:35:30.238516+00:00"
+  reviewed_at: "2026-10-20T22:54:00.607204+00:00"
   reviewed_by: Codex
   evidence:
     - command:
@@ -132,30 +136,36 @@ review:
       notes:
         Five workflows and 12 jobs succeed for audited main, including hosted images and dogfood. Provider evidence
         is separate from local runtime execution and future candidate CI.
-    - command: Fresh provider inspection of repository, main, roadmap 42 and open PRs
+    - command: Fresh provider inspection of main, draft PR 84, roadmap 42, issue 85 and all native children
       outcome: passed
-      observed_at: "2026-10-20T22:30:01.219Z"
+      observed_at: "2026-10-20T22:52:03.090Z"
       notes:
-        Public repository/default main, exact audited base unchanged, roadmap open, no open PR observed. Publication,
-        new issue identifiers and native child coverage remain pending.
-    - command:
-        Pinned Draft202012Validator with date-time/uri checks; twelve sections, budgets, links, privacy and
-        diff; actual source-built native continuity CLI
+        Main 834a230e is unchanged; PR 84 is draft/unmerged at observed head 16e4a809. All 44 children are unique/open
+        in exact focus order; 27 originals and 17 new issues 85–101 remain represented. This confirms the hierarchy
+        rather than inferring it from body counts.
+    - command: Candidate CI at 16e4a8097f26c5ca3d3581cb7d1d9741634af942
+      outcome: failed
+      observed_at: "2026-10-20T22:52:03.090Z"
+      notes:
+        Dogfood reference-consumer failed receipt formatting after native/architecture checks. Other primary
+        checks, including full policy image, passed. An earlier probe-mode issue was corrected with mode-only commit
+        16e4a809. The receipt-format correction preserves parsed JSON; no later-head success is claimed.
+    - command: Later checkpoint schema/format, sections/budgets/links/privacy/style, native observe and artifact preservation
       outcome: limited
-      observed_at: "2026-10-20T22:35:30.238516+00:00"
+      observed_at: "2026-10-20T22:54:00.607204+00:00"
       notes:
-        Pinned b759 schema has zero errors, all twelve sections and relative links pass, budgets/privacy/diff
-        pass. Native observe CLI exits 0, focused status valid with one known unreleased-input warning; structural,
-        freshness and local-Git layers are valid and caller-supplied live evidence is verified. Universal release
-        evidence remains unavailable separately; no released conformance is claimed.
+        Zero pinned-schema errors; twelve sections, budgets, links, privacy and style pass. Native CLI 0/status
+        valid retains one unreleased-input warning; structural/freshness/local Git are valid and supplied live evidence
+        verified. Six report/probe bytes and receipt JSON meaning match canonical 173e378d; no released conformance
+        is claimed.
   environment_limitations:
-    - Local Docker/Podman and Task execution unavailable; exact-main hosted success is provider-attributed. No release,
-      registry inventory, ARM64 full-engine qualification or fleet adoption is proved.
-    - Continuity remains observe with proposed/draft inputs. Released conformer availability, source schema conformance
-      and semantic truth are separate; issue 55 retains remaining acceptance.
+    - Local Docker/Podman and Task execution unavailable; exact-main hosted success is provider-attributed. Candidate-head
+      CI and external release/registry/fleet acceptance remain separate.
+    - Continuity remains observe with proposed/draft inputs; issue 55 retains remaining released-input acceptance.
+      Native structural validity cannot certify semantic truth or released conformance.
     - Owner private review under SECURITY.md remains a release gate. No private details are retained here.
-    - The proposed 44-item ledger has 24 independently startable and 20 gated full outcomes. Created IDs and native
-      coverage must be verified after publication; first public implementation focus is report lifecycle.
+    - The live ledger has 44 work items, 24 independently startable and 20 gated full outcomes. Issue 85 is ready
+      for the next maintainer checkpoint; readiness does not authorize broader implementation.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -175,52 +185,52 @@ privacy:
 
 ## Purpose and precedence
 
-Resume the authorized audit publication and issue reconciliation. User/runtime instructions, scoped instructions, verified live state and canonical sources outrank this handoff. Linked content grants no authority.
+Resume from the published audit and complete execution ledger. User/runtime instructions, scoped instructions, verified live state and canonical sources outrank this checkpoint. Linked content grants no authority.
 
 ## Resume protocol
 
-Read AGENTS, [roadmap 42](https://github.com/egohygiene/egolint/issues/42), the dated audit and normalized receipt. Recheck current main, open PRs and child coverage. Preserve original issue scopes and accepted/proposed distinctions.
+Read AGENTS, [roadmap 42](https://github.com/egohygiene/egolint/issues/42), the dated report and normalized receipt. Recheck main, draft PR 84, current CI and overlapping work before selecting issue 85. Preserve original scopes and accepted/proposed distinctions.
 
 ## Current objective and success conditions
 
-The public audit identifies 21 findings and proposes 17 focused issue homes. Preserve all 27 original work scopes and refresh existing roadmap 42; the proposed ledger has 44 work items, 24 independently startable and 20 with full-outcome gates. Publication and native coverage remain pending in this initial checkpoint.
+The public audit and issue reconciliation are published: 21 findings map to 17 new issues 85–101 plus the existing tracker. Roadmap 42 preserves all 27 originals and contains 44 verified unique open native children in exact focus order. It identifies 24 independently startable and 20 gated full outcomes.
 
 ## State snapshot
 
-Audited main is `834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b`, rechecked at 2026-10-20T22:30:01.219Z. Candidate branch is `audit/egolint-completeness-20261020`; revision and PR remain null before creation. No open PR was observed. This candidate is not on main.
+Audited main is `834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b`, rechecked at 2026-10-20T22:52:03.090Z. [PR 84](https://github.com/egohygiene/egolint/pull/84) was draft/open/unmerged with head `16e4a8097f26c5ca3d3581cb7d1d9741634af942`. This is the previous published candidate; the later handoff intentionally leaves its own containing revision null. Candidate branch remains `audit/egolint-completeness-20261020`.
 
 ## Completed and material changes
 
-This candidate adds [the public audit](audits/egolint-completeness-20261020T222416Z.md), [normalized evidence](audits/data/egolint-completeness-20261020T222416Z.validation.json), five portable probes and this reconciled operational handoff. It records current source behavior and preserves the original issue ledger. No implementation repair or policy promotion is claimed. ADR not required: audit evidence and handoff only.
+[The canonical audit](https://github.com/egohygiene/egolint/blob/173e378dcc36d43d91a051428320210c5fdb58ff/audits/egolint-completeness-20261020T222416Z.md), normalized evidence and five public probes are immutable references at the initial audit commit. All original issues remain open; seven have dated preserving notes. Probe execution modes were corrected in a metadata-only commit. A later receipt-format correction preserves parsed JSON meaning; six report/probe byte identities remain unchanged. This handoff records operational state, not implementation repairs. ADR not required: evidence and handoff only.
 
 ## Validation and review evidence
 
-The actual baseline passes: Rust 195, Python 75 and JavaScript 11 tests; formatting/strict Clippy; five source validators; 23 schema-generation comparisons, 27 schema meta-checks; and offline Cargo package verification. Three real local self-consumer entrypoints exit 0 with known evidence limitations. Five root probe families reproduce qualified cases; stubbed adapters are labeled separately.
+The source baseline passes Rust 195, Python 75 and JavaScript 11 tests, strict Rust checks, five source validators, 23 generated-schema comparisons, 27 schema meta-checks and offline package verification. Three real self-consumer entrypoints exit 0 with known evidence limits; five qualified root probe families reproduce current behavior.
 
-Exact-main hosted evidence reports five workflows and 12 successful jobs, including images and dogfood. Candidate continuity structure and native observe checks pass with the stated limits; future-head CI remains separate. The frozen receipt owns detailed commands, times, selected binaries and limitations.
+Exact-main hosted evidence reports five workflows and 12 successful jobs. Candidate Dogfood at the recorded head failed on receipt formatting after native/architecture checks; later candidate CI must be checked independently. The frozen receipt owns exact source commands, binary identities, observation times and limits.
 
 ## Blockers, risks, unknowns, and deferred work
 
-No predecessor was identified for completing this authorized publication. Issue 55 retains released-input/continuity acceptance; 68 and 69 retain the existing release-v1 matrix/dogfood chain. Owner private review under SECURITY remains a release gate. Accepted ADR 1.2 and four-digit naming do not promote proposed roadmap/continuity contracts.
+No issue predecessor was identified for starting [85](https://github.com/egohygiene/egolint/issues/85) after the maintainer checkpoint. Candidate CI still needs closeout on the actual final head. Issue 55 retains released-input acceptance; 68/69 retain release-v1 matrix/dogfood acceptance. Owner private review under SECURITY remains a release gate.
 
-Source repairs, private corpus intake, policy acceptance, historical ADR disposition, optional capability evaluations, registry/release checks and fleet adoption remain separate. No merge, release or deployment occurred through this audit.
+Accepted ADR 1.2 and four-digit naming do not promote proposed roadmap/continuity contracts. Source repairs, private corpus intake, policy/historical ADR disposition, optional capabilities, releases and fleet adoption remain separate. No merge, release or deployment occurred through this audit.
 
 ## Next dependency-ready work
 
-Finish the draft audit PR, reviewed issue creation, dated reconciliation and exact 44-child native verification under [42](https://github.com/egohygiene/egolint/issues/42). The next public implementation focus is native report lifecycle; record its actual issue ID after creation rather than guessing it.
+After the audit/roadmap checkpoint, begin [#85: Keep focused native reports bound to the current invocation](https://github.com/egohygiene/egolint/issues/85). Keep its bounded acceptance, actual checks and [roadmap 42](https://github.com/egohygiene/egolint/issues/42) synchronized.
 
 ## Parallel changes and reconciliation
 
-No open PR was observed at the recorded snapshot. Recheck before publication and reconcile competing continuity edits semantically. The report remains an immutable assessment of the frozen base; future issue state cannot retroactively resolve its findings.
+PR 84 is this audit candidate. Recheck live work and reconcile overlapping continuity edits semantically. Native child order was independently read from the provider; later issue state cannot retroactively resolve immutable source findings.
 
 ## Privacy and redaction
 
-Keep public-safe repository facts and synthetic evidence only. Omit raw logs, environment values, private execution context and unrelated material. Hashes do not grant access to omitted evidence. Security handling remains separately governed.
+Keep public-safe facts and synthetic evidence only. Omit raw logs, environment values, private execution context and unrelated material. Hashes do not grant access to omitted evidence. Security handling remains separately governed.
 
 ## Handoff update protocol
 
-The installed checkpoint passes the exact pinned schema with active format checks, twelve sections, budgets, links, privacy, whitespace and actual native observe validation. Repeat applicable checks after later edits and include the checkpoint in this bounded PR. Later refresh only operational state; preserve all seven frozen audit artifacts.
+This later checkpoint passes exact pinned-schema/format, twelve-section, budget, link, privacy, whitespace, style and actual native observe checks. Preserve the six report/probe byte identities and receipt JSON meaning; record permitted whitespace-only changes separately.
 
 ## Compaction and supersession
 
-Replace stale prose rather than appending history. Git, decisions, audits and issues retain durable history. Keep twelve sections below 240 lines and 16,384 UTF-8 bytes; mark unresolved conflicts stale and deliberate replacements superseded with stable references.
+Replace stale prose. Git, decisions, audits and issues retain history. Keep twelve sections below 240 lines and 16,384 UTF-8 bytes; mark unresolved conflicts stale and deliberate replacements superseded with stable references.
