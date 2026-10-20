@@ -1,0 +1,209 @@
+#!/usr/bin/env python3
+"""Bounded adapter-contract probes against an unchanged EgoLint checkout.
+
+Uses public synthetic temporary consumers and trusted executable stubs, never
+containers, network scans, source modifications, or real secret material.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+
+def call(argv: list[str], cwd: Path, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(argv, cwd=cwd, env=env, text=True, capture_output=True, timeout=40, check=False)
+
+
+def write_json(path: Path, value: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value) + "\n", encoding="utf-8")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repository", type=Path, required=True)
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--binary", type=Path)
+    options = parser.parse_args()
+    repository = options.repository.resolve(strict=True)
+    required_packages = ["publint", "oxlint", "oxlint-tsgolint", "@biomejs/biome"]
+    missing_packages = [name for name in required_packages if not (repository / "node_modules" / name / "package.json").is_file()]
+    if missing_packages:
+        parser.error("the --repository checkout needs its locked Node dependencies installed without lifecycle scripts; missing: " + ", ".join(missing_packages))
+    results: dict[str, object] = {
+        "scope": "Unedited adapter CLIs with disposable synthetic consumers; pnpm, Docker and Ruby child outputs are explicitly stubbed where used.",
+        "security_probe_details_included": False,
+        "json_skooma": {},
+        "javascript_package_quality": {},
+        "rust_megalinter_normalizer": {},
+    }
+    with tempfile.TemporaryDirectory(prefix="egolint-adapter-contracts-") as temporary:
+        root = Path(temporary)
+        invocation = root / "invocation"
+        invocation.mkdir()
+        script = repository / "scripts/json_skooma.py"
+        for name, config in [
+            ("disabled_control", {"schema_version": 1, "mode": "disabled"}),
+            ("list_mode", {"schema_version": 1, "mode": []}),
+            ("object_mode", {"schema_version": 1, "mode": {}}),
+            ("boolean_version", {"schema_version": True, "mode": "disabled"}),
+        ]:
+            consumer = root / name
+            consumer.mkdir()
+            write_json(consumer / ".egolint/json-skooma.json", config)
+            completed = call([sys.executable, str(script), "--workspace", str(consumer), "--report", "-"], invocation)
+            try:
+                payload = json.loads(completed.stdout)
+            except json.JSONDecodeError:
+                payload = None
+            results["json_skooma"][name] = {
+                "exit_code": completed.returncode,
+                "structured_status": None if payload is None else payload.get("status"),
+                "structured_reason": None if payload is None else payload.get("reason"),
+                "traceback": "Traceback (most recent call last)" in completed.stderr,
+                "stderr_last_line": completed.stderr.strip().splitlines()[-1] if completed.stderr.strip() else None,
+            }
+        consumer = root / "default_report_consumer"
+        consumer.mkdir()
+        completed = call([sys.executable, str(script), "--workspace", str(consumer)], invocation)
+        default = Path(".reports/egolint/complementary/json-skooma/latest.json")
+        results["json_skooma"]["default_report_routing"] = {
+            "exit_code": completed.returncode,
+            "invocation_directory_report_exists": (invocation / default).is_file(),
+            "selected_workspace_report_exists": (consumer / default).is_file(),
+        }
+        applicable_invocation = root / "applicable_invocation"
+        applicable_invocation.mkdir()
+        applicable_consumer = root / "applicable_default_report_consumer"
+        applicable_consumer.mkdir()
+        write_json(applicable_consumer / "schema.json", {})
+        write_json(applicable_consumer / "data.json", {})
+        write_json(applicable_consumer / ".egolint/json-skooma.json", {"schema_version": 1, "mode": "enabled", "mappings": [{"schema": "schema.json", "instances": ["data.json"]}]})
+        fake_ruby = root / "fake-ruby"
+        fake_ruby.write_text(
+            "#!" + sys.executable + "\n"
+            "import json,pathlib,sys\n"
+            "output=pathlib.Path(sys.argv[sys.argv.index(\"--report\")+1])\n"
+            "output.parent.mkdir(parents=True,exist_ok=True)\n"
+            "output.write_text(json.dumps({\"status\":\"passed\",\"synthetic_stub\":True}))\n",
+            encoding="utf-8",
+        )
+        fake_ruby.chmod(0o700)
+        completed = call([sys.executable, str(script), "--workspace", str(applicable_consumer), "--ruby-executable", str(fake_ruby)], applicable_invocation)
+        results["json_skooma"]["applicable_default_report_routing_stubbed_ruby"] = {
+            "exit_code": completed.returncode,
+            "invocation_directory_report_exists": (applicable_invocation / default).is_file(),
+            "selected_workspace_report_exists": (applicable_consumer / default).is_file(),
+            "ruby_engine_validation_claimed": False,
+        }
+
+        fake_bin = root / "fake-bin"
+        fake_bin.mkdir()
+        stub = fake_bin / "pnpm"
+        stub.write_text(
+            "#!" + sys.executable + "\n"
+            "import json, os, sys\n"
+            "case = os.environ.get(\"AUDIT_ADAPTER_CASE\", \"clean_control\")\n"
+            "is_oxlint = \"oxlint\" in sys.argv\n"
+            "if is_oxlint:\n"
+            "    payload = {} if case == \"malformed_envelopes\" else {\"diagnostics\": []}\n"
+            "else:\n"
+            "    payload = {} if case == \"malformed_envelopes\" else {\"version\": \"2.1.0\", \"runs\": [{\"results\": []}]}\n"
+            "    if case in {\"contradictory_sarif_pass_level_error\", \"valid_sarif_pass_none\", \"valid_sarif_pass_level_absent\"}:\n"
+            "        result = {\"ruleId\": \"format\", \"kind\": \"pass\", \"message\": {\"text\": \"synthetic successful result\"}}\n"
+            "        if case != \"valid_sarif_pass_level_absent\": result[\"level\"] = \"error\" if case == \"contradictory_sarif_pass_level_error\" else \"none\"\n"
+            "        payload[\"runs\"][0][\"results\"] = [result]\n"
+            "print(json.dumps(payload))\n"
+            "sys.exit(1 if is_oxlint and case == \"exit_one_without_diagnostics\" else 0)\n",
+            encoding="utf-8",
+        )
+        stub.chmod(0o700)
+        for name in ["clean_control", "exit_one_without_diagnostics", "malformed_envelopes", "contradictory_sarif_pass_level_error", "valid_sarif_pass_none", "valid_sarif_pass_level_absent", "unknown_manifest_property"]:
+            consumer = root / ("javascript_" + name)
+            consumer.mkdir()
+            manifest = {"schema_version": 1, "profile": "base", "package_path": ".", "publication": "private"}
+            if name == "unknown_manifest_property":
+                manifest["profil_typo"] = "synthetic-unknown-value"
+            write_json(consumer / "egolint.javascript-package-quality.json", manifest)
+            write_json(consumer / "package.json", {"name": "synthetic-private-consumer", "version": "0.0.0", "private": True})
+            environment = os.environ.copy()
+            environment["PATH"] = str(fake_bin) + os.pathsep + environment.get("PATH", "")
+            environment["AUDIT_ADAPTER_CASE"] = name
+            completed = call(["node", str(repository / "scripts/javascript-package-quality.mjs"), "--workspace", str(consumer)], invocation, environment)
+            report_path = consumer / ".reports/egolint/javascript-package-quality.json"
+            report = json.loads(report_path.read_text()) if report_path.is_file() else None
+            entry = {
+                "exit_code": completed.returncode,
+                "report_exists": report is not None,
+                "summary": None if report is None else report["summary"],
+                "tool_statuses": None if report is None else {tool["tool_id"]: tool["status"] for tool in report["tool_results"]},
+                "finding_count": None if report is None else len(report["findings"]),
+            }
+            if name == "unknown_manifest_property":
+                from jsonschema import Draft202012Validator
+                schema = json.loads((repository / "schemas/javascript-package-quality-manifest.schema.json").read_text())
+                entry["checked_in_schema_errors"] = [error.message for error in Draft202012Validator(schema).iter_errors(manifest)]
+            results["javascript_package_quality"][name] = entry
+        if options.binary:
+            docker_stub = fake_bin / "docker"
+            docker_stub.write_text(
+                "#!" + sys.executable + "\n"
+                "import json,os,pathlib,sys\n"
+                "if len(sys.argv)<2 or sys.argv[1]!=\"run\": sys.exit(0)\n"
+                "case=os.environ[\"AUDIT_NATIVE_CASE\"]\n"
+                "root=pathlib.Path(os.environ[\"AUDIT_CONSUMER\"])/\".reports/egolint\"\n"
+                "root.mkdir(parents=True,exist_ok=True)\n"
+                "finding=case in {\"runtime_error\",\"json_only_findings\",\"mismatched_counts\"}\n"
+                "errors=2 if case==\"mismatched_counts\" else int(finding)\n"
+                "raw={\"return_code\": int(finding),\"status\": \"error\" if finding else \"success\",\"linters\":[{\"name\":\"PYTHON_RUFF\",\"linter_name\":\"ruff\",\"descriptor_id\":\"PYTHON\",\"is_active\":True,\"status\":\"error\" if finding else \"success\",\"return_code\":int(finding),\"total_number_errors\":errors,\"total_number_warnings\":0}]}\n"
+                "(root/\"mega-linter-report.json\").write_text(json.dumps(raw))\n"
+                "results=[{\"ruleId\":\"synthetic-rule\",\"level\":\"error\"}] if finding else []\n"
+                "if case in {\"contradictory_sarif_pass_level_error\",\"valid_sarif_pass_none\",\"valid_sarif_pass_level_absent\"}:\n"
+                "    result={\"ruleId\":\"synthetic-rule\",\"kind\":\"pass\"}\n"
+                "    if case!=\"valid_sarif_pass_level_absent\": result[\"level\"]=\"error\" if case==\"contradictory_sarif_pass_level_error\" else \"none\"\n"
+                "    results=[result]\n"
+                "if case!=\"json_only_findings\":\n"
+                "    version=\"2.0.0\" if case==\"wrong_sarif_version\" else \"2.1.0\"\n"
+                "    (root/\"mega-linter-report.sarif\").write_text(json.dumps({\"version\":version,\"runs\":[{\"tool\":{\"driver\":{\"name\":\"ruff\"}},\"results\":results}]}))\n"
+                "sys.exit(2 if case==\"runtime_error\" else int(finding))\n",
+                encoding="utf-8",
+            )
+            docker_stub.chmod(0o700)
+            for name in ["clean_control", "runtime_error", "json_only_findings", "mismatched_counts", "contradictory_sarif_pass_level_error", "valid_sarif_pass_none", "valid_sarif_pass_level_absent", "wrong_sarif_version"]:
+                consumer = root / ("native_" + name)
+                consumer.mkdir()
+                initialized = call(["git", "init", "--quiet"], consumer)
+                if initialized.returncode != 0:
+                    raise RuntimeError("could not initialize synthetic native consumer")
+                environment = os.environ.copy()
+                environment["PATH"] = str(fake_bin) + os.pathsep + environment.get("PATH", "")
+                environment["AUDIT_NATIVE_CASE"] = name
+                environment["AUDIT_CONSUMER"] = str(consumer)
+                completed = call([str(options.binary.resolve(strict=True)), "lint", "--workspace", str(consumer), "--runtime", "docker", "--pull-policy", "never", "--release-adoption-state", "not-applicable"], invocation, environment)
+                report_path = consumer / ".reports/egolint/run.json"
+                report = json.loads(report_path.read_text()) if report_path.is_file() else None
+                results["rust_megalinter_normalizer"][name] = {
+                    "exit_code": completed.returncode,
+                    "report_exists": report is not None,
+                    "status": None if report is None else report["status"],
+                    "completeness": None if report is None else report["completeness"],
+                    "adapter_exit_code": None if report is None else report["adapter_exit_code"],
+                    "normalized_megalinter_finding_count": None if report is None else sum(1 for finding in report["findings"] if finding["rule"]["tool_id"] == "PYTHON_RUFF"),
+                    "runtime_failure_recorded": None if report is None else any(tool["tool_id"] == "MEGALINTER_ADAPTER" and tool["status"] == "execution_error" for tool in report["tool_results"]),
+                    "stderr": completed.stderr.replace(str(root), "<temporary-consumer-root>").strip(),
+                }
+    rendered = json.dumps(results, indent=2, sort_keys=True) + "\n"
+    if options.output:
+        options.output.write_text(rendered, encoding="utf-8")
+    print(rendered, end="")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

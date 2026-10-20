@@ -1,0 +1,4385 @@
+{
+  "schema_version": "egolint.completeness-audit.validation/v1",
+  "contract_scope": "Local receipt for this audit; not delivery of the unfinished canonical checkpoint-report schema or released conformance.",
+  "audit_name": "egolint-completeness",
+  "report_status": "complete within stated inspected scope, with explicit public-disclosure and runtime limitations",
+  "report_timestamp": "20261020T222416Z",
+  "receipt_authored_at": "2026-10-20T22:38:46.287566+00:00",
+  "source": {
+    "observed_at": "2026-10-20T22:17:09.891751+00:00",
+    "revision": "834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b",
+    "tree": "a0191cf19d18575f0dcc483079f1c0d9974f1b59",
+    "tracked_files": 719,
+    "tracked_bytes": 3998007,
+    "extensions": {
+      ".yml": 97,
+      ".toml": 46,
+      ".json": 176,
+      ".md": 91,
+      ".yaml": 18,
+      ".psd1": 3,
+      ".edn": 2,
+      ".cjs": 3,
+      ".mjs": 8,
+      "": 44,
+      ".xml": 6,
+      ".ini": 4,
+      ".dist": 1,
+      ".dictionary": 6,
+      ".rc": 1,
+      ".cfg": 3,
+      ".conf": 1,
+      ".hcl": 2,
+      ".prf": 1,
+      ".svg": 12,
+      ".baseline": 1,
+      ".lock": 3,
+      ".full": 1,
+      ".txt": 9,
+      ".css": 3,
+      ".png": 11,
+      ".zip": 1,
+      ".html": 3,
+      ".ts": 15,
+      ".js": 5,
+      ".code-workspace": 1,
+      ".py": 32,
+      ".sh": 6,
+      ".rb": 2,
+      ".rs": 40,
+      ".proto": 3,
+      ".java": 2,
+      ".tex": 3,
+      ".c": 2,
+      ".cpp": 2,
+      ".clj": 1,
+      ".coffee": 1,
+      ".rego": 3,
+      ".dart": 2,
+      ".env": 2,
+      ".jsonc": 1,
+      ".jsx": 1,
+      ".tsx": 2,
+      ".feature": 1,
+      ".example": 4,
+      ".mod": 1,
+      ".go": 3,
+      ".graphql": 1,
+      ".tf": 5,
+      ".R": 1,
+      ".lua": 1,
+      ".ipynb": 2,
+      ".groovy": 1,
+      ".php": 1,
+      ".ps1": 1,
+      ".rst": 2,
+      ".pp": 1,
+      ".rakumod": 1,
+      ".rakutest": 1,
+      ".parts": 1,
+      ".gitignore": 2,
+      ".fixture": 1,
+      ".cls": 1,
+      ".scala": 1,
+      ".sql": 2,
+      ".swift": 1
+    },
+    "prior_audits": [],
+    "staging": [],
+    "root_markdown": [
+      "AGENTS.md",
+      "AI_CONSTITUTION.md",
+      "ARCHITECTURE.md",
+      "CHANGELOG.md",
+      "CONTINUITY.md",
+      "CONTRIBUTING.md",
+      "DECISIONS.md",
+      "DESIGN.md",
+      "DESIGN_SYSTEM.md",
+      "EPISTEMOLOGY.md",
+      "FOUNDATIONS.md",
+      "MANIFESTO.md",
+      "META.md",
+      "METHODOLOGY.md",
+      "ONTOLOGY.md",
+      "PERSONAL_MODEL.md",
+      "PILLARS.md",
+      "PRINCIPLES.md",
+      "PURPOSE.md",
+      "README.md",
+      "ROADMAP.md",
+      "SECURITY.md",
+      "SYSTEM.md",
+      "VISION.md"
+    ],
+    "schemas": [
+      "schemas/config.schema.json",
+      "schemas/debt.schema.json",
+      "schemas/evidence.schema.json",
+      "schemas/finding.schema.json",
+      "schemas/intelligence-coverage-report.schema.json",
+      "schemas/issue-title-proposal.schema.json",
+      "schemas/issue-title-report.schema.json",
+      "schemas/issue-title-snapshot.schema.json",
+      "schemas/javascript-architecture-overlay.schema.json",
+      "schemas/javascript-architecture-profile.schema.json",
+      "schemas/javascript-package-quality-manifest.schema.json",
+      "schemas/javascript-package-quality-profile.schema.json",
+      "schemas/plan.schema.json",
+      "schemas/profile.schema.json",
+      "schemas/report.schema.json",
+      "schemas/repository-continuity-report.schema.json",
+      "schemas/repository-continuity.schema.json",
+      "schemas/repository-contract.schema.json",
+      "schemas/repository-gitignore-report.schema.json",
+      "schemas/repository-gitignore.schema.json",
+      "schemas/repository-intelligence-report.schema.json",
+      "schemas/repository-intelligence.schema.json",
+      "schemas/repository-presentation-report.schema.json",
+      "schemas/repository-presentation.schema.json",
+      "schemas/repository-release-report.schema.json",
+      "schemas/suppression.schema.json",
+      "schemas/tool-result.schema.json"
+    ],
+    "rust_source": [
+      "src/bin/egolint-architecture.rs",
+      "src/config.rs",
+      "src/contracts.rs",
+      "src/debt.rs",
+      "src/error.rs",
+      "src/fix.rs",
+      "src/intelligence_coverage.rs",
+      "src/issue_titles.rs",
+      "src/javascript_architecture.rs",
+      "src/lib.rs",
+      "src/main.rs",
+      "src/megalinter.rs",
+      "src/plan.rs",
+      "src/report.rs",
+      "src/rules/inventory.rs",
+      "src/rules/mod.rs",
+      "src/rules/portability.rs",
+      "src/rules/repository_continuity.rs",
+      "src/rules/repository_contract.rs",
+      "src/rules/repository_gitignore.rs",
+      "src/rules/repository_gitignore/contract.rs",
+      "src/rules/repository_gitignore/evaluation.rs",
+      "src/rules/repository_gitignore/git.rs",
+      "src/rules/repository_gitignore/inventory.rs",
+      "src/rules/repository_gitignore/tests.rs",
+      "src/rules/repository_intelligence.rs",
+      "src/rules/repository_presentation.rs",
+      "src/rules/repository_release.rs",
+      "src/rules/repository_release/checks.rs",
+      "src/rules/suppressions.rs",
+      "src/sarif.rs"
+    ],
+    "python_test_modules": [
+      "tests/test_complementary_tools.py",
+      "tests/test_image_profile_renderer.py",
+      "tests/test_integration_distribution.py",
+      "tests/test_json_skooma_adapter.py",
+      "tests/test_megalinter_policy.py",
+      "tests/test_megalinter_wrapper.py",
+      "tests/test_release_inputs.py",
+      "tests/test_repository_contract_fixtures.py",
+      "tests/test_repository_release_sources.py"
+    ],
+    "javascript_test_modules": [
+      "tests/commit-policy.test.cjs",
+      "tests/eslint-config.test.mjs",
+      "tests/fixtures/javascript-package-quality/react-library/runtime.test.mjs",
+      "tests/javascript-package-quality.test.mjs"
+    ],
+    "tags": []
+  },
+  "guidance": [
+    {
+      "id": "auditor",
+      "version": "2.0.0",
+      "status": "approved",
+      "source_revision": "dc8a16851f452763ef4f7fbe4bf057d4500b1921",
+      "path": "library/organization/specs/quality/auditor.spec.md",
+      "sha256": "f9f4d56673cefac4233fad4d53c78d1ba0726201b7e097bb78f67a721b81e62f"
+    },
+    {
+      "id": "audit-repository",
+      "version": "1.1.0",
+      "status": "draft",
+      "source_revision": "dc8a16851f452763ef4f7fbe4bf057d4500b1921",
+      "path": "library/organization/skills/quality/audit-repository/SKILL.md",
+      "sha256": "7d11ce81ef38546d40163ce0c69da8054df58bc9b099426525278123b329231a"
+    },
+    {
+      "id": "maintain-repository-continuity",
+      "version": "1.1.0",
+      "status": "draft",
+      "source_revision": "dc8a16851f452763ef4f7fbe4bf057d4500b1921",
+      "path": "library/organization/skills/methodology/maintain-repository-continuity/SKILL.md",
+      "sha256": "1746b29afa62d7a523d87675430730553079e82cf42e46a6ebe7cf8c82d29e8b"
+    },
+    {
+      "id": "github-issue-authoring",
+      "version": "1.2.0",
+      "status": "experimental",
+      "source_revision": "dc8a16851f452763ef4f7fbe4bf057d4500b1921",
+      "path": "library/organization/skills/authoring/github-issue-authoring/SKILL.md",
+      "sha256": "25b8b9d4340db138f142a8d1670a178749332bb93fd03ac903c0bdd442123a63"
+    }
+  ],
+  "runtime": {
+    "rust": "1.85.1",
+    "cargo": "1.85.1",
+    "node": "24.19.0",
+    "pnpm": "11.21.0",
+    "python_baseline": "3.12.14",
+    "python_baseline_pyyaml": "6.0.3",
+    "schema_and_probe_environment": {
+      "python": "3.12.14",
+      "pyyaml": "6.0.1",
+      "jsonschema": "4.10.3",
+      "registered_format_checks": [
+        "date",
+        "date-time",
+        "duration",
+        "email",
+        "hostname",
+        "idn-email",
+        "idn-hostname",
+        "ipv4",
+        "ipv6",
+        "iri",
+        "iri-reference",
+        "json-pointer",
+        "regex",
+        "relative-json-pointer",
+        "time",
+        "uri",
+        "uri-reference",
+        "uri-template",
+        "uuid"
+      ],
+      "distributions": {
+        "idna": "3.20",
+        "six": "1.17.0",
+        "isoduration": "20.11.0",
+        "pip": "25.0.1",
+        "jsonpointer": "3.4",
+        "jsonschema": "4.10.3",
+        "tzdata": "2026.5",
+        "python-dateutil": "2.9.0.post0",
+        "arrow": "1.4.0",
+        "attrs": "22.2.0",
+        "uri-template": "1.3.0",
+        "rfc3987": "1.3.8",
+        "pyrsistent": "0.20.0",
+        "webcolors": "25.10.0",
+        "fqdn": "1.6.0",
+        "rfc3339-validator": "0.1.4",
+        "PyYAML": "6.0.1"
+      }
+    },
+    "source_binaries": {
+      "egolint": {
+        "sha256": "1c6f7b75691b2a4faa3dba15f3b02c59c80b7ddf5982e338c2be18048ad86ba2",
+        "bytes": 76349680
+      },
+      "egolint-architecture": {
+        "sha256": "4754e64832ce52f865b7df7c993a4bf987c0427a14fd3c953943e31e48a2a182",
+        "bytes": 56757592
+      }
+    },
+    "cargo_lock_sha256": "ecca8f57ebf40c8207ae113a7e14e4522393a8a10dc5f6576b59b6f7b48a96ab",
+    "pnpm_lock_sha256": "e91ba1c99201ad24be118495059fc61297ff5acc93b55adc862b4f95435a5c72",
+    "local_unavailable": ["Docker", "Podman", "Task runner", "macOS runtime", "Windows runtime"]
+  },
+  "baseline_commands": {
+    "rust": [
+      {
+        "command": ["rustc", "--version", "--verbose"],
+        "started_at": "2026-10-20T22:11:41.750589+00:00",
+        "finished_at": "2026-10-20T22:11:41.777157+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "e569d7e196207e57f20aae13320a6b747b909de88c603c401bdb14ee3eeb121c",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": ["cargo", "--version"],
+        "started_at": "2026-10-20T22:11:41.777497+00:00",
+        "finished_at": "2026-10-20T22:11:41.801227+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "c8cd2e547fb0745a8738926a5c1318d17af1507f07b382d13dc704cc38684566",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": ["cargo", "fmt", "--all", "--check"],
+        "started_at": "2026-10-20T22:11:41.801547+00:00",
+        "finished_at": "2026-10-20T22:11:42.273896+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": ["cargo", "build", "--locked", "--bins"],
+        "started_at": "2026-10-20T22:11:42.274279+00:00",
+        "finished_at": "2026-10-20T22:12:14.593240+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "f4520a9d0f65fea0351ef791aa2ecfe94bcf3b9c59c2bd3af185bf163695dccc",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": [
+          "cargo",
+          "clippy",
+          "--all-targets",
+          "--all-features",
+          "--locked",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "started_at": "2026-10-20T22:12:14.594029+00:00",
+        "finished_at": "2026-10-20T22:12:31.793152+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "b4ecf4af9b1fc502f3d0b71bc0b36c754d6f34ef685d6b75840b44a728d1eeec",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": ["cargo", "test", "--all-targets", "--all-features", "--locked"],
+        "started_at": "2026-10-20T22:12:31.793690+00:00",
+        "finished_at": "2026-10-20T22:12:51.529214+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "9a68754cd626c2e2455f59b36b47f44aaf2fab4a5bd8444560254c10313d64c2",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      }
+    ],
+    "python": [
+      {
+        "command": ["python3", "scripts/validate_megalinter_policy.py", "--check"],
+        "started_at": "2026-10-20T22:13:16.397420+00:00",
+        "finished_at": "2026-10-20T22:13:16.726238+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "1a4b4cc7176eb6d381f9d2cccbce217cec779f19480835597e15388f2369f21d",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": ["python3", "scripts/complementary_tools.py", "--check"],
+        "started_at": "2026-10-20T22:13:16.726643+00:00",
+        "finished_at": "2026-10-20T22:13:16.931181+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "89e32c4ec1955c6565a22ae357ee73f483809ededfdc8851ffca0710f467d7d2",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": ["python3", "scripts/validate_release_inputs.py"],
+        "started_at": "2026-10-20T22:13:16.931522+00:00",
+        "finished_at": "2026-10-20T22:13:16.967564+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "882c5f6fb90e09cfdb20f61ce17f969a8140a0c699de0b55388e656cc430d431",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": ["python3", "scripts/validate_repository_release_sources.py"],
+        "started_at": "2026-10-20T22:13:16.967882+00:00",
+        "finished_at": "2026-10-20T22:13:17.000037+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "cadcc387f77f918b8b2382577272856492c77bdbd189924946095edb51069c50",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": ["python3", "scripts/package_integrations.py", "--check"],
+        "started_at": "2026-10-20T22:13:17.000439+00:00",
+        "finished_at": "2026-10-20T22:13:17.046411+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "--start-directory",
+          "tests",
+          "--pattern",
+          "test_*.py",
+          "--verbose"
+        ],
+        "started_at": "2026-10-20T22:13:17.046792+00:00",
+        "finished_at": "2026-10-20T22:13:18.364900+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "1b43ba5e8d86b64532134966dfcadbc3a5be6a0ccb10cff577602cff145f15f6",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      }
+    ],
+    "node": [
+      {
+        "command": ["node", "--version"],
+        "started_at": "2026-10-20T22:11:41.751062+00:00",
+        "finished_at": "2026-10-20T22:11:41.755802+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "b7677d3ec37ee1897ba07dc2cfe8292fe421c9ac93396cca5bbece486d1a2a41",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": ["pnpm", "--version"],
+        "started_at": "2026-10-20T22:11:41.756025+00:00",
+        "finished_at": "2026-10-20T22:11:42.167882+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "4d24606a920d1175b8017de83c5a19847bd8cfe47aeb71cf43efaa75c1e5a2ec",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": ["pnpm", "run", "commitlint:test"],
+        "started_at": "2026-10-20T22:11:42.168236+00:00",
+        "finished_at": "2026-10-20T22:11:47.337853+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "15ef95b2923642c7e24e48142f537dc5b11c6e6421065d99df513c4e5e6ab3b6",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": ["pnpm", "run", "eslint-config:test"],
+        "started_at": "2026-10-20T22:11:47.338252+00:00",
+        "finished_at": "2026-10-20T22:11:48.726366+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "03994d94f10b50aef4f333e50cb99c16838fb14015a14e64e2b8ecc4520be016",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": ["pnpm", "run", "javascript-quality:test"],
+        "started_at": "2026-10-20T22:11:48.726745+00:00",
+        "finished_at": "2026-10-20T22:11:49.289395+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "7c425d9c0570e01e8beed5faa854dd9b16163d38368b75df8d2e9273ff18f8ab",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      }
+    ],
+    "package": [
+      {
+        "command": ["cargo", "package", "--locked", "--offline"],
+        "started_at": "2026-10-20T22:15:45.987499+00:00",
+        "finished_at": "2026-10-20T22:16:04.481713+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "dc01d1be5cd23e267c217b227f2ff0c5c23d28acb67b045440d6515ea73e00c9",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      }
+    ],
+    "consumers": [
+      {
+        "command": [
+          "egolint",
+          "--workspace",
+          ".",
+          "--config",
+          ".config/dogfood/egolint.toml",
+          "validate",
+          "--repository-contract",
+          ".config/dogfood/repository-context.toml",
+          "--repository-intelligence",
+          ".config/dogfood/repository-intelligence.toml",
+          "--represented-commit",
+          "834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b",
+          "--repository-continuity",
+          ".config/dogfood/repository-continuity.toml",
+          "--continuity-base",
+          "72267fd0a371da6d94922cbc6bd3dedddb68df30",
+          "--continuity-head",
+          "working-tree",
+          "--continuity-disposition",
+          "updated",
+          "--continuity-transition",
+          "pull-request",
+          "--continuity-live-verification",
+          "unavailable",
+          "--continuity-evaluation-date",
+          "2026-10-20"
+        ],
+        "started_at": "2026-10-20T22:15:45.984422+00:00",
+        "finished_at": "2026-10-20T22:15:46.122309+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "0e1009cf9d8f80005a6bf661ff54cf5e008ec5807e3be317930a0a6f1235842c",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": [
+          "egolint-architecture",
+          "--workspace",
+          ".",
+          "--overlay",
+          ".config/dogfood/javascript-architecture.overlay.json",
+          "--evaluation-date",
+          "2026-10-20"
+        ],
+        "started_at": "2026-10-20T22:15:46.122707+00:00",
+        "finished_at": "2026-10-20T22:15:48.141809+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      },
+      {
+        "command": ["node", "scripts/javascript-package-quality.mjs", "--workspace", "."],
+        "started_at": "2026-10-20T22:15:48.142326+00:00",
+        "finished_at": "2026-10-20T22:15:50.073260+00:00",
+        "exit_code": 0,
+        "log": {
+          "sha256": "701958d8f67781166fff7a68b53a5e5f8f0d593e7d931350597fda083e0770d3",
+          "availability": "Not copied to the public repository; normalized outcome retained. Hash is integrity metadata, not a public access claim."
+        }
+      }
+    ]
+  },
+  "unique_test_counts": {
+    "rust": 195,
+    "python": 75,
+    "javascript": 11,
+    "javascript_breakdown": {
+      "commit_policy": 4,
+      "eslint_config": 1,
+      "package_quality": 6
+    },
+    "failed": 0,
+    "skipped": 0,
+    "repeated_lane_subsets_not_additive": true
+  },
+  "schema_validation": {
+    "observed_at": "2026-10-20T22:13:45.537060+00:00",
+    "generated": [
+      {
+        "kind": "config",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "04369d2b2d353cf3b9b875cddd7b4adcaeaacb72dfade509c9131ec223e76f0f"
+      },
+      {
+        "kind": "profile",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "f018a65b77b821a5acde8f6e58e89b438b4ff4198edb6efc9d1e30d66f6fbd43"
+      },
+      {
+        "kind": "finding",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "5554c9b4b54c2c5f712e3786adb7a0ee48f27bfcb06f62336e339a92c370736b"
+      },
+      {
+        "kind": "suppression",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "39afcb033af9f7ff7f9ca132d39ca87a685d1343d44e3b57f7a726f797a212bd"
+      },
+      {
+        "kind": "evidence",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "6d10e976920887a8ee9aa882ec4384820b275f8d1250cf44008bd236ffefb7ab"
+      },
+      {
+        "kind": "tool-result",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "4040032b5a5221a1a2c6817648e42c5df65d8e62b5514c094d9fb6e9e32c91a5"
+      },
+      {
+        "kind": "plan",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "cf2f6251e8577c867f999b72c7124beed5e11d1caed6b8e17d0a1b5e2e49de2d"
+      },
+      {
+        "kind": "report",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "f8feef090c1295454d9531e95996e18f52151cd3ede68eb03a6dcdcd450bf76f"
+      },
+      {
+        "kind": "debt",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "2558382cb236e808c1cd693e8e1bc8d182b0eb91bd7792386757405b9a1eb93d"
+      },
+      {
+        "kind": "repository-contract",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "6d744fd50bfbc65c8f1113a7d90ea9b69b62b65e86a114501ccd92cec0350feb"
+      },
+      {
+        "kind": "repository-intelligence",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "06cee6d863c6c2c9b5009b85fba8574aa55535fffecaa06415b839b0d6c752f5"
+      },
+      {
+        "kind": "repository-intelligence-report",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "fa2d0ac0660a6ebdca23f450aa2400017835bfa6a0ae8b3ddaecf7f352155716"
+      },
+      {
+        "kind": "intelligence-coverage-report",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "1e2742f003d780900f7b7de2d6556b07a71be623742906b79b4965aadb78eb20"
+      },
+      {
+        "kind": "repository-presentation",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "1cb9953555e2cd78e2ae9fcbd8168d3014772914db04d724d55941dd2f149096"
+      },
+      {
+        "kind": "repository-presentation-report",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "45c11bfaa4e1700419839608281aea16dedc4f557cfd32a30706a1fc6422abd6"
+      },
+      {
+        "kind": "repository-continuity",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "cf865611886602765a5c56efc89b2910c1bbdde3d75c7668c5e9cdcea994848b"
+      },
+      {
+        "kind": "repository-continuity-report",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "fc9d7c1a9175209e0c958cf74dded0cb974ff86c7d46130e7a7ae731f0147276"
+      },
+      {
+        "kind": "repository-gitignore",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "2b9e116e9bf544a63bfae14d5d76243d9d7e337e0e7b7c961c7eff95712a9c9d"
+      },
+      {
+        "kind": "repository-gitignore-report",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "41ea26a877b41adeae3172e74901b83a51a1bac91b36efaf15059ec671e7cdf9"
+      },
+      {
+        "kind": "repository-release-report",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "253fdc13a2a856abca47d700827bde5a35d4e3e2017483f3d379a268281d4669"
+      },
+      {
+        "kind": "issue-title-snapshot",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "d4bcb7053e4f80fd1d9dfa1f5a6ce607279cf8b60caca2a23b6985664da2482e"
+      },
+      {
+        "kind": "issue-title-report",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "dbcbe1daabcf272bfe2a7a7794144f4048e0a04121ef60a339df6b44466342e7"
+      },
+      {
+        "kind": "issue-title-proposal",
+        "exit_code": 0,
+        "exact_checked_in_bytes": true,
+        "sha256": "d35b7ece8a27123cf727c7dc91aa3b32506e97df38df36ec0f523b439a4eea33"
+      }
+    ],
+    "schema_meta_validation": [
+      {
+        "path": "schemas/config.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/debt.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/evidence.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/finding.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/intelligence-coverage-report.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/issue-title-proposal.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/issue-title-report.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/issue-title-snapshot.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/javascript-architecture-overlay.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/javascript-architecture-profile.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/javascript-package-quality-manifest.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/javascript-package-quality-profile.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/plan.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/profile.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/report.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/repository-continuity-report.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/repository-continuity.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/repository-contract.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/repository-gitignore-report.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/repository-gitignore.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/repository-intelligence-report.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/repository-intelligence.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/repository-presentation-report.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/repository-presentation.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/repository-release-report.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/suppression.schema.json",
+        "error": null
+      },
+      {
+        "path": "schemas/tool-result.schema.json",
+        "error": null
+      }
+    ],
+    "passed": true,
+    "limitations": [
+      "Schema meta-validation and generator parity do not prove CLI input validation or semantic invariants.",
+      "No arbitrary remote-reference resolution or exhaustive fixture-instance validation."
+    ]
+  },
+  "architecture_checks": {
+    "schema_version": "audit.bounded-source-checks/v1",
+    "root_architecture_documents": [
+      {
+        "path": "AI_CONSTITUTION.md",
+        "id": "egolint-ai-constitution",
+        "status": "provisional",
+        "depends_on": [
+          "egolint-purpose",
+          "egolint-vision",
+          "egolint-principles",
+          "egolint-epistemology"
+        ]
+      },
+      {
+        "path": "ARCHITECTURE.md",
+        "id": "egolint-architecture",
+        "status": "provisional",
+        "depends_on": ["egolint-foundations", "egolint-system"]
+      },
+      {
+        "path": "DECISIONS.md",
+        "id": "egolint-decisions",
+        "status": "provisional",
+        "depends_on": [
+          "egolint-principles",
+          "egolint-epistemology",
+          "egolint-foundations",
+          "egolint-system",
+          "egolint-architecture"
+        ]
+      },
+      {
+        "path": "DESIGN.md",
+        "id": "egolint-design",
+        "status": "provisional",
+        "depends_on": [
+          "egolint-purpose",
+          "egolint-vision",
+          "egolint-principles",
+          "egolint-personal-model"
+        ]
+      },
+      {
+        "path": "DESIGN_SYSTEM.md",
+        "id": "egolint-design-system",
+        "status": "provisional",
+        "depends_on": ["egolint-personal-model", "egolint-design"]
+      },
+      {
+        "path": "EPISTEMOLOGY.md",
+        "id": "egolint-epistemology",
+        "status": "provisional",
+        "depends_on": ["egolint-purpose", "egolint-principles"]
+      },
+      {
+        "path": "FOUNDATIONS.md",
+        "id": "egolint-foundations",
+        "status": "provisional",
+        "depends_on": ["egolint-purpose", "egolint-principles", "egolint-epistemology"]
+      },
+      {
+        "path": "MANIFESTO.md",
+        "id": "egolint-manifesto",
+        "status": "provisional",
+        "depends_on": ["egolint-purpose", "egolint-vision", "egolint-principles", "egolint-pillars"]
+      },
+      {
+        "path": "META.md",
+        "id": "egolint-meta",
+        "status": "provisional",
+        "depends_on": ["egolint-epistemology", "egolint-ai-constitution"]
+      },
+      {
+        "path": "METHODOLOGY.md",
+        "id": "egolint-methodology",
+        "status": "provisional",
+        "depends_on": [
+          "egolint-principles",
+          "egolint-epistemology",
+          "egolint-ai-constitution",
+          "egolint-foundations",
+          "egolint-architecture"
+        ]
+      },
+      {
+        "path": "ONTOLOGY.md",
+        "id": "egolint-ontology",
+        "status": "provisional",
+        "depends_on": [
+          "egolint-purpose",
+          "egolint-vision",
+          "egolint-principles",
+          "egolint-epistemology"
+        ]
+      },
+      {
+        "path": "PERSONAL_MODEL.md",
+        "id": "egolint-personal-model",
+        "status": "provisional",
+        "depends_on": [
+          "egolint-purpose",
+          "egolint-vision",
+          "egolint-principles",
+          "egolint-epistemology",
+          "egolint-ontology"
+        ]
+      },
+      {
+        "path": "PILLARS.md",
+        "id": "egolint-pillars",
+        "status": "provisional",
+        "depends_on": ["egolint-purpose", "egolint-vision", "egolint-principles"]
+      },
+      {
+        "path": "PRINCIPLES.md",
+        "id": "egolint-principles",
+        "status": "provisional",
+        "depends_on": ["egolint-purpose", "egolint-vision"]
+      },
+      {
+        "path": "PURPOSE.md",
+        "id": "egolint-purpose",
+        "status": "provisional",
+        "depends_on": []
+      },
+      {
+        "path": "ROADMAP.md",
+        "id": "egolint-roadmap",
+        "status": "provisional",
+        "depends_on": [
+          "egolint-vision",
+          "egolint-pillars",
+          "egolint-architecture",
+          "egolint-decisions"
+        ]
+      },
+      {
+        "path": "SYSTEM.md",
+        "id": "egolint-system",
+        "status": "provisional",
+        "depends_on": ["egolint-foundations", "egolint-ontology"]
+      },
+      {
+        "path": "VISION.md",
+        "id": "egolint-vision",
+        "status": "provisional",
+        "depends_on": ["egolint-purpose"]
+      }
+    ],
+    "ids_unique": true,
+    "missing_dependency_edges": [],
+    "cycles": [],
+    "relative_inline_link_count": 83,
+    "missing_destinations": [],
+    "limitations": [
+      "No anchor, external URL, prose truth, generated or vendored Markdown link validation; fenced examples and test fixtures are excluded.",
+      "Declared graph only; conceptual diagrams do not establish runtime dependencies."
+    ]
+  },
+  "exact_main_hosted_validation": {
+    "observed_at": "2026-10-20T22:11:58.633Z",
+    "source_revision": "834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b",
+    "workflow_runs": [
+      {
+        "id": 39168878683,
+        "name": "JavaScript package quality",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b",
+        "html_url": "https://github.com/egohygiene/egolint/actions/runs/39168878683"
+      },
+      {
+        "id": 39168878760,
+        "name": "JavaScript architecture",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b",
+        "html_url": "https://github.com/egohygiene/egolint/actions/runs/39168878760"
+      },
+      {
+        "id": 39168878713,
+        "name": "CI",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b",
+        "html_url": "https://github.com/egohygiene/egolint/actions/runs/39168878713"
+      },
+      {
+        "id": 39168878735,
+        "name": "Dogfood",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b",
+        "html_url": "https://github.com/egohygiene/egolint/actions/runs/39168878735"
+      },
+      {
+        "id": 39168878756,
+        "name": "Verify Identity Brand Kit",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "success",
+        "head_sha": "834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b",
+        "html_url": "https://github.com/egohygiene/egolint/actions/runs/39168878756"
+      }
+    ],
+    "jobs": [
+      {
+        "run_id": 39168878683,
+        "id": 117797575983,
+        "name": "package-quality",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check out repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Node.js",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install locked package-quality adapters",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate policy and migration contracts",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate Oxlint configuration loading",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove publishable React library quality",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove private package skips publint",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove all adapter findings normalize together",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up Node.js",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Check out repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run_id": 39168878760,
+        "id": 117797576433,
+        "name": "architecture",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check out repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Node.js",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install locked adapter toolchain",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove clean architecture and Node package exports",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove React/Vite boundary findings",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove package public-export boundary",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Prove owned exception and expiry behavior",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate SARIF projection",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up Node.js",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Check out repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run_id": 39168878713,
+        "id": 117797576309,
+        "name": "Generated schemas",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify checked-in schemas",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run_id": 39168878713,
+        "id": 117797576412,
+        "name": "Native rules (ubuntu-24.04)",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Show the pinned toolchain",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Test native rule packs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run_id": 39168878713,
+        "id": 117797576448,
+        "name": "CLI image",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build the lightweight image",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Smoke-test the image",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run_id": 39168878713,
+        "id": 117797576453,
+        "name": "Native rules (windows-2025)",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Show the pinned toolchain",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Test native rule packs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run_id": 39168878713,
+        "id": 117797576478,
+        "name": "Native rules (macos-15)",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Show the pinned toolchain",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Test native rule packs",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run_id": 39168878713,
+        "id": 117797576487,
+        "name": "Full policy image",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Build the full image",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify the embedded profiles",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Load the embedded Node.js policy dependencies",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Exercise the adaptive JSONSkooma capability",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run_id": 39168878713,
+        "id": 117797576541,
+        "name": "Rust core",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Show the pinned toolchain",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check formatting",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run Clippy",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run tests",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify package contents",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run_id": 39168878713,
+        "id": 117797576594,
+        "name": "Policy contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Create the isolated Python environment",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate generated policy contracts",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run Python contract tests",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Node.js",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install the locked Node.js toolchain",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run commit-policy tests",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Load the native ESLint policy",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up Node.js",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Check out the repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run_id": 39168878735,
+        "id": 117797576191,
+        "name": "reference-consumer",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check out repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Set up Node.js",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install locked JavaScript adapters",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install pinned Task runner",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Dogfood Egolint",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Upload dogfood evidence",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Set up Node.js",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Check out repository",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "run_id": 39168878756,
+        "id": 117797576491,
+        "name": "Validate and verify generated identity",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Checkout",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install pinned Identity tools",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Validate canonical source",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify generated Brand Kit",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify repository presentation is reproducible",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Checkout",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ],
+    "github_releases": [],
+    "limits": [
+      "Provider reports actual exact-head push run/job/step outcomes; not an independent rerun of containers in this workspace.",
+      "No Docker or Podman available locally. No manual workflow dispatch, settings inspection, registry publication, or release executed.",
+      "GET tags endpoint unavailable; repository Git tag inventory is a separate check."
+    ]
+  },
+  "public_probe_artifacts": [
+    {
+      "lane": "core",
+      "path": "audits/data/egolint-completeness-20261020T222416Z.core-repros.py.txt",
+      "role": "Immutable plain-text snapshot of the executed portable Python probe. Python can run the file directly regardless of its suffix; bytes are preserved as evidence.",
+      "sha256": "6a990c90aff9a29482eec21ae0b8c443b41e9f24f58029106127e3cf2e4de237",
+      "bytes": 6626
+    },
+    {
+      "lane": "distribution",
+      "path": "audits/data/egolint-completeness-20261020T222416Z.distribution-repros.py.txt",
+      "role": "Immutable plain-text snapshot of the executed portable Python probe. Python can run the file directly regardless of its suffix; bytes are preserved as evidence.",
+      "sha256": "a4ac8b102176e3c5a8fc84585fcd3cec19b27562c1d0ea3235b06ffbeb1d4b08",
+      "bytes": 4874
+    },
+    {
+      "lane": "intelligence",
+      "path": "audits/data/egolint-completeness-20261020T222416Z.intelligence-repros.py.txt",
+      "role": "Immutable plain-text snapshot of the executed portable Python probe. Python can run the file directly regardless of its suffix; bytes are preserved as evidence.",
+      "sha256": "050bc403b43c919acc19e419e90fb4d131c6fd0f284533d62fd508396f02be53",
+      "bytes": 12193
+    },
+    {
+      "lane": "validators",
+      "path": "audits/data/egolint-completeness-20261020T222416Z.validators-repros.py.txt",
+      "role": "Immutable plain-text snapshot of the executed portable Python probe. Python can run the file directly regardless of its suffix; bytes are preserved as evidence.",
+      "sha256": "7ffefeb85a544272731b8ef91b8c50af10aa8946cdb54a4f1c1d4aedcc26edd7",
+      "bytes": 12102
+    },
+    {
+      "lane": "adapters",
+      "path": "audits/data/egolint-completeness-20261020T222416Z.adapters-repros.py.txt",
+      "role": "Immutable plain-text snapshot of the executed portable Python probe. Python can run the file directly regardless of its suffix; bytes are preserved as evidence.",
+      "sha256": "8019700ff10d5b7bdb82b911937db90e686ae3775750fceeb5950dd5681d9a21",
+      "bytes": 13273
+    }
+  ],
+  "independent_public_probe_replays": {
+    "core": {
+      "independent_root_behavior_matches_lane": true,
+      "results": {
+        "fix_custom_config": {
+          "custom": {
+            "config_prefix_error": true,
+            "empty_index_executable_error": false,
+            "exit_code": 2,
+            "original_file_preserved": true,
+            "patch_changes_example": false,
+            "patch_present": false,
+            "runtime_invocations": 0,
+            "worktree_clean": true
+          },
+          "default_control": {
+            "config_prefix_error": false,
+            "empty_index_executable_error": false,
+            "exit_code": 0,
+            "original_file_preserved": true,
+            "patch_changes_example": true,
+            "patch_present": true,
+            "runtime_invocations": 1,
+            "worktree_clean": true
+          },
+          "executable": {
+            "config_prefix_error": false,
+            "empty_index_executable_error": true,
+            "exit_code": 3,
+            "original_file_preserved": true,
+            "patch_changes_example": false,
+            "patch_present": false,
+            "runtime_invocations": 0,
+            "worktree_clean": true
+          }
+        },
+        "focused_report_lifecycle": {
+          "first_focused_report_contract": 1,
+          "first_focused_report_written": true,
+          "first_selected_exit": 0,
+          "focused_bytes_unchanged_after_failed_run": true,
+          "focused_bytes_unchanged_after_unselected_run": true,
+          "second_aggregate_references_intelligence": false,
+          "second_aggregate_written": true,
+          "second_unselected_exit": 0,
+          "third_aggregate_present": false,
+          "third_invalid_input_exit": 4
+        }
+      }
+    },
+    "distribution": {
+      "independent_root_behavior_matches_lane": true,
+      "results": {
+        "integration_bundle_deterministic": true,
+        "integration_bundles": [
+          {
+            "exit_code": 0,
+            "manifest_checksums_match": true,
+            "member_count": 11,
+            "sha256": "e2d7cff148d58cadd159a4b0fc937f105d7f22102206a0e6ad7cd982f15b0dda",
+            "source_member_count": 10,
+            "stderr": "",
+            "stdout": "egolint-integrations-0.1.0-alpha.1.tar.gz",
+            "stdout_normalization": "generated archive basename; disposable path omitted"
+          },
+          {
+            "exit_code": 0,
+            "manifest_checksums_match": true,
+            "member_count": 11,
+            "sha256": "e2d7cff148d58cadd159a4b0fc937f105d7f22102206a0e6ad7cd982f15b0dda",
+            "source_member_count": 10,
+            "stderr": "",
+            "stdout": "egolint-integrations-0.1.0-alpha.1.tar.gz",
+            "stdout_normalization": "generated archive basename; disposable path omitted"
+          }
+        ],
+        "limits": [
+          "Disposable copied release-input CLI only; no actual release, registry push, or container build.",
+          "Null-record acceptance is validator behavior, not proof a release can bypass later build or promotion checks.",
+          "Integration bundle checks establish deterministic bytes and member integrity, not all consumer integration execution."
+        ],
+        "release_input_probes": [
+          {
+            "case": "valid_contract_missing_environment_control",
+            "exit_code": 1,
+            "stderr": "release-inputs: CLI_RUNTIME_IMAGE must equal reviewed reference docker.io/library/debian:bookworm-slim@sha256:88200866dfff7ea7f5cbcb6ec7c8a701889efe6fe859fe64d6990e4b07ea4171\nrelease-inputs: MEGALINTER_IMAGE must equal reviewed reference ghcr.io/oxsecurity/megalinter:v10.0.0@sha256:bed638e2aaa435859fff8ef5a90c20272c505ef95661cbaac793038ed28b08a0\nrelease-inputs: NODE_POLICY_IMAGE must equal reviewed reference docker.io/library/node:24-alpine3.24@sha256:e67514e5d0f6c46656005e1b693b2ec9d52e80b641307de684d4a015ba7a4eaf\nrelease-inputs: RUST_BUILDER_IMAGE must equal reviewed reference docker.io/library/rust:1.85-bookworm@sha256:e51d0265072d2d9d5d320f6a44dde6b9ef13653b035098febd68cce8fa7c0bc4",
+            "stdout": ""
+          },
+          {
+            "case": "valid_contract_pinned_environment_control",
+            "exit_code": 0,
+            "stderr": "",
+            "stdout": "Validated reviewed release base images and product platforms."
+          },
+          {
+            "case": "null_product_record",
+            "exit_code": 0,
+            "stderr": "",
+            "stdout": "Validated reviewed release base images and product platforms."
+          },
+          {
+            "case": "null_all_image_and_product_records",
+            "exit_code": 0,
+            "stderr": "",
+            "stdout": "Validated reviewed release base images and product platforms."
+          }
+        ],
+        "release_input_script_sha256": "bfe742c711feec390c57cfd3b144c7e77ecbed4ee2ab302d3a825ab2e55d6137",
+        "schema_version": "egolint.audit.distribution-replay/v1"
+      }
+    },
+    "intelligence": {
+      "independent_root_behavior_matches_lane": true,
+      "results": {
+        "source_revision": "834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b",
+        "binary_sha256": "1c6f7b75691b2a4faa3dba15f3b02c59c80b7ddf5982e338c2be18048ad86ba2",
+        "intelligence": {
+          "control": {
+            "exit": 0,
+            "status": "valid",
+            "summary": {
+              "diagnostics": 0,
+              "blocking_diagnostics": 0,
+              "commits_inspected": 1,
+              "adrs_inspected": 3,
+              "roadmap_steps_inspected": 2
+            },
+            "diagnostics": [],
+            "checks": []
+          },
+          "present_sources_without_represented_commit": {
+            "exit": 0,
+            "status": "valid",
+            "summary": {
+              "diagnostics": 1,
+              "blocking_diagnostics": 0,
+              "commits_inspected": 0,
+              "adrs_inspected": 3,
+              "roadmap_steps_inspected": 2
+            },
+            "diagnostics": [
+              {
+                "rule_id": "EGO-INTEL-ADOPTION-001",
+                "message": "represented commit cannot be not-applicable while a source surface is present"
+              }
+            ],
+            "checks": []
+          },
+          "adr_missing_context_control": {
+            "exit": 1,
+            "status": "invalid",
+            "summary": {
+              "diagnostics": 1,
+              "blocking_diagnostics": 1,
+              "commits_inspected": 1,
+              "adrs_inspected": 3,
+              "roadmap_steps_inspected": 2
+            },
+            "diagnostics": [
+              {
+                "rule_id": "EGO-INTEL-ADR-METADATA-001",
+                "message": "ADR ADR-0001 is missing required section Context"
+              }
+            ],
+            "checks": []
+          },
+          "adr_anatomy_in_code_fence": {
+            "exit": 0,
+            "status": "valid",
+            "summary": {
+              "diagnostics": 0,
+              "blocking_diagnostics": 0,
+              "commits_inspected": 1,
+              "adrs_inspected": 3,
+              "roadmap_steps_inspected": 2
+            },
+            "diagnostics": [],
+            "checks": []
+          },
+          "roadmap_empty_control": {
+            "exit": 1,
+            "status": "invalid",
+            "summary": {
+              "diagnostics": 2,
+              "blocking_diagnostics": 2,
+              "commits_inspected": 1,
+              "adrs_inspected": 3,
+              "roadmap_steps_inspected": 0
+            },
+            "diagnostics": [
+              {
+                "rule_id": "EGO-INTEL-ROADMAP-STRUCTURE-001",
+                "message": "roadmap contains no versioned roadmap-step records"
+              },
+              {
+                "rule_id": "EGO-INTEL-ROADMAP-STRUCTURE-001",
+                "message": "roadmap must contain exactly one roadmap-manifest; observed 0"
+              }
+            ],
+            "checks": []
+          },
+          "roadmap_all_in_code_fence": {
+            "exit": 0,
+            "status": "valid",
+            "summary": {
+              "diagnostics": 0,
+              "blocking_diagnostics": 0,
+              "commits_inspected": 1,
+              "adrs_inspected": 3,
+              "roadmap_steps_inspected": 2
+            },
+            "diagnostics": [],
+            "checks": []
+          },
+          "adr_invalid_evidence_urls": {
+            "exit": 0,
+            "status": "valid",
+            "summary": {
+              "diagnostics": 0,
+              "blocking_diagnostics": 0,
+              "commits_inspected": 1,
+              "adrs_inspected": 3,
+              "roadmap_steps_inspected": 2
+            },
+            "diagnostics": [],
+            "checks": []
+          }
+        },
+        "presentation": {
+          "control": {
+            "exit": 0,
+            "status": "valid",
+            "summary": {
+              "diagnostics": 0,
+              "blocking_diagnostics": 0,
+              "required_slots": 8,
+              "present_required_slots": 8,
+              "exceptions_applied": 0,
+              "local_references_checked": 2,
+              "external_references_not_checked": 0,
+              "manifest_files_checked": 21
+            },
+            "diagnostics": [],
+            "checks": []
+          },
+          "changed_banner_full_manifest": {
+            "exit": 1,
+            "status": "invalid",
+            "summary": {
+              "diagnostics": 1,
+              "blocking_diagnostics": 1,
+              "required_slots": 8,
+              "present_required_slots": 8,
+              "exceptions_applied": 0,
+              "local_references_checked": 2,
+              "external_references_not_checked": 0,
+              "manifest_files_checked": 21
+            },
+            "diagnostics": [
+              {
+                "rule_id": "EGO-PRESENT-MANIFEST-001",
+                "message": "A generated Identity file no longer matches its integrity manifest."
+              }
+            ],
+            "checks": []
+          },
+          "changed_banner_empty_manifest": {
+            "exit": 0,
+            "status": "valid",
+            "summary": {
+              "diagnostics": 0,
+              "blocking_diagnostics": 0,
+              "required_slots": 8,
+              "present_required_slots": 8,
+              "exceptions_applied": 0,
+              "local_references_checked": 2,
+              "external_references_not_checked": 0,
+              "manifest_files_checked": 0
+            },
+            "diagnostics": [],
+            "checks": []
+          },
+          "changed_banner_partial_manifest": {
+            "exit": 0,
+            "status": "valid",
+            "summary": {
+              "diagnostics": 0,
+              "blocking_diagnostics": 0,
+              "required_slots": 8,
+              "present_required_slots": 8,
+              "exceptions_applied": 0,
+              "local_references_checked": 2,
+              "external_references_not_checked": 0,
+              "manifest_files_checked": 20
+            },
+            "diagnostics": [],
+            "checks": []
+          },
+          "missing_banner_descriptor": {
+            "exit": 0,
+            "status": "valid",
+            "summary": {
+              "diagnostics": 0,
+              "blocking_diagnostics": 0,
+              "required_slots": 8,
+              "present_required_slots": 8,
+              "exceptions_applied": 0,
+              "local_references_checked": 2,
+              "external_references_not_checked": 0,
+              "manifest_files_checked": 21
+            },
+            "diagnostics": [],
+            "checks": []
+          }
+        },
+        "release": {
+          "control": {
+            "exit": 0,
+            "status": "compliant",
+            "summary": {
+              "required_slots": 7,
+              "advisory_slots": 0,
+              "not_applicable_slots": 0,
+              "validation_complete": true,
+              "checks_completed": 7,
+              "checks_failed": 0,
+              "external_evidence_items": 0,
+              "unavailable_evidence_items": 0
+            },
+            "diagnostics": [],
+            "checks": [
+              {
+                "rule_id": "EGOLINT_RELEASE_AGENTS_PROFILE_POINTER",
+                "state": "passed",
+                "message": "AGENTS.md points agents to the repository-owned release declaration."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_AETHER_DECLARATION",
+                "state": "passed",
+                "message": "The repository declaration satisfies the pinned Aether object contract and has no unavailable or external evidence fields."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_CHANGELOG",
+                "state": "passed",
+                "message": "The root changelog has an Unreleased section and valid promoted semantic-version headings."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_MANUAL_WORKFLOW",
+                "state": "passed",
+                "message": "The declared workflow is manually dispatched, has no push trigger, and pins external dependencies immutably."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_ROLLBACK_DOCS",
+                "state": "passed",
+                "message": "The declaration names an accepted rollback strategy with nonempty repository-owned instructions."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_TASK_HANDOFFS",
+                "state": "passed",
+                "message": "The Taskfile exposes all four release handoffs and dispatches the declared manual workflow."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+                "state": "passed",
+                "message": "Every component has one valid declared version authority; safe single-component drift checks agree."
+              }
+            ]
+          },
+          "echo_only_publish_handoff": {
+            "exit": 0,
+            "status": "compliant",
+            "summary": {
+              "required_slots": 7,
+              "advisory_slots": 0,
+              "not_applicable_slots": 0,
+              "validation_complete": true,
+              "checks_completed": 7,
+              "checks_failed": 0,
+              "external_evidence_items": 0,
+              "unavailable_evidence_items": 0
+            },
+            "diagnostics": [],
+            "checks": [
+              {
+                "rule_id": "EGOLINT_RELEASE_AGENTS_PROFILE_POINTER",
+                "state": "passed",
+                "message": "AGENTS.md points agents to the repository-owned release declaration."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_AETHER_DECLARATION",
+                "state": "passed",
+                "message": "The repository declaration satisfies the pinned Aether object contract and has no unavailable or external evidence fields."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_CHANGELOG",
+                "state": "passed",
+                "message": "The root changelog has an Unreleased section and valid promoted semantic-version headings."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_MANUAL_WORKFLOW",
+                "state": "passed",
+                "message": "The declared workflow is manually dispatched, has no push trigger, and pins external dependencies immutably."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_ROLLBACK_DOCS",
+                "state": "passed",
+                "message": "The declaration names an accepted rollback strategy with nonempty repository-owned instructions."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_TASK_HANDOFFS",
+                "state": "passed",
+                "message": "The Taskfile exposes all four release handoffs and dispatches the declared manual workflow."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+                "state": "passed",
+                "message": "Every component has one valid declared version authority; safe single-component drift checks agree."
+              }
+            ]
+          },
+          "different_workflow_with_declared_path_in_comment": {
+            "exit": 0,
+            "status": "compliant",
+            "summary": {
+              "required_slots": 7,
+              "advisory_slots": 0,
+              "not_applicable_slots": 0,
+              "validation_complete": true,
+              "checks_completed": 7,
+              "checks_failed": 0,
+              "external_evidence_items": 0,
+              "unavailable_evidence_items": 0
+            },
+            "diagnostics": [],
+            "checks": [
+              {
+                "rule_id": "EGOLINT_RELEASE_AGENTS_PROFILE_POINTER",
+                "state": "passed",
+                "message": "AGENTS.md points agents to the repository-owned release declaration."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_AETHER_DECLARATION",
+                "state": "passed",
+                "message": "The repository declaration satisfies the pinned Aether object contract and has no unavailable or external evidence fields."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_CHANGELOG",
+                "state": "passed",
+                "message": "The root changelog has an Unreleased section and valid promoted semantic-version headings."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_MANUAL_WORKFLOW",
+                "state": "passed",
+                "message": "The declared workflow is manually dispatched, has no push trigger, and pins external dependencies immutably."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_ROLLBACK_DOCS",
+                "state": "passed",
+                "message": "The declaration names an accepted rollback strategy with nonempty repository-owned instructions."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_TASK_HANDOFFS",
+                "state": "passed",
+                "message": "The Taskfile exposes all four release handoffs and dispatches the declared manual workflow."
+              },
+              {
+                "rule_id": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+                "state": "passed",
+                "message": "Every component has one valid declared version authority; safe single-component drift checks agree."
+              }
+            ]
+          }
+        },
+        "probe_expectations_satisfied": true
+      },
+      "binary_identity_qualification": "The earlier lane result used the normalized package-verification binary after Cargo replaced its shared build output. Independent primary evidence here uses the restored original-source binary. All behavior fields agree; binary identities are not collapsed."
+    },
+    "validators": {
+      "independent_root_behavior_matches_lane": true,
+      "results": {
+        "binary_sha256": "1c6f7b75691b2a4faa3dba15f3b02c59c80b7ddf5982e338c2be18048ad86ba2",
+        "continuity": {
+          "cases": {
+            "duplicate_next_references": {
+              "exit_code": 0,
+              "findings": [
+                {
+                  "path": ".egohygiene/release.json",
+                  "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+                  "severity": "warning"
+                },
+                {
+                  "path": "vendor/hygiene/repository-continuity-policy.v1.json",
+                  "rule": "EGO-CONTINUITY-CONTRACT-001",
+                  "severity": "warning"
+                }
+              ],
+              "native_continuity_status": "valid",
+              "native_diagnostics": [
+                {
+                  "message": "continuity contracts are immutable but not yet released; rollout must remain observe",
+                  "rule": "EGO-CONTINUITY-CONTRACT-001"
+                }
+              ],
+              "pinned_schema_errors": [
+                {
+                  "path": ["work", "next", "references"],
+                  "validator": "uniqueItems"
+                }
+              ],
+              "report_present": true,
+              "rules": ["EGO-CONTINUITY-CONTRACT-001", "EGOLINT_RELEASE_AETHER_DECLARATION"],
+              "run_status": "clean"
+            },
+            "duplicate_parallel_changes": {
+              "exit_code": 0,
+              "findings": [
+                {
+                  "path": ".egohygiene/release.json",
+                  "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+                  "severity": "warning"
+                },
+                {
+                  "path": "vendor/hygiene/repository-continuity-policy.v1.json",
+                  "rule": "EGO-CONTINUITY-CONTRACT-001",
+                  "severity": "warning"
+                }
+              ],
+              "native_continuity_status": "valid",
+              "native_diagnostics": [
+                {
+                  "message": "continuity contracts are immutable but not yet released; rollout must remain observe",
+                  "rule": "EGO-CONTINUITY-CONTRACT-001"
+                }
+              ],
+              "pinned_schema_errors": [
+                {
+                  "path": ["state", "parallel_changes"],
+                  "validator": "uniqueItems"
+                }
+              ],
+              "report_present": true,
+              "rules": ["EGO-CONTINUITY-CONTRACT-001", "EGOLINT_RELEASE_AETHER_DECLARATION"],
+              "run_status": "clean"
+            },
+            "missing_required_nullable_keys": {
+              "exit_code": 0,
+              "findings": [
+                {
+                  "path": ".egohygiene/release.json",
+                  "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+                  "severity": "warning"
+                },
+                {
+                  "path": "vendor/hygiene/repository-continuity-policy.v1.json",
+                  "rule": "EGO-CONTINUITY-CONTRACT-001",
+                  "severity": "warning"
+                }
+              ],
+              "native_continuity_status": "valid",
+              "native_diagnostics": [
+                {
+                  "message": "continuity contracts are immutable but not yet released; rollout must remain observe",
+                  "rule": "EGO-CONTINUITY-CONTRACT-001"
+                }
+              ],
+              "pinned_schema_errors": [
+                {
+                  "path": ["document"],
+                  "validator": "required"
+                },
+                {
+                  "path": ["document"],
+                  "validator": "required"
+                },
+                {
+                  "path": ["work"],
+                  "validator": "required"
+                },
+                {
+                  "path": ["state", "candidate"],
+                  "validator": "required"
+                },
+                {
+                  "path": ["state", "candidate"],
+                  "validator": "required"
+                },
+                {
+                  "path": ["state", "live"],
+                  "validator": "required"
+                }
+              ],
+              "report_present": true,
+              "rules": ["EGO-CONTINUITY-CONTRACT-001", "EGOLINT_RELEASE_AETHER_DECLARATION"],
+              "run_status": "clean"
+            },
+            "non_rfc3339_clock_width": {
+              "exit_code": 0,
+              "findings": [
+                {
+                  "path": ".egohygiene/release.json",
+                  "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+                  "severity": "warning"
+                },
+                {
+                  "path": "vendor/hygiene/repository-continuity-policy.v1.json",
+                  "rule": "EGO-CONTINUITY-CONTRACT-001",
+                  "severity": "warning"
+                }
+              ],
+              "native_continuity_status": "valid",
+              "native_diagnostics": [
+                {
+                  "message": "continuity contracts are immutable but not yet released; rollout must remain observe",
+                  "rule": "EGO-CONTINUITY-CONTRACT-001"
+                }
+              ],
+              "pinned_schema_errors": [
+                {
+                  "path": ["document", "updated_at"],
+                  "validator": "format"
+                }
+              ],
+              "report_present": true,
+              "rules": ["EGO-CONTINUITY-CONTRACT-001", "EGOLINT_RELEASE_AETHER_DECLARATION"],
+              "run_status": "clean"
+            },
+            "rfc3339_lowercase_delimiters": {
+              "exit_code": 0,
+              "findings": [
+                {
+                  "path": ".egohygiene/release.json",
+                  "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+                  "severity": "warning"
+                },
+                {
+                  "path": "CONTINUITY.md",
+                  "rule": "EGO-CONTINUITY-SCHEMA-001",
+                  "severity": "warning"
+                },
+                {
+                  "path": "vendor/hygiene/repository-continuity-policy.v1.json",
+                  "rule": "EGO-CONTINUITY-CONTRACT-001",
+                  "severity": "warning"
+                }
+              ],
+              "native_continuity_status": "invalid",
+              "native_diagnostics": [
+                {
+                  "message": "continuity document lifecycle metadata violates the supported Aether v1 contract",
+                  "rule": "EGO-CONTINUITY-SCHEMA-001"
+                },
+                {
+                  "message": "continuity contracts are immutable but not yet released; rollout must remain observe",
+                  "rule": "EGO-CONTINUITY-CONTRACT-001"
+                }
+              ],
+              "pinned_schema_errors": [],
+              "report_present": true,
+              "rules": [
+                "EGO-CONTINUITY-CONTRACT-001",
+                "EGO-CONTINUITY-SCHEMA-001",
+                "EGOLINT_RELEASE_AETHER_DECLARATION"
+              ],
+              "run_status": "clean"
+            },
+            "valid_control": {
+              "exit_code": 0,
+              "findings": [
+                {
+                  "path": ".egohygiene/release.json",
+                  "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+                  "severity": "warning"
+                },
+                {
+                  "path": "vendor/hygiene/repository-continuity-policy.v1.json",
+                  "rule": "EGO-CONTINUITY-CONTRACT-001",
+                  "severity": "warning"
+                }
+              ],
+              "native_continuity_status": "valid",
+              "native_diagnostics": [
+                {
+                  "message": "continuity contracts are immutable but not yet released; rollout must remain observe",
+                  "rule": "EGO-CONTINUITY-CONTRACT-001"
+                }
+              ],
+              "pinned_schema_errors": [],
+              "report_present": true,
+              "rules": ["EGO-CONTINUITY-CONTRACT-001", "EGOLINT_RELEASE_AETHER_DECLARATION"],
+              "run_status": "clean"
+            }
+          },
+          "format_checkers_registered": [
+            "date",
+            "date-time",
+            "duration",
+            "email",
+            "hostname",
+            "idn-email",
+            "idn-hostname",
+            "ipv4",
+            "ipv6",
+            "iri",
+            "iri-reference",
+            "json-pointer",
+            "regex",
+            "relative-json-pointer",
+            "time",
+            "uri",
+            "uri-reference",
+            "uri-template",
+            "uuid"
+          ],
+          "schema_sha256": "a725e004fe0db2bf96a968c6e3f300d37ecf8b00b9a0923be5c5f4c529655916"
+        },
+        "gitignore": {
+          "accepted_filament": {
+            "behavior_count": 121,
+            "checks": {
+              "composition": "passed",
+              "content": "passed",
+              "coverage": "passed",
+              "effective_behavior": "passed",
+              "nested_policy": "passed",
+              "presence": "passed",
+              "source_integrity": "passed",
+              "tracked_files": "passed"
+            },
+            "exit_code": 0,
+            "rule_ids": [],
+            "source_and_consumer_input_bytes_unchanged": true,
+            "status": "valid"
+          },
+          "accepted_scoped_rust": {
+            "behavior_count": 241,
+            "checks": {
+              "composition": "passed",
+              "content": "passed",
+              "coverage": "passed",
+              "effective_behavior": "passed",
+              "nested_policy": "passed",
+              "presence": "passed",
+              "source_integrity": "passed",
+              "tracked_files": "passed"
+            },
+            "exit_code": 0,
+            "rule_ids": [],
+            "source_and_consumer_input_bytes_unchanged": true,
+            "status": "valid"
+          },
+          "inherited_override_rejected": {
+            "behavior_count": 237,
+            "checks": {
+              "composition": "passed",
+              "content": "passed",
+              "coverage": "passed",
+              "effective_behavior": "failed",
+              "nested_policy": "incomplete",
+              "presence": "passed",
+              "source_integrity": "passed",
+              "tracked_files": "passed"
+            },
+            "exit_code": 1,
+            "rule_ids": ["EGO-IGNORE-BEHAVIOR-001", "EGO-IGNORE-NESTED-001"],
+            "source_and_consumer_input_bytes_unchanged": true,
+            "status": "invalid"
+          }
+        },
+        "limits": [
+          "Linux synthetic worktrees only; no Windows or macOS checkout was executed.",
+          "Continuity native semantic status is distinct from observe-mode process success.",
+          "All reviewed contract projections retain exact source bytes."
+        ],
+        "portability": {
+          "ancestor_directory_case_collision": {
+            "exit_code": 0,
+            "findings": [
+              {
+                "path": ".egohygiene/release.json",
+                "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+                "severity": "warning"
+              }
+            ],
+            "report_present": true,
+            "rules": ["EGOLINT_RELEASE_AETHER_DECLARATION"],
+            "run_status": "clean"
+          },
+          "direct_multi_os_matrix_control": {
+            "exit_code": 0,
+            "findings": [
+              {
+                "path": ".egohygiene/release.json",
+                "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+                "severity": "warning"
+              },
+              {
+                "path": ".github/workflows/test.yml",
+                "rule": "EGO-PORT-WORKFLOW-001",
+                "severity": "warning"
+              }
+            ],
+            "report_present": true,
+            "rules": ["EGO-PORT-WORKFLOW-001", "EGOLINT_RELEASE_AETHER_DECLARATION"],
+            "run_status": "clean"
+          },
+          "exact_case_collision_control": {
+            "exit_code": 1,
+            "findings": [
+              {
+                "path": ".egohygiene/release.json",
+                "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+                "severity": "warning"
+              },
+              {
+                "path": "Readme.md",
+                "rule": "EGO-PORT-CASE-001",
+                "severity": "error"
+              }
+            ],
+            "report_present": true,
+            "rules": ["EGO-PORT-CASE-001", "EGOLINT_RELEASE_AETHER_DECLARATION"],
+            "run_status": "findings"
+          },
+          "file_directory_case_collision": {
+            "exit_code": 0,
+            "findings": [
+              {
+                "path": ".egohygiene/release.json",
+                "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+                "severity": "warning"
+              }
+            ],
+            "report_present": true,
+            "rules": ["EGOLINT_RELEASE_AETHER_DECLARATION"],
+            "run_status": "clean"
+          },
+          "include_multi_os_matrix": {
+            "exit_code": 0,
+            "findings": [
+              {
+                "path": ".egohygiene/release.json",
+                "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+                "severity": "warning"
+              }
+            ],
+            "report_present": true,
+            "rules": ["EGOLINT_RELEASE_AETHER_DECLARATION"],
+            "run_status": "clean"
+          }
+        },
+        "probe_contract": "egolint-validator-audit/v1",
+        "source_revision": "834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b"
+      }
+    },
+    "adapters": {
+      "independent_root_behavior_matches_lane": true,
+      "results": {
+        "javascript_package_quality": {
+          "clean_control": {
+            "exit_code": 0,
+            "finding_count": 0,
+            "report_exists": true,
+            "summary": {
+              "errors": 0,
+              "infos": 0,
+              "not_applicable_tools": ["PUBLINT"],
+              "warnings": 0
+            },
+            "tool_statuses": {
+              "BIOME": "passed",
+              "OXLINT": "passed",
+              "PUBLINT": "not_applicable"
+            }
+          },
+          "contradictory_sarif_pass_level_error": {
+            "exit_code": 1,
+            "finding_count": 1,
+            "report_exists": true,
+            "summary": {
+              "errors": 1,
+              "infos": 0,
+              "not_applicable_tools": ["PUBLINT"],
+              "warnings": 0
+            },
+            "tool_statuses": {
+              "BIOME": "failed_findings",
+              "OXLINT": "passed",
+              "PUBLINT": "not_applicable"
+            }
+          },
+          "exit_one_without_diagnostics": {
+            "exit_code": 0,
+            "finding_count": 0,
+            "report_exists": true,
+            "summary": {
+              "errors": 0,
+              "infos": 0,
+              "not_applicable_tools": ["PUBLINT"],
+              "warnings": 0
+            },
+            "tool_statuses": {
+              "BIOME": "passed",
+              "OXLINT": "passed",
+              "PUBLINT": "not_applicable"
+            }
+          },
+          "malformed_envelopes": {
+            "exit_code": 0,
+            "finding_count": 0,
+            "report_exists": true,
+            "summary": {
+              "errors": 0,
+              "infos": 0,
+              "not_applicable_tools": ["PUBLINT"],
+              "warnings": 0
+            },
+            "tool_statuses": {
+              "BIOME": "passed",
+              "OXLINT": "passed",
+              "PUBLINT": "not_applicable"
+            }
+          },
+          "unknown_manifest_property": {
+            "checked_in_schema_errors": [
+              "Additional properties are not allowed ('profil_typo' was unexpected)"
+            ],
+            "exit_code": 0,
+            "finding_count": 0,
+            "report_exists": true,
+            "summary": {
+              "errors": 0,
+              "infos": 0,
+              "not_applicable_tools": ["PUBLINT"],
+              "warnings": 0
+            },
+            "tool_statuses": {
+              "BIOME": "passed",
+              "OXLINT": "passed",
+              "PUBLINT": "not_applicable"
+            }
+          },
+          "valid_sarif_pass_level_absent": {
+            "exit_code": 0,
+            "finding_count": 1,
+            "report_exists": true,
+            "summary": {
+              "errors": 0,
+              "infos": 1,
+              "not_applicable_tools": ["PUBLINT"],
+              "warnings": 0
+            },
+            "tool_statuses": {
+              "BIOME": "passed",
+              "OXLINT": "passed",
+              "PUBLINT": "not_applicable"
+            }
+          },
+          "valid_sarif_pass_none": {
+            "exit_code": 0,
+            "finding_count": 1,
+            "report_exists": true,
+            "summary": {
+              "errors": 0,
+              "infos": 1,
+              "not_applicable_tools": ["PUBLINT"],
+              "warnings": 0
+            },
+            "tool_statuses": {
+              "BIOME": "passed",
+              "OXLINT": "passed",
+              "PUBLINT": "not_applicable"
+            }
+          }
+        },
+        "json_skooma": {
+          "applicable_default_report_routing_stubbed_ruby": {
+            "exit_code": 0,
+            "invocation_directory_report_exists": false,
+            "ruby_engine_validation_claimed": false,
+            "selected_workspace_report_exists": true
+          },
+          "boolean_version": {
+            "exit_code": 0,
+            "stderr_last_line": null,
+            "structured_reason": "explicitly-disabled",
+            "structured_status": "not_applicable",
+            "traceback": false
+          },
+          "default_report_routing": {
+            "exit_code": 0,
+            "invocation_directory_report_exists": true,
+            "selected_workspace_report_exists": false
+          },
+          "disabled_control": {
+            "exit_code": 0,
+            "stderr_last_line": null,
+            "structured_reason": "explicitly-disabled",
+            "structured_status": "not_applicable",
+            "traceback": false
+          },
+          "list_mode": {
+            "exit_code": 1,
+            "stderr_last_line": "TypeError: unhashable type: 'list'",
+            "structured_reason": null,
+            "structured_status": null,
+            "traceback": true
+          },
+          "object_mode": {
+            "exit_code": 1,
+            "stderr_last_line": "TypeError: unhashable type: 'dict'",
+            "structured_reason": null,
+            "structured_status": null,
+            "traceback": true
+          }
+        },
+        "rust_megalinter_normalizer": {
+          "clean_control": {
+            "adapter_exit_code": 0,
+            "completeness": "normalized",
+            "exit_code": 0,
+            "normalized_megalinter_finding_count": 0,
+            "report_exists": true,
+            "runtime_failure_recorded": false,
+            "status": "clean",
+            "stderr": ""
+          },
+          "contradictory_sarif_pass_level_error": {
+            "adapter_exit_code": 0,
+            "completeness": "normalized",
+            "exit_code": 0,
+            "normalized_megalinter_finding_count": 0,
+            "report_exists": true,
+            "runtime_failure_recorded": false,
+            "status": "clean",
+            "stderr": ""
+          },
+          "json_only_findings": {
+            "adapter_exit_code": 1,
+            "completeness": "partial",
+            "exit_code": 1,
+            "normalized_megalinter_finding_count": 1,
+            "report_exists": true,
+            "runtime_failure_recorded": false,
+            "status": "findings",
+            "stderr": ""
+          },
+          "mismatched_counts": {
+            "adapter_exit_code": 1,
+            "completeness": "partial",
+            "exit_code": 1,
+            "normalized_megalinter_finding_count": 2,
+            "report_exists": true,
+            "runtime_failure_recorded": false,
+            "status": "findings",
+            "stderr": ""
+          },
+          "runtime_error": {
+            "adapter_exit_code": 2,
+            "completeness": "partial",
+            "exit_code": 3,
+            "normalized_megalinter_finding_count": 1,
+            "report_exists": true,
+            "runtime_failure_recorded": true,
+            "status": "execution_error",
+            "stderr": ""
+          },
+          "valid_sarif_pass_level_absent": {
+            "adapter_exit_code": 0,
+            "completeness": "normalized",
+            "exit_code": 0,
+            "normalized_megalinter_finding_count": 0,
+            "report_exists": true,
+            "runtime_failure_recorded": false,
+            "status": "clean",
+            "stderr": ""
+          },
+          "valid_sarif_pass_none": {
+            "adapter_exit_code": 0,
+            "completeness": "normalized",
+            "exit_code": 0,
+            "normalized_megalinter_finding_count": 0,
+            "report_exists": true,
+            "runtime_failure_recorded": false,
+            "status": "clean",
+            "stderr": ""
+          },
+          "wrong_sarif_version": {
+            "adapter_exit_code": null,
+            "completeness": null,
+            "exit_code": 3,
+            "normalized_megalinter_finding_count": null,
+            "report_exists": false,
+            "runtime_failure_recorded": null,
+            "status": null,
+            "stderr": "egolint: runtime execution failed: MegaLinter SARIF must use supported version 2.1.0"
+          }
+        },
+        "scope": "Unedited adapter CLIs with disposable synthetic consumers; pnpm, Docker and Ruby child outputs are explicitly stubbed where used.",
+        "security_probe_details_included": false
+      },
+      "prerequisite_qualification": "The separate source worktree does not inherit installed Node dependencies. Final replay uses the original frozen checkout with locked dependencies and fresh synthetic consumers. The probe now checks that prerequisite explicitly; an earlier setup-limited run is not qualifying evidence."
+    }
+  },
+  "public_findings": {
+    "schema_version": "egolint.completeness-audit.findings/v1",
+    "contract_scope": "Local artifact for this audit only; not the unfinished canonical checkpoint-report contract.",
+    "source_revision": "834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b",
+    "public_findings": 21,
+    "severity_counts": {
+      "medium": 15,
+      "low": 6
+    },
+    "new_issue_homes": 17,
+    "existing_issue_home": 42,
+    "private_security_details_excluded": true,
+    "rejected_observation": "The original synthetic SARIF pass/error combination was not protocol-valid. It is not a standalone finding; the corrected non-failure controls do not demonstrate false blocking.",
+    "findings": [
+      {
+        "local_id": "CORE-01",
+        "title": "Isolated fix preview cannot use a supported custom MegaLinter configuration",
+        "classification": "confirmed defect",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "configuration and isolated fix preview",
+        "effort": "small",
+        "impact": "medium",
+        "history": "new",
+        "history_notes": "new observation; no prior audit was available in this lane.",
+        "observation": "`Config::resolve` validates a `megalinter-config` and stores its normalized workspace-relative path (`src/config.rs:459\u2013462`). `resolved_for_isolated_copy` subsequently requires that relative path to have the absolute original workspace as a prefix (`src/fix.rs:267\u2013273`). Every supported nonempty custom selection therefore fails this conversion. Its subsequent candidate-absolute rewrite would also conflict with `ExecutionPlan`'s relative input contract.",
+        "evidence": [
+          {
+            "kind": "observed",
+            "description": "In the probe, a clean repository containing committed `egolint.toml` and `.megalinter.yml` runs `fix` with an explicit linter selection. It exits 2 before any simulated runtime invocation, with the isolated-prefix configuration error and no preview patch. The otherwise equivalent default-configuration control exits 0, invokes the simulator once, and produces a patch. Both preserve the original source and clean index.",
+            "probe": "core-repros.json#fix_custom_config.custom"
+          }
+        ],
+        "why_it_matters": "Repositories using the documented override/extension surface cannot use fix previews, even though planning and normal linting accept the same configuration. This is a functional failure, not an out-of-workspace write or exploit claim.",
+        "recommendation": "Preserve one documented relative-path representation through resolution and candidate planning. Resolve the selected committed config and its inheritance against the isolated candidate without reintroducing absolute paths or consulting live ignored inputs.",
+        "suggested_validation": [
+          "End-to-end default and custom config previews, with a committed root-relative inherited policy, prove the selected config reaches the candidate runtime, expected patch is generated, original content/index stay unchanged, and escaping or unavailable candidate inputs still fail closed."
+        ],
+        "dependencies_or_risks": [
+          "No identified work predecessor for a bounded repair. Retain the existing immutable-tree, runtime, and report boundaries. No real-image integration qualification was performed here."
+        ],
+        "suggested_issue_key": "FIX_PREVIEW_CORRECTNESS",
+        "existing_issue_coverage": "New focused fix-preview correctness issue, potentially shared with CORE-02 while retaining separate acceptance criteria. Existing issue #5 is the release program rather than a precise repair home.",
+        "id": "AUDIT-001",
+        "lane": "core",
+        "issue_key": "FIX_PREVIEW",
+        "evidence_label": "observed"
+      },
+      {
+        "local_id": "CORE-02",
+        "title": "A committed executable file prevents isolated snapshot initialization",
+        "classification": "confirmed defect",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "Git snapshot construction for fix preview",
+        "effort": "small",
+        "impact": "medium",
+        "history": "new",
+        "history_notes": "new observation.",
+        "observation": "`initialize_repository` creates a new Git repository, then calls `git update-index --chmod=+x` for executable paths before the initial `git add` (`src/fix.rs:810\u2013823`). Those paths do not yet exist in the index.",
+        "evidence": [
+          {
+            "kind": "observed",
+            "description": "A fresh committed synthetic consumer with one `100755` `script.sh` makes the actual `fix` command exit 3 with the empty-index/missing-`--add` Git error. No simulator is started and no patch is created. The original worktree remains clean and source unchanged. The non-executable default control succeeds.",
+            "probe": "core-repros.json#fix_custom_config.executable"
+          }
+        ],
+        "why_it_matters": "Shell scripts, executable entrypoints, and other ordinary tracked executables make the preview feature unusable for otherwise supported repositories. This is not limited to a malformed or hostile tree.",
+        "recommendation": "Populate the trusted index before restoring executable modes (or explicitly use safe add semantics), retain the exact immutable base-tree equality check, and place a path separator before user-controlled paths in the index command.",
+        "suggested_validation": [
+          "CLI preview on a clean consumer containing ordinary and executable files should reach the bounded runtime, preserve exact base mode/content identities, generate the intended patch, and leave the original untouched. Include a nested executable and a legal leading-dash filename; retain unsupported symlink/gitlink rejection. Platform claims require platform-specific evidence."
+        ],
+        "dependencies_or_risks": [
+          "No identified predecessor for a bounded repair. Mode preservation is important on platforms whose filesystem does not express Git executable bits. Linux behavior was actually observed; no macOS/Windows result is claimed."
+        ],
+        "suggested_issue_key": "FIX_PREVIEW_CORRECTNESS",
+        "existing_issue_coverage": "The focused fix-preview correctness issue proposed for CORE-01, with this independent failure and acceptance retained.",
+        "id": "AUDIT-002",
+        "lane": "core",
+        "issue_key": "FIX_PREVIEW",
+        "evidence_label": "observed"
+      },
+      {
+        "local_id": "CORE-03",
+        "title": "Focused canonical native reports can survive unrelated or failed later runs",
+        "classification": "confirmed defect",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "run evidence lifecycle and provenance",
+        "effort": "small",
+        "impact": "medium",
+        "history": "new",
+        "history_notes": "new observation.",
+        "observation": "The fixed `RUN_OWNED_ARTIFACTS` list removes raw MegaLinter reports, aggregate JSON/SARIF, debt, and patches, but omits `repository-continuity.json`, `repository-intelligence.json`, `repository-presentation.json`, `repository-release.json`, and `repository-gitignore.json` (`src/plan.rs:29\u201344`). `write_run_outputs` only rewrites optional focused reports when that capability is selected (`src/main.rs:1296\u20131341`); the focused gitignore command also writes a report outside that optional list.",
+        "evidence": [
+          {
+            "kind": "observed",
+            "description": "The actual native CLI first runs an advisory intelligence policy successfully (exit 0) and writes an authentic focused intelligence report. A second `validate` without that selection exits 0 and writes a new aggregate that does not reference intelligence, while the old focused report remains byte-identical. A third attempt with a nonexistent policy fails, removes the aggregate during preparation, and still leaves the old focused report byte-identical. No real downstream publication or false consumer verdict is inferred from this local evidence.",
+            "probe": "core-repros.json#focused_report_lifecycle"
+          }
+        ],
+        "why_it_matters": "A fixed report directory may contain canonical files from multiple runs or retain a previous focused verdict after a failed new invocation. Consumers or artifact uploads can mistake file presence for evidence of the latest invocation. This contradicts the documented stale-contract cleanup boundary even though individual files carry some source metadata.",
+        "recommendation": "Define the complete run-owned canonical artifact inventory and clear or explicitly invalidate each focused output at the appropriate lifecycle boundary. Alternatively use isolated run directories with an explicit manifest of the current run. Preserve unrelated private diagnostic retention deliberately.",
+        "suggested_validation": [
+          "Generate real focused reports, then run without those capabilities and run with invalid inputs. Prove no stale focused artifact can represent the new run; verify current selected reports and aggregate references remain consistent and unrelated diagnostic files are retained according to policy. Cover command transitions including native-only, gitignore, and container-backed runs with a bounded simulator before qualifying real images."
+        ],
+        "dependencies_or_risks": [
+          "No identified predecessor for a bounded repair. Coordinate all focused report owners and artifact consumers; avoid deleting arbitrary files under the reserved report directory or broadening its write authority."
+        ],
+        "suggested_issue_key": "FOCUSED_REPORT_LIFECYCLE",
+        "existing_issue_coverage": "New focused native-report lifecycle/freshness repair. Existing #48 concerns checkpoint-audit report validation, a distinct content family.",
+        "id": "AUDIT-003",
+        "lane": "core",
+        "issue_key": "NATIVE_REPORT_LIFECYCLE",
+        "evidence_label": "observed"
+      },
+      {
+        "local_key": "INT-01",
+        "title": "Presentation validation can accept missing checksum coverage and a missing banner descriptor",
+        "classification": "confirmed defect",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "Repository presentation / Identity input integrity",
+        "effort": "medium",
+        "impact": "medium",
+        "history": "new",
+        "observation": "The manifest verifier only iterates entries that remain in files, and the banner/badge validation block runs only when a banner descriptor is present. It accepts an empty files object or a nonempty map that omits the referenced banner. It also accepts an Identity package with its banner descriptor deleted.",
+        "evidence": [
+          {
+            "label": "observed",
+            "path": "src/rules/repository_presentation.rs",
+            "lines": [1029, 1069],
+            "detail": "Missing file map is rejected, but an empty map is accepted and referenced asset coverage is not required."
+          },
+          {
+            "label": "observed",
+            "path": "src/rules/repository_presentation.rs",
+            "lines": [1071, 1105],
+            "detail": "Conditional destructuring skips all banner/badge checks when package.banner is missing."
+          },
+          {
+            "label": "observed",
+            "path": "intelligence-repros.json",
+            "detail": "presentation.control returns exit0/status valid/21 checked files. changed_banner_full_manifest returns exit1/status invalid with EGO-PRESENT-MANIFEST-001. Removing only the damaged banner's file entry yields exit0/status valid/20 checks; emptying the map yields exit0/status valid/0 checks. Deleting package.banner yields exit0/status valid/21 checks."
+          }
+        ],
+        "why_it_matters": "A publishable valid result can claim the Identity presentation is bound to checksums while the actual README banner has no verified checksum or the required descriptor is absent.",
+        "recommendation": "Validate required Identity package/manifest structure and cross-field coverage before declaring valid. Require a nonempty file map and checksum entries for every referenced banner/badge asset and descriptor that the pinned owner contract requires. Missing required descriptors must emit diagnostics rather than skip checks.",
+        "suggested_validation": [
+          "Retain the passing complete-map control and damaged-file rejection.",
+          "Reject empty maps, nonempty maps omitting referenced assets, absent banner descriptors, and missing required descriptor-to-manifest bindings.",
+          "Keep advisory mode nonblocking while focused semantic status remains invalid; preserve offline behavior and authored files."
+        ],
+        "dependencies_or_risks": "No external predecessor identified for the bounded repair against current pinned contracts. Check exact Identity 3c2fd3 owner requirements and avoid inventing a new package contract or claiming pixel/accessibility certification.",
+        "suggested_issue_home": "New focused presentation-input/manifest-integrity bug. Do not reopen closed #27 or fold into future claim-engine #46.",
+        "id": "AUDIT-004",
+        "lane": "intelligence",
+        "issue_key": "PRESENTATION_INTEGRITY",
+        "evidence_label": "observed"
+      },
+      {
+        "local_key": "INT-02",
+        "title": "ADR and roadmap validators count fenced examples as live Markdown anatomy",
+        "classification": "confirmed defect",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "Repository Intelligence / Markdown source grammar",
+        "effort": "medium",
+        "impact": "medium",
+        "history": "new",
+        "observation": "ADR heading/required-section matching and roadmap comment/heading/checklist matching operate on raw strings, including literal fenced-code examples. Moving all ADR body anatomy into a markdown code fence, or putting the entire roadmap in a code fence, still produces valid source validation.",
+        "evidence": [
+          {
+            "label": "observed",
+            "path": "src/rules/repository_intelligence.rs",
+            "lines": [1567, 1604],
+            "detail": "ADR anatomy uses starts_with and body.find without Markdown literal-region awareness."
+          },
+          {
+            "label": "observed",
+            "path": "src/rules/repository_intelligence.rs",
+            "lines": [2224, 2245],
+            "detail": "Roadmap HTML comment extractor accepts any matching byte substring, including a literal example."
+          },
+          {
+            "label": "observed",
+            "path": "src/rules/repository_intelligence.rs",
+            "lines": [3632, 3990],
+            "detail": "Roadmap evaluation scans these extracted comments and segment lines."
+          },
+          {
+            "label": "observed",
+            "path": "intelligence-repros.json",
+            "detail": "Control passes; removing Context returns invalid/1 diagnostic and empty roadmap invalid/2 diagnostics. Fencing the ADR body or entire roadmap returns exit0/status valid/0 diagnostics with 3 ADRs and 2 roadmap steps inspected."
+          }
+        ],
+        "why_it_matters": "A code sample can substitute for the actual required document structure or introduce phantom graph records, so semantic evidence can disagree with the rendered canonical document.",
+        "recommendation": "Use a bounded Markdown-aware representation or at least a shared literal-region scanner to exclude fenced/indented code and escaped examples from ADR anatomy, indexes, roadmap metadata, headings, and checklist counts. Keep source positions deterministic.",
+        "suggested_validation": [
+          "Prove real required headings/metadata pass while fenced, indented, escaped, and inline literal examples do not satisfy required structure.",
+          "Include examples alongside real roadmap records so examples do not create duplicates or phantom graph edges.",
+          "Check heading level and exact required-section identity, source line locations, state/checklist matching, and existing historical fixtures."
+        ],
+        "dependencies_or_risks": "No external predecessor identified for the bounded current-contract repair. Preserve existing accepted ADR metadata/lifecycle and proposed roadmap authority; no graph policy promotion is implied.",
+        "suggested_issue_home": "New focused Markdown source-grammar bug, separate from closed #24 and from later ADR-history backfill #60.",
+        "id": "AUDIT-005",
+        "lane": "intelligence",
+        "issue_key": "MARKDOWN_SOURCE_GRAMMAR",
+        "evidence_label": "observed"
+      },
+      {
+        "local_key": "INT-03",
+        "title": "ADR link validation accepts empty GitHub identities and a hostless HTTP destination",
+        "classification": "confirmed defect",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "Repository Intelligence / evidence reference grammar",
+        "effort": "small",
+        "impact": "medium",
+        "history": "new",
+        "observation": "The GitHub URL helper checks only that splitting owner/repo produces two components, without checking that either is nonempty. The general HTTP helper checks a prefix and a dot anywhere after ://, allowing a path dot to stand in for an authority.",
+        "evidence": [
+          {
+            "label": "observed",
+            "path": "src/rules/repository_intelligence.rs",
+            "lines": [2467, 2500],
+            "detail": "HTTP and GitHub helpers use substring/count heuristics rather than host and repository components."
+          },
+          {
+            "label": "observed",
+            "path": "intelligence-repros.json",
+            "detail": "Replacing a fixture issue URL with https://github.com///issues/24 and adding external evidence URL https:///. still returns exit0/status valid/0 diagnostics under all eleven enabled blocking-profile rules."
+          }
+        ],
+        "why_it_matters": "Malformed reference strings can be recorded as structurally valid issue/evidence linkage. Offline validation cannot prove reachability or human approval, but it should not accept an absent authority or empty repository identity.",
+        "recommendation": "Parse the URI authority/path and require supported HTTP host and owner/repository/positive-number or full-commit components. Reuse strict repository and identifier validation; retain sanitized diagnostics and explicit separation from online reachability.",
+        "suggested_validation": [
+          "Reject absent hosts, empty owner/repository segments, malformed commit references, credentials/control/whitespace ambiguities as appropriate to the pinned contract.",
+          "Retain valid supported HTTP(S), canonical GitHub issue/PR/commit, and historical evidence fixtures.",
+          "Do not fetch the destinations or treat structural success as publication/human approval."
+        ],
+        "dependencies_or_risks": "No external predecessor identified. This is a correctness finding about structure, not a demonstrated network exploit or authenticated-approval bypass.",
+        "suggested_issue_home": "New focused ADR/evidence URL-grammar bug; closed #24 delivered the baseline and does not cover this new repair.",
+        "id": "AUDIT-006",
+        "lane": "intelligence",
+        "issue_key": "ADR_REFERENCE_GRAMMAR",
+        "evidence_label": "observed"
+      },
+      {
+        "local_key": "INT-04",
+        "title": "Release Task handoff validation treats echoed or commented commands as exact workflow dispatch",
+        "classification": "confirmed defect",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "Repository release / mechanical handoff evidence",
+        "effort": "medium",
+        "impact": "medium",
+        "history": "new",
+        "observation": "task_dispatches_workflow accepts any Task command string containing both gh workflow run and the declared workflow path. It cannot distinguish an echo from dispatch or bind the workflow path as the actual gh argument.",
+        "evidence": [
+          {
+            "label": "observed",
+            "path": "src/rules/repository_release/checks.rs",
+            "lines": [973, 993],
+            "detail": "The boolean helper directly produces a passed Task handoff assertion."
+          },
+          {
+            "label": "observed",
+            "path": "src/rules/repository_release/checks.rs",
+            "lines": [1407, 1424],
+            "detail": "The helper searches two substrings without command/argument binding."
+          },
+          {
+            "label": "observed",
+            "path": "intelligence-repros.json",
+            "detail": "Both echo gh workflow run .github/workflows/release.yml and gh workflow run .github/workflows/other.yml # .github/workflows/release.yml produce CLI0, focused state compliant, validation_complete true, 7/7 checks passed, including the exact-dispatch assertion. The normal dispatch control also passes."
+          }
+        ],
+        "why_it_matters": "A static conformance result asserts an exact publication handoff even when the declared command only prints text or dispatches a different workflow.",
+        "recommendation": "Define a small supported static dispatch form or structured handoff declaration, bind the actual command and workflow argument, and report unavailable when arbitrary shell cannot be proved. Do not execute Task commands to validate them or build an unrestricted shell interpreter.",
+        "suggested_validation": [
+          "Reject or mark unavailable echo-only, comments-only, quoted documentation, different workflow arguments, and ambiguous compound shell forms.",
+          "Accept the documented direct dispatch and any explicitly supported structured equivalent; preserve exact source location and standard focused/run/SARIF agreement.",
+          "Extend #68's policy-boundary matrix with these cases, then include the repaired behavior in #69's dogfood."
+        ],
+        "dependencies_or_risks": "Current-v1 repair can start against existing accepted pins. Coordinate #29/#68/#69; do not wait for successor #76 or treat local conformance as remote publication evidence. Probe only validates source and never executes the synthetic Task commands.",
+        "suggested_issue_home": "Ledger lane recommends a focused current-v1 Task binding bug, coordinated with #68/#29; #68 remains the broader matrix, #69 the later dogfood.",
+        "id": "AUDIT-007",
+        "lane": "intelligence",
+        "issue_key": "RELEASE_TASK_BINDING",
+        "evidence_label": "observed"
+      },
+      {
+        "local_key": "INT-05",
+        "title": "A contradictory not-applicable represented commit can still produce a valid Intelligence report",
+        "classification": "confirmed defect",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "Repository Intelligence / adoption and semantic status",
+        "effort": "small",
+        "impact": "medium",
+        "history": "new",
+        "observation": "The evaluator emits an adoption diagnostic when represented_commit is not-applicable while a source surface is present, but status aggregation ignores every adoption diagnostic for invalidity and only treats unknown/truncated evidence as incomplete.",
+        "evidence": [
+          {
+            "label": "observed",
+            "path": "src/rules/repository_intelligence.rs",
+            "lines": [819, 852],
+            "detail": "Incomplete aggregation omits the present/not-applicable contradiction and invalid excludes ADOPTION_RULE."
+          },
+          {
+            "label": "observed",
+            "path": "src/rules/repository_intelligence.rs",
+            "lines": [966, 982],
+            "detail": "validate_adoption explicitly diagnoses the incompatible selection."
+          },
+          {
+            "label": "observed",
+            "path": "intelligence-repros.json",
+            "detail": "With all eleven blocking-profile rules enabled and ADR, roadmap and commit-history present, --represented-commit not-applicable returns exit0/status valid, commits_inspected0, 3 ADRs, 2 roadmap steps, and an EGO-INTEL-ADOPTION-001 warning saying represented commit cannot be not-applicable while a source surface is present."
+          }
+        ],
+        "why_it_matters": "Machine consumers can see valid semantic status for a declared present source/history surface without its represented commit. The report itself identifies the contradiction but does not propagate it to the status.",
+        "recommendation": "Keep non-adoption, missing evidence, truncation, and contradictory adoption distinct. Make a present/not-applicable represented-source conflict invalid or explicitly incomplete under the supported contract; advisory enforcement must not upgrade that semantic state.",
+        "suggested_validation": [
+          "Cover present surfaces with exact commit, unknown commit, not-applicable commit, all surfaces not-applicable, and truncated history.",
+          "Assert focused semantic status independently from process exit, rule severity and advisory/blocking enforcement.",
+          "Preserve the intentional scope of selected/disabled rules rather than silently enabling unrelated checks."
+        ],
+        "dependencies_or_risks": "No external predecessor identified for a bounded consistency repair. The caller still owns authentication of represented identity and source checkout; this finding does not claim that offline validation authenticates GitHub.",
+        "suggested_issue_home": "New focused Intelligence source/adoption-status consistency bug.",
+        "id": "AUDIT-008",
+        "lane": "intelligence",
+        "issue_key": "INTELLIGENCE_ADOPTION_STATUS",
+        "evidence_label": "observed"
+      },
+      {
+        "key": "CONTINUITY_SCHEMA_PARITY",
+        "title": "Make native continuity validation agree with its exact pinned Aether schema",
+        "classification": "confirmed defect",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "native continuity validation",
+        "effort": "medium",
+        "impact": "medium",
+        "history": "new",
+        "evidence_label": "observed",
+        "observation": "Five synthetic checkpoint variants disagree between native continuity semantic status and Draft202012Validator using the exact bundled Aether schema with registered format checks. Removing six required nullable keys, duplicating next.references, duplicating parallel_changes, or using an unpadded RFC3339 clock all remain native valid despite schema errors. A schema-valid lowercase t/z RFC3339 timestamp instead becomes native invalid. The control is accepted by both.",
+        "evidence": [
+          {
+            "path": "src/rules/repository_continuity.rs",
+            "lines": "1110-1281",
+            "meaning": "Option metadata fields decode missing keys as None, independently of schema required arrays."
+          },
+          {
+            "path": "src/rules/repository_continuity.rs",
+            "lines": "1892-2216",
+            "meaning": "The handwritten metadata validator checks selected fields but omits uniqueness on next references and parallel changes."
+          },
+          {
+            "path": "src/rules/repository_continuity.rs",
+            "lines": "3363-3409",
+            "meaning": "The handwritten datetime parser accepts variable-width clock fields and requires uppercase T/Z."
+          },
+          {
+            "path": "vendor/aether/aether.repository-continuity.v1.schema.json",
+            "sha256": "a725e004fe0db2bf96a968c6e3f300d37ecf8b00b9a0923be5c5f4c529655916",
+            "meaning": "Exact normative structure used for the comparison."
+          },
+          {
+            "path": "validators-repros.json",
+            "pointer": "/continuity/cases",
+            "meaning": "Native focused semantic status, process result and actual pinned schema errors for control and five variants."
+          }
+        ],
+        "why_it_matters": "A consumer can receive valid structural evidence for a checkpoint that fails the selected portable contract, while another contract-valid checkpoint receives an invalid diagnosis. This is independent of observe-mode exit status, which intentionally remains nonblocking.",
+        "recommendation": "Treat the selected local schema as the authoritative structural contract, or prove equivalent typed validation for required nullable fields, uniqueness and RFC3339 semantics. Preserve offline source integrity and layered native freshness/privacy checks.",
+        "suggested_validation": [
+          "A paired native/schema matrix covers every required nullable field independently, duplicate references and parallel changes, unsupported fields and formats.",
+          "Invalid unpadded timestamps produce structural findings; schema-valid lowercase RFC3339 delimiters preserve contract acceptance.",
+          "Observe changes effective severity without changing invalid semantic status; no upstream lifecycle promotion or source-pin relaxation is needed."
+        ],
+        "dependencies_or_risks": "No external predecessor identified for the bounded correction. Existing issue #55 owns broader continuity capability and released-input rollout acceptance; this parity repair must not claim ratchet/enforce promotion.",
+        "proposed_issue_home": "Focused startable defect linked to #55, or a clearly isolated #55 checkpoint; do not duplicate the whole upstream capability.",
+        "id": "AUDIT-009",
+        "lane": "validators",
+        "issue_key": "CONTINUITY_SCHEMA_PARITY"
+      },
+      {
+        "key": "PORTABILITY_PATH_PREFIXES",
+        "title": "Detect case-folded file/directory conflicts in native portability inventory",
+        "classification": "confirmed defect",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "native portability and inventory topology",
+        "effort": "small",
+        "impact": "medium",
+        "history": "new",
+        "evidence_label": "observed",
+        "observation": "The native case checker indexes only complete leaf paths. A synthetic checkout containing the file Readme and directory README/page.md produces no EGO-PORT-CASE-001 finding and exits 0. The ordinary Readme.md/README.md control correctly produces the rule and exits 1. Differently cased ancestor directories with disjoint leaf names are also not represented by the current check.",
+        "evidence": [
+          {
+            "path": "src/rules/portability.rs",
+            "lines": "208-234",
+            "meaning": "case_collisions only folds each complete entry path."
+          },
+          {
+            "path": "src/rules/inventory.rs",
+            "lines": "137-155",
+            "meaning": "Ordinary directory entries are not kept in the leaf inventory."
+          },
+          {
+            "path": ".config/rules/portability.toml",
+            "lines": "5-14",
+            "meaning": "The selected rule promises ASCII case-insensitive path collision detection."
+          },
+          {
+            "path": "validators-repros.json",
+            "pointer": "/portability",
+            "meaning": "Positive full-path collision control and missed prefix topology cases."
+          }
+        ],
+        "why_it_matters": "On a case-insensitive filesystem, the same folded node cannot be both a file and a directory. Such a tree can pass native portability checks before a consumer encounters an unrepresentable checkout. No Windows or macOS checkout was executed during this audit; the native detection gap is directly observed, and the portability consequence follows from case-insensitive path identity.",
+        "recommendation": "Build a folded path-prefix topology from the inventory, including inferred ancestor directories, and report conflicting entry kinds and reviewed casing collisions deterministically. Preserve the intentional ASCII-only boundary.",
+        "suggested_validation": [
+          "Keep the existing identical-leaf collision test.",
+          "Add case-folded file/directory prefix conflicts in both lexical orders and nested positions.",
+          "Cover disjoint leaf files beneath differently cased ancestors and ordinary case-consistent shared directories without false positives."
+        ],
+        "dependencies_or_risks": "No predecessor identified; pure native metadata semantics. Unicode and locale-specific filesystem equivalence remain outside the selected ASCII rule.",
+        "proposed_issue_home": "New focused native portability defect; no existing original issue specifically owns this gap.",
+        "id": "AUDIT-010",
+        "lane": "validators",
+        "issue_key": "PORTABILITY_PATH_PREFIXES"
+      },
+      {
+        "key": "PORTABILITY_INCLUDE_MATRIX",
+        "title": "Recognize static multi-OS matrix.include rows in the workflow shell check",
+        "classification": "confirmed defect",
+        "severity": "low",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "native workflow portability diagnostics",
+        "effort": "small",
+        "impact": "low",
+        "history": "new",
+        "evidence_label": "observed",
+        "observation": "An equivalent two-OS workflow loses EGO-PORT-WORKFLOW-001 when matrix.os is expressed through static matrix.include rows rather than a direct array. Both fixtures select runs-on from matrix.os and omit shell. The direct-array control emits the advisory; the include form does not.",
+        "evidence": [
+          {
+            "path": "src/rules/portability.rs",
+            "lines": "659-690",
+            "meaning": "OS discovery only inspects direct sequence-of-string matrix axes and matches their key against runs-on; include rows are ignored."
+          },
+          {
+            "path": "docs/portability-rules.md",
+            "lines": "14-24",
+            "meaning": "The native pack advertises multi-OS workflow shell diagnostics."
+          },
+          {
+            "path": "validators-repros.json",
+            "pointer": "/portability/include_multi_os_matrix",
+            "meaning": "Actual native command has no workflow-shell finding; the direct-array control has one."
+          }
+        ],
+        "why_it_matters": "A common static GitHub Actions matrix representation silently bypasses the selected advisory about differing default shell semantics. This remains a diagnostic-coverage issue, not proof that the fixture's echo command fails on either operating system.",
+        "recommendation": "Resolve statically declared include rows and scalar selector paths before deciding whether multiple OS families are possible. Keep dynamic or unsupported expressions explicitly bounded rather than guessing their values.",
+        "suggested_validation": [
+          "Equivalent direct arrays and include rows produce the same advisory for an omitted shell.",
+          "Step, job and workflow default shells prevent the advisory in each supported static representation.",
+          "Single-OS, matrix.exclude refinements and unresolved dynamic selectors retain documented limits."
+        ],
+        "dependencies_or_risks": "No predecessor identified. The rule remains advisory and should not attempt general GitHub expression execution.",
+        "proposed_issue_home": "New small portability-diagnostic issue; may share an execution checkpoint with path-prefix coverage while retaining separate acceptance criteria.",
+        "id": "AUDIT-011",
+        "lane": "validators",
+        "issue_key": "PORTABILITY_INCLUDE_MATRIX"
+      },
+      {
+        "local_id": "ADAPTER-001",
+        "title": "JavaScript package-quality normalization can turn failed or unsupported adapter evidence into a clean pass",
+        "classification": "confirmed defect",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "JavaScript adapter evidence",
+        "effort": "medium",
+        "impact": "medium",
+        "history": "new",
+        "observation": "The unchanged package-quality CLI returns 0 with OXLINT=passed and BIOME=passed when the explicitly stubbed Oxlint subprocess exits 1 but emits an empty diagnostics array. It also returns 0 and zero findings when both stubs emit the unsupported object envelope {}. runAdapter discards allowed process statuses and the normalizers substitute missing collections with empty arrays.",
+        "evidence": [
+          {
+            "kind": "observed",
+            "source": "scripts/javascript-package-quality.mjs:192-207,315-317,343-345,697-705,734",
+            "probe": "adapters-repros.json#javascript_package_quality.exit_one_without_diagnostics"
+          },
+          {
+            "kind": "observed",
+            "probe": "adapters-repros.json#javascript_package_quality.malformed_envelopes"
+          }
+        ],
+        "why_it_matters": "Malformed, incomplete or contradictory adapter evidence is labeled passed rather than unavailable/invalid/partial, weakening the stable quality-gate contract.",
+        "recommendation": "Preserve adapter status alongside payload, validate supported envelopes and reconcile nonzero exits with normalized findings. Emit an explicit non-clean result when evidence cannot explain a failure.",
+        "suggested_validation": [
+          "Keep the clean pinned-adapter control.",
+          "Use trusted executable stubs for exit 1 with no diagnostics, empty/wrong-type envelopes and contradictory counts; require non-clean structured outcomes.",
+          "Retain real pinned Oxlint/Biome consumer fixtures to prove the supported adapter shapes.",
+          "Validate SARIF version and kind/level consistency. Pass records with level none or absent remain non-blocking; pass plus error is a malformed control, not a valid-pass regression."
+        ],
+        "dependencies_or_risks": [
+          "No external predecessor identified for this repair.",
+          "Stubbed subprocess evidence proves orchestrator behavior only; it does not assert current pinned analyzers naturally emit these malformed shapes."
+        ],
+        "suggested_issue_key": "JS_ADAPTER_EVIDENCE",
+        "existing_issue_coverage": "No focused original issue. #35 covers the future general capability registry; #53 formatter ownership and #54 tool-gap evaluation do not cover this present adapter contract.",
+        "id": "AUDIT-012",
+        "lane": "adapters",
+        "issue_key": "JS_ADAPTER_EVIDENCE",
+        "evidence_label": "observed"
+      },
+      {
+        "local_id": "ADAPTER-003",
+        "title": "JavaScript consumer manifest validation accepts fields forbidden by its published schema",
+        "classification": "confirmed defect",
+        "severity": "low",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "JavaScript configuration contract",
+        "effort": "small",
+        "impact": "low",
+        "history": "new",
+        "observation": "The checked-in manifest schema has additionalProperties=false. A manifest with the unknown key profil_typo is schema-invalid but the unchanged CLI accepts it and returns 0 under clean stubbed adapters. validateManifest checks selected values without enforcing the closed object grammar.",
+        "evidence": [
+          {
+            "kind": "observed",
+            "source": "schemas/javascript-package-quality-manifest.schema.json:5; scripts/javascript-package-quality.mjs:99-136",
+            "probe": "adapters-repros.json#javascript_package_quality.unknown_manifest_property"
+          }
+        ],
+        "why_it_matters": "Consumer typos and stale fields silently diverge from the public machine contract and can conceal configuration intent.",
+        "recommendation": "Validate manifests against the closed published contract or enforce the same grammar and unique-item constraints mechanically, preserving the one canonical schema.",
+        "suggested_validation": [
+          "Unknown properties and duplicate ignore entries fail as configuration errors before adapters start.",
+          "Valid base and react-library manifests remain accepted.",
+          "Schema and runtime rejection agree for representative malformed values."
+        ],
+        "dependencies_or_risks": [
+          "No external predecessor identified.",
+          "The observed unknown property is harmless synthetic data; no security exploit is claimed."
+        ],
+        "suggested_issue_key": "JS_MANIFEST_CONTRACT",
+        "existing_issue_coverage": "No focused original issue; #35's registry is broader future work, not a prerequisite.",
+        "id": "AUDIT-013",
+        "lane": "adapters",
+        "issue_key": "JS_MANIFEST_CONTRACT",
+        "evidence_label": "observed"
+      },
+      {
+        "local_id": "ADAPTER-004",
+        "title": "JSONSkooma selector crashes on malformed mode types and accepts a boolean version",
+        "classification": "confirmed defect",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "Optional Ruby schema adapter configuration",
+        "effort": "small",
+        "impact": "medium",
+        "history": "new",
+        "observation": "The actual Python launcher with mode=[] or mode={} raises an uncaught TypeError, exits 1 and emits no structured report. Its documented invalid-configuration path is exit 2 with JSON evidence. schema_version=true is accepted as version 1 and a disabled configuration exits 0.",
+        "evidence": [
+          {
+            "kind": "observed",
+            "source": "scripts/json_skooma.py:79-98,223-241",
+            "probe": "adapters-repros.json#json_skooma.list_mode"
+          },
+          {
+            "kind": "observed",
+            "probe": "adapters-repros.json#json_skooma.object_mode"
+          },
+          {
+            "kind": "observed",
+            "probe": "adapters-repros.json#json_skooma.boolean_version"
+          }
+        ],
+        "why_it_matters": "Configuration failure is confused with validation findings and can leave consumers without an evidence artifact; boolean/integer coercion weakens the explicit version contract.",
+        "recommendation": "Validate types before set membership and version equality; route all supported malformed-configuration cases into the structured invalid_configuration outcome without launching Ruby.",
+        "suggested_validation": [
+          "Wrong JSON types for mode/schema_version return exit 2 with structured invalid_configuration reports.",
+          "Boolean versions are rejected.",
+          "Valid disabled/auto/enabled activation and skip-before-Ruby behavior remain intact."
+        ],
+        "dependencies_or_risks": [
+          "No Ruby installation is required to reproduce the observed selector failures.",
+          "No external predecessor identified."
+        ],
+        "suggested_issue_key": "JSON_SKOOMA_CONFIG",
+        "existing_issue_coverage": "No focused original issue; #14 is already delivered/closed and #35's registry integration is distinct.",
+        "id": "AUDIT-014",
+        "lane": "adapters",
+        "issue_key": "JSON_SKOOMA_CONFIG",
+        "evidence_label": "observed"
+      },
+      {
+        "local_id": "ADAPTER-005",
+        "title": "JSONSkooma relative report location changes with the activation branch",
+        "classification": "confirmed defect",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "Optional Ruby schema adapter evidence routing",
+        "effort": "small",
+        "impact": "medium",
+        "history": "new",
+        "observation": "With --workspace selecting a different directory and the default relative report path, a skip writes the report beneath the invocation directory. The applicable branch invokes its child with cwd=workspace and passes the same relative report path, so a trusted Ruby stub writes beneath the selected workspace. The observed destination therefore depends on activation rather than one report-path rule.",
+        "evidence": [
+          {
+            "kind": "observed",
+            "source": "scripts/json_skooma.py:187-196,240-247,250-275",
+            "probe": "adapters-repros.json#json_skooma.default_report_routing"
+          },
+          {
+            "kind": "observed",
+            "probe": "adapters-repros.json#json_skooma.applicable_default_report_routing_stubbed_ruby"
+          }
+        ],
+        "why_it_matters": "Callers using the explicit workspace interface cannot reliably collect the same report location for skipped, unavailable and applicable runs.",
+        "recommendation": "Define one relative-report anchor and resolve it once before either local writing or child invocation, retaining stdout and explicitly supported absolute-output behavior.",
+        "suggested_validation": [
+          "Invoke from a directory different from --workspace and check skip, invalid, unavailable, timed-out and applicable branches produce the same selected destination.",
+          "Keep --report '-' behavior and explicit absolute destinations covered.",
+          "Use a trusted child stub for routing tests and retain real Ruby fixtures for actual schema semantics."
+        ],
+        "dependencies_or_risks": [
+          "The applicable routing control uses a stub, not actual Ruby validation.",
+          "No external predecessor identified."
+        ],
+        "suggested_issue_key": "JSON_SKOOMA_REPORT_ROUTING",
+        "existing_issue_coverage": "No focused original issue; separate from registry integration #35.",
+        "id": "AUDIT-015",
+        "lane": "adapters",
+        "issue_key": "JSON_SKOOMA_REPORT_ROUTING",
+        "evidence_label": "observed"
+      },
+      {
+        "lane_id": "DIST-01",
+        "title": "Release input validation accepts non-object image and product records",
+        "classification": "confirmed defect",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "release input contract validation",
+        "effort": "small",
+        "impact": "medium",
+        "history": "new",
+        "observation": "The release-input validator treats a null image or product record as zero findings rather than invalid input. A copied actual CLI accepts a null full-engine product record with the correct environment; preserving all expected names while making every image/product record null also accepts an environment without any reviewed image values.",
+        "evidence_label": "observed",
+        "evidence": [
+          {
+            "path": "scripts/validate_release_inputs.py",
+            "lines": "67\u201372,100\u2013109,153\u2013168,174\u2013181"
+          },
+          {
+            "path": "tests/test_release_inputs.py",
+            "lines": "22\u201381"
+          },
+          {
+            "artifact": "distribution-repros.json",
+            "cases": [
+              "valid_contract_missing_environment_control",
+              "valid_contract_pinned_environment_control",
+              "null_product_record",
+              "null_all_image_and_product_records"
+            ]
+          }
+        ],
+        "why_it_matters": "A named, present, but wrong-type source record can receive the same success message as a complete reviewed base-image/product contract. This weakens contract checks and can obscure accidental source corruption before the build.",
+        "recommendation": "Require every expected record to be an object, reject malformed nested element types without uncaught exceptions, and keep environment checking contingent on a structurally valid contract.",
+        "suggested_validation": "Replay positive reviewed data, every missing/non-object image and product record, wrong nested list/map element types, and missing/drifted environment values; assert a controlled nonzero diagnostic for invalid data and retain the existing valid-platform and environment controls.",
+        "dependencies_or_risks": "Independently startable from checked-in source; no release, registry, ARM64, or sibling capability predecessor is needed. This does not establish that a release can bypass later builds, artifact checks, protected environment, or promotion.",
+        "issue_coverage": {
+          "recommended": "focused new ready bug issue, coordinated with existing #5",
+          "existing": [5],
+          "note": "Existing #5 remains responsible for actual signed release and two pinned consumer adoptions; fixing this validator does not close #5."
+        },
+        "id": "AUDIT-016",
+        "lane": "distribution",
+        "issue_key": "RELEASE_INPUT_CONTRACT"
+      },
+      {
+        "local_id": "CORE-04",
+        "title": "Missing requested native policy files use the internal-error exit category",
+        "classification": "confirmed defect",
+        "severity": "low",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "public CLI exit semantics",
+        "effort": "small",
+        "impact": "low",
+        "history": "new",
+        "history_notes": "new observation.",
+        "observation": "`src/error.rs` defines missing requested paths as configuration exit 2, and `MissingPath` maps accordingly. The common native input reader maps missing ancestor/leaf metadata directly to `Filesystem` (`src/main.rs:1083\u20131087`), which maps to internal exit 4. Issue-title validation separately handles NotFound as `MissingPath`, so public commands disagree.",
+        "evidence": [
+          {
+            "kind": "observed",
+            "description": "The third lifecycle probe runs `validate --repository-intelligence missing.toml --represented-commit unknown` in the same valid clean synthetic Git consumer and exits 4. The requested file does not exist; no decoder, runtime, or internal computation has failed.",
+            "probe": "core-repros.json#focused_report_lifecycle"
+          }
+        ],
+        "why_it_matters": "Scripts distinguishing user input errors from internal failures get the wrong stable exit category. This does not alter the detected error or mean that a failed run passed.",
+        "recommendation": "Preserve NotFound as the documented missing-input/configuration category in the shared input reader, while retaining genuine permission/I/O/internal failures as their own categories.",
+        "suggested_validation": [
+          "Public CLI missing native policy/suppression inputs return configuration exit 2; malformed input and genuine I/O failures retain distinct documented categories. Verify no stale current-run output survives these early failures (CORE-03)."
+        ],
+        "dependencies_or_risks": [
+          "No identified predecessor. Avoid recategorizing every filesystem error as configuration or weakening regular-file/path/budget checks."
+        ],
+        "suggested_issue_key": "CLI_INPUT_EXIT_CONTRACT",
+        "existing_issue_coverage": "A small public CLI input/exit-contract repair, or a separate acceptance item in an explicitly bounded CLI contract consistency issue. Do not hide it inside the release program.",
+        "id": "AUDIT-017",
+        "lane": "core",
+        "issue_key": "CLI_INPUT_EXIT",
+        "evidence_label": "observed"
+      },
+      {
+        "local_key": "INT-06",
+        "title": "ADR migration documentation retains a superseded schema digest and unchanged-version instructions",
+        "classification": "documentation gap",
+        "severity": "medium",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "Documentation / immutable ADR contract provenance",
+        "effort": "small",
+        "impact": "medium",
+        "history": "new",
+        "observation": "The current catalog selects accepted ADR1.2.0 at a05b14f8 and pins the updated schema digest725a7cf5..., while the migration guide still lists491eae26... and says schemas and contract versions remain unchanged.",
+        "evidence": [
+          {
+            "label": "observed",
+            "path": "docs/repository-intelligence.md",
+            "lines": [27, 43],
+            "detail": "The guide claims byte identity and records the old digest while its preceding table now shows1.2.0."
+          },
+          {
+            "label": "observed",
+            "path": ".config/rules/repository-intelligence.v1.toml",
+            "detail": "Catalog alpha.5 selects ADR1.2.0 at a05b14f8 with digest725a7cf58cd0b0454d4d481e8ef72815f29ecca80a5b44da5ce48f7ec6e6b8c4."
+          },
+          {
+            "label": "observed",
+            "path": "vendor/hygiene/adr-policy-owner/schemas/architecture-decision.v1.schema.json",
+            "detail": "Actual SHA256 independently computed as725a7cf58cd0b0454d4d481e8ef72815f29ecca80a5b44da5ce48f7ec6e6b8c4, matching catalog rather than guide."
+          }
+        ],
+        "why_it_matters": "A consumer following the migration text can verify the wrong schema bytes or retain an incompatible contract version despite choosing the current source revision.",
+        "recommendation": "Rewrite the migration guide around exact current1.2 and supported historical1.1 tuples, correct the digest and four-digit behavior, and time-qualify historical compatibility narrative.",
+        "suggested_validation": [
+          "Compare every documented supported tuple and digest with the existing immutable catalog/vendor fixtures.",
+          "Validate examples against the selected native binary and preserve supported older pins and original fixture bytes.",
+          "Use existing meaningful source checks rather than adding a test that merely mirrors copied prose."
+        ],
+        "dependencies_or_risks": "No new policy decision is needed; four-digit policy1.2 is already accepted. Root is consolidating current documentation/navigation drift into one issue home, separate from future claim-drift engine #46.",
+        "suggested_issue_home": "Consolidate with root's current documentation/navigation repair finding; do not create a duplicate lane-only docs issue.",
+        "id": "AUDIT-018",
+        "lane": "intelligence",
+        "issue_key": "CURRENT_DOCS",
+        "evidence_label": "observed"
+      },
+      {
+        "lane_id": "DIST-02",
+        "title": "Container guidance contradicts the reviewed full-engine platform boundary",
+        "classification": "documentation gap",
+        "severity": "low",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "distribution documentation",
+        "effort": "small",
+        "impact": "low",
+        "history": "new",
+        "observation": "The current container instructions request linux/amd64,linux/arm64 for egolint-full, call the reviewed MegaLinter base a manifest-list, and require both-architecture full-engine smokes. The release design also says that the full image is exercised on both architectures. The source contract and actual release matrix instead declare the full image AMD64-only; the same release document later states that limit.",
+        "evidence_label": "observed",
+        "evidence": [
+          {
+            "path": "docs/containers.md",
+            "lines": "33\u201350"
+          },
+          {
+            "path": "docs/releasing.md",
+            "lines": "60\u201365,96\u2013103"
+          },
+          {
+            "path": ".config/release/base-images.v1.json",
+            "lines": "4\u201312"
+          },
+          {
+            "path": ".github/workflows/release.yml",
+            "symbol": "build-images.strategy.matrix.include"
+          }
+        ],
+        "why_it_matters": "A maintainer following the copyable command is directed to an unsupported full-engine target and receives contradictory publication acceptance instructions.",
+        "recommendation": "Align current commands and prose with the checked-in CLI dual-platform/full-engine AMD64-only contract. Retain future ARM64 delivery and proof under #45, separate from correcting present instructions.",
+        "suggested_validation": "Review all user-facing platform and release examples against the declared product matrix; check the corrected example targets. Actual ARM64 full-engine build/consumer proof is required only if the advertised platform contract is intentionally expanded.",
+        "dependencies_or_risks": "Current documentation repair is independently startable; #45's future ARM64 artifact delivery remains gated. Do not use this finding to claim that an ARM64 product was built, released, or validated.",
+        "issue_coverage": {
+          "recommended": "fold into current navigation/documentation follow-up or dated #5 reconciliation note",
+          "existing": [5, 45],
+          "note": "#45 owns future ARM64 support, not a prerequisite for truthful current docs."
+        },
+        "id": "AUDIT-019",
+        "lane": "distribution",
+        "issue_key": "CURRENT_DOCS"
+      },
+      {
+        "local_id": "ROOT-DOCS",
+        "title": "Current source navigation and architecture inventory lag merged implementation",
+        "classification": "documentation gap",
+        "severity": "low",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "current repository navigation and architecture documentation",
+        "effort": "small",
+        "impact": "low",
+        "history": "new",
+        "observation": "The root checkpoint still tells the next worker to merge the four-digit validator candidate even though PR #83 is merged at the audited main revision. ROADMAP.md still presents closed issue #73 as current under-review work and reproduces seven state/parser mismatches already noted in roadmap #42. SYSTEM.md marks the profile catalog, MegaLinter adapter, report normalizer and CLI as Target with repeated generic responsibilities despite their implemented and tested source. Its provisional target intent remains valid context, but it does not provide a usable current implementation inventory.",
+        "evidence": [
+          {
+            "path": "CONTINUITY.md",
+            "section": "State snapshot; Next dependency-ready work",
+            "label": "observed"
+          },
+          {
+            "path": "ROADMAP.md",
+            "section": "Current gate; EGL-Q07; EGL-Q11",
+            "label": "observed"
+          },
+          {
+            "path": "SYSTEM.md",
+            "section": "System inventory",
+            "label": "observed"
+          },
+          {
+            "path": "docs/architecture.md",
+            "section": "Native binary and lightweight image; Full image",
+            "label": "observed"
+          },
+          {
+            "url": "https://github.com/egohygiene/egolint/pull/83",
+            "fact": "merged as 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b",
+            "label": "observed"
+          },
+          {
+            "url": "https://github.com/egohygiene/egolint/issues/73",
+            "fact": "closed when independently inspected",
+            "label": "observed"
+          }
+        ],
+        "why_it_matters": "A new human or agent can repeat delivered work, misread the current release gate or underestimate implemented capabilities. The declared 18-document graph is structurally sound; that does not establish the truth or freshness of its prose.",
+        "recommendation": "Reconcile source navigation, current system responsibilities and implementation evidence while retaining explicit target/proposed status. Hand off roadmap #42's existing source-cleanup note into the focused current-documentation issue. The authorized audit publication refreshes its own operational CONTINUITY checkpoint; that bounded refresh does not complete the wider source-doc repair or accept architecture policy.",
+        "suggested_validation": [
+          "Read all changed navigation, system, contract-version and platform statements against exact source and verified issue/PR states.",
+          "Use the existing native Intelligence parser to reconcile current roadmap warnings and preserve accepted/proposed distinctions.",
+          "Keep the declared graph and actual relative destinations valid; no repository-root layout reorganization or new mirror test is required by this finding."
+        ],
+        "dependencies_or_risks": "No predecessor identified for correcting current evidence and prose. Future documentation-location policy, historical ADR migration, accepted policy changes and complete release acceptance remain with their existing owners.",
+        "issue_key": "CURRENT_DOCS",
+        "id": "AUDIT-020",
+        "lane": "root",
+        "evidence_label": "observed"
+      },
+      {
+        "local_id": "ROOT-LEDGER",
+        "title": "Roadmap #42 does not represent the complete current open backlog",
+        "classification": "documentation gap",
+        "severity": "low",
+        "confidence": "high",
+        "status": "confirmed",
+        "area": "repository execution ledger and issue coverage",
+        "effort": "small",
+        "impact": "low",
+        "history": "new",
+        "observation": "At the frozen starting observation there are 27 open local work issues plus roadmap #42, and no open PR. The parent directly links 10 of those work issues and omits 17. All 28 original issues have no native parent or children; the older parent also includes closed local foundations and external organization coordination. Those historical references are useful but are not complete current local work coverage.",
+        "evidence": [
+          {
+            "url": "https://github.com/egohygiene/egolint/issues/42",
+            "label": "observed",
+            "fact": "complete original body and metadata saved before mutation"
+          },
+          {
+            "label": "observed",
+            "artifact": "original-open-issues.json",
+            "fact": "27 local work scopes plus parent; complete original title/body/labels"
+          },
+          {
+            "label": "observed",
+            "artifact": "ledger-assessment.json",
+            "fact": "direct current links 5,29,35,36,37,38,39,40,41,77; all 28 original native child sets empty"
+          }
+        ],
+        "why_it_matters": "Workers resuming from the existing parent can miss substantial public work and have no native complete-backlog ledger. Closed foundations and external programs must not inflate local outstanding counts.",
+        "recommendation": "Refresh existing #42 rather than create another parent. Preserve its exact original body as clearly dated historical program context, retain all original titles, labels, text, comments and semantic Program/Parent links, and attach every original open work issue plus focused public audit follow-ups exactly once in the agreed order. Mark full-outcome gates without treating all preparation as blocked.",
+        "suggested_validation": [
+          "Verify the complete original set and focused additions exactly once in the parent body and native hierarchy, with no closed/cross-repository item counted as local open work.",
+          "Verify original body prefixes remain intact on work issues; preserve the entire original #42 text under its historical heading.",
+          "Verify the agreed issue order, markers, counts, next action and native completed count against actual provider state after publication."
+        ],
+        "dependencies_or_risks": "No external predecessor identified for this authorized planning workflow. The audit publication addresses ledger completeness only; no original acceptance, source fix, release, adoption or optional research is completed merely by linkage.",
+        "issue_key": "EXISTING_42",
+        "id": "AUDIT-021",
+        "lane": "root",
+        "evidence_label": "observed"
+      }
+    ]
+  },
+  "ledger_at_report_freeze": {
+    "parent": 42,
+    "original_open_issues_including_parent": 28,
+    "original_work": 27,
+    "initial_open_pr_count": 0,
+    "all_original_native_parents_and_children_empty": true,
+    "original_issue_identity": [
+      {
+        "number": 77,
+        "title": "Add optional offline EPUB validation through pinned EPUBCheck",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "f6015f920096d68f64f07a55eab50b606a420cb183a5acbe47bba6ce5497aa5a",
+        "comments": 0
+      },
+      {
+        "number": 76,
+        "title": "\u2705 [Release checkpoint 6] Validate the evolved release model and authority rules",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "f96a3b18c213fb11fb75b0743f21a92bc26ffd372a85eb9aaa1e1dac8f50915e",
+        "comments": 0
+      },
+      {
+        "number": 74,
+        "title": "Define pinned offline diagram validation capabilities for shared architecture checks",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "be1a317269435299c4c088e7fa6cf866ac1c07514a75a1d01dedf4ab1d241e23",
+        "comments": 0
+      },
+      {
+        "number": 72,
+        "title": "Add a CSpell custom-dictionary redundancy auditor",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "26d9d67299fe4e13609a88b153a0113639b0227b68ceea5501de5d16fd22517d",
+        "comments": 0
+      },
+      {
+        "number": 69,
+        "title": "feat(releases): checkpoint 5 \u2014 dogfood and finalize conformance",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "d573e4311fa32899ea9e70949f3dbdcf78ae69a2daeb18c11392f12514acaa36",
+        "comments": 0
+      },
+      {
+        "number": 68,
+        "title": "test(releases): checkpoint 4 \u2014 prove the fixture matrix",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "878b873efc26c437bec6422ecdc940f1fbeb1f5cfef6642a096c9c00b1f7f37f",
+        "comments": 0
+      },
+      {
+        "number": 60,
+        "title": "Backfill repository ADR history and enable continuous decision capture",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "34328ce2e6e6e1524c9258ef2955f5a934f0dc11bc12214b74745cea0c9d9b54",
+        "comments": 0
+      },
+      {
+        "number": 55,
+        "title": "Validate repository continuity files and agent handoff wiring",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "4c16adc1645539a6f962fb0ec029c82b8848003b61ad826ffe1f8aa0146025ca",
+        "comments": 0
+      },
+      {
+        "number": 54,
+        "title": "Run a post-baseline tool-gap and overlap audit",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "9c841daedade79fffea4125e0d80fde8ef0aaacbd06be61dd5316daf48b56edc",
+        "comments": 0
+      },
+      {
+        "number": 53,
+        "title": "Define canonical formatter ownership across editors, hooks, tasks, and CI",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "87f561922fd2a1e1e20da6ce058bc6b653026fb4ae6a69cab9b1cd82b903ce9b",
+        "comments": 0
+      },
+      {
+        "number": 52,
+        "title": "Evaluate Betterleaks as the default Git-oriented secret scanner",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "67aba503ba25aeee4d7ba756cf0fe27bb12aa9e0b29fe248ceb7528421fbddfe",
+        "comments": 0
+      },
+      {
+        "number": 51,
+        "title": "Graduate the proven universal MegaLinter policy corpus into EgoLint",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "04bb88e0e1e0dd6ea1fe7954b46c91b7a5307403baf1a7bd99073f5fa3f9cbe3",
+        "comments": 0
+      },
+      {
+        "number": 50,
+        "title": "Validate repository diagnosis records and derived indexes",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "6225196888da8878605fe06d540bb978c170c0e59da06c230e574e9a8a606ba7",
+        "comments": 0
+      },
+      {
+        "number": 49,
+        "title": "Implement the canonical commit validator and interactive authoring adapter",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "1300f084213bfab821a98b0b61e508166f1f789d39769776406df0b9d4eb5ea4",
+        "comments": 0
+      },
+      {
+        "number": 48,
+        "title": "Validate checkpoint-audit evidence, schema, lifecycle, and drift",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "2282403ed136b99a8fa075b934478110afa890db888a17d8ad20d39d942176d2",
+        "comments": 0
+      },
+      {
+        "number": 47,
+        "title": "Evaluate Copywrite for governed copyright and SPDX header management",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "c9bda97babe8e83f11b36e1314ab6a6fff15b0cafe6deb13f5f40615320afafe",
+        "comments": 0
+      },
+      {
+        "number": 46,
+        "title": "Detect documentation, badge, compatibility, and benchmark evidence drift",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "44a64abdd76fdc0e0273a1c3a25b09e4dc4f5cd5a32a8cbfd4601690826dcb97",
+        "comments": 0
+      },
+      {
+        "number": 45,
+        "title": "Publish a contract-complete ARM64 full-engine image",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "c2feebeae6dbb3e11820d8c728e25cbb4d2635efb482ab4973541d7b92b4532e",
+        "comments": 0
+      },
+      {
+        "number": 42,
+        "title": "Roadmap: ship the adaptive EgoLint quality distribution",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "ae957cc171761bd48ed16cdbdf156f4067f540fa9b4063c796feccdac3fb220b",
+        "comments": 0
+      },
+      {
+        "number": 41,
+        "title": "Design an authorized DAST capability with DalFox",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "31cd229da1941a85831622df8a95b26730333cf81add24a004fd620773ea37ce",
+        "comments": 0
+      },
+      {
+        "number": 40,
+        "title": "Add a template-driven web runtime quality capability",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "d342110d76d6e192eec3a5839783355ec31f77d366da0277b2560784f8993c27",
+        "comments": 0
+      },
+      {
+        "number": 39,
+        "title": "Add cargo-semver-checks to the Rust release capability",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "789aecdc1e54824d18f3e36471ec99b2c8e7b4ea2466e7a1ce1dfcc90c8268b8",
+        "comments": 0
+      },
+      {
+        "number": 38,
+        "title": "Add cargo-machete to the Rust dependency-debt capability",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "ced412b6c2fb9214b257ba27b7b516cb73fe35784d4c60ae94cca6d332ca2941",
+        "comments": 0
+      },
+      {
+        "number": 37,
+        "title": "Evaluate ast-grep for cross-language structural policy",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "a32fcdc970312ea253872a2c9be38e036e570c61d9d20978aaaffbb12a97fa97",
+        "comments": 0
+      },
+      {
+        "number": 36,
+        "title": "Implement manual, observe, ratchet, and enforce modes",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "b4fa0603ab2533d90dc71e961c8a353695dc5fb94cda543a3dc110e2095c0c46",
+        "comments": 0
+      },
+      {
+        "number": 35,
+        "title": "Define adaptive capability detection and execution policy",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "551e08ed36c3c09c690da82806d3314bfa7afdb90c5ea33e53e61e0b355522cd",
+        "comments": 0
+      },
+      {
+        "number": 29,
+        "title": "feat(releases): validate semantic release, changelog, and version-source conformance",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "bd6033dd8516fe7a639b45eb768cef599f058fb3c07735339d6bc81bc1f39f32",
+        "comments": 0
+      },
+      {
+        "number": 5,
+        "title": "Release Egolint with security and dependency-debt profiles",
+        "state": "open",
+        "labels": [],
+        "body_sha256": "c3f79894a36de392d6f4578e422f164d3cba98b1d5be2a4179e84375c82c62df",
+        "comments": 1
+      }
+    ],
+    "original_work_assessment": [
+      {
+        "number": 68,
+        "title": "test(releases): checkpoint 4 \u2014 prove the fixture matrix",
+        "full_outcome_gate": false,
+        "remaining_scope": "Continue the existing release-v1 positive/negative/advisory/external/unavailable fixture matrix.",
+        "track": "core-v1",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 69,
+        "title": "feat(releases): checkpoint 5 \u2014 dogfood and finalize conformance",
+        "full_outcome_gate": true,
+        "remaining_scope": "Dogfood and finalize the existing release-v1 capability, package contents, guidance and exact-head checks.",
+        "track": "core-v1",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 29,
+        "title": "feat(releases): validate semantic release, changelog, and version-source conformance",
+        "full_outcome_gate": true,
+        "remaining_scope": "Close out the existing v1 release-conformance parent after its remaining checkpoints satisfy acceptance.",
+        "track": "core-v1",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 51,
+        "title": "Graduate the proven universal MegaLinter policy corpus into EgoLint",
+        "full_outcome_gate": true,
+        "remaining_scope": "Curate reusable configuration and fixture corpus into canonical EgoLint packs, preserving provenance and consumer exceptions.",
+        "track": "core-curation",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 53,
+        "title": "Define canonical formatter ownership across editors, hooks, tasks, and CI",
+        "full_outcome_gate": false,
+        "remaining_scope": "Define one formatter ownership matrix and prove editor/hook/task/CLI/CI consistency.",
+        "track": "core-dx",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 54,
+        "title": "Run a post-baseline tool-gap and overlap audit",
+        "full_outcome_gate": true,
+        "remaining_scope": "After the existing universal baseline is accepted, produce the gap/overlap adopt-adapt-defer-reject tool matrix.",
+        "track": "optional-curation",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 5,
+        "title": "Release Egolint with security and dependency-debt profiles",
+        "full_outcome_gate": true,
+        "remaining_scope": "Qualify and perform the selected signed immutable release and digest-pinned adoption in Empathy plus one other consumer.",
+        "track": "release-gate",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 35,
+        "title": "Define adaptive capability detection and execution policy",
+        "full_outcome_gate": true,
+        "remaining_scope": "Define the typed adaptive capability registry, applicability/execution placement and explanatory plans.",
+        "track": "core-adaptive",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 36,
+        "title": "Implement manual, observe, ratchet, and enforce modes",
+        "full_outcome_gate": true,
+        "remaining_scope": "Implement coherent manual/observe/ratchet/enforce modes and evidence-bound baselines.",
+        "track": "core-adoption",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 52,
+        "title": "Evaluate Betterleaks as the default Git-oriented secret scanner",
+        "full_outcome_gate": false,
+        "remaining_scope": "Evaluate Betterleaks against the existing scanners and record an evidence-backed adopt/adapt/defer/reject decision.",
+        "track": "optional-evaluation",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 47,
+        "title": "Evaluate Copywrite for governed copyright and SPDX header management",
+        "full_outcome_gate": false,
+        "remaining_scope": "Evaluate Copywrite/REUSE/header alternatives with explicit copyright and mutation boundaries.",
+        "track": "optional-evaluation",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 72,
+        "title": "Add a CSpell custom-dictionary redundancy auditor",
+        "full_outcome_gate": false,
+        "remaining_scope": "Build a maintained CSpell-compatible dictionary redundancy auditor with stable output and guarded cleanup.",
+        "track": "optional-capability",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 74,
+        "title": "Define pinned offline diagram validation capabilities for shared architecture checks",
+        "full_outcome_gate": false,
+        "remaining_scope": "Define pinned offline format-owned diagram validation capabilities and exact unavailable/failure semantics.",
+        "track": "optional-capability",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 77,
+        "title": "Add optional offline EPUB validation through pinned EPUBCheck",
+        "full_outcome_gate": false,
+        "remaining_scope": "Implement an explicitly selectable pinned offline EPUBCheck adapter using existing normalized report contracts.",
+        "track": "optional-capability",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 37,
+        "title": "Evaluate ast-grep for cross-language structural policy",
+        "full_outcome_gate": true,
+        "remaining_scope": "Evaluate and optionally adapt ast-grep for structural policies with ownership and performance evidence.",
+        "track": "optional-evaluation",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 38,
+        "title": "Add cargo-machete to the Rust dependency-debt capability",
+        "full_outcome_gate": true,
+        "remaining_scope": "Integrate bounded cargo-machete dependency-debt evidence with applicability and exceptions.",
+        "track": "optional-capability",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 39,
+        "title": "Add cargo-semver-checks to the Rust release capability",
+        "full_outcome_gate": true,
+        "remaining_scope": "Integrate release-lifecycle Rust API compatibility evidence against an immutable valid baseline.",
+        "track": "optional-capability",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 40,
+        "title": "Add a template-driven web runtime quality capability",
+        "full_outcome_gate": true,
+        "remaining_scope": "Add declared local/authorized preview web-runtime quality capability with normalized per-audit evidence.",
+        "track": "optional-capability",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 41,
+        "title": "Design an authorized DAST capability with DalFox",
+        "full_outcome_gate": true,
+        "remaining_scope": "Design explicitly authorized bounded DAST with privacy-safe scanner findings.",
+        "track": "optional-capability",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 45,
+        "title": "Publish a contract-complete ARM64 full-engine image",
+        "full_outcome_gate": true,
+        "remaining_scope": "Deliver and prove a contract-complete ARM64 full engine at an approved supported provider/runtime boundary.",
+        "track": "optional-platform",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 49,
+        "title": "Implement the canonical commit validator and interactive authoring adapter",
+        "full_outcome_gate": true,
+        "remaining_scope": "Consume one canonical prospective commit/PR-title semantic contract for validator and interactive authoring.",
+        "track": "contract-expansion",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 50,
+        "title": "Validate repository diagnosis records and derived indexes",
+        "full_outcome_gate": true,
+        "remaining_scope": "Validate optional diagnosis-record structure, references, states and derived-index provenance.",
+        "track": "contract-expansion",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 48,
+        "title": "Validate checkpoint-audit evidence, schema, lifecycle, and drift",
+        "full_outcome_gate": true,
+        "remaining_scope": "Validate canonical checkpoint-report/finding/evidence lifecycle and delta contracts.",
+        "track": "contract-expansion",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 46,
+        "title": "Detect documentation, badge, compatibility, and benchmark evidence drift",
+        "full_outcome_gate": true,
+        "remaining_scope": "Validate mechanically checkable documentation/compatibility/benchmark claims against versioned evidence.",
+        "track": "contract-expansion",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 76,
+        "title": "\u2705 [Release checkpoint 6] Validate the evolved release model and authority rules",
+        "full_outcome_gate": true,
+        "remaining_scope": "Apply only the accepted successor release contract delta while preserving the current-v1 validator and checkpoints.",
+        "track": "successor-release",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 55,
+        "title": "Validate repository continuity files and agent handoff wiring",
+        "full_outcome_gate": true,
+        "remaining_scope": "Finish continuity capability acceptance against actual released upstream contracts and review any promotion.",
+        "track": "contract-activation",
+        "bounded_preparation_possible": true
+      },
+      {
+        "number": 60,
+        "title": "Backfill repository ADR history and enable continuous decision capture",
+        "full_outcome_gate": true,
+        "remaining_scope": "Perform evidence-backed local ADR migration/continuous capture only at the explicit shared-system scheduling checkpoint.",
+        "track": "scheduled-adoption",
+        "bounded_preparation_possible": false
+      }
+    ],
+    "historical_parent_direct_open_scope_count": 10,
+    "historical_parent_omitted_open_scopes": [
+      45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 60, 68, 69, 72, 74, 76
+    ],
+    "planned_new_homes": [
+      {
+        "key": "NATIVE_REPORT_LIFECYCLE",
+        "title": "Keep focused native reports bound to the current invocation",
+        "findings": ["AUDIT-003"],
+        "startable": true
+      },
+      {
+        "key": "JS_ADAPTER_EVIDENCE",
+        "title": "Preserve JavaScript adapter outcomes and validate report envelopes",
+        "findings": ["AUDIT-012"],
+        "startable": true
+      },
+      {
+        "key": "INTELLIGENCE_ADOPTION_STATUS",
+        "title": "Propagate contradictory represented-source evidence into Intelligence status",
+        "findings": ["AUDIT-008"],
+        "startable": true
+      },
+      {
+        "key": "PRESENTATION_INTEGRITY",
+        "title": "Require complete referenced asset coverage in presentation validation",
+        "findings": ["AUDIT-004"],
+        "startable": true
+      },
+      {
+        "key": "CONTINUITY_SCHEMA_PARITY",
+        "title": "Make native continuity structure checks match the pinned Aether schema",
+        "findings": ["AUDIT-009"],
+        "startable": true
+      },
+      {
+        "key": "RELEASE_INPUT_CONTRACT",
+        "title": "Reject malformed image and product records in release input validation",
+        "findings": ["AUDIT-016"],
+        "startable": true
+      },
+      {
+        "key": "RELEASE_TASK_BINDING",
+        "title": "Bind release Task handoffs to the actual declared workflow command",
+        "findings": ["AUDIT-007"],
+        "startable": true
+      },
+      {
+        "key": "MARKDOWN_SOURCE_GRAMMAR",
+        "title": "Exclude Markdown literal examples from ADR and roadmap structure",
+        "findings": ["AUDIT-005"],
+        "startable": true
+      },
+      {
+        "key": "ADR_REFERENCE_GRAMMAR",
+        "title": "Validate HTTP authorities and GitHub identities in ADR evidence links",
+        "findings": ["AUDIT-006"],
+        "startable": true
+      },
+      {
+        "key": "FIX_PREVIEW",
+        "title": "Support custom configuration and tracked executables in isolated fix previews",
+        "findings": ["AUDIT-001", "AUDIT-002"],
+        "startable": true
+      },
+      {
+        "key": "PORTABILITY_PATH_PREFIXES",
+        "title": "Detect case-folded file and directory conflicts in portability inventory",
+        "findings": ["AUDIT-010"],
+        "startable": true
+      },
+      {
+        "key": "PORTABILITY_INCLUDE_MATRIX",
+        "title": "Recognize static matrix.include operating systems in workflow shell checks",
+        "findings": ["AUDIT-011"],
+        "startable": true
+      },
+      {
+        "key": "JS_MANIFEST_CONTRACT",
+        "title": "Enforce the closed JavaScript package-quality manifest contract",
+        "findings": ["AUDIT-013"],
+        "startable": true
+      },
+      {
+        "key": "JSON_SKOOMA_CONFIG",
+        "title": "Return structured JSONSkooma configuration errors for malformed types",
+        "findings": ["AUDIT-014"],
+        "startable": true
+      },
+      {
+        "key": "JSON_SKOOMA_REPORT_ROUTING",
+        "title": "Use one report-path anchor across JSONSkooma activation branches",
+        "findings": ["AUDIT-015"],
+        "startable": true
+      },
+      {
+        "key": "CLI_INPUT_EXIT",
+        "title": "Classify missing native policy inputs as configuration errors",
+        "findings": ["AUDIT-017"],
+        "startable": true
+      },
+      {
+        "key": "CURRENT_DOCS",
+        "title": "Reconcile current EgoLint architecture, support and execution documentation",
+        "findings": ["AUDIT-018", "AUDIT-019", "AUDIT-020"],
+        "startable": true
+      }
+    ],
+    "planned_focus_order": [
+      "NATIVE_REPORT_LIFECYCLE",
+      "JS_ADAPTER_EVIDENCE",
+      "INTELLIGENCE_ADOPTION_STATUS",
+      "PRESENTATION_INTEGRITY",
+      "CONTINUITY_SCHEMA_PARITY",
+      "RELEASE_INPUT_CONTRACT",
+      "RELEASE_TASK_BINDING",
+      "MARKDOWN_SOURCE_GRAMMAR",
+      "ADR_REFERENCE_GRAMMAR",
+      "FIX_PREVIEW",
+      "PORTABILITY_PATH_PREFIXES",
+      "PORTABILITY_INCLUDE_MATRIX",
+      "JS_MANIFEST_CONTRACT",
+      "JSON_SKOOMA_CONFIG",
+      "JSON_SKOOMA_REPORT_ROUTING",
+      "CLI_INPUT_EXIT",
+      "CURRENT_DOCS",
+      68,
+      69,
+      29,
+      53,
+      51,
+      54,
+      5,
+      35,
+      36,
+      52,
+      47,
+      72,
+      74,
+      77,
+      37,
+      38,
+      39,
+      40,
+      41,
+      45,
+      49,
+      50,
+      48,
+      46,
+      76,
+      55,
+      60
+    ],
+    "planned_starred": [
+      69, 29, 51, 54, 5, 35, 36, 37, 38, 39, 40, 41, 45, 49, 50, 48, 46, 76, 55, 60
+    ],
+    "planned_counts": {
+      "originals": 27,
+      "new": 17,
+      "total": 44,
+      "startable": 24,
+      "gated": 20
+    },
+    "provider_write_status": "Not yet claimed at report freeze. Authorized downstream publication creates the focused issues and verifies native hierarchy; roadmap #42 owns live state.",
+    "original_parent_preservation": "Exact complete original body retained as dated historical program context; work issues retain original body prefixes and metadata."
+  },
+  "publication_scope": {
+    "planned_files": [
+      "audits/egolint-completeness-20261020T222416Z.md",
+      "audits/data/egolint-completeness-20261020T222416Z.validation.json",
+      "audits/data/egolint-completeness-20261020T222416Z.core-repros.py.txt",
+      "audits/data/egolint-completeness-20261020T222416Z.distribution-repros.py.txt",
+      "audits/data/egolint-completeness-20261020T222416Z.intelligence-repros.py.txt",
+      "audits/data/egolint-completeness-20261020T222416Z.validators-repros.py.txt",
+      "audits/data/egolint-completeness-20261020T222416Z.adapters-repros.py.txt",
+      "CONTINUITY.md"
+    ],
+    "implementation_repairs": false,
+    "policy_promotion": false,
+    "historical_audit_changes": false,
+    "merge_release_deployment_or_fleet_adoption": false,
+    "adr_assessment": "Not required: dated observations, evidence, ledger and operational handoff only."
+  },
+  "privacy": {
+    "public_security_details_included": false,
+    "private_context_or_incubator_inventory_included": false,
+    "raw_execution_paths_environment_values_and_logs_included": false,
+    "security_followup": "Technical security review material is held separately under SECURITY.md for owner disposition. Public planning and passing checks do not complete that process."
+  },
+  "limitations": [
+    "Five probe programs exercise synthetic seam inputs and current behavior; expected counterexamples are not repairs.",
+    "Trusted Docker/pnpm/Ruby stubs isolate orchestrator behavior; actual analyzer/container/runtime semantics require separate matching evidence.",
+    "Hosted results are actual provider-reported exact-main jobs, not an independent local image rerun or published release.",
+    "Source scans and declared graph checks are bounded and do not certify exhaustive security, performance, accessibility, every platform or every fixture.",
+    "Private source inputs, private security details and deferred authority decisions are intentionally outside the public receipt."
+  ],
+  "report": {
+    "path": "audits/egolint-completeness-20261020T222416Z.md",
+    "sha256": "ea7a56a308b3150bd49a46f1060557a58c1eb059a861426c46bdd9f861d1dc03",
+    "bytes": 96373
+  }
+}

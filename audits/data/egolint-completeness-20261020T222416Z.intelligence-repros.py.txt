@@ -1,0 +1,181 @@
+#!/usr/bin/env python3
+"""Disposable public/synthetic CLI probes against a selected frozen EgoLint binary."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import tempfile
+
+
+def write(root, name, value):
+    path = root / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if isinstance(value, (dict, list)):
+        value = json.dumps(value, indent=2) + "\n"
+    path.write_text(value)
+
+
+def command(args, root):
+    env = {key: value for key, value in os.environ.items() if not key.startswith("EGOLINT_")}
+    env["CI"] = "true"
+    return subprocess.run(args, cwd=root, env=env, capture_output=True, text=True, timeout=30)
+
+
+def initialize(root):
+    with tempfile.TemporaryDirectory() as template:
+        result = command(["git", "init", "--quiet", "--template", template], root)
+        assert result.returncode == 0, result.stderr
+    result = command(["git", "-c", "user.name=Synthetic Audit", "-c", "user.email=audit@example.invalid", "-c", "commit.gpgsign=false", "commit", "--quiet", "--allow-empty", "--message", "Synthetic audit fixture"], root)
+    assert result.returncode == 0, result.stderr
+    return command(["git", "rev-parse", "HEAD"], root).stdout.strip()
+
+
+def validate(binary, root, family, policy=None, commit=None):
+    args = [str(binary), "--workspace", str(root), "validate"]
+    if family != "repository-release":
+        args += ["--release-adoption-state", "not-applicable", "--" + family, policy, "--represented-commit", commit]
+    else:
+        args += ["--release-adoption-state", "required"]
+    result = command(args, root)
+    path = root / ".reports/egolint" / (family + ".json")
+    if not path.exists():
+        return {"exit": result.returncode, "no_report": True, "stderr": result.stderr[:400]}
+    focused = json.loads(path.read_text())
+    return {"exit": result.returncode, "status": focused.get("status", focused.get("state")), "summary": focused["summary"], "diagnostics": [{"rule_id": item["rule_id"], "message": item["message"]} for item in focused.get("diagnostics", [])], "checks": [{"rule_id": item["rule_id"], "state": item["state"], "message": item["message"]} for item in focused.get("checks", [])]}
+
+
+def intelligence(source, binary):
+    cases = {}
+    fixture = source / "tests/fixtures/repository-intelligence/valid"
+    for case in ["control", "present_sources_without_represented_commit", "adr_missing_context_control", "adr_anatomy_in_code_fence", "roadmap_empty_control", "roadmap_all_in_code_fence", "adr_invalid_evidence_urls"]:
+        with tempfile.TemporaryDirectory(prefix="egolint-intelligence-") as temporary:
+            root = Path(temporary)
+            shutil.copytree(fixture, root, dirs_exist_ok=True)
+            sha = initialize(root)
+            path = root / "docs/decisions/ADR-0001-validation-contract.md"
+            text = path.read_text()
+            if case == "adr_missing_context_control":
+                path.write_text(text.replace("## Context", "## Missing synthetic section"))
+            elif case == "adr_anatomy_in_code_fence":
+                front, body = text.split("\n---\n", 1)
+                path.write_text(front + "\n---\n\n```markdown\n" + body.strip() + "\n```\n")
+            elif case == "roadmap_empty_control":
+                write(root, "ROADMAP.md", "# Synthetic roadmap without records\n")
+            elif case == "roadmap_all_in_code_fence":
+                roadmap = root / "ROADMAP.md"
+                roadmap.write_text("```markdown\n" + roadmap.read_text() + "\n```\n")
+            elif case == "adr_invalid_evidence_urls":
+                path.write_text(text.replace("https://github.com/egohygiene/egolint/issues/24", "https://github.com///issues/24").replace("evidence: []", 'evidence: [{type: external, url: "https:///.", description: "Synthetic invalid destination"}]'))
+            cases[case] = validate(binary, root, "repository-intelligence", "policy.toml", "not-applicable" if case == "present_sources_without_represented_commit" else sha)
+    return cases
+
+
+def presentation(source, binary):
+    cases = {}
+    for case in ["control", "changed_banner_full_manifest", "changed_banner_empty_manifest", "changed_banner_partial_manifest", "missing_banner_descriptor"]:
+        with tempfile.TemporaryDirectory(prefix="egolint-presentation-") as temporary:
+            root = Path(temporary)
+            sha = initialize(root)
+            package_dir = root / "assets/identity/repository-presentation"
+            shutil.copytree(source / "assets/identity/repository-presentation", package_dir)
+            profile = json.loads((source / "vendor/hygiene/repository-presentation-profile.v1.json").read_text())
+            write(root, "vendor/hygiene/repository-presentation-profile.json", profile)
+            policy = (source / "examples/repository-presentation.toml").read_text().replace('repository = "egohygiene/example"', 'repository = "egohygiene/egolint"').replace('mode = "advisory"', 'mode = "blocking"').replace('package-path = "assets/identity/repository-presentation.json"', 'package-path = "assets/identity/repository-presentation/repository-presentation.json"').replace('manifest-path = "assets/identity/repository-presentation-manifest.json"', 'manifest-path = "assets/identity/repository-presentation/repository-presentation-manifest.json"')
+            write(root, "presentation.toml", policy)
+            requirements = {item["id"]: item["default_requirement"] for item in profile["slots"]}
+            for group, name in [("type_overrides", "tool"), ("visibility_overrides", "public"), ("lifecycle_overrides", "incubating")]:
+                requirements.update(profile[group][name])
+            evidence = json.loads((source / "evidence/repository-presentation.json").read_text())
+            evidence["repository"]["represented_commit"] = sha
+            evidence["assessment"]["state"] = "passing"
+            evidence["badge"].update(state="passing", message="repository profile passing", represented_commit=sha)
+            evidence["slots"] = [{"id": key, "requirement": value, "state": "passing", "evidence": [{"kind": "documentation", "location": "README.md", "assertion": "Synthetic fixture", "freshness": "current"}]} for key, value in requirements.items()]
+            write(root, "evidence/repository-presentation.json", evidence)
+            package_path = package_dir / "repository-presentation.json"
+            package = json.loads(package_path.read_text())
+            package["profile"]["commit"] = "cb2ed63425d29abada2d2bbb43a3b3e59d11aeb8"
+            package["badge"].update(state="passing", message="repository profile passing", representedCommit=sha)
+            banner = package["banner"]["variants"][0]["svg"]
+            badge = package["badge"]["svg"]
+            if case == "missing_banner_descriptor":
+                del package["banner"]
+            write(root, "assets/identity/repository-presentation/repository-presentation.json", package)
+            readme = "# Synthetic presentation fixture\n\n" + "\n".join("<!-- repository-presentation:slot " + key + " -->" for key, value in requirements.items() if value == "required")
+            readme += '\n<!-- repository-presentation:begin owner=egohygiene/identity profile=1.0.0-alpha.1 -->\n'
+            readme += "![Synthetic banner](assets/identity/repository-presentation/" + banner + ")\n"
+            readme += "![Synthetic badge](assets/identity/repository-presentation/" + badge + ")\n<!-- repository-presentation:end -->\n"
+            write(root, "README.md", readme)
+            manifest_path = package_dir / "repository-presentation-manifest.json"
+            manifest = json.loads(manifest_path.read_text())
+            manifest["evidence"].update(state="passing", representedCommit=sha)
+            for relative, metadata in manifest["files"].items():
+                payload = (package_dir / relative).read_bytes()
+                metadata.update(bytes=len(payload), sha256=hashlib.sha256(payload).hexdigest())
+            if case.startswith("changed_banner"):
+                (package_dir / banner).write_text("<svg>Synthetic changed content</svg>\n")
+            if case == "changed_banner_empty_manifest":
+                manifest["files"] = {}
+            elif case == "changed_banner_partial_manifest":
+                manifest["files"].pop(banner)
+            write(root, "assets/identity/repository-presentation/repository-presentation-manifest.json", manifest)
+            cases[case] = validate(binary, root, "repository-presentation", "presentation.toml", sha)
+    return cases
+
+
+def release(source, binary):
+    cases = {}
+    rust = (source / "tests/repository_release_pipeline.rs").read_text()
+    declaration = json.loads(re.search(r"let declaration = json!\((\{.*?\})\);", rust, re.S)[1])
+    for case in ["control", "echo_only_publish_handoff", "different_workflow_with_declared_path_in_comment"]:
+        with tempfile.TemporaryDirectory(prefix="egolint-release-") as temporary:
+            root = Path(temporary)
+            initialize(root)
+            write(root, ".egohygiene/release.json", declaration)
+            write(root, "AGENTS.md", "Release facts: .egohygiene/release.json\n")
+            write(root, "CHANGELOG.md", "# Changelog\n\n## [Unreleased]\n")
+            write(root, "Cargo.toml", '[package]\nname = "release-fixture"\nversion = "0.1.0"\n')
+            publish = "gh workflow run .github/workflows/release.yml"
+            if case == "echo_only_publish_handoff":
+                publish = "echo gh workflow run .github/workflows/release.yml"
+            elif case == "different_workflow_with_declared_path_in_comment":
+                publish = "gh workflow run .github/workflows/other.yml # .github/workflows/release.yml"
+            write(root, "Taskfile.yml", "version: \"3\"\ntasks:\n  release:plan: {cmds: [\"true\"]}\n  release:prepare: {cmds: [\"true\"]}\n  release:verify: {cmds: [\"true\"]}\n  release:publish:\n    cmds:\n      - " + json.dumps(publish) + "\n")
+            write(root, ".github/workflows/release.yml", "name: Release\non:\n  workflow_dispatch:\njobs:\n  release:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@" + "a" * 40 + "\n")
+            cases[case] = validate(binary, root, "repository-release")
+    return cases
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source", type=Path, required=True)
+    parser.add_argument("--binary", type=Path, required=True)
+    parser.add_argument("--output", type=Path)
+    args = parser.parse_args()
+    results = {"source_revision": command(["git", "rev-parse", "HEAD"], args.source).stdout.strip(), "binary_sha256": hashlib.sha256(args.binary.read_bytes()).hexdigest(), "intelligence": intelligence(args.source, args.binary), "presentation": presentation(args.source, args.binary), "release": release(args.source, args.binary)}
+    for case in ["control", "present_sources_without_represented_commit", "adr_anatomy_in_code_fence", "roadmap_all_in_code_fence", "adr_invalid_evidence_urls"]:
+        assert results["intelligence"][case]["exit"] == 0
+        assert results["intelligence"][case]["status"] == "valid"
+    assert results["intelligence"]["adr_missing_context_control"]["status"] == "invalid"
+    assert results["intelligence"]["roadmap_empty_control"]["status"] == "invalid"
+    for case in ["control", "changed_banner_empty_manifest", "changed_banner_partial_manifest", "missing_banner_descriptor"]:
+        assert results["presentation"][case]["exit"] == 0
+        assert results["presentation"][case]["status"] == "valid"
+    assert results["presentation"]["changed_banner_full_manifest"]["status"] == "invalid"
+    for case in results["release"].values():
+        assert case["exit"] == 0
+        assert case["status"] == "compliant"
+        assert case["summary"]["validation_complete"] is True
+        assert case["summary"]["checks_completed"] == 7
+    results["probe_expectations_satisfied"] = True
+    payload = json.dumps(results, indent=2) + "\n"
+    if args.output:
+        args.output.write_text(payload)
+    print(payload, end="")
+
+
+if __name__ == "__main__":
+    main()
