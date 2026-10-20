@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-10-20T22:54:00.607204+00:00"
+  updated_at: "2026-10-20T23:07:09.009025+00:00"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -15,7 +15,7 @@ document:
 scope:
   purpose: Resume the published audit and complete execution ledger at native report-lifecycle issue 85 after review.
   includes:
-    - Frozen public audit, bounded validation evidence, live publication state and next ready handoff.
+    - Canonical public audit references, bounded validation evidence, live publication state and next ready handoff.
   excludes:
     - Transcripts, duplicated backlog, implementation repairs, policy promotion, historical ADR disposition, releases
       and deployments.
@@ -45,8 +45,8 @@ scope:
 work:
   objective: Resume from the published public audit and reconciled roadmap 42 at issue 85 after the maintainer checkpoint.
   success_conditions:
-    - Canonical audit references remain immutable at 173e378dcc36d43d91a051428320210c5fdb58ff; six report/probe byte
-      identities and receipt JSON meaning are preserved.
+    - Five probes retain exact bytes; the current report changes only two inline references and paragraph reflow and
+      receipt changes only report identity metadata and whitespace.
     - All 27 original scopes and 17 focused additions are represented by 44 unique open native children in exact roadmap
       order.
   active_issue:
@@ -66,7 +66,7 @@ state:
   base:
     revision: 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b
     ref: refs/heads/main
-    verified_at: "2026-10-20T22:52:03.090Z"
+    verified_at: "2026-10-20T23:05:36.458Z"
   candidate:
     branch: audit/egolint-completeness-20261020
     revision: null
@@ -77,19 +77,19 @@ state:
     handoff_state: review-reference-recorded
   live:
     status: verified
-    observed_at: "2026-10-20T22:52:03.090Z"
+    observed_at: "2026-10-20T23:05:36.458Z"
     default_branch_revision: 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b
     issue_state: open
     pull_request_state: draft
     notes:
-      Main is unchanged. PR 84 is draft/open/unmerged with observed head 16e4a8097f26c5ca3d3581cb7d1d9741634af942;
-      that is the prior published candidate, not this later handoff's containing revision. Roadmap 42 and next issue
-      85 are open. All 44 native children are unique/open and match focus order. Candidate Dogfood failed; the reviewed
-      receipt-format correction and later head require separate verification.
+      Main is unchanged. PR 84 is draft/open/unmerged at observed head cddb5a0768e840d1cdc7e2687a7dea847dad02cd;
+      this is the prior published candidate, not this later handoff's containing revision. Roadmap 42 has 44 verified
+      children; next issue 85 remains open. Candidate Dogfood failed on report reference markup; the format-only
+      correction and its later head require separate verification.
   parallel_changes: []
 review:
   status: partial
-  reviewed_at: "2026-10-20T22:54:00.607204+00:00"
+  reviewed_at: "2026-10-20T23:07:09.009025+00:00"
   reviewed_by: Codex
   evidence:
     - command:
@@ -138,26 +138,24 @@ review:
         is separate from local runtime execution and future candidate CI.
     - command: Fresh provider inspection of main, draft PR 84, roadmap 42, issue 85 and all native children
       outcome: passed
-      observed_at: "2026-10-20T22:52:03.090Z"
+      observed_at: "2026-10-20T23:05:36.458Z"
       notes:
-        Main 834a230e is unchanged; PR 84 is draft/unmerged at observed head 16e4a809. All 44 children are unique/open
-        in exact focus order; 27 originals and 17 new issues 85–101 remain represented. This confirms the hierarchy
-        rather than inferring it from body counts.
-    - command: Candidate CI at 16e4a8097f26c5ca3d3581cb7d1d9741634af942
+        Main 834a230e is unchanged; PR 84 is draft/unmerged at cddb5a07. Roadmap 42 still reports 44 children.
+        Exact unique/open focus order was independently verified at 22:51Z; 27 originals and 17 additions remain represented.
+    - command: Candidate CI at cddb5a0768e840d1cdc7e2687a7dea847dad02cd
       outcome: failed
-      observed_at: "2026-10-20T22:52:03.090Z"
+      observed_at: "2026-10-20T23:05:36.458Z"
       notes:
-        Dogfood reference-consumer failed receipt formatting after native/architecture checks. Other primary
-        checks, including full policy image, passed. An earlier probe-mode issue was corrected with mode-only commit
-        16e4a809. The receipt-format correction preserves parsed JSON; no later-head success is claimed.
+        Dogfood failed Markdownlint MD018 on two report reference lines after native/architecture checks; eleven
+        other primary checks passed. The current correction changes only reference markup/paragraph reflow and receipt report identity
+        metadata/formatting. No later-head success is claimed.
     - command: Later checkpoint schema/format, sections/budgets/links/privacy/style, native observe and artifact preservation
       outcome: limited
-      observed_at: "2026-10-20T22:54:00.607204+00:00"
+      observed_at: "2026-10-20T23:07:09.009025+00:00"
       notes:
-        Zero pinned-schema errors; twelve sections, budgets, links, privacy and style pass. Native CLI 0/status
-        valid retains one unreleased-input warning; structural/freshness/local Git are valid and supplied live evidence
-        verified. Six report/probe bytes and receipt JSON meaning match canonical 173e378d; no released conformance
-        is claimed.
+        Pinned schema, twelve sections, budgets, links, privacy and style pass. Native observe CLI 0/status valid
+        retains one unreleased-input warning. Five probes remain byte-exact; report changes are two reference markups
+        and paragraph reflow and receipt JSON changes only report SHA/bytes. No released conformance is claimed.
   environment_limitations:
     - Local Docker/Podman and Task execution unavailable; exact-main hosted success is provider-attributed. Candidate-head
       CI and external release/registry/fleet acceptance remain separate.
@@ -197,17 +195,17 @@ The public audit and issue reconciliation are published: 21 findings map to 17 n
 
 ## State snapshot
 
-Audited main is `834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b`, rechecked at 2026-10-20T22:52:03.090Z. [PR 84](https://github.com/egohygiene/egolint/pull/84) was draft/open/unmerged with head `16e4a8097f26c5ca3d3581cb7d1d9741634af942`. This is the previous published candidate; the later handoff intentionally leaves its own containing revision null. Candidate branch remains `audit/egolint-completeness-20261020`.
+Audited main is `834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b`, rechecked at 2026-10-20T23:05:36.458Z. [PR 84](https://github.com/egohygiene/egolint/pull/84) was draft/open/unmerged with head `cddb5a0768e840d1cdc7e2687a7dea847dad02cd`. This is the previous published candidate; the later handoff intentionally leaves its own containing revision null. Candidate branch remains `audit/egolint-completeness-20261020`.
 
 ## Completed and material changes
 
-[The canonical audit](https://github.com/egohygiene/egolint/blob/173e378dcc36d43d91a051428320210c5fdb58ff/audits/egolint-completeness-20261020T222416Z.md), normalized evidence and five public probes are immutable references at the initial audit commit. All original issues remain open; seven have dated preserving notes. Probe execution modes were corrected in a metadata-only commit. A later receipt-format correction preserves parsed JSON meaning; six report/probe byte identities remain unchanged. This handoff records operational state, not implementation repairs. ADR not required: evidence and handoff only.
+[The canonical audit](https://github.com/egohygiene/egolint/blob/173e378dcc36d43d91a051428320210c5fdb58ff/audits/egolint-completeness-20261020T222416Z.md), normalized evidence and five public probes are immutable references at the initial audit commit. All original issues remain open; seven have dated preserving notes. Probe execution modes were corrected in a metadata-only commit. Five probe byte identities remain unchanged. The current report differs only by two inline-reference markups and paragraph reflow; receipt changes are limited to report SHA/byte metadata and formatting. This handoff records operational state, not implementation repairs. ADR not required: evidence and handoff only.
 
 ## Validation and review evidence
 
 The source baseline passes Rust 195, Python 75 and JavaScript 11 tests, strict Rust checks, five source validators, 23 generated-schema comparisons, 27 schema meta-checks and offline package verification. Three real self-consumer entrypoints exit 0 with known evidence limits; five qualified root probe families reproduce current behavior.
 
-Exact-main hosted evidence reports five workflows and 12 successful jobs. Candidate Dogfood at the recorded head failed on receipt formatting after native/architecture checks; later candidate CI must be checked independently. The frozen receipt owns exact source commands, binary identities, observation times and limits.
+Exact-main hosted evidence reports five workflows and 12 successful jobs. Candidate Dogfood at the recorded head failed Markdownlint on two report reference lines after native/architecture checks; eleven other primary checks passed. Later candidate CI must be checked independently. The frozen receipt owns exact source commands, binary identities, observation times and limits.
 
 ## Blockers, risks, unknowns, and deferred work
 
@@ -229,7 +227,7 @@ Keep public-safe facts and synthetic evidence only. Omit raw logs, environment v
 
 ## Handoff update protocol
 
-This later checkpoint passes exact pinned-schema/format, twelve-section, budget, link, privacy, whitespace, style and actual native observe checks. Preserve the six report/probe byte identities and receipt JSON meaning; record permitted whitespace-only changes separately.
+This later checkpoint passes exact pinned-schema/format, twelve-section, budget, link, privacy, whitespace, style and actual native observe checks. Preserve the five probe byte identities; restrict report changes to reviewed reference markup/paragraph reflow and receipt changes to report identity metadata/formatting. Keep canonical 173e378d references immutable.
 
 ## Compaction and supersession
 

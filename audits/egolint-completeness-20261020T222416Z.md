@@ -555,7 +555,7 @@ proved. Do not execute Task commands to validate them or build an unrestricted s
   dogfood.
 
 **Dependencies and risks:** Current-v1 repair can start against existing accepted pins. Coordinate
-#29/#68/#69; do not wait for successor #76 or treat local conformance as remote publication
+`#29/#68/#69`; do not wait for successor #76 or treat local conformance as remote publication
 evidence. Probe only validates source and never executes the synthetic Task commands.
 
 **Issue home:** `RELEASE_TASK_BINDING` (reviewed proposed home; see the coverage map below).
@@ -1125,10 +1125,10 @@ confirmed.
 **History:** new audit observation.
 
 **Observed:** At the frozen starting observation there are 27 open local work issues plus roadmap
-#42, and no open PR. The parent directly links 10 of those work issues and omits 17. All 28 original
-issues have no native parent or children; the older parent also includes closed local foundations
-and external organization coordination. Those historical references are useful but are not complete
-current local work coverage.
+`#42`, and no open PR. The parent directly links 10 of those work issues and omits 17. All 28
+original issues have no native parent or children; the older parent also includes closed local
+foundations and external organization coordination. Those historical references are useful but are
+not complete current local work coverage.
 
 **Evidence (observed):**
 
