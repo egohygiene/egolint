@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+"""Bounded CLI probes for the frozen EgoLint core audit (synthetic consumers only)."""
+
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+
+
+def run(argv, env=None):
+    return subprocess.run([str(value) for value in argv], env=env, capture_output=True,
+                          text=True, timeout=45)
+
+
+def git(workspace, *args):
+    result = run(["git", "-C", workspace, *args])
+    if result.returncode:
+        raise RuntimeError(result.stderr)
+    return result.stdout.strip()
+
+
+def fixture(workspace, custom, executable=False):
+    workspace.mkdir()
+    (workspace / ".gitignore").write_text(".reports/\n")
+    (workspace / "example.txt").write_text("before\n")
+    if executable:
+        (workspace / "script.sh").write_text("#!/bin/sh\nexit 0\n")
+        (workspace / "script.sh").chmod(0o755)
+    (workspace / ".megalinter.yml").write_text("ENABLE_LINTERS: [PYTHON_RUFF]\n")
+    body = "config-version = 1\n"
+    if custom:
+        body += 'megalinter-config = ".megalinter.yml"\n'
+    (workspace / "egolint.toml").write_text(body)
+    git(workspace, "init", "--quiet")
+    git(workspace, "add", "--all", "--")
+    git(workspace, "-c", "user.name=Audit Fixture", "-c",
+        "user.email=audit@invalid.example", "commit", "--quiet", "--no-gpg-sign",
+        "--message", "Synthetic fixture")
+
+
+def hash_file(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def probe_fix(binary, root, env):
+    fake_bin = root / "bin"
+    fake_bin.mkdir()
+    marker = root / "runtime-count.txt"
+    script = fake_bin / "docker"
+    script.write_text("""#!/usr/bin/env python3
+import os
+from pathlib import Path
+import sys
+args = sys.argv[1:]
+for index, arg in enumerate(args[:-1]):
+    if arg == "--mount":
+        mount = dict(item.split("=", 1) for item in args[index + 1].split(",") if "=" in item)
+        if mount.get("target") == "/tmp/lint":
+            (Path(mount["source"]) / "example.txt").write_text("after\\n")
+            marker = Path(os.environ["EGOLINT_AUDIT_RUNTIME_MARKER"])
+            marker.write_text(str(int(marker.read_text()) + 1) if marker.exists() else "1")
+""")
+    script.chmod(0o755)
+    child_env = env | {"PATH": str(fake_bin) + os.pathsep + env["PATH"],
+                       "EGOLINT_AUDIT_RUNTIME_MARKER": str(marker)}
+    result = {}
+    for name, custom, executable in [("default_control", False, False),
+                                     ("custom", True, False),
+                                     ("executable", False, True)]:
+        workspace = root / name
+        fixture(workspace, custom, executable)
+        before_count = int(marker.read_text()) if marker.exists() else 0
+        command = [binary, "--workspace", workspace, "fix", "--profile", "holistic",
+                   "--runtime", "docker", "--image", "egolint-full:audit", "--pull-policy",
+                   "never", "--network", "none", "--enable-linter", "PYTHON_RUFF"]
+        actual = run(command, env=child_env)
+        after_count = int(marker.read_text()) if marker.exists() else 0
+        patch = workspace / ".reports/egolint/fixes.patch"
+        result[name] = {
+            "exit_code": actual.returncode,
+            "runtime_invocations": after_count - before_count,
+            "config_prefix_error": "MegaLinter config must remain inside the fix-preview workspace" in actual.stderr,
+            "empty_index_executable_error": "missing --add option?" in actual.stderr,
+            "patch_present": patch.is_file(),
+            "patch_changes_example": patch.is_file() and "+after" in patch.read_text(),
+            "original_file_preserved": (workspace / "example.txt").read_text() == "before\n",
+            "worktree_clean": git(workspace, "status", "--porcelain") == "",
+        }
+    return result
+
+
+def probe_stale(binary, source, root, env):
+    workspace = root / "native-lifecycle"
+    fixture(workspace, False)
+    policy = (source / ".config/dogfood/repository-intelligence.toml").read_text()
+    policy = policy.replace('repository = "egohygiene/egolint"', 'repository = "egohygiene/audit-fixture"')
+    policy = policy.replace('state = "present"', 'state = "unknown"')
+    (workspace / "intelligence.toml").write_text(policy)
+    first = run([binary, "--workspace", workspace, "validate", "--repository-intelligence",
+                 "intelligence.toml", "--represented-commit", "unknown"], env=env)
+    focused = workspace / ".reports/egolint/repository-intelligence.json"
+    first_report = json.loads(focused.read_text()) if focused.is_file() else None
+    first_hash = hash_file(focused) if focused.is_file() else None
+    second = run([binary, "--workspace", workspace, "validate"], env=env)
+    aggregate = workspace / ".reports/egolint/run.json"
+    run_report = json.loads(aggregate.read_text()) if aggregate.is_file() else None
+    retained = focused.is_file() and hash_file(focused) == first_hash
+    failure = run([binary, "--workspace", workspace, "validate", "--repository-intelligence",
+                   "missing.toml", "--represented-commit", "unknown"], env=env)
+    return {
+        "first_selected_exit": first.returncode,
+        "first_focused_report_written": first_report is not None,
+        "first_focused_report_contract": first_report.get("schema_version") if first_report else None,
+        "second_unselected_exit": second.returncode,
+        "second_aggregate_written": run_report is not None,
+        "second_aggregate_references_intelligence": "repository-intelligence.json" in json.dumps(run_report),
+        "focused_bytes_unchanged_after_unselected_run": retained,
+        "third_invalid_input_exit": failure.returncode,
+        "third_aggregate_present": aggregate.is_file(),
+        "focused_bytes_unchanged_after_failed_run": focused.is_file() and hash_file(focused) == first_hash,
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source", type=Path, required=True)
+    parser.add_argument("--binary", type=Path, required=True)
+    args = parser.parse_args()
+    source = args.source.resolve()
+    binary = args.binary.resolve()
+    env = {key: value for key, value in os.environ.items() if not key.startswith("EGOLINT_")}
+    env["CI"] = "true"
+    with tempfile.TemporaryDirectory(prefix="egolint-core-audit-") as temporary:
+        root = Path(temporary)
+        results = {"fix_custom_config": probe_fix(binary, root, env),
+                   "focused_report_lifecycle": probe_stale(binary, source, root, env)}
+    print(json.dumps(results, indent=2, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()
