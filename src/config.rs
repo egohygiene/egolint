@@ -262,6 +262,20 @@ impl ResolutionEnvironment {
 }
 
 impl Config {
+    /// List configuration sources whose file identity must survive report cleanup.
+    ///
+    /// This does not decode or validate configuration, so malformed selections
+    /// still reach the normal diagnostics after prior reports are invalidated.
+    #[must_use]
+    pub fn input_paths(workspace: &Path, explicit: Option<&Path>) -> Vec<PathBuf> {
+        let ci = env::var_os("CI").is_some_and(|value| environment_value_truthy(&value));
+        let mut paths = implicit_input_paths(workspace, ci, user_config_path().as_deref());
+        if let Some(path) = explicit {
+            paths.push(workspace.join(path));
+        }
+        paths
+    }
+
     /// Resolve configuration in this fixed precedence order: compiled defaults,
     /// user, `egolint.toml`, `.egolint.toml`, local, explicit file, environment,
     /// and CLI. CI suppresses the implicit user and local layers; an explicitly
@@ -291,29 +305,15 @@ impl Config {
         let mut config = Self::default();
         let mut sources = vec!["compiled defaults".to_owned()];
 
-        if !environment.ci {
-            if let Some(user_path) = &environment.user_config_path {
-                if user_path.is_file() {
-                    apply_file(&mut config, user_path)?;
-                    sources.push(user_path.display().to_string());
-                }
+        for path in implicit_input_paths(
+            &workspace,
+            environment.ci,
+            environment.user_config_path.as_deref(),
+        ) {
+            if path.is_file() {
+                apply_file(&mut config, &path)?;
+                sources.push(path.display().to_string());
             }
-        }
-
-        for repository_path in [
-            workspace.join("egolint.toml"),
-            workspace.join(".egolint.toml"),
-        ] {
-            if repository_path.is_file() {
-                apply_file(&mut config, &repository_path)?;
-                sources.push(repository_path.display().to_string());
-            }
-        }
-
-        let local_path = workspace.join(".egolint.local.toml");
-        if !environment.ci && local_path.is_file() {
-            apply_file(&mut config, &local_path)?;
-            sources.push(local_path.display().to_string());
         }
 
         if let Some(path) = explicit {
@@ -341,6 +341,21 @@ impl Config {
 
         Ok(ResolvedConfig { config, sources })
     }
+}
+
+fn implicit_input_paths(workspace: &Path, ci: bool, user: Option<&Path>) -> Vec<PathBuf> {
+    let mut paths = Vec::new();
+    if !ci {
+        paths.extend(user.map(Path::to_path_buf));
+    }
+    paths.extend([
+        workspace.join("egolint.toml"),
+        workspace.join(".egolint.toml"),
+    ]);
+    if !ci {
+        paths.push(workspace.join(".egolint.local.toml"));
+    }
+    paths
 }
 
 fn apply_file(config: &mut Config, path: &Path) -> Result<()> {

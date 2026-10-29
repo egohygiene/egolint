@@ -30,7 +30,7 @@ const MAX_ADAPTER_STREAM_BYTES: usize = 512 * 1024;
 ///
 /// Other files under the reserved report boundary are private diagnostic
 /// evidence and may be retained. These names feed Egolint's normalized public
-/// contracts, so every adapter execution starts by removing them.
+/// contracts, so every report-producing invocation starts by removing them.
 const RUN_OWNED_ARTIFACTS: &[&str] = &[
     ADAPTER_LOG,
     "mega-linter.log",
@@ -41,6 +41,11 @@ const RUN_OWNED_ARTIFACTS: &[&str] = &[
     "debt.json",
     "debt.md",
     "fixes.patch",
+    "repository-continuity.json",
+    "repository-intelligence.json",
+    "repository-presentation.json",
+    "repository-release.json",
+    "repository-gitignore.json",
 ];
 
 /// Requested lint operation and its workspace write capability.
@@ -434,6 +439,18 @@ fn build_environment(
         );
     }
     Ok(environment)
+}
+
+/// Invalidate prior current-run evidence before configuration or policy loading.
+///
+/// This does not create a report directory or change permissions. Only the fixed
+/// core run-owned files are removed; unrelated diagnostics remain untouched.
+///
+/// # Errors
+/// Returns an error for an unsafe report boundary or a file that cannot be removed.
+pub fn invalidate_run_artifacts(workspace: &Path) -> Result<()> {
+    let workspace = canonical_directory(workspace)?;
+    clear_run_artifacts(&workspace, &workspace.join(REPORT_DIRECTORY))
 }
 
 fn clear_run_artifacts(workspace: &Path, report_path: &Path) -> Result<()> {

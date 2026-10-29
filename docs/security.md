@@ -11,8 +11,10 @@ boundary.
   fixed at `.reports/egolint`; symlink and canonical aliases are rejected. On Unix, Egolint verifies
   the opened directory's device and inode before and after making that isolated boundary writable
   across host/container user IDs.
-- Every run removes its fixed raw and canonical contract artifacts before the adapter starts,
-  preventing a failed invocation from reusing stale evidence. Raw adapter stdout/stderr is not
+- Report-producing invocations remove their fixed raw, aggregate, and focused contract artifacts
+  before configuration or policy evaluation, after refusing selected inputs inside that writable
+  boundary. Unsafe report directories are rejected without following links; cleanup does not
+  remove unrelated diagnostic files. Raw adapter stdout/stderr is not
   forwarded to workflow command channels; at most 512 KiB per stream is retained in the private
   `mega-linter-adapter.log`, and normalized findings are rendered by the parent CLI.
 - `fix` materializes both isolated trees from the exact committed Git objects, never from ignored or
@@ -33,6 +35,7 @@ boundary.
 - Environment values are redacted in printed plans and configuration output.
 - `run.json` is written through an atomic same-directory replacement after every parent and the
   final target are revalidated; an engine-created target symlink fails closed and is never followed.
+  It is published last, so failed focused-report writes cannot advertise a completed aggregate.
 
 These controls reduce risk; they do not make untrusted linters harmless. A read-only mount still
 exposes repository contents to the container, and enabling network access can expose those contents

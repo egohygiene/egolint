@@ -37,6 +37,7 @@ include = [
   "/tests/issue_title_pipeline.rs",
   "/tests/intelligence_coverage_pipeline.rs",
   "/tests/adr_policy_owner_pipeline.rs",
+  "/tests/report_lifecycle_pipeline.rs",
   "/tests/javascript_architecture_pipeline.rs",
   "/tests/fixtures/compatibility/**",
   "/tests/fixtures/contracts/**",
