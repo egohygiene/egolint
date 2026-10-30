@@ -20,14 +20,14 @@ The matrix test retains six states per profile: compliant, advisory migration, u
 external ownership, invalid/nonconforming, and caller-selected not applicable. Shared mutations preserve
 the profile-specific authority and lifecycle distinctions rather than relabeling one generic repository.
 
-| State | Source variation | Expected boundary |
-| --- | --- | --- |
-| Compliant | Complete profile-specific source | Every applicable check completed and passed. |
-| Advisory migration | Caller selects advisory; root changelog is missing | The missing check remains visible as a warning and incomplete coverage. |
-| Unavailable | Selected authority is missing; archived loses its changelog | Required evidence remains unavailable and blocks. |
-| External | Source/delivery evidence explicitly belongs externally; active profiles use an immutable reusable-workflow reference | Local wrapper structure passes, while external ownership remains explicit and reachability is unverified. |
-| Invalid | Authority has a leading-zero semantic version; archived has a nonconforming promoted heading | Completed failed checks make semantic status invalid. |
-| Not applicable | Caller selects not applicable; local entrypoints and authority files are removed | All seven slots remain explicitly not applicable. |
+| State              | Source variation                                                                                                     | Expected boundary                                                                                         |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Compliant          | Complete profile-specific source                                                                                     | Every applicable check completed and passed.                                                              |
+| Advisory migration | Caller selects advisory; root changelog is missing                                                                   | The missing check remains visible as a warning and incomplete coverage.                                   |
+| Unavailable        | Selected authority is missing; archived loses its changelog                                                          | Required evidence remains unavailable and blocks.                                                         |
+| External           | Source/delivery evidence explicitly belongs externally; active profiles use an immutable reusable-workflow reference | Local wrapper structure passes, while external ownership remains explicit and reachability is unverified. |
+| Invalid            | Authority has a leading-zero semantic version; archived has a nonconforming promoted heading                         | Completed failed checks make semantic status invalid.                                                     |
+| Not applicable     | Caller selects not applicable; local entrypoints and authority files are removed                                     | All seven slots remain explicitly not applicable.                                                         |
 
 Archived retains the archived lifecycle in every cell. Its Task/workflow checks are not applicable and
 its agent pointer remains advisory under the selected policy. Explicit caller adoption overrides use the
