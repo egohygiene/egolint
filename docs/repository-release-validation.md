@@ -92,6 +92,37 @@ facts, preserving diagnostics without claiming conformance. Explicit external ow
 warning because reachability is outside the offline boundary. Suppressions, tool counts, run-report
 status, and SARIF consume these findings through the standard pipeline.
 
+## Supported static Task dispatch
+
+The `task_handoffs` check accepts one literal command in `release:publish`:
+
+```yaml
+release:publish:
+  cmds:
+    - gh workflow run .github/workflows/release.yml
+```
+
+The workflow argument must exactly match `automation.github.workflow_path`. Spaces or tabs may
+separate the four words; the workflow path may be unquoted, single quoted, or double quoted.
+The supported path uses ASCII letters, digits, `.`, `_`, `/`, and `-`. A command mapping containing
+only `cmd: "gh workflow run .github/workflows/release.yml"` is equivalent. The task may also carry
+string `desc` and `summary` metadata and boolean `silent` metadata. Unsupported metadata types
+remain unavailable. All four declared release task names must still exist.
+
+Additional commands, command-mapping fields, Task execution features such as dependencies or
+preconditions, CLI flags, comments, shell operators, multiline commands, substitutions, and templates
+are outside this small static grammar. EgoLint reports their handoff as `unavailable`; it does not
+interpret a shell program or execute any command to decide whether it would eventually dispatch.
+An echo or documentation string containing `gh workflow run`, or a different workflow argument
+accompanied by the declared path elsewhere, cannot establish a passing handoff.
+
+The source-only native matrix in `tests/repository_release_pipeline.rs` retains direct, quoted, and
+command-mapping controls and checks unsupported forms against process exit, focused status, tool
+status, normalized findings, locations, and SARIF. These issue 91 cases are inputs for the broader
+[checkpoint 68 matrix](https://github.com/egohygiene/egolint/issues/68) and subsequent
+[checkpoint 69 dogfood](https://github.com/egohygiene/egolint/issues/69); they do not complete those
+work scopes or prove remote execution or publication.
+
 ## Checkpoint plan
 
 1. Pin and verify the immutable Aether and Hygiene inputs; reconcile the preceding roadmap state.
