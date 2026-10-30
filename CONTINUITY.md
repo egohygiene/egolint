@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:07:49Z'
+  updated_at: '2026-10-30T08:41:02Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -44,21 +44,21 @@ work:
     url: https://github.com/egohygiene/egolint/issues/90
   next:
     kind: action
-    id: review-release-input-candidate
-    description: Review draft PR 103; reconcile CONTINUITY.md with current main and peer handoffs before
-      any authorized merge.
+    id: merge-qualified-90-candidate
+    description: Merge the qualified source candidate, then verify the resulting default-branch state;
+      retain separate release acceptance gates.
     readiness: ready
     references:
     - https://github.com/egohygiene/egolint/pull/103
     depends_on: []
 state:
   base:
-    revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
+    revision: f61efb6e34e04d9196638c5a7cdc1552a3653e1e
     ref: refs/heads/main
-    verified_at: '2026-10-30T03:01:37Z'
+    verified_at: '2026-10-30T08:41:02Z'
   candidate:
     branch: fix/90-release-input-grammar
-    revision: 1710cc6ac527bdeb3cc5fa4fd5eb48ff4e5f1199
+    revision: null
     pull_request:
       provider: github
       id: egohygiene/egolint#103
@@ -66,50 +66,34 @@ state:
     handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-10-30T03:07:49Z'
-    default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
+    observed_at: '2026-10-30T08:41:02Z'
+    default_branch_revision: f61efb6e34e04d9196638c5a7cdc1552a3653e1e
     issue_state: open
-    pull_request_state: draft
-    notes: Provider inspection verified main includes PR 102 and PR 103 is draft/open. Independent sibling
-      PRs 104-108 overlap only the operational handoff. Audit PR 84 remains untouched.
+    pull_request_state: open
+    notes: 'GitHub checked this candidate open against the observed main revision. Verified merged predecessors:
+      PR 104, PR 106, PR 105, PR 107. Remaining candidates: PR 108, PR 109, PR 110, PR 111. Audit draft
+      PR 84 remains open and unchanged. Hosted Actions remain deferred.'
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
   - provider: github
-    id: egohygiene/egolint#104
-    url: https://github.com/egohygiene/egolint/pull/104
-  - provider: github
-    id: egohygiene/egolint#105
-    url: https://github.com/egohygiene/egolint/pull/105
-  - provider: github
-    id: egohygiene/egolint#106
-    url: https://github.com/egohygiene/egolint/pull/106
-  - provider: github
-    id: egohygiene/egolint#107
-    url: https://github.com/egohygiene/egolint/pull/107
-  - provider: github
     id: egohygiene/egolint#108
     url: https://github.com/egohygiene/egolint/pull/108
+  - provider: github
+    id: egohygiene/egolint#109
+    url: https://github.com/egohygiene/egolint/pull/109
+  - provider: github
+    id: egohygiene/egolint#110
+    url: https://github.com/egohygiene/egolint/pull/110
+  - provider: github
+    id: egohygiene/egolint#111
+    url: https://github.com/egohygiene/egolint/pull/111
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:07:49Z'
+  reviewed_at: '2026-10-30T08:41:02Z'
   reviewed_by: Codex
   evidence:
-  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py --verbose
-    outcome: passed
-    observed_at: '2026-10-30T03:07:49Z'
-    notes: 83 tests pass, including 14 focused tests using actual CLI disposable copies. Regression checkpoint
-      had 162 expected subtest failures on unfixed source.
-  - command: ruff check --config .config/lint/python/ruff.toml scripts/validate_release_inputs.py tests/test_release_inputs.py;
-      ruff format --config .config/lint/python/ruff.toml --check scripts/validate_release_inputs.py tests/test_release_inputs.py
-    outcome: passed
-    observed_at: '2026-10-30T03:07:49Z'
-    notes: Repository-locked Ruff 0.16.2 lint and format checks pass.
-  - command: cargo fmt --all --check
-    outcome: passed
-    observed_at: '2026-10-30T03:07:49Z'
-    notes: Pinned Rust 1.85.1 formatting passes; no Rust source changed.
   - command: python3 scripts/validate_release_inputs.py; python3 scripts/validate_repository_release_sources.py
     outcome: passed
     observed_at: '2026-10-30T03:07:49Z'
@@ -137,6 +121,20 @@ review:
     observed_at: '2026-10-30T03:07:49Z'
     notes: No blocking findings. Review added malformed-JSON and missing-file CLI controls and documented
       supported record grammar.
+  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py; release-input/release-source
+      validators; pinned Ruff check/format
+    outcome: passed
+    observed_at: '2026-10-30T08:41:02Z'
+    notes: All 83 Python tests pass on the reconciled source, including malformed image/product and environment
+      controls; actual release-input/source validators and strict Ruff checks pass. Existing exact-head
+      combined-source evidence remains in the linked PR; no hosted qualification is inferred.
+  - command: Pinned Draft202012Validator/registered formats, section and budget checks; native continuity
+      validation with explicit current-main base and working-tree head; git diff --check
+    outcome: limited
+    observed_at: '2026-10-30T08:41:02Z'
+    notes: Reconciled handoff passes local schema and native semantic/structural/freshness/Git checks.
+      The proposed/unreleased continuity contract retains its expected observe warning; official released
+      conformance and hosted qualification remain unavailable.
   environment_limitations:
   - Hosted Actions, image builds, registry publication/promotion and adoption were not run.
   - Rust source is unchanged; full Clippy/Rust test and combined candidate checks are owned by the separate
@@ -165,8 +163,7 @@ and canonical sources. The handoff grants no authority.
 
 ## Resume protocol
 
-Read AGENTS, the release contract, validator/tests, issue 90 and draft PR 103. Verify current main,
-this branch and peers before acting; the prior issue 85 handoff is historical Git evidence.
+Read AGENTS.md, the active issue and linked source evidence. Verify main, this candidate and the remaining PRs against live state before continuing. Audit draft PR 84 is a separate historical change.
 
 ## Current objective and success conditions
 
@@ -175,8 +172,8 @@ Preserve the reviewed CLI dual-platform and full-engine AMD64-only product bound
 
 ## State snapshot
 
-Base is 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58, including PR 102. This independent candidate targets main.
-PR 103 is draft/open; no merge, publication, release or adoption is claimed.
+This candidate was reconciled against observed main `f61efb6e34e04d9196638c5a7cdc1552a3653e1e` at `2026-10-30T08:41:02Z`.
+GitHub verified PR 104, PR 106, PR 105, PR 107 merged; this PR was open at observation. The containing revision remains null to avoid self-reference. Source acceptance does not establish a product release.
 
 ## Completed and material changes
 
@@ -198,14 +195,11 @@ remain deferred. Full Rust/combined candidate checks belong to the separate inte
 
 ## Next dependency-ready work
 
-Review draft PR 103 and reconcile its handoff against current main and sibling candidates before any
-authorized merge. No implementation dependency on the sibling repairs was established.
+Merge the qualified source candidate and verify its default-branch result. Preserve the documented hosted, publisher migration, platform and publication gates where applicable.
 
 ## Parallel changes and reconciliation
 
-Sibling PRs 104-108 address issues 86-89 and 91 independently from the same main. Every candidate edits
-CONTINUITY.md; preserve the latest accurate objective/evidence when reconciling. Audit PR 84 and its
-immutable evidence remain untouched. Source fixes stay independently reviewable.
+Observed remaining candidates: PR 108, PR 109, PR 110, PR 111. Root handoffs overlap and must retain the latest evidence when their candidates are accepted. Merged predecessor source is retained; no audit branch or historical evidence is rewritten.
 
 ## Privacy and redaction
 
