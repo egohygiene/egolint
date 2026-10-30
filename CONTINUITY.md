@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:05:22Z'
+  updated_at: '2026-10-30T03:17:23Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -93,7 +93,7 @@ state:
     url: https://github.com/egohygiene/egolint/pull/108
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:05:22Z'
+  reviewed_at: '2026-10-30T03:17:23Z'
   reviewed_by: Codex
   evidence:
   - command: python3 scripts/validate_continuity_schema_parity.py
@@ -111,6 +111,12 @@ review:
     observed_at: '2026-10-30T03:05:22Z'
     notes: All 64 actual-native CLI cases now match independently checked schema expectations; observe exits
       remain 0 and effective diagnostics remain at most warnings.
+  - command: cargo test --locked --test repository_continuity_pipeline; python3 scripts/validate_continuity_schema_parity.py
+    outcome: passed
+    observed_at: '2026-10-30T03:17:23Z'
+    notes: Review expanded the shared matrix to 280 cases. Strict YAML scalar types, nonfinite rejection, URI
+      grammar, minLength, numeric const and anchored-format behavior match schema diagnostics independently
+      from semantic restrictions.
   environment_limitations:
   - Full Rust/Python/source validation and independent review remain pending.
   - Hosted Actions, container qualification and released-contract acceptance are deferred.
@@ -148,15 +154,15 @@ Base is the verified PR 102 merge 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58. This
 
 ## Completed and material changes
 
-The shared schema-parity fixture matrix and native CLI integration test reproduce the structural boundary. The independent Python checker validates the same 64 expectations against the exact bundled schema digest. src/rules/repository_continuity.rs now requires nullable keys, rejects duplicate next/parallel references, and enforces padded RFC3339 clock fields while accepting lowercase delimiters.
+The shared schema-parity fixture matrix and native CLI integration test reproduce the structural boundary. The independent Python checker validates the shared expectations against the exact bundled schema digest. src/rules/repository_continuity.rs now requires nullable keys and uniqueness, preserves YAML scalar types, rejects nonfinite values, and validates RFC3339 and URI grammar. Schema checks are independent from stronger evidence-link, identity, Git-reference and live-note constraints.
 
 ## Validation and review evidence
 
-The independent schema matrix passed with explicitly registered date-time and URI checks. The unchanged native CLI produced 24 expected structural verdict mismatches. After repair, all 64 native cases pass with semantic status, warning severity and process exit asserted separately.
+The independent schema matrix passed with explicitly registered date-time and URI checks. The unchanged native CLI produced 24 expected structural verdict mismatches. After review repairs, all 280 native cases pass with semantic status, warning severity and process exit asserted separately.
 
 ## Blockers, risks, unknowns, and deferred work
 
-No external source blocker was identified. Full applicable checks and independent review remain pending. Hosted Actions, real containers and released-contract acceptance are deferred; authority and rollout remain unchanged.
+No external source blocker was identified. Independent review exposed scalar coercion and format/type parity gaps, now covered and repaired. Final full checks remain pending. Hosted Actions, real containers and released-contract acceptance are deferred; authority and rollout remain unchanged.
 
 ## Next dependency-ready work
 

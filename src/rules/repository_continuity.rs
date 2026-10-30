@@ -1142,8 +1142,8 @@ enum ContinuityDocumentStatus {
 struct ContinuityDocumentMetadata {
     status: ContinuityDocumentStatus,
     updated_at: String,
-    max_bytes: u64,
-    max_lines: u64,
+    max_bytes: f64,
+    max_lines: f64,
     #[serde(deserialize_with = "required_nullable")]
     stale_reason: Option<String>,
     #[serde(deserialize_with = "required_nullable")]
@@ -1817,7 +1817,14 @@ fn evaluate_continuity_document(
             DiagnosticImpact::Invalid,
         ));
     }
-    let metadata = if let Ok(metadata) = serde_yaml::from_str::<ContinuityMetadata>(front_matter) {
+    // Preserve YAML scalar types and duplicate-key rejection before strict JSON
+    // decoding; direct typed YAML decoding coerces numbers and booleans to String.
+    let decoded = serde_yaml::from_str::<serde_yaml::Value>(front_matter)
+        .ok()
+        .filter(json_compatible_yaml)
+        .and_then(|value| serde_json::to_value(value).ok())
+        .and_then(|value| serde_json::from_value::<ContinuityMetadata>(value).ok());
+    let metadata = if let Some(metadata) = decoded {
         validate_metadata(policy, snapshot, &metadata, diagnostics);
         Some(metadata)
     } else {
@@ -1834,6 +1841,20 @@ fn evaluate_continuity_document(
     };
     evaluate_body(policy, snapshot, body, body_line, diagnostics, stats);
     ParsedContinuity { metadata }
+}
+
+// Reject non-JSON YAML values before conversion: nonfinite numbers otherwise
+// become JSON null and could accidentally satisfy a required nullable field.
+fn json_compatible_yaml(value: &serde_yaml::Value) -> bool {
+    match value {
+        serde_yaml::Value::Number(number) => number.as_f64().is_some_and(f64::is_finite),
+        serde_yaml::Value::Sequence(sequence) => sequence.iter().all(json_compatible_yaml),
+        serde_yaml::Value::Mapping(mapping) => mapping.iter().all(|(key, value)| {
+            matches!(key, serde_yaml::Value::String(_)) && json_compatible_yaml(value)
+        }),
+        serde_yaml::Value::Tagged(_) => false,
+        serde_yaml::Value::Null | serde_yaml::Value::Bool(_) | serde_yaml::Value::String(_) => true,
+    }
 }
 
 fn required_utf8_file<'a>(
@@ -1907,6 +1928,12 @@ fn required_utf8_file<'a>(
     }
 }
 
+// JSON Schema numeric const equality accepts both integer and decimal spelling.
+#[allow(clippy::float_cmp)]
+fn valid_document_bounds(document: &ContinuityDocumentMetadata) -> bool {
+    document.max_bytes == 16_384.0 && document.max_lines == 240.0
+}
+
 #[allow(clippy::too_many_lines)]
 fn validate_metadata(
     policy: &RepositoryContinuityPolicy,
@@ -1922,6 +1949,28 @@ fn validate_metadata(
             AETHER_CONTRACT,
             "unsupported schema identifier",
             "CONTINUITY.md declares an unsupported schema identifier or major version",
+            DiagnosticImpact::Invalid,
+        ));
+    }
+    if !valid_repository(
+        metadata
+            .repository
+            .id
+            .strip_suffix('\n')
+            .unwrap_or(&metadata.repository.id),
+    ) || !matches!(
+        metadata.repository.visibility.as_str(),
+        "public" | "private" | "internal"
+    ) || !schema_nonempty(&metadata.repository.default_branch)
+        || metadata.repository.continuity_path != "CONTINUITY.md"
+    {
+        diagnostics.push(RawDiagnostic::new(
+            SCHEMA_RULE,
+            "repository-metadata",
+            Some(&policy.continuity_path),
+            "schema-valid repository identifier, visibility, branch and path",
+            "invalid repository metadata",
+            "continuity repository metadata violates the selected Aether schema",
             DiagnosticImpact::Invalid,
         ));
     }
@@ -1946,8 +1995,7 @@ fn validate_metadata(
     }
 
     let document_valid = valid_datetime(&metadata.document.updated_at)
-        && metadata.document.max_bytes == 16_384
-        && metadata.document.max_lines == 240
+        && valid_document_bounds(&metadata.document)
         && match metadata.document.status {
             ContinuityDocumentStatus::Active => {
                 metadata.document.stale_reason.is_none()
@@ -1958,7 +2006,7 @@ fn validate_metadata(
                     .document
                     .stale_reason
                     .as_deref()
-                    .is_some_and(valid_nonempty)
+                    .is_some_and(schema_nonempty)
                     && metadata.document.superseded_by.is_none()
             }
             ContinuityDocumentStatus::Superseded => {
@@ -1967,7 +2015,7 @@ fn validate_metadata(
                         .document
                         .superseded_by
                         .as_deref()
-                        .is_some_and(valid_nonempty)
+                        .is_some_and(schema_nonempty)
             }
         };
     if !document_valid {
@@ -1989,7 +2037,7 @@ fn validate_metadata(
         "canonical-repository-sources",
         "continuity-checkpoint",
     ];
-    let scope_valid = valid_nonempty(&metadata.scope.purpose)
+    let scope_valid = schema_nonempty(&metadata.scope.purpose)
         && !metadata.scope.includes.is_empty()
         && unique_nonempty(&metadata.scope.includes)
         && !metadata.scope.excludes.is_empty()
@@ -2030,12 +2078,12 @@ fn validate_metadata(
         }
     }
 
-    let work_valid = valid_nonempty(&metadata.work.objective)
+    let work_valid = schema_nonempty(&metadata.work.objective)
         && !metadata.work.success_conditions.is_empty()
         && unique_nonempty(&metadata.work.success_conditions)
         && matches!(metadata.work.next.kind.as_str(), "issue" | "action")
-        && valid_nonempty(&metadata.work.next.id)
-        && valid_nonempty(&metadata.work.next.description)
+        && schema_nonempty(&metadata.work.next.id)
+        && schema_nonempty(&metadata.work.next.description)
         && matches!(
             metadata.work.next.readiness.as_str(),
             "ready" | "blocked" | "unknown"
@@ -2047,7 +2095,7 @@ fn validate_metadata(
             .next
             .references
             .iter()
-            .all(|value| valid_stable_url(value))
+            .all(|value| valid_uri(value))
         && unique_nonempty(&metadata.work.next.depends_on);
     if !work_valid {
         diagnostics.push(RawDiagnostic::new(
@@ -2059,6 +2107,19 @@ fn validate_metadata(
             "continuity objective, success conditions, or next-work declaration is malformed",
             DiagnosticImpact::Invalid,
         ));
+    }
+    for reference in &metadata.work.next.references {
+        if !valid_stable_url(reference) {
+            diagnostics.push(RawDiagnostic::new(
+                LINK_RULE,
+                "next-work-reference",
+                Some(&policy.continuity_path),
+                "stable supported HTTPS next-work references",
+                "unsupported or unstable reference",
+                "a next-work URI does not meet the independent stable evidence-link contract",
+                DiagnosticImpact::Invalid,
+            ));
+        }
     }
     if let Some(reference) = &metadata.work.active_issue {
         validate_reference(
@@ -2106,29 +2167,21 @@ fn validate_metadata(
     }
 
     let base_valid = (metadata.state.base.revision == "unborn"
-        || valid_commit(&metadata.state.base.revision))
-        && metadata.state.base.r#ref.starts_with("refs/heads/")
-        && valid_ref_name(
-            metadata
-                .state
-                .base
-                .r#ref
-                .strip_prefix("refs/heads/")
-                .unwrap_or_default(),
-        )
+        || schema_commit(&metadata.state.base.revision))
+        && schema_nonempty(&metadata.state.base.r#ref)
         && valid_datetime(&metadata.state.base.verified_at);
     let candidate_valid = metadata
         .state
         .candidate
         .branch
         .as_deref()
-        .is_none_or(valid_ref_name)
+        .is_none_or(schema_nonempty)
         && metadata
             .state
             .candidate
             .revision
             .as_deref()
-            .is_none_or(valid_commit);
+            .is_none_or(schema_commit);
     let live_notes = metadata.state.live.notes.to_ascii_lowercase();
     let live_uncertainty_valid = match metadata.state.live.status {
         ContinuityLiveStatus::Verified => ["verified", "checked", "observed", "showed"]
@@ -2151,7 +2204,7 @@ fn validate_metadata(
             .live
             .default_branch_revision
             .as_deref()
-            .is_none_or(valid_commit)
+            .is_none_or(schema_commit)
         && matches!(
             metadata.state.live.issue_state.as_str(),
             "open" | "closed" | "unknown" | "not-applicable"
@@ -2160,8 +2213,7 @@ fn validate_metadata(
             metadata.state.live.pull_request_state.as_str(),
             "draft" | "open" | "merged" | "closed" | "unknown" | "not-applicable"
         )
-        && valid_nonempty(&metadata.state.live.notes)
-        && live_uncertainty_valid
+        && schema_nonempty(&metadata.state.live.notes)
         && (metadata.state.live.status != ContinuityLiveStatus::Verified
             || metadata.state.live.default_branch_revision.is_some());
     if !base_valid || !candidate_valid || !live_valid {
@@ -2172,6 +2224,69 @@ fn validate_metadata(
             "valid base, nullable candidate, and explicitly qualified live state",
             "invalid state metadata",
             "continuity base, candidate, or live-state metadata is malformed",
+            DiagnosticImpact::Invalid,
+        ));
+    }
+
+    let canonical_commits = (metadata.state.base.revision == "unborn"
+        || valid_commit(&metadata.state.base.revision))
+        && metadata
+            .state
+            .candidate
+            .revision
+            .as_deref()
+            .is_none_or(valid_commit)
+        && metadata
+            .state
+            .live
+            .default_branch_revision
+            .as_deref()
+            .is_none_or(valid_commit);
+    if !canonical_commits {
+        diagnostics.push(RawDiagnostic::new(
+            LINK_RULE,
+            "canonical-git-revisions",
+            Some(&policy.continuity_path),
+            "canonical lowercase full Git revisions without trailing delimiters",
+            "noncanonical Git revision",
+            "continuity Git revisions do not meet the independent local comparison contract",
+            DiagnosticImpact::Invalid,
+        ));
+    }
+    let ref_names_valid = metadata.state.base.r#ref.starts_with("refs/heads/")
+        && valid_ref_name(
+            metadata
+                .state
+                .base
+                .r#ref
+                .strip_prefix("refs/heads/")
+                .unwrap_or_default(),
+        )
+        && metadata
+            .state
+            .candidate
+            .branch
+            .as_deref()
+            .is_none_or(valid_ref_name);
+    if !ref_names_valid {
+        diagnostics.push(RawDiagnostic::new(
+            LINK_RULE,
+            "git-ref-names",
+            Some(&policy.continuity_path),
+            "supported Git branch and base reference names",
+            "unsupported Git reference",
+            "continuity references do not meet the independent local Git naming contract",
+            DiagnosticImpact::Invalid,
+        ));
+    }
+    if !live_uncertainty_valid {
+        diagnostics.push(RawDiagnostic::new(
+            LIVE_RULE,
+            "live-state-qualification",
+            Some(&policy.continuity_path),
+            "explicitly qualified live-state observation or uncertainty",
+            "unqualified live-state notes",
+            "continuity live-state notes do not qualify the supplied observation or missing evidence",
             DiagnosticImpact::Invalid,
         ));
     }
@@ -2192,18 +2307,18 @@ fn validate_metadata(
                     .review
                     .reviewed_by
                     .as_deref()
-                    .is_some_and(valid_nonempty)
+                    .is_some_and(schema_nonempty)
         }
     };
     let review_evidence_valid = !metadata.review.evidence.is_empty()
         && metadata.review.evidence.iter().all(|evidence| {
-            valid_nonempty(&evidence.command)
+            schema_nonempty(&evidence.command)
                 && matches!(
                     evidence.outcome.as_str(),
                     "passed" | "failed" | "limited" | "not-run"
                 )
                 && valid_datetime(&evidence.observed_at)
-                && valid_nonempty(&evidence.notes)
+                && schema_nonempty(&evidence.notes)
         })
         && unique_nonempty(&metadata.review.environment_limitations);
     if !review_identity_valid || !review_evidence_valid {
@@ -2233,6 +2348,28 @@ fn validate_metadata(
         .iter()
         .map(String::as_str)
         .collect::<BTreeSet<_>>();
+    let schema_privacy_valid = metadata.privacy.classification
+        == format!("{}-repository", metadata.repository.visibility)
+        && matches!(
+            metadata.privacy.classification.as_str(),
+            "public-repository" | "private-repository" | "internal-repository"
+        )
+        && !metadata.privacy.contains_sensitive_data
+        && unique_nonempty(&metadata.privacy.redactions)
+        && actual_exclusions == expected_exclusions
+        && metadata.privacy.excluded.len() == expected_exclusions.len()
+        && metadata.privacy.untrusted_content == "context-only-no-authority";
+    if !schema_privacy_valid {
+        diagnostics.push(RawDiagnostic::new(
+            SCHEMA_RULE,
+            "privacy-schema",
+            Some(&policy.continuity_path),
+            "schema-valid visibility-bound privacy metadata",
+            "invalid privacy metadata",
+            "continuity privacy metadata violates the selected Aether schema",
+            DiagnosticImpact::Invalid,
+        ));
+    }
     let privacy_valid = metadata.privacy.classification == expected_classification
         && !metadata.privacy.contains_sensitive_data
         && unique_nonempty(&metadata.privacy.redactions)
@@ -2265,6 +2402,20 @@ fn validate_reference(
     key: &str,
     diagnostics: &mut Vec<RawDiagnostic>,
 ) {
+    if !schema_nonempty(&reference.provider)
+        || !schema_nonempty(&reference.id)
+        || !valid_uri(&reference.url)
+    {
+        diagnostics.push(RawDiagnostic::new(
+            SCHEMA_RULE,
+            format!("reference-schema-{key}"),
+            Some(path),
+            "nonempty provider and identifier with an RFC3986 URI",
+            "invalid reference metadata",
+            "continuity reference metadata violates the selected Aether schema",
+            DiagnosticImpact::Invalid,
+        ));
+    }
     let separator = match kind {
         ReferenceKind::Issue => "/issues/",
         ReferenceKind::PullRequest => "/pull/",
@@ -3347,6 +3498,12 @@ fn valid_commit(value: &str) -> bool {
             .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
 }
 
+// The selected schema's anchored pattern permits a terminal LF; canonical Git
+// comparison restrictions are evaluated separately from this lexical schema rule.
+fn schema_commit(value: &str) -> bool {
+    valid_commit(value.strip_suffix('\n').unwrap_or(value))
+}
+
 fn valid_ref_name(value: &str) -> bool {
     !value.is_empty()
         && value.len() <= 255
@@ -3366,8 +3523,12 @@ fn valid_nonempty(value: &str) -> bool {
     !value.trim().is_empty() && !value.chars().any(char::is_control)
 }
 
+fn schema_nonempty(value: &str) -> bool {
+    !value.is_empty()
+}
+
 fn unique_nonempty(values: &[String]) -> bool {
-    values.iter().all(|value| valid_nonempty(value))
+    values.iter().all(|value| schema_nonempty(value))
         && values.iter().collect::<BTreeSet<_>>().len() == values.len()
 }
 
@@ -3400,6 +3561,7 @@ fn valid_date(value: &str) -> bool {
 // Match the registered JSON Schema date-time format: ASCII padded clock fields,
 // optional decimal fraction, a mandatory zone, and case-insensitive T/Z delimiters.
 fn valid_datetime(value: &str) -> bool {
+    let value = value.strip_suffix('\n').unwrap_or(value);
     let bytes = value.as_bytes();
     if !value.is_ascii()
         || bytes.len() < 20
@@ -3452,8 +3614,143 @@ fn valid_canonical_source(value: &str) -> bool {
     validate_relative_path(path, "canonical source").is_ok() && !value.contains('\\')
 }
 
+// RFC3986 absolute URI grammar, kept separate from evidence-link stability policy.
+fn valid_uri(value: &str) -> bool {
+    let value = value.strip_suffix('\n').unwrap_or(value);
+    if !value.is_ascii() {
+        return false;
+    }
+    let Some((scheme, remainder)) = value.split_once(':') else {
+        return false;
+    };
+    if !scheme
+        .as_bytes()
+        .first()
+        .is_some_and(u8::is_ascii_alphabetic)
+        || !scheme
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || b"+.-".contains(&byte))
+    {
+        return false;
+    }
+    let (remainder, fragment) = remainder
+        .split_once('#')
+        .map_or((remainder, None), |(before, after)| (before, Some(after)));
+    let (hierarchy, query) = remainder
+        .split_once('?')
+        .map_or((remainder, None), |(before, after)| (before, Some(after)));
+    if fragment.is_some_and(|part| !valid_uri_part(part, b":@/?"))
+        || query.is_some_and(|part| !valid_uri_part(part, b":@/?"))
+    {
+        return false;
+    }
+    let path = if let Some(authority_path) = hierarchy.strip_prefix("//") {
+        let (authority, path) = authority_path
+            .split_once('/')
+            .map_or((authority_path, ""), |(authority, path)| (authority, path));
+        if !valid_uri_authority(authority) {
+            return false;
+        }
+        path
+    } else {
+        hierarchy
+    };
+    valid_uri_part(path, b":@/")
+}
+
+fn valid_uri_part(value: &str, extra: &[u8]) -> bool {
+    let bytes = value.as_bytes();
+    let mut index = 0;
+    while let Some(&byte) = bytes.get(index) {
+        if byte == b'%' {
+            if !bytes.get(index + 1).is_some_and(u8::is_ascii_hexdigit)
+                || !bytes.get(index + 2).is_some_and(u8::is_ascii_hexdigit)
+            {
+                return false;
+            }
+            index += 3;
+        } else if byte.is_ascii_alphanumeric()
+            || b"-._~!$&'()*+,;=".contains(&byte)
+            || extra.contains(&byte)
+        {
+            index += 1;
+        } else {
+            return false;
+        }
+    }
+    true
+}
+
+fn valid_uri_authority(authority: &str) -> bool {
+    let host_port = if let Some((user_info, host_port)) = authority.rsplit_once('@') {
+        if !valid_uri_part(user_info, b":") {
+            return false;
+        }
+        host_port
+    } else {
+        authority
+    };
+    if let Some(literal_port) = host_port.strip_prefix('[') {
+        let Some((literal, port)) = literal_port.split_once(']') else {
+            return false;
+        };
+        let valid_literal = if let Some(future) = literal.strip_prefix('v') {
+            future.split_once('.').is_some_and(|(version, address)| {
+                !version.is_empty()
+                    && version.bytes().all(|byte| byte.is_ascii_hexdigit())
+                    && !address.is_empty()
+                    && !address.contains('%')
+                    && valid_uri_part(address, b":")
+            })
+        } else {
+            valid_ipv6_uri_literal(literal)
+        };
+        return valid_literal
+            && (port.is_empty()
+                || port
+                    .strip_prefix(':')
+                    .is_some_and(|port| port.bytes().all(|byte| byte.is_ascii_digit())));
+    }
+    let (host, port) = host_port
+        .split_once(':')
+        .map_or((host_port, None), |(host, port)| (host, Some(port)));
+    valid_uri_part(host, b"")
+        && port.is_none_or(|port| port.bytes().all(|byte| byte.is_ascii_digit()))
+}
+
+fn valid_ipv6_uri_literal(literal: &str) -> bool {
+    // The registered checker permits zero-padded embedded IPv4 octets. Normalize
+    // only that lexical representation before using the standard IPv6 parser.
+    if literal.contains('.') {
+        let Some((prefix, tail)) = literal.rsplit_once(':') else {
+            return false;
+        };
+        let octets = tail.split('.').collect::<Vec<_>>();
+        if octets.len() != 4
+            || octets.iter().any(|part| {
+                part.is_empty()
+                    || part.len() > 3
+                    || !part.bytes().all(|byte| byte.is_ascii_digit())
+                    || part.parse::<u8>().is_err()
+            })
+        {
+            return false;
+        }
+        let tail = octets
+            .iter()
+            .map(|part| part.parse::<u8>().expect("checked octet").to_string())
+            .collect::<Vec<_>>()
+            .join(".");
+        return format!("{prefix}:{tail}")
+            .parse::<std::net::Ipv6Addr>()
+            .is_ok();
+    }
+    literal.parse::<std::net::Ipv6Addr>().is_ok()
+}
+
 fn valid_stable_url(value: &str) -> bool {
-    if !value.starts_with("https://")
+    if !valid_uri(value)
+        || !value.starts_with("https://")
         || value
             .chars()
             .any(|character| character.is_control() || character.is_whitespace())

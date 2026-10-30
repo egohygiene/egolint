@@ -741,6 +741,2746 @@
           "value": "verified"
         }
       ]
+    },
+    {
+      "name": "uri-invalid-next-0",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/%ZZ"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/%"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-2",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/%0"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-3",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/[path]"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-4",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/{path}"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-5",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/\\path"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-6",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/caf\u00e9"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-7",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/a b"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-8",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/a\nb"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-9",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com:abc/path"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-10",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://[broken]/path"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-11",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://[::1/path"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-12",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://a@@example.com/path"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-13",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/a#one#two"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-14",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "../relative"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-15",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/?x=%xx"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-next-16",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/#%xx"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-0",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/%ZZ"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/%"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-2",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/%0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-3",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/[path]"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-4",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/{path}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-5",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/\\path"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-6",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/caf\u00e9"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-7",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/a b"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-8",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/a\nb"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-9",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com:abc/path"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-10",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://[broken]/path"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-11",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://[::1/path"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-12",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://a@@example.com/path"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-13",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/a#one#two"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-14",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "../relative"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-15",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/?x=%xx"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-active-16",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/#%xx"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-0",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/%ZZ"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/%"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-2",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/%0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-3",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/[path]"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-4",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/{path}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-5",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/\\path"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-6",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/caf\u00e9"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-7",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/a b"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-8",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/a\nb"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-9",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com:abc/path"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-10",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://[broken]/path"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-11",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://[::1/path"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-12",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://a@@example.com/path"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-13",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/a#one#two"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-14",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "../relative"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-15",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/?x=%xx"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-candidate-16",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "https://example.com/#%xx"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-0",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://example.com/%ZZ"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://example.com/%"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-2",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://example.com/%0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-3",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://example.com/[path]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-4",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://example.com/{path}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-5",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://example.com/\\path"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-6",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://example.com/caf\u00e9"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-7",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://example.com/a b"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-8",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://example.com/a\nb"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-9",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://example.com:abc/path"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-10",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://[broken]/path"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-11",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://[::1/path"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-12",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://a@@example.com/path"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-13",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://example.com/a#one#two"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-14",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "../relative"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-15",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://example.com/?x=%xx"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-invalid-parallel-16",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://example.com/#%xx"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-valid-next-0",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/%20"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-valid-next-1",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/a?x=/?:@&a=1#ok/?"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-valid-next-2",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://127.0.0.1/path"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-valid-next-3",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://user:info@example.com:443/path"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-valid-next-4",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com:99999/path"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uri-schema-valid-semantic-next-0",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "urn:example:synthetic"
+          ]
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "uri-schema-valid-semantic-next-1",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "http://example.com/path"
+          ]
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "uri-schema-valid-semantic-next-2",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://localhost/path"
+          ]
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "uri-schema-valid-semantic-next-3",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://[::1]/path"
+          ]
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "uri-schema-valid-semantic-next-4",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://[v1.address]/path"
+          ]
+        }
+      ],
+      "native_valid": true
+    },
+    {
+      "name": "uri-schema-valid-semantic-next-5",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https:///path"
+          ]
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "uri-schema-valid-semantic-active",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "urn:example:synthetic"
+          }
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "uri-schema-valid-semantic-candidate",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.pull_request",
+          "value": {
+            "provider": "github",
+            "id": "example/public#9",
+            "url": "urn:example:synthetic"
+          }
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "uri-schema-valid-semantic-parallel",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "urn:example:synthetic"
+            }
+          ]
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "schema-minlength-scope-purpose",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "scope.purpose",
+          "value": " \n "
+        }
+      ]
+    },
+    {
+      "name": "schema-minlength-scope-includes",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "scope.includes",
+          "value": [
+            " \n "
+          ]
+        }
+      ]
+    },
+    {
+      "name": "schema-minlength-scope-excludes",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "scope.excludes",
+          "value": [
+            " \n "
+          ]
+        }
+      ]
+    },
+    {
+      "name": "schema-minlength-work-objective",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.objective",
+          "value": " \n "
+        }
+      ]
+    },
+    {
+      "name": "schema-minlength-work-success_conditions",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.success_conditions",
+          "value": [
+            " \n "
+          ]
+        }
+      ]
+    },
+    {
+      "name": "schema-minlength-work-next-id",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.id",
+          "value": " \n "
+        }
+      ]
+    },
+    {
+      "name": "schema-minlength-work-next-description",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.description",
+          "value": " \n "
+        }
+      ]
+    },
+    {
+      "name": "schema-minlength-work-next-depends_on",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.depends_on",
+          "value": [
+            " \n "
+          ]
+        }
+      ]
+    },
+    {
+      "name": "schema-minlength-review-reviewed_by",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.reviewed_by",
+          "value": " \n "
+        }
+      ]
+    },
+    {
+      "name": "schema-minlength-review-evidence-0-command",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.evidence.0.command",
+          "value": " \n "
+        }
+      ]
+    },
+    {
+      "name": "schema-minlength-review-evidence-0-notes",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.evidence.0.notes",
+          "value": " \n "
+        }
+      ]
+    },
+    {
+      "name": "schema-minlength-review-environment_limitations",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.environment_limitations",
+          "value": [
+            " \n "
+          ]
+        }
+      ]
+    },
+    {
+      "name": "schema-minlength-privacy-redactions",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "privacy.redactions",
+          "value": [
+            " \n "
+          ]
+        }
+      ]
+    },
+    {
+      "name": "schema-valid-semantic-state-base-ref",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.base.ref",
+          "value": "other"
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "schema-valid-semantic-state-candidate-branch",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.branch",
+          "value": "a b"
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "schema-valid-semantic-repository-default_branch",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "repository.default_branch",
+          "value": "a b"
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "numeric-const-equivalence",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.max_bytes",
+          "value": 16384.0
+        },
+        {
+          "op": "set",
+          "path": "document.max_lines",
+          "value": 240.0
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-schema_version-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "schema_version",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-schema_version-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "schema_version",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-repository-id-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "repository.id",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-repository-id-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "repository.id",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-repository-visibility-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "repository.visibility",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-repository-visibility-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "repository.visibility",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-repository-default_branch-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "repository.default_branch",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-repository-default_branch-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "repository.default_branch",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-repository-continuity_path-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "repository.continuity_path",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-repository-continuity_path-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "repository.continuity_path",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-document-updated_at-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-document-updated_at-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-document-stale_reason-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.stale_reason",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-document-stale_reason-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.stale_reason",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-document-superseded_by-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.superseded_by",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-document-superseded_by-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.superseded_by",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-scope-purpose-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "scope.purpose",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-scope-purpose-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "scope.purpose",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-objective-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.objective",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-objective-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.objective",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-active_issue-provider-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue.provider",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-active_issue-provider-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue.provider",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-active_issue-id-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue.id",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-active_issue-id-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue.id",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-active_issue-url-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue.url",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-active_issue-url-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue.url",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-next-kind-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.kind",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-next-kind-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.kind",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-next-id-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.id",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-next-id-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.id",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-next-description-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.description",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-next-description-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.description",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-next-readiness-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.readiness",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-work-next-readiness-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.readiness",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-base-revision-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.base.revision",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-base-revision-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.base.revision",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-base-ref-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.base.ref",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-base-ref-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.base.ref",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-base-verified_at-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.base.verified_at",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-base-verified_at-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.base.verified_at",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-candidate-branch-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.branch",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-candidate-branch-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.branch",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-candidate-revision-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.revision",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-candidate-revision-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.revision",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-live-observed_at-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.observed_at",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-live-observed_at-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.observed_at",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-live-default_branch_revision-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.default_branch_revision",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-live-default_branch_revision-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.default_branch_revision",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-live-issue_state-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.issue_state",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-live-issue_state-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.issue_state",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-live-pull_request_state-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.pull_request_state",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-live-pull_request_state-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.pull_request_state",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-live-notes-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.notes",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-state-live-notes-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.notes",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-review-reviewed_at-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.reviewed_at",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-review-reviewed_at-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.reviewed_at",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-review-reviewed_by-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.reviewed_by",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-review-reviewed_by-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.reviewed_by",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-review-evidence-0-command-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.evidence.0.command",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-review-evidence-0-command-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.evidence.0.command",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-review-evidence-0-outcome-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.evidence.0.outcome",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-review-evidence-0-outcome-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.evidence.0.outcome",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-review-evidence-0-observed_at-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.evidence.0.observed_at",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-review-evidence-0-observed_at-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.evidence.0.observed_at",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-review-evidence-0-notes-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.evidence.0.notes",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-review-evidence-0-notes-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.evidence.0.notes",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-privacy-classification-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "privacy.classification",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-privacy-classification-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "privacy.classification",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-privacy-untrusted_content-1",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "privacy.untrusted_content",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "strict-scalar-privacy-untrusted_content-true",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "privacy.untrusted_content",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "strict-list-elements-scope-includes",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "scope.includes",
+          "value": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "strict-list-elements-scope-excludes",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "scope.excludes",
+          "value": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "strict-list-elements-scope-precedence",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "scope.precedence",
+          "value": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "strict-list-elements-scope-canonical_sources",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "scope.canonical_sources",
+          "value": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "strict-list-elements-work-success_conditions",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.success_conditions",
+          "value": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "strict-list-elements-work-next-references",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "strict-list-elements-work-next-depends_on",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.depends_on",
+          "value": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "strict-list-elements-review-environment_limitations",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.environment_limitations",
+          "value": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "strict-list-elements-privacy-redactions",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "privacy.redactions",
+          "value": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "strict-list-elements-privacy-excluded",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "privacy.excluded",
+          "value": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "schema-terminal-lf-document-updated_at",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08T12:00:00Z\n"
+        }
+      ]
+    },
+    {
+      "name": "schema-terminal-lf-state-base-verified_at",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.base.verified_at",
+          "value": "2026-09-08T12:00:00Z\n"
+        }
+      ]
+    },
+    {
+      "name": "schema-terminal-lf-state-live-observed_at",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.observed_at",
+          "value": "2026-09-08T12:00:00Z\n"
+        }
+      ]
+    },
+    {
+      "name": "schema-terminal-lf-review-reviewed_at",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.reviewed_at",
+          "value": "2026-09-08T12:00:00Z\n"
+        }
+      ]
+    },
+    {
+      "name": "schema-terminal-lf-review-evidence-0-observed_at",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.evidence.0.observed_at",
+          "value": "2026-09-08T12:00:00Z\n"
+        }
+      ]
+    },
+    {
+      "name": "schema-terminal-lf-state-base-revision",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.base.revision",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n"
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "schema-terminal-lf-state-candidate-revision",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.revision",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n"
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "schema-terminal-lf-state-live-default_branch_revision",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.default_branch_revision",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n"
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "schema-terminal-lf-repository-id",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "repository.id",
+          "value": "example/public\n"
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "schema-terminal-lf-uri",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://example.com/path\n"
+          ]
+        }
+      ],
+      "native_valid": false
+    },
+    {
+      "name": "nonfinite-document-stale_reason-.nan",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "document.stale_reason",
+          "value": ".nan"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-document-stale_reason-.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "document.stale_reason",
+          "value": ".inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-document-stale_reason--.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "document.stale_reason",
+          "value": "-.inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-document-superseded_by-.nan",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "document.superseded_by",
+          "value": ".nan"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-document-superseded_by-.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "document.superseded_by",
+          "value": ".inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-document-superseded_by--.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "document.superseded_by",
+          "value": "-.inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-work-active_issue-.nan",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "work.active_issue",
+          "value": ".nan"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-work-active_issue-.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "work.active_issue",
+          "value": ".inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-work-active_issue--.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "work.active_issue",
+          "value": "-.inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-state-candidate-branch-.nan",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "state.candidate.branch",
+          "value": ".nan"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-state-candidate-branch-.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "state.candidate.branch",
+          "value": ".inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-state-candidate-branch--.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "state.candidate.branch",
+          "value": "-.inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-state-candidate-revision-.nan",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "state.candidate.revision",
+          "value": ".nan"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-state-candidate-revision-.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "state.candidate.revision",
+          "value": ".inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-state-candidate-revision--.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "state.candidate.revision",
+          "value": "-.inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-state-candidate-pull_request-.nan",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "state.candidate.pull_request",
+          "value": ".nan"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-state-candidate-pull_request-.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "state.candidate.pull_request",
+          "value": ".inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-state-candidate-pull_request--.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "state.candidate.pull_request",
+          "value": "-.inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-state-live-default_branch_revision-.nan",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "state.live.default_branch_revision",
+          "value": ".nan"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-state-live-default_branch_revision-.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "state.live.default_branch_revision",
+          "value": ".inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-state-live-default_branch_revision--.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "state.live.default_branch_revision",
+          "value": "-.inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-review-reviewed_at-.nan",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "review.reviewed_at",
+          "value": ".nan"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-review-reviewed_at-.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "review.reviewed_at",
+          "value": ".inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-review-reviewed_at--.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "review.reviewed_at",
+          "value": "-.inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-review-reviewed_by-.nan",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "review.reviewed_by",
+          "value": ".nan"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-review-reviewed_by-.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "review.reviewed_by",
+          "value": ".inf"
+        }
+      ]
+    },
+    {
+      "name": "nonfinite-review-reviewed_by--.inf",
+      "valid": false,
+      "changes": [
+        {
+          "op": "yaml-number",
+          "path": "review.reviewed_by",
+          "value": "-.inf"
+        }
+      ]
     }
   ]
 }

@@ -43,7 +43,9 @@ def main() -> None:
             parent = metadata
             for field in fields[:-1]:
                 parent = parent[int(field)] if isinstance(parent, list) else parent[field]
-            if mutation["op"] == "remove":
+            if mutation["op"] == "yaml-number":
+                parent[fields[-1]] = yaml.safe_load(mutation["value"])
+            elif mutation["op"] == "remove":
                 del parent[fields[-1]]
             else:
                 parent[fields[-1]] = mutation["value"]

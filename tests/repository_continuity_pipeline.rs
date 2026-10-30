@@ -35,13 +35,79 @@ fn change(metadata: &mut Value, mutation: &Value) {
             parent.as_object_mut().unwrap().remove(*field);
         }
         "set" => parent[*field] = mutation["value"].clone(),
+        "yaml-number" => {
+            parent[*field] = format!(
+                "__raw_yaml_number_{}__",
+                mutation["value"].as_str().unwrap()
+            )
+            .into();
+        }
         operation => panic!("unsupported fixture operation {operation}"),
     }
 }
 
+fn materialize_owner_contract(workspace: &Path) {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    for path in [
+        "AGENTS.md",
+        "vendor/hygiene/repository-continuity-policy.v1.json",
+        "vendor/aether/aether.repository-continuity.v1.schema.json",
+        "vendor/aether/repository-continuity.INSTRUCTION.md",
+        "vendor/aether/CONTINUITY.template.md",
+    ] {
+        write(workspace, path, std::fs::read(root.join(path)).unwrap());
+    }
+    let mut policy: toml::Value = toml::from_str(include_str!(
+        "../.config/dogfood/repository-continuity.toml"
+    ))
+    .unwrap();
+    policy["repository"] = "example/public".into();
+    policy["provider-projections"] = toml::Value::Array(Vec::new());
+    write(workspace, "policy.toml", toml::to_string(&policy).unwrap());
+}
+
+fn assert_case(report: &Value, case: &Value, failures: &mut Vec<String>) {
+    let name = case["name"].as_str().unwrap();
+    let schema_valid = case["valid"].as_bool().unwrap();
+    let valid = case["native_valid"].as_bool().unwrap_or(schema_valid);
+    if schema_valid {
+        assert!(
+            report["diagnostics"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|diagnostic| diagnostic["rule_id"] != "EGO-CONTINUITY-SCHEMA-001"),
+            "schema-valid input received schema diagnostic for {name}: {report}"
+        );
+    }
+    if !schema_valid {
+        assert!(
+            report["diagnostics"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|diagnostic| diagnostic["rule_id"] == "EGO-CONTINUITY-SCHEMA-001"),
+            "schema-invalid input lacked schema diagnostic for {name}: {report}"
+        );
+    }
+    let expected = if valid { "valid" } else { "invalid" };
+    if report["evidence_layers"]["structural"] != expected || report["status"] != expected {
+        failures.push(format!("{name}: expected {expected}; got {report}"));
+    }
+    assert!(
+        report["diagnostics"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|diagnostic| {
+                matches!(diagnostic["severity"].as_str(), Some("warning" | "info"))
+            }),
+        "observe severity for {name}: {report}"
+    );
+}
+
 #[test]
 fn native_continuity_matches_pinned_schema_matrix_in_observe() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let fixture = include_str!("fixtures/repository-continuity/valid-public.md");
     let front = fixture.strip_prefix("---\n").unwrap();
     let (front, body) = front.split_once("\n---\n").unwrap();
@@ -61,13 +127,13 @@ fn native_continuity_matches_pinned_schema_matrix_in_observe() {
     let mut failures = Vec::new();
     for case in matrix["cases"].as_array().unwrap() {
         let name = case["name"].as_str().unwrap();
-        let valid = case["valid"].as_bool().unwrap();
         let temporary = tempfile::tempdir().unwrap();
         let workspace = temporary.path();
+        let template = tempfile::tempdir().unwrap();
         assert!(
             Command::new("git")
                 .args(["init", "--quiet", "--initial-branch=main"])
-                .arg(format!("--template={}", workspace.display()))
+                .arg(format!("--template={}", template.path().display()))
                 .arg(workspace)
                 .status()
                 .unwrap()
@@ -82,27 +148,18 @@ fn native_continuity_matches_pinned_schema_matrix_in_observe() {
             "CONTINUITY.md",
             format!(
                 "---\n{}\n---\n{body}",
-                serde_json::to_string(&metadata).unwrap()
+                serde_json::to_string(&metadata)
+                    .unwrap()
+                    .replace("\"__raw_yaml_number_.nan__\"", ".nan")
+                    .replace("\"__raw_yaml_number_.inf__\"", ".inf")
+                    .replace("\"__raw_yaml_number_-.inf__\"", "-.inf")
             ),
         );
-        for path in [
-            "AGENTS.md",
-            "vendor/hygiene/repository-continuity-policy.v1.json",
-            "vendor/aether/aether.repository-continuity.v1.schema.json",
-            "vendor/aether/repository-continuity.INSTRUCTION.md",
-            "vendor/aether/CONTINUITY.template.md",
-        ] {
-            write(workspace, path, std::fs::read(root.join(path)).unwrap());
-        }
-        let mut policy: toml::Value = toml::from_str(include_str!(
-            "../.config/dogfood/repository-continuity.toml"
-        ))
-        .unwrap();
-        policy["repository"] = "example/public".into();
-        policy["provider-projections"] = toml::Value::Array(Vec::new());
-        write(workspace, "policy.toml", toml::to_string(&policy).unwrap());
+        materialize_owner_contract(workspace);
         let output = Command::new(env!("CARGO_BIN_EXE_egolint"))
-            .env_remove("EGOLINT_CONFIG")
+            .env_clear()
+            .env("PATH", std::env::var_os("PATH").unwrap())
+            .env("CI", "true")
             .arg("--workspace")
             .arg(workspace)
             .args([
@@ -129,20 +186,7 @@ fn native_continuity_matches_pinned_schema_matrix_in_observe() {
             &std::fs::read(workspace.join(".reports/egolint/repository-continuity.json")).unwrap(),
         )
         .unwrap();
-        let expected = if valid { "valid" } else { "invalid" };
-        if report["evidence_layers"]["structural"] != expected || report["status"] != expected {
-            failures.push(format!("{name}: expected {expected}; got {report}"));
-        }
-        assert!(
-            report["diagnostics"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .all(|diagnostic| {
-                    matches!(diagnostic["severity"].as_str(), Some("warning" | "info"))
-                }),
-            "observe severity for {name}: {report}"
-        );
+        assert_case(&report, case, &mut failures);
     }
     assert!(
         failures.is_empty(),
