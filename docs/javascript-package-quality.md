@@ -139,6 +139,36 @@ Adapter formats are deliberately isolated:
 The combined SARIF file is an Egolint projection; consumers do not need to know which adapter
 produced a finding.
 
+### Adapter outcomes and supported protocols
+
+The JSON report also preserves each subprocess exit code, signal, start error code and protocol
+disposition under `adapter_outcomes`. Payload validity and process success are independent:
+malformed evidence, unsupported exits and unexplained exit 1 produce an `execution_error` tool
+result and CLI exit 3. Valid findings remain visible even when the process outcome contradicts
+them. Exit 1 with diagnostics remains `failed_findings`, including warning-only diagnostics;
+exit 0 with error findings is contradictory. Clean and warning-only successful runs exit 0.
+Protocol failures are separate from lint findings and do not create synthetic rule violations.
+
+The supported Oxlint envelope is an object with a diagnostics array. Diagnostic messages and
+severities are validated before normalization. Optional `number_of_errors` and
+`number_of_warnings` counts must agree with the diagnostics when supplied. The pinned Oxlint
+1.79.0 reporter does not currently supply those optional counts; contradictory-count tests use
+trusted stubs and qualify the seam handling only.
+
+The supported Biome envelope uses SARIF 2.1.0 with at least one run and an explicit results array
+per run. Results require textual messages and supported kind/level combinations. An absent kind
+means `fail`; an absent level defaults to `warning` for fail and `none` for every other kind.
+Non-fail kinds require level `none`, as specified in SARIF sections 3.27.9–10. `pass` and
+`notApplicable` records are validated without becoming findings. `informational`, `open` and
+`review` records retain informational evidence. Error, warning and note failures map to their
+corresponding normalized severity; level `none` carries informational severity. This bounded
+adapter grammar does not implement general SARIF rule-configuration overrides or external
+property resolution.
+
+The actual CLI regression suite uses executable stubs for malformed and contradictory protocol
+cases. Existing private-app, React-library and broken-library fixtures continue to qualify the
+real pinned analyzers separately; stub success does not establish analyzer behavior.
+
 ## Fix policy
 
 The default profile is check-only.

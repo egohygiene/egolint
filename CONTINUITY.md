@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:02:24Z'
+  updated_at: '2026-10-30T03:06:11Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -42,7 +42,8 @@ work:
   next:
     kind: action
     id: complete-javascript-adapter-evidence
-    description: Implement and verify structured adapter outcomes against the new CLI regressions.
+    description: Review the complete candidate and reconcile continuity against parallel branches before
+      merge.
     readiness: ready
     references:
     - https://github.com/egohygiene/egolint/issues/86
@@ -51,18 +52,21 @@ state:
   base:
     revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     ref: refs/heads/main
-    verified_at: '2026-10-30T03:02:24Z'
+    verified_at: '2026-10-30T03:06:11Z'
   candidate:
     branch: fix/86-javascript-adapter-evidence
     revision: null
-    pull_request: null
+    pull_request:
+      provider: github
+      id: egohygiene/egolint#104
+      url: https://github.com/egohygiene/egolint/pull/104
     handoff_state: in-progress
   live:
     status: verified
-    observed_at: '2026-10-30T03:02:24Z'
+    observed_at: '2026-10-30T03:06:11Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
-    pull_request_state: not-applicable
+    pull_request_state: open
     notes: Issue 86 is open without comments. Main contains merged report-lifecycle PR 102. Audit PR 84
       remains draft and untouched. Independent issue branches 87 through 91 share the continuity file
       and require semantic reconciliation.
@@ -71,35 +75,35 @@ state:
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
   - provider: github
-    id: egohygiene/egolint#87
-    url: https://github.com/egohygiene/egolint/issues/87
+    id: egohygiene/egolint#106
+    url: https://github.com/egohygiene/egolint/pull/106
   - provider: github
-    id: egohygiene/egolint#88
-    url: https://github.com/egohygiene/egolint/issues/88
+    id: egohygiene/egolint#105
+    url: https://github.com/egohygiene/egolint/pull/105
   - provider: github
-    id: egohygiene/egolint#89
-    url: https://github.com/egohygiene/egolint/issues/89
+    id: egohygiene/egolint#107
+    url: https://github.com/egohygiene/egolint/pull/107
   - provider: github
-    id: egohygiene/egolint#90
-    url: https://github.com/egohygiene/egolint/issues/90
+    id: egohygiene/egolint#103
+    url: https://github.com/egohygiene/egolint/pull/103
   - provider: github
-    id: egohygiene/egolint#91
-    url: https://github.com/egohygiene/egolint/issues/91
+    id: egohygiene/egolint#108
+    url: https://github.com/egohygiene/egolint/pull/108
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:02:24Z'
+  reviewed_at: '2026-10-30T03:06:11Z'
   reviewed_by: Codex
   evidence:
   - command: node --test tests/javascript-adapter-outcomes.test.mjs
-    outcome: failed
-    observed_at: '2026-10-30T03:02:24Z'
-    notes: 'Unfixed-source regression: 29 tests, 27 expected failures and 2 passing controls. Executable
-      stubs establish orchestration only.'
+    outcome: passed
+    observed_at: '2026-10-30T03:06:11Z'
+    notes: Structured protocol and subprocess seam cases pass with positive controls; trusted stubs do
+      not establish analyzer emission behavior.
   environment_limitations:
   - Hosted Actions qualification is deferred; commits skip hosted CI.
   - The selected continuity contract remains draft/proposed in observe mode; no released conformance is
     claimed.
-  - Real pinned analyzer qualification is pending.
+  - Native non-Linux and real-container qualification are outside this JavaScript adapter repair.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -134,7 +138,7 @@ contradictions while keeping supported pass records and authentic pinned-tool co
 ## State snapshot
 
 Base is 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58, containing merged PR 102.
-Candidate fix/86-javascript-adapter-evidence is in the regression stage. No merge is claimed.
+Candidate fix/86-javascript-adapter-evidence is in the implementation stage. No merge is claimed.
 
 ## Completed and material changes
 
@@ -144,19 +148,19 @@ consumer fixtures and audit PR 84 remain intact. ADR not required: repair within
 
 ## Validation and review evidence
 
-Unfixed-source regression: 29 tests, 27 expected failures and 2 passing controls. Executable stubs establish orchestration only.
+Structured protocol and subprocess seam cases pass with positive controls; trusted stubs do not establish analyzer emission behavior.
 Pinned Oxlint 1.79.0, oxlint-tsgolint 7.0.2001, Biome 2.5.9 and publint 0.3.24 package versions
 were inspected. Schema, required headings and budgets are checked before the PR handoff.
 
 ## Blockers, risks, unknowns, and deferred work
 
-The regression checkpoint deliberately contains failing tests. Hosted Actions, release and
+The initial regression checkpoint deliberately contained failing tests; the implementation repairs them. Hosted Actions, release and
 publication are deferred. Stub payloads do not claim that pinned tools naturally emit those shapes.
 The continuity selection remains draft/proposed observe input, without released conformance.
 
 ## Next dependency-ready work
 
-Implement and verify structured adapter outcomes against the new CLI regressions.
+Review the complete candidate and reconcile continuity against parallel branches before merge.
 
 ## Parallel changes and reconciliation
 

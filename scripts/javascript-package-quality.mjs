@@ -189,22 +189,19 @@ function pnpmCommand() {
     return process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 }
 
-function runAdapter(arguments_, allowedExitCodes, label) {
+function runAdapter(arguments_) {
     const result = spawnSync(pnpmCommand(), arguments_, {
         cwd: repositoryRoot,
         encoding: "utf8",
         env: { ...process.env, NO_COLOR: "1" },
         maxBuffer: 32 * 1024 * 1024,
     });
-    if (result.error) {
-        throw runtimeError(`${label} could not start: ${result.error.message}`);
-    }
-    if (!allowedExitCodes.has(result.status)) {
-        throw runtimeError(
-            `${label} exited with ${result.status}: ${boundedText(result.stderr || result.stdout)}`,
-        );
-    }
-    return result.stdout;
+    return {
+        stdout: result.stdout ?? "",
+        exit_code: result.status,
+        signal: result.signal,
+        error_code: result.error?.code ?? null,
+    };
 }
 
 function sourcePath(rawPath, packageDirectory, workspace) {
@@ -306,16 +303,70 @@ function normalizedFinding({
 
 function parseJsonOutput(raw, label) {
     try {
-        return JSON.parse(raw || "{}");
-    } catch (error) {
-        throw runtimeError(`${label} emitted invalid JSON: ${error.message}`);
+        return JSON.parse(raw);
+    } catch {
+        throw runtimeError(`${label} emitted invalid or empty JSON`);
+    }
+}
+
+function requireObject(value, label) {
+    if (value === null || typeof value !== "object" || Array.isArray(value)) {
+        throw runtimeError(`${label} must be an object`);
+    }
+    return value;
+}
+
+function requireArray(value, label) {
+    if (!Array.isArray(value)) throw runtimeError(`${label} must be an array`);
+    return value;
+}
+
+function requireText(value, label) {
+    if (typeof value !== "string" || value.trim() === "") {
+        throw runtimeError(`${label} must be nonempty text`);
+    }
+}
+
+function validateCounts(document, diagnostics) {
+    for (const [key, expected] of [
+        ["number_of_errors", diagnostics.filter((item) => item.severity === "error").length],
+        ["number_of_warnings", diagnostics.filter((item) => item.severity === "warning").length],
+    ]) {
+        if (
+            document[key] !== undefined &&
+            (!Number.isSafeInteger(document[key]) ||
+                document[key] < 0 ||
+                document[key] !== expected)
+        ) {
+            throw runtimeError(`Oxlint ${key} contradicts diagnostics`);
+        }
     }
 }
 
 function normalizeOxlint(raw, context) {
-    const document = parseJsonOutput(raw, "Oxlint");
-    const diagnostics = Array.isArray(document.diagnostics) ? document.diagnostics : [];
-    return diagnostics.map((diagnostic) => {
+    const document = requireObject(parseJsonOutput(raw, "Oxlint"), "Oxlint envelope");
+    const diagnostics = requireArray(document.diagnostics, "Oxlint diagnostics");
+    const findings = diagnostics.map((diagnostic) => {
+        requireObject(diagnostic, "Oxlint diagnostic");
+        requireText(diagnostic.message, "Oxlint diagnostic message");
+        if (!["error", "warning"].includes(diagnostic.severity)) {
+            throw runtimeError("Oxlint diagnostic severity is unsupported");
+        }
+        if (diagnostic.code !== undefined) requireText(diagnostic.code, "Oxlint diagnostic code");
+        if (diagnostic.filename !== undefined) requireText(diagnostic.filename, "Oxlint filename");
+        if (
+            diagnostic.help !== undefined &&
+            diagnostic.help !== null &&
+            typeof diagnostic.help !== "string"
+        ) {
+            throw runtimeError("Oxlint diagnostic help must be text or null");
+        }
+        if (diagnostic.labels !== undefined) {
+            for (const label of requireArray(diagnostic.labels, "Oxlint labels")) {
+                requireObject(label, "Oxlint label");
+                if (label.span !== undefined) requireObject(label.span, "Oxlint span");
+            }
+        }
         const span = diagnostic.labels?.[0]?.span ?? {};
         const ruleId = String(diagnostic.code ?? "oxlint/unknown");
         const path = sourcePath(diagnostic.filename, context.packageDirectory, context.workspace);
@@ -338,12 +389,60 @@ function normalizeOxlint(raw, context) {
             fixSafety: "not_requested",
         });
     });
+    validateCounts(document, diagnostics);
+    return findings;
+}
+
+// SARIF 2.1.0 sections 3.27.9-10: every non-fail kind requires level none;
+// an omitted level defaults to none for those kinds, and warning for fail.
+function sarifDisposition(result) {
+    requireObject(result, "Biome SARIF result");
+    const kind = result.kind ?? "fail";
+    const level = result.level ?? (kind === "fail" ? "warning" : "none");
+    if (
+        !["fail", "pass", "notApplicable", "informational", "open", "review"].includes(kind) ||
+        !["error", "warning", "note", "none"].includes(level) ||
+        (kind !== "fail" && level !== "none") ||
+        result.kind === null ||
+        result.level === null
+    ) {
+        throw runtimeError("Biome SARIF result has an unsupported kind/level combination");
+    }
+    requireObject(result.message, "Biome SARIF message");
+    requireText(result.message.text, "Biome SARIF message text");
+    if (result.ruleId !== undefined) requireText(result.ruleId, "Biome SARIF ruleId");
+    return { isFinding: !["pass", "notApplicable"].includes(kind), level };
 }
 
 function normalizeBiome(raw, context) {
-    const document = parseJsonOutput(raw, "Biome SARIF");
-    const results = document.runs?.flatMap((run) => run.results ?? []) ?? [];
-    return results.map((result) => {
+    const document = requireObject(parseJsonOutput(raw, "Biome SARIF"), "Biome SARIF envelope");
+    if (document.version !== "2.1.0") throw runtimeError("Biome SARIF version must equal 2.1.0");
+    const runs = requireArray(document.runs, "Biome SARIF runs");
+    if (runs.length === 0) throw runtimeError("Biome SARIF must contain an adapter run");
+    const results = runs.flatMap((run) => {
+        requireObject(run, "Biome SARIF run");
+        return requireArray(run.results, "Biome SARIF results");
+    });
+    return results.flatMap((result) => {
+        const disposition = sarifDisposition(result);
+        if (result.locations !== undefined) {
+            for (const location of requireArray(result.locations, "Biome SARIF locations")) {
+                requireObject(location, "Biome SARIF location");
+                if (location.physicalLocation !== undefined) {
+                    const physical = requireObject(
+                        location.physicalLocation,
+                        "Biome physical location",
+                    );
+                    if (physical.region !== undefined)
+                        requireObject(physical.region, "Biome source region");
+                    if (physical.artifactLocation !== undefined) {
+                        requireObject(physical.artifactLocation, "Biome artifact location");
+                        requireText(physical.artifactLocation.uri, "Biome artifact URI");
+                    }
+                }
+            }
+        }
+        if (!disposition.isFinding) return [];
         const physical = result.locations?.[0]?.physicalLocation ?? {};
         const region = physical.region ?? {};
         const path = sourcePath(
@@ -353,23 +452,61 @@ function normalizeBiome(raw, context) {
         );
         const ruleId = String(result.ruleId ?? "biome/unknown");
         const safe = ruleId === "format" || ruleId.startsWith("assist/source/");
-        return normalizedFinding({
-            toolId: "BIOME",
-            toolName: "biome",
-            toolVersion: context.versions.biome,
-            ruleId,
-            severity: severity(result.level),
-            message: result.message?.text ?? ruleId,
-            path,
-            startLine: region.startLine,
-            startColumn: region.startColumn,
-            endLine: region.endLine,
-            endColumn: region.endColumn,
-            configurationPath: context.variant.biome_config,
-            profileMapping: context.manifest.profile,
-            fixSafety: safe ? "safe" : "not_requested",
-        });
+        return [
+            normalizedFinding({
+                toolId: "BIOME",
+                toolName: "biome",
+                toolVersion: context.versions.biome,
+                ruleId,
+                severity: severity(disposition.level),
+                message: result.message?.text ?? ruleId,
+                path,
+                startLine: region.startLine,
+                startColumn: region.startColumn,
+                endLine: region.endLine,
+                endColumn: region.endColumn,
+                configurationPath: context.variant.biome_config,
+                profileMapping: context.manifest.profile,
+                fixSafety: safe ? "safe" : "not_requested",
+            }),
+        ];
     });
+}
+
+function evaluateAdapter(execution, normalize, context) {
+    const outcome = {
+        exit_code: execution.exit_code,
+        signal: execution.signal,
+        error_code: execution.error_code,
+        protocol_status: "unavailable",
+        reason: null,
+    };
+    if (execution.error_code || execution.signal || execution.exit_code === null) {
+        outcome.reason = "Adapter could not complete normally";
+        return { findings: [], status: "execution_error", outcome };
+    }
+    let findings;
+    try {
+        findings = normalize(execution.stdout, context);
+        outcome.protocol_status = "valid";
+    } catch (error) {
+        outcome.protocol_status = "invalid";
+        outcome.reason = boundedText(error.message);
+        return { findings: [], status: "execution_error", outcome };
+    }
+    if (
+        ![0, 1].includes(execution.exit_code) ||
+        (execution.exit_code === 1 && findings.length === 0) ||
+        (execution.exit_code === 0 && findings.some((item) => item.finding.severity === "error"))
+    ) {
+        outcome.reason = "Adapter exit is unsupported or contradicts normalized findings";
+        return { findings, status: "execution_error", outcome };
+    }
+    return {
+        findings,
+        status: execution.exit_code === 1 ? "failed_findings" : undefined,
+        outcome,
+    };
 }
 
 function publintLocation(message, packageDirectory, workspace) {
@@ -431,7 +568,7 @@ async function runPublint(context) {
             fixSafety: "none",
         });
     });
-    return { findings, status: "applicable" };
+    return { findings, status: undefined };
 }
 
 function toolResult(toolId, findings, statusOverride) {
@@ -457,7 +594,9 @@ function toolResult(toolId, findings, statusOverride) {
         tool_id: toolId,
         owner: OWNER,
         policy_source: POLICY_PATH,
-        status: errors > 0 ? "failed_findings" : warnings > 0 ? "passed_with_warnings" : "passed",
+        status:
+            statusOverride ??
+            (errors > 0 ? "failed_findings" : warnings > 0 ? "passed_with_warnings" : "passed"),
         enforcement: "blocking",
         finding_count: errors,
         warning_count: warnings,
@@ -501,7 +640,9 @@ function toSarif(report) {
             rules.set(ruleId, {
                 id: ruleId,
                 name: finding.rule.rule_id,
-                shortDescription: { text: `${finding.rule.tool_id} ${finding.rule.rule_id}` },
+                shortDescription: {
+                    text: `${finding.rule.tool_id} ${finding.rule.rule_id}`,
+                },
                 properties: {
                     egolintOwner: finding.ownership.owner,
                     egolintPolicySource: finding.ownership.policy_source,
@@ -643,7 +784,14 @@ async function main() {
     }
 
     const versions = await verifyAdapterVersions(profile);
-    const context = { workspace, packageDirectory, manifest, profile, variant, versions };
+    const context = {
+        workspace,
+        packageDirectory,
+        manifest,
+        profile,
+        variant,
+        versions,
+    };
     const oxlintConfig = resolve(repositoryRoot, variant.oxlint_config);
     const biomeConfig = resolve(repositoryRoot, variant.biome_config);
     const ignorePatterns = manifest.ignore ?? [];
@@ -664,44 +812,42 @@ async function main() {
     }
     oxlintArguments.push(packageDirectory);
 
-    const oxlintRaw = runAdapter(oxlintArguments, new Set([0, 1]), "Oxlint");
+    const oxlintExecution = runAdapter(oxlintArguments);
     const temporaryBiomeConfig = await materializeBiomeConfig(
         biomeConfig,
         workspace,
         ignorePatterns,
     );
-    let biomeRaw;
+    let biomeExecution;
     try {
-        biomeRaw = runAdapter(
-            [
-                "--dir",
-                repositoryRoot,
-                "exec",
-                "biome",
-                "ci",
-                "--colors=off",
-                "--config-path",
-                temporaryBiomeConfig,
-                "--reporter=sarif",
-                "--max-diagnostics=none",
-                packageDirectory,
-            ],
-            new Set([0, 1]),
-            "Biome",
-        );
+        biomeExecution = runAdapter([
+            "--dir",
+            repositoryRoot,
+            "exec",
+            "biome",
+            "ci",
+            "--colors=off",
+            "--config-path",
+            temporaryBiomeConfig,
+            "--reporter=sarif",
+            "--max-diagnostics=none",
+            packageDirectory,
+        ]);
     } finally {
         await rm(temporaryBiomeConfig, { force: true });
     }
     const publintResult = await runPublint(context);
+    const oxlintResult = evaluateAdapter(oxlintExecution, normalizeOxlint, context);
+    const biomeResult = evaluateAdapter(biomeExecution, normalizeBiome, context);
 
     const findings = [
-        ...normalizeOxlint(oxlintRaw, context),
-        ...normalizeBiome(biomeRaw, context),
+        ...oxlintResult.findings,
+        ...biomeResult.findings,
         ...publintResult.findings,
     ].sort(compareFindings);
     const toolResults = [
-        toolResult("OXLINT", findings),
-        toolResult("BIOME", findings),
+        toolResult("OXLINT", findings, oxlintResult.status),
+        toolResult("BIOME", findings, biomeResult.status),
         toolResult("PUBLINT", findings, publintResult.status),
     ].sort((a, b) => a.tool_id.localeCompare(b.tool_id));
     const report = {
@@ -723,6 +869,10 @@ async function main() {
             biome: versions.biome,
             publint: versions.publint,
         },
+        adapter_outcomes: {
+            oxlint: oxlintResult.outcome,
+            biome: biomeResult.outcome,
+        },
         tool_results: toolResults,
         findings,
         summary: summarize(findings, toolResults),
@@ -731,7 +881,8 @@ async function main() {
     await writeAtomic(jsonReportPath, report);
     await writeAtomic(sarifReportPath, toSarif(report));
     printFindings(report);
-    return report.summary.errors > 0 ? 1 : 0;
+    if (toolResults.some((result) => result.status === "execution_error")) return 3;
+    return toolResults.some((result) => result.status === "failed_findings") ? 1 : 0;
 }
 
 try {
