@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:42:01Z'
+  updated_at: '2026-10-30T08:43:51Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -48,19 +48,18 @@ work:
     url: https://github.com/egohygiene/egolint/issues/68
   next:
     kind: action
-    id: review-release-matrix
-    description: Review this draft matrix, then consume the exact candidate in issue 69 dogfood before
-      parent 29 reconciliation.
+    id: merge-qualified-68-candidate
+    description: Merge the qualified source candidate, then verify the resulting default-branch state;
+      retain separate release acceptance gates.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/68
-    - https://github.com/egohygiene/egolint/issues/69
+    - https://github.com/egohygiene/egolint/pull/109
     depends_on: []
 state:
   base:
-    revision: 36a3163b4017fc2d9b7ece873e896e6dca8fd96b
-    ref: refs/heads/fix/91-release-dispatch-binding
-    verified_at: '2026-10-30T03:42:01Z'
+    revision: 1da179bf9b30a4e8c5ab1f1dcdf39e03d09010df
+    ref: refs/heads/main
+    verified_at: '2026-10-30T08:43:51Z'
   candidate:
     branch: test/68-release-fixture-matrix
     revision: null
@@ -71,59 +70,28 @@ state:
     handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-10-30T03:42:01Z'
-    default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
+    observed_at: '2026-10-30T08:43:51Z'
+    default_branch_revision: 1da179bf9b30a4e8c5ab1f1dcdf39e03d09010df
     issue_state: open
-    pull_request_state: draft
-    notes: Verified main includes PR 102 and issue 68 remains open. The necessary issue 91 repair is still
-      draft PR 108; this branch targets its exact head. Issue 67 is delivered historically by PR 71. Audit
-      84 is draft/open and untouched. The review stack is 91, then 68, then 69, then parent 29 reconciliation;
-      no merge or release is claimed.
+    pull_request_state: open
+    notes: 'GitHub checked this candidate open against the observed main revision. Verified merged predecessors:
+      PR 104, PR 106, PR 105, PR 107, PR 103, PR 108. Remaining candidates: PR 110, PR 111. Audit draft
+      PR 84 remains open and unchanged. Hosted Actions remain deferred.'
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
   - provider: github
-    id: egohygiene/egolint#108
-    url: https://github.com/egohygiene/egolint/pull/108
+    id: egohygiene/egolint#110
+    url: https://github.com/egohygiene/egolint/pull/110
   - provider: github
-    id: egohygiene/egolint#104
-    url: https://github.com/egohygiene/egolint/pull/104
-  - provider: github
-    id: egohygiene/egolint#106
-    url: https://github.com/egohygiene/egolint/pull/106
-  - provider: github
-    id: egohygiene/egolint#105
-    url: https://github.com/egohygiene/egolint/pull/105
-  - provider: github
-    id: egohygiene/egolint#107
-    url: https://github.com/egohygiene/egolint/pull/107
-  - provider: github
-    id: egohygiene/egolint#103
-    url: https://github.com/egohygiene/egolint/pull/103
+    id: egohygiene/egolint#111
+    url: https://github.com/egohygiene/egolint/pull/111
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:42:01Z'
+  reviewed_at: '2026-10-30T08:43:51Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo test --locked --test repository_release_matrix -- --nocapture
-    outcome: passed
-    observed_at: '2026-10-30T03:42:01Z'
-    notes: Seven native tests pass, including 54 focused golden cells and distinct authority/drift, entrypoint
-      and executable-trap controls (96 native invocations total). Required failures, advisory warnings
-      and not-applicability remain distinct.
-  - command: Draft202012Validator with FormatChecker on exact vendored Aether release schema
-    outcome: passed
-    observed_at: '2026-10-30T03:42:01Z'
-    notes: All nine authored declaration fixtures satisfy the selected local source schema.
-  - command: cargo fmt --all --check; git diff --check; python3 scripts/validate_repository_release_sources.py
-    outcome: passed
-    observed_at: '2026-10-30T03:42:01Z'
-    notes: Formatting, whitespace and immutable owner source selection checks passed.
-  - command: cargo clippy --all-targets --all-features --locked -- -D warnings
-    outcome: passed
-    observed_at: '2026-10-30T03:42:01Z'
-    notes: Strict all-target Clippy passed.
   - command: cargo test --all-targets --all-features --locked
     outcome: passed
     observed_at: '2026-10-30T03:42:01Z'
@@ -152,6 +120,21 @@ review:
     notes: All nine declarations and all 54 golden slot requirements match the selected owner inputs.
       Focused/aggregate locations and SARIF driver rule identity were strengthened after review; EGOLINT
       overrides are isolated. Continuity is valid with the expected unreleased-contract advisory.
+  - command: cargo fmt --all --check; cargo test --locked --test repository_release_matrix; python3 scripts/validate_repository_release_sources.py
+    outcome: passed
+    observed_at: '2026-10-30T08:43:51Z'
+    notes: 'All seven native matrix tests pass on the reconciled source: 96 CLI invocations include 54
+      reviewed profile/state projections, drift and entrypoint controls. The Cargo conflict retains both
+      matrix and continuity test entries. The documented nested-manifest archive limitation is repaired
+      by the immediately following PR 110. Existing exact-head combined-source evidence remains in the
+      linked PR; no hosted qualification is inferred.'
+  - command: Pinned Draft202012Validator/registered formats, section and budget checks; native continuity
+      validation with explicit current-main base and working-tree head; git diff --check
+    outcome: limited
+    observed_at: '2026-10-30T08:43:51Z'
+    notes: Reconciled handoff passes local schema and native semantic/structural/freshness/Git checks.
+      The proposed/unreleased continuity contract retains its expected observe warning; official released
+      conformance and hosted qualification remain unavailable.
   environment_limitations:
   - Hosted Actions and actual workflow/Task execution are deferred.
   - Fixtures are synthetic static consumers; no real analyzer/container/language build, registry acceptance
@@ -180,8 +163,7 @@ pinned Aether/Hygiene sources. It grants no authority to execute release adapter
 
 ## Resume protocol
 
-Read AGENTS, issue 68, the fixture README and the current release validator. Verify main, this draft
-and predecessor PR 108. Preserve the stack and audit PR 84 without modifying historical evidence.
+Read AGENTS.md, the active issue and linked source evidence. Verify main, this candidate and the remaining PRs against live state before continuing. Audit draft PR 84 is a separate historical change.
 
 ## Current objective and success conditions
 
@@ -190,9 +172,8 @@ Retain distinct source authorities, lifecycle applicability and all native evide
 
 ## State snapshot
 
-Candidate test/68-release-fixture-matrix is at the review checkpoint, based on exact predecessor
-36a3163b4017fc2d9b7ece873e896e6dca8fd96b. Its target is fix/91-release-dispatch-binding, not main.
-The intended review/merge order is issue 91, 68, 69, then parent 29 reconciliation. All remain review work.
+This candidate was reconciled against observed main `1da179bf9b30a4e8c5ab1f1dcdf39e03d09010df` at `2026-10-30T08:43:51Z`.
+GitHub verified PR 104, PR 106, PR 105, PR 107, PR 103, PR 108 merged; this PR was open at observation. The containing revision remains null to avoid self-reference. Source acceptance does not establish a product release.
 
 ## Completed and material changes
 
@@ -216,13 +197,11 @@ credentials, remote execution, publication or deployment. Do not expand into suc
 
 ## Next dependency-ready work
 
-Review this candidate and consume its exact head in issue 69; reconcile parent 29 afterward.
+Merge the qualified source candidate and verify its default-branch result. Preserve the documented hosted, publisher migration, platform and publication gates where applicable.
 
 ## Parallel changes and reconciliation
 
-PR 108 supplies the repaired static dispatch grammar. Other original issue 86-90 drafts and audit 84
-remain separate. Every branch may update CONTINUITY.md; reconcile the latest truthful snapshot when
-combining changes rather than restoring a predecessor or concatenating handoffs.
+Observed remaining candidates: PR 110, PR 111. Root handoffs overlap and must retain the latest evidence when their candidates are accepted. Merged predecessor source is retained; no audit branch or historical evidence is rewritten.
 
 ## Privacy and redaction
 
