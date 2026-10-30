@@ -167,6 +167,14 @@ produce no hidden pass claim.
 assertion. `present` requires the source to exist and validate. This distinction lets a repository
 adopt one surface at a time without treating missing ADR history as successful ADR conformance.
 
+A present surface combined with a `not-applicable` represented commit is contradictory evidence:
+the focused report is `incomplete`, as it is for unknown evidence or truncated history. The
+adoption rule emits its warning only when selected; disabling that diagnostic does not make the
+source snapshot complete. All surfaces explicitly `not-applicable` retain `not_applicable` status.
+An enabled source-rule failure still takes precedence as `invalid`. These semantic states do not
+depend on advisory/blocking enforcement or process exit, and they do not authenticate the supplied
+repository identity or revision.
+
 ## Rule catalog
 
 The embedded [`repository-intelligence.v1.toml`](../.config/rules/repository-intelligence.v1.toml)

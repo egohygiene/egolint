@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:03:30Z'
+  updated_at: '2026-10-30T03:05:10Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -43,8 +43,8 @@ work:
   next:
     kind: action
     id: review-intelligence-adoption-candidate
-    description: Implement the adoption status repair, then run the full native fixture matrix and applicable
-      checks.
+    description: Inspect the complete diff, address review findings, run applicable local checks and refresh
+      the final handoff.
     readiness: ready
     references:
     - https://github.com/egohygiene/egolint/issues/87
@@ -53,18 +53,21 @@ state:
   base:
     revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     ref: refs/heads/main
-    verified_at: '2026-10-30T03:03:30Z'
+    verified_at: '2026-10-30T03:05:10Z'
   candidate:
     branch: fix/87-intelligence-source-status
     revision: null
-    pull_request: null
+    pull_request:
+      provider: github
+      id: egohygiene/egolint#106
+      url: https://github.com/egohygiene/egolint/pull/106
     handoff_state: in-progress
   live:
     status: verified
-    observed_at: '2026-10-30T03:03:30Z'
+    observed_at: '2026-10-30T03:05:10Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
-    pull_request_state: not-applicable
+    pull_request_state: draft
     notes: 'Verified live provider and Git observations: main contains merged PR 102. Issue 87 is open; this
       branch is an independent candidate from main. Audit PR 84 remains draft/open and untouched. Other issue-sized
       candidates are being prepared independently; all overlap CONTINUITY.md.'
@@ -75,26 +78,43 @@ state:
   - provider: github
     id: egohygiene/egolint#103
     url: https://github.com/egohygiene/egolint/pull/103
+  - provider: github
+    id: egohygiene/egolint#104
+    url: https://github.com/egohygiene/egolint/pull/104
+  - provider: github
+    id: egohygiene/egolint#105
+    url: https://github.com/egohygiene/egolint/pull/105
+  - provider: github
+    id: egohygiene/egolint#107
+    url: https://github.com/egohygiene/egolint/pull/107
+  - provider: github
+    id: egohygiene/egolint#108
+    url: https://github.com/egohygiene/egolint/pull/108
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:03:30Z'
+  reviewed_at: '2026-10-30T03:05:10Z'
   reviewed_by: Codex
   evidence:
   - command: cargo test --test intelligence_adoption_pipeline --locked
     outcome: failed
-    observed_at: '2026-10-30T03:03:30Z'
+    observed_at: '2026-10-30T03:05:10Z'
     notes: 'Expected regression result on unrepaired source: one control test passed; two tests failed because
       contradictory represented evidence reported valid instead of incomplete.'
   - command: cargo fmt --all --check
     outcome: passed
-    observed_at: '2026-10-30T03:03:30Z'
+    observed_at: '2026-10-30T03:05:10Z'
     notes: Rust 1.85.1 formatting passed for the regression checkpoint.
   - command: Pinned Draft202012Validator/FormatChecker and native validate --repository-continuity with explicit
       base, working-tree head and verified live evidence
     outcome: limited
-    observed_at: '2026-10-30T03:03:30Z'
+    observed_at: '2026-10-30T03:05:10Z'
     notes: Front matter, twelve sections, budgets and native structure/freshness/Git checks passed. Observe
       retains only the expected unreleased-contract warning; no released conformance is claimed.
+  - command: cargo test --test intelligence_adoption_pipeline --locked; cargo test --locked --lib repository_intelligence
+    outcome: passed
+    observed_at: '2026-10-30T03:05:10Z'
+    notes: After the repair, all 3 native CLI matrix tests (31 invocations) and all 21 Intelligence unit tests
+      passed. Semantic status, diagnostics and process exit are asserted separately.
   environment_limitations:
   - Hosted Actions, native non-Linux and real container/image qualification are deferred.
   - Offline source consistency cannot authenticate GitHub ownership or bind supplied identity to the checkout.
@@ -133,13 +153,14 @@ non-adopted and truncated outcomes while keeping selected diagnostics and enforc
 ## State snapshot
 
 This independent branch starts at main 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58.
-The candidate is diagnosis; containing revision remains null to avoid self-reference. No merge is claimed.
+The candidate is implementation; containing revision remains null to avoid self-reference. No merge is claimed.
 
 ## Completed and material changes
 
 The native CLI regression matrix in tests/intelligence_adoption_pipeline.rs owns behavioral evidence.
 It exercises synthetic local Git history and the existing valid Intelligence fixture, without network source checks.
-The source repair remains pending; regression expectations deliberately expose the current false-valid result.
+src/rules/repository_intelligence.rs classifies contradictory represented evidence as incomplete.
+The report shape and selected diagnostic severity remain unchanged. docs/repository-intelligence.md explains the boundary.
 
 ## Validation and review evidence
 
@@ -153,7 +174,7 @@ Local semantic evidence does not establish authenticated source truth or release
 
 ## Next dependency-ready work
 
-Implement the adoption status repair, then run the full native fixture matrix and applicable checks.
+Inspect the complete diff, address review findings, run applicable local checks and refresh the final handoff.
 
 ## Parallel changes and reconciliation
 
