@@ -829,6 +829,7 @@ impl<'a> RepositoryIntelligenceEvaluator<'a> {
         .into_iter()
         .all(|state| state == AdoptionState::NotApplicable);
         let incomplete = self.represented_commit.state == AdoptionState::Unknown
+            || self.represented_source_conflict()
             || history.truncated
             || [
                 self.policy.adrs.state,
@@ -963,15 +964,7 @@ impl<'a> RepositoryIntelligenceEvaluator<'a> {
                     .to_owned(),
             )?;
         }
-        if self.represented_commit.state == AdoptionState::NotApplicable
-            && [
-                self.policy.adrs.state,
-                self.policy.roadmap.state,
-                self.policy.commit_history.state,
-            ]
-            .into_iter()
-            .any(|state| state == AdoptionState::Present)
-        {
+        if self.represented_source_conflict() {
             self.emit(
                 context,
                 ADOPTION_RULE,
@@ -992,6 +985,19 @@ impl<'a> RepositoryIntelligenceEvaluator<'a> {
             )?;
         }
         Ok(())
+    }
+
+    // Evidence completeness is independent of whether the adoption diagnostic
+    // is selected or whether its effective severity blocks the process.
+    fn represented_source_conflict(&self) -> bool {
+        self.represented_commit.state == AdoptionState::NotApplicable
+            && [
+                self.policy.adrs.state,
+                self.policy.roadmap.state,
+                self.policy.commit_history.state,
+            ]
+            .into_iter()
+            .any(|state| state == AdoptionState::Present)
     }
 
     fn emit(

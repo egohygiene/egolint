@@ -1,0 +1,3249 @@
+{
+  "schema_version": 1,
+  "boundary": {
+    "network_access": "not_performed",
+    "external_publication": "not_verified"
+  },
+  "cases": {
+    "rust/compliant": {
+      "focused": {
+        "state": "compliant",
+        "repository_profile": "cli-library",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "rust/advisory_migration": {
+      "focused": {
+        "state": "advisory",
+        "repository_profile": "cli-library",
+        "lifecycle": "active",
+        "adoption": "advisory",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 7,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "advisory"
+          ],
+          "aether_declaration": [
+            "passed",
+            "advisory"
+          ],
+          "changelog": [
+            "unavailable",
+            "advisory"
+          ],
+          "manual_workflow": [
+            "passed",
+            "advisory"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "advisory"
+          ],
+          "task_handoffs": [
+            "passed",
+            "advisory"
+          ],
+          "version_authority": [
+            "passed",
+            "advisory"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "advisory",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_CHANGELOG",
+          "severity": "warning",
+          "path": "CHANGELOG.md"
+        }
+      ],
+      "exit_code": 0
+    },
+    "rust/unavailable": {
+      "focused": {
+        "state": "unavailable",
+        "repository_profile": "cli-library",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "unavailable",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "Cargo.toml"
+        }
+      ],
+      "exit_code": 1
+    },
+    "rust/external": {
+      "focused": {
+        "state": "external",
+        "repository_profile": "cli-library",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 2,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "external",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+          "severity": "warning",
+          "path": ".egohygiene/release.json"
+        }
+      ],
+      "exit_code": 0
+    },
+    "rust/invalid": {
+      "focused": {
+        "state": "invalid",
+        "repository_profile": "cli-library",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 1,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "failed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "Cargo.toml"
+        }
+      ],
+      "exit_code": 1
+    },
+    "rust/not_applicable": {
+      "focused": {
+        "state": "not_applicable",
+        "repository_profile": "cli-library",
+        "lifecycle": "active",
+        "adoption": "not_applicable",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 0,
+          "not_applicable_slots": 7,
+          "validation_complete": true,
+          "checks_completed": 0,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "aether_declaration": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "changelog": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "manual_workflow": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "release_rollback_docs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "task_handoffs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "version_authority": [
+            "not_applicable",
+            "not_applicable"
+          ]
+        }
+      },
+      "tool": {
+        "status": "not_applicable",
+        "enforcement": "disabled",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "python/compliant": {
+      "focused": {
+        "state": "compliant",
+        "repository_profile": "python-package",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "python/advisory_migration": {
+      "focused": {
+        "state": "advisory",
+        "repository_profile": "python-package",
+        "lifecycle": "active",
+        "adoption": "advisory",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 7,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "advisory"
+          ],
+          "aether_declaration": [
+            "passed",
+            "advisory"
+          ],
+          "changelog": [
+            "unavailable",
+            "advisory"
+          ],
+          "manual_workflow": [
+            "passed",
+            "advisory"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "advisory"
+          ],
+          "task_handoffs": [
+            "passed",
+            "advisory"
+          ],
+          "version_authority": [
+            "passed",
+            "advisory"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "advisory",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_CHANGELOG",
+          "severity": "warning",
+          "path": "CHANGELOG.md"
+        }
+      ],
+      "exit_code": 0
+    },
+    "python/unavailable": {
+      "focused": {
+        "state": "unavailable",
+        "repository_profile": "python-package",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "unavailable",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "pyproject.toml"
+        }
+      ],
+      "exit_code": 1
+    },
+    "python/external": {
+      "focused": {
+        "state": "external",
+        "repository_profile": "python-package",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 2,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "external",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+          "severity": "warning",
+          "path": ".egohygiene/release.json"
+        }
+      ],
+      "exit_code": 0
+    },
+    "python/invalid": {
+      "focused": {
+        "state": "invalid",
+        "repository_profile": "python-package",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 1,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "failed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "pyproject.toml"
+        }
+      ],
+      "exit_code": 1
+    },
+    "python/not_applicable": {
+      "focused": {
+        "state": "not_applicable",
+        "repository_profile": "python-package",
+        "lifecycle": "active",
+        "adoption": "not_applicable",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 0,
+          "not_applicable_slots": 7,
+          "validation_complete": true,
+          "checks_completed": 0,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "aether_declaration": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "changelog": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "manual_workflow": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "release_rollback_docs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "task_handoffs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "version_authority": [
+            "not_applicable",
+            "not_applicable"
+          ]
+        }
+      },
+      "tool": {
+        "status": "not_applicable",
+        "enforcement": "disabled",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "npm/compliant": {
+      "focused": {
+        "state": "compliant",
+        "repository_profile": "npm-package",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "npm/advisory_migration": {
+      "focused": {
+        "state": "advisory",
+        "repository_profile": "npm-package",
+        "lifecycle": "active",
+        "adoption": "advisory",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 7,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "advisory"
+          ],
+          "aether_declaration": [
+            "passed",
+            "advisory"
+          ],
+          "changelog": [
+            "unavailable",
+            "advisory"
+          ],
+          "manual_workflow": [
+            "passed",
+            "advisory"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "advisory"
+          ],
+          "task_handoffs": [
+            "passed",
+            "advisory"
+          ],
+          "version_authority": [
+            "passed",
+            "advisory"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "advisory",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_CHANGELOG",
+          "severity": "warning",
+          "path": "CHANGELOG.md"
+        }
+      ],
+      "exit_code": 0
+    },
+    "npm/unavailable": {
+      "focused": {
+        "state": "unavailable",
+        "repository_profile": "npm-package",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "unavailable",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "package.json"
+        }
+      ],
+      "exit_code": 1
+    },
+    "npm/external": {
+      "focused": {
+        "state": "external",
+        "repository_profile": "npm-package",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 2,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "external",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+          "severity": "warning",
+          "path": ".egohygiene/release.json"
+        }
+      ],
+      "exit_code": 0
+    },
+    "npm/invalid": {
+      "focused": {
+        "state": "invalid",
+        "repository_profile": "npm-package",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 1,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "failed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "package.json"
+        }
+      ],
+      "exit_code": 1
+    },
+    "npm/not_applicable": {
+      "focused": {
+        "state": "not_applicable",
+        "repository_profile": "npm-package",
+        "lifecycle": "active",
+        "adoption": "not_applicable",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 0,
+          "not_applicable_slots": 7,
+          "validation_complete": true,
+          "checks_completed": 0,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "aether_declaration": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "changelog": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "manual_workflow": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "release_rollback_docs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "task_handoffs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "version_authority": [
+            "not_applicable",
+            "not_applicable"
+          ]
+        }
+      },
+      "tool": {
+        "status": "not_applicable",
+        "enforcement": "disabled",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "container/compliant": {
+      "focused": {
+        "state": "compliant",
+        "repository_profile": "container-image",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "container/advisory_migration": {
+      "focused": {
+        "state": "advisory",
+        "repository_profile": "container-image",
+        "lifecycle": "active",
+        "adoption": "advisory",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 7,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "advisory"
+          ],
+          "aether_declaration": [
+            "passed",
+            "advisory"
+          ],
+          "changelog": [
+            "unavailable",
+            "advisory"
+          ],
+          "manual_workflow": [
+            "passed",
+            "advisory"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "advisory"
+          ],
+          "task_handoffs": [
+            "passed",
+            "advisory"
+          ],
+          "version_authority": [
+            "passed",
+            "advisory"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "advisory",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_CHANGELOG",
+          "severity": "warning",
+          "path": "CHANGELOG.md"
+        }
+      ],
+      "exit_code": 0
+    },
+    "container/unavailable": {
+      "focused": {
+        "state": "unavailable",
+        "repository_profile": "container-image",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "unavailable",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "image.json"
+        }
+      ],
+      "exit_code": 1
+    },
+    "container/external": {
+      "focused": {
+        "state": "external",
+        "repository_profile": "container-image",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 2,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "external",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+          "severity": "warning",
+          "path": ".egohygiene/release.json"
+        }
+      ],
+      "exit_code": 0
+    },
+    "container/invalid": {
+      "focused": {
+        "state": "invalid",
+        "repository_profile": "container-image",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 1,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "failed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "image.json"
+        }
+      ],
+      "exit_code": 1
+    },
+    "container/not_applicable": {
+      "focused": {
+        "state": "not_applicable",
+        "repository_profile": "container-image",
+        "lifecycle": "active",
+        "adoption": "not_applicable",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 0,
+          "not_applicable_slots": 7,
+          "validation_complete": true,
+          "checks_completed": 0,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "aether_declaration": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "changelog": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "manual_workflow": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "release_rollback_docs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "task_handoffs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "version_authority": [
+            "not_applicable",
+            "not_applicable"
+          ]
+        }
+      },
+      "tool": {
+        "status": "not_applicable",
+        "enforcement": "disabled",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "site/compliant": {
+      "focused": {
+        "state": "compliant",
+        "repository_profile": "static-site",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "site/advisory_migration": {
+      "focused": {
+        "state": "advisory",
+        "repository_profile": "static-site",
+        "lifecycle": "active",
+        "adoption": "advisory",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 7,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "advisory"
+          ],
+          "aether_declaration": [
+            "passed",
+            "advisory"
+          ],
+          "changelog": [
+            "unavailable",
+            "advisory"
+          ],
+          "manual_workflow": [
+            "passed",
+            "advisory"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "advisory"
+          ],
+          "task_handoffs": [
+            "passed",
+            "advisory"
+          ],
+          "version_authority": [
+            "passed",
+            "advisory"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "advisory",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_CHANGELOG",
+          "severity": "warning",
+          "path": "CHANGELOG.md"
+        }
+      ],
+      "exit_code": 0
+    },
+    "site/unavailable": {
+      "focused": {
+        "state": "unavailable",
+        "repository_profile": "static-site",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "unavailable",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "package.json"
+        }
+      ],
+      "exit_code": 1
+    },
+    "site/external": {
+      "focused": {
+        "state": "external",
+        "repository_profile": "static-site",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 2,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "external",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+          "severity": "warning",
+          "path": ".egohygiene/release.json"
+        }
+      ],
+      "exit_code": 0
+    },
+    "site/invalid": {
+      "focused": {
+        "state": "invalid",
+        "repository_profile": "static-site",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 1,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "failed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "package.json"
+        }
+      ],
+      "exit_code": 1
+    },
+    "site/not_applicable": {
+      "focused": {
+        "state": "not_applicable",
+        "repository_profile": "static-site",
+        "lifecycle": "active",
+        "adoption": "not_applicable",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 0,
+          "not_applicable_slots": 7,
+          "validation_complete": true,
+          "checks_completed": 0,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "aether_declaration": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "changelog": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "manual_workflow": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "release_rollback_docs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "task_handoffs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "version_authority": [
+            "not_applicable",
+            "not_applicable"
+          ]
+        }
+      },
+      "tool": {
+        "status": "not_applicable",
+        "enforcement": "disabled",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "publication/compliant": {
+      "focused": {
+        "state": "compliant",
+        "repository_profile": "publication",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "publication/advisory_migration": {
+      "focused": {
+        "state": "advisory",
+        "repository_profile": "publication",
+        "lifecycle": "active",
+        "adoption": "advisory",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 7,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "advisory"
+          ],
+          "aether_declaration": [
+            "passed",
+            "advisory"
+          ],
+          "changelog": [
+            "unavailable",
+            "advisory"
+          ],
+          "manual_workflow": [
+            "passed",
+            "advisory"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "advisory"
+          ],
+          "task_handoffs": [
+            "passed",
+            "advisory"
+          ],
+          "version_authority": [
+            "passed",
+            "advisory"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "advisory",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_CHANGELOG",
+          "severity": "warning",
+          "path": "CHANGELOG.md"
+        }
+      ],
+      "exit_code": 0
+    },
+    "publication/unavailable": {
+      "focused": {
+        "state": "unavailable",
+        "repository_profile": "publication",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "unavailable",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "publication.yaml"
+        }
+      ],
+      "exit_code": 1
+    },
+    "publication/external": {
+      "focused": {
+        "state": "external",
+        "repository_profile": "publication",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 2,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "external",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+          "severity": "warning",
+          "path": ".egohygiene/release.json"
+        }
+      ],
+      "exit_code": 0
+    },
+    "publication/invalid": {
+      "focused": {
+        "state": "invalid",
+        "repository_profile": "publication",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 1,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "failed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "publication.yaml"
+        }
+      ],
+      "exit_code": 1
+    },
+    "publication/not_applicable": {
+      "focused": {
+        "state": "not_applicable",
+        "repository_profile": "publication",
+        "lifecycle": "active",
+        "adoption": "not_applicable",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 0,
+          "not_applicable_slots": 7,
+          "validation_complete": true,
+          "checks_completed": 0,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "aether_declaration": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "changelog": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "manual_workflow": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "release_rollback_docs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "task_handoffs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "version_authority": [
+            "not_applicable",
+            "not_applicable"
+          ]
+        }
+      },
+      "tool": {
+        "status": "not_applicable",
+        "enforcement": "disabled",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "workspace/compliant": {
+      "focused": {
+        "state": "compliant",
+        "repository_profile": "workspace",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "workspace/advisory_migration": {
+      "focused": {
+        "state": "advisory",
+        "repository_profile": "workspace",
+        "lifecycle": "active",
+        "adoption": "advisory",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 7,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "advisory"
+          ],
+          "aether_declaration": [
+            "passed",
+            "advisory"
+          ],
+          "changelog": [
+            "unavailable",
+            "advisory"
+          ],
+          "manual_workflow": [
+            "passed",
+            "advisory"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "advisory"
+          ],
+          "task_handoffs": [
+            "passed",
+            "advisory"
+          ],
+          "version_authority": [
+            "passed",
+            "advisory"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "advisory",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_CHANGELOG",
+          "severity": "warning",
+          "path": "CHANGELOG.md"
+        }
+      ],
+      "exit_code": 0
+    },
+    "workspace/unavailable": {
+      "focused": {
+        "state": "unavailable",
+        "repository_profile": "workspace",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "unavailable",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "packages/client/package.json"
+        }
+      ],
+      "exit_code": 1
+    },
+    "workspace/external": {
+      "focused": {
+        "state": "external",
+        "repository_profile": "workspace",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 2,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "external",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+          "severity": "warning",
+          "path": ".egohygiene/release.json"
+        }
+      ],
+      "exit_code": 0
+    },
+    "workspace/invalid": {
+      "focused": {
+        "state": "invalid",
+        "repository_profile": "workspace",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 1,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "failed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "packages/client/package.json"
+        }
+      ],
+      "exit_code": 1
+    },
+    "workspace/not_applicable": {
+      "focused": {
+        "state": "not_applicable",
+        "repository_profile": "workspace",
+        "lifecycle": "active",
+        "adoption": "not_applicable",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 0,
+          "not_applicable_slots": 7,
+          "validation_complete": true,
+          "checks_completed": 0,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "aether_declaration": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "changelog": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "manual_workflow": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "release_rollback_docs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "task_handoffs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "version_authority": [
+            "not_applicable",
+            "not_applicable"
+          ]
+        }
+      },
+      "tool": {
+        "status": "not_applicable",
+        "enforcement": "disabled",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "contract-only/compliant": {
+      "focused": {
+        "state": "compliant",
+        "repository_profile": "contract",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "contract-only/advisory_migration": {
+      "focused": {
+        "state": "advisory",
+        "repository_profile": "contract",
+        "lifecycle": "active",
+        "adoption": "advisory",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 7,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "advisory"
+          ],
+          "aether_declaration": [
+            "passed",
+            "advisory"
+          ],
+          "changelog": [
+            "unavailable",
+            "advisory"
+          ],
+          "manual_workflow": [
+            "passed",
+            "advisory"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "advisory"
+          ],
+          "task_handoffs": [
+            "passed",
+            "advisory"
+          ],
+          "version_authority": [
+            "passed",
+            "advisory"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "advisory",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_CHANGELOG",
+          "severity": "warning",
+          "path": "CHANGELOG.md"
+        }
+      ],
+      "exit_code": 0
+    },
+    "contract-only/unavailable": {
+      "focused": {
+        "state": "unavailable",
+        "repository_profile": "contract",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": false,
+          "checks_completed": 6,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "unavailable",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "catalog.json"
+        }
+      ],
+      "exit_code": 1
+    },
+    "contract-only/external": {
+      "focused": {
+        "state": "external",
+        "repository_profile": "contract",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 0,
+          "external_evidence_items": 2,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "external",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+          "severity": "warning",
+          "path": ".egohygiene/release.json"
+        }
+      ],
+      "exit_code": 0
+    },
+    "contract-only/invalid": {
+      "focused": {
+        "state": "invalid",
+        "repository_profile": "contract",
+        "lifecycle": "active",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 7,
+          "advisory_slots": 0,
+          "not_applicable_slots": 0,
+          "validation_complete": true,
+          "checks_completed": 7,
+          "checks_failed": 1,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "required"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "passed",
+            "required"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "passed",
+            "required"
+          ],
+          "version_authority": [
+            "failed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_VERSION_AUTHORITY",
+          "severity": "error",
+          "path": "catalog.json"
+        }
+      ],
+      "exit_code": 1
+    },
+    "contract-only/not_applicable": {
+      "focused": {
+        "state": "not_applicable",
+        "repository_profile": "contract",
+        "lifecycle": "active",
+        "adoption": "not_applicable",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 0,
+          "not_applicable_slots": 7,
+          "validation_complete": true,
+          "checks_completed": 0,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "aether_declaration": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "changelog": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "manual_workflow": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "release_rollback_docs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "task_handoffs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "version_authority": [
+            "not_applicable",
+            "not_applicable"
+          ]
+        }
+      },
+      "tool": {
+        "status": "not_applicable",
+        "enforcement": "disabled",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "archived/compliant": {
+      "focused": {
+        "state": "compliant",
+        "repository_profile": "contract",
+        "lifecycle": "archived",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 4,
+          "advisory_slots": 1,
+          "not_applicable_slots": 2,
+          "validation_complete": true,
+          "checks_completed": 5,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "advisory"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    },
+    "archived/advisory_migration": {
+      "focused": {
+        "state": "advisory",
+        "repository_profile": "contract",
+        "lifecycle": "archived",
+        "adoption": "advisory",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 5,
+          "not_applicable_slots": 2,
+          "validation_complete": false,
+          "checks_completed": 4,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "advisory"
+          ],
+          "aether_declaration": [
+            "passed",
+            "advisory"
+          ],
+          "changelog": [
+            "unavailable",
+            "advisory"
+          ],
+          "manual_workflow": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "advisory"
+          ],
+          "task_handoffs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "version_authority": [
+            "passed",
+            "advisory"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "advisory",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_CHANGELOG",
+          "severity": "warning",
+          "path": "CHANGELOG.md"
+        }
+      ],
+      "exit_code": 0
+    },
+    "archived/unavailable": {
+      "focused": {
+        "state": "unavailable",
+        "repository_profile": "contract",
+        "lifecycle": "archived",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 4,
+          "advisory_slots": 1,
+          "not_applicable_slots": 2,
+          "validation_complete": false,
+          "checks_completed": 4,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 1
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "advisory"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "unavailable",
+            "required"
+          ],
+          "manual_workflow": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_CHANGELOG",
+          "severity": "error",
+          "path": "CHANGELOG.md"
+        }
+      ],
+      "exit_code": 1
+    },
+    "archived/external": {
+      "focused": {
+        "state": "external",
+        "repository_profile": "contract",
+        "lifecycle": "archived",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 4,
+          "advisory_slots": 1,
+          "not_applicable_slots": 2,
+          "validation_complete": true,
+          "checks_completed": 5,
+          "checks_failed": 0,
+          "external_evidence_items": 2,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "advisory"
+          ],
+          "aether_declaration": [
+            "external",
+            "required"
+          ],
+          "changelog": [
+            "passed",
+            "required"
+          ],
+          "manual_workflow": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "passed_with_warnings",
+        "enforcement": "blocking",
+        "finding_count": 0,
+        "warning_count": 1
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_AETHER_DECLARATION",
+          "severity": "warning",
+          "path": ".egohygiene/release.json"
+        }
+      ],
+      "exit_code": 0
+    },
+    "archived/invalid": {
+      "focused": {
+        "state": "invalid",
+        "repository_profile": "contract",
+        "lifecycle": "archived",
+        "adoption": "required",
+        "summary": {
+          "required_slots": 4,
+          "advisory_slots": 1,
+          "not_applicable_slots": 2,
+          "validation_complete": true,
+          "checks_completed": 5,
+          "checks_failed": 1,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "passed",
+            "advisory"
+          ],
+          "aether_declaration": [
+            "passed",
+            "required"
+          ],
+          "changelog": [
+            "failed",
+            "required"
+          ],
+          "manual_workflow": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "release_rollback_docs": [
+            "passed",
+            "required"
+          ],
+          "task_handoffs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "version_authority": [
+            "passed",
+            "required"
+          ]
+        }
+      },
+      "tool": {
+        "status": "failed_findings",
+        "enforcement": "blocking",
+        "finding_count": 1,
+        "warning_count": 0
+      },
+      "findings": [
+        {
+          "rule": "EGOLINT_RELEASE_CHANGELOG",
+          "severity": "error",
+          "path": "CHANGELOG.md"
+        }
+      ],
+      "exit_code": 1
+    },
+    "archived/not_applicable": {
+      "focused": {
+        "state": "not_applicable",
+        "repository_profile": "contract",
+        "lifecycle": "archived",
+        "adoption": "not_applicable",
+        "summary": {
+          "required_slots": 0,
+          "advisory_slots": 0,
+          "not_applicable_slots": 7,
+          "validation_complete": true,
+          "checks_completed": 0,
+          "checks_failed": 0,
+          "external_evidence_items": 0,
+          "unavailable_evidence_items": 0
+        },
+        "checks": {
+          "agents_profile_pointer": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "aether_declaration": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "changelog": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "manual_workflow": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "release_rollback_docs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "task_handoffs": [
+            "not_applicable",
+            "not_applicable"
+          ],
+          "version_authority": [
+            "not_applicable",
+            "not_applicable"
+          ]
+        }
+      },
+      "tool": {
+        "status": "not_applicable",
+        "enforcement": "disabled",
+        "finding_count": 0,
+        "warning_count": 0
+      },
+      "findings": [],
+      "exit_code": 0
+    }
+  }
+}

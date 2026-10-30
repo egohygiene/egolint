@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "fixtures": [
+    {
+      "id": "rust",
+      "profile": "cli-library",
+      "lifecycle": "active",
+      "authority_files": [
+        "Cargo.toml"
+      ],
+      "negative_path": "Cargo.toml"
+    },
+    {
+      "id": "python",
+      "profile": "python-package",
+      "lifecycle": "active",
+      "authority_files": [
+        "pyproject.toml"
+      ],
+      "negative_path": "pyproject.toml"
+    },
+    {
+      "id": "npm",
+      "profile": "npm-package",
+      "lifecycle": "active",
+      "authority_files": [
+        "package.json"
+      ],
+      "negative_path": "package.json"
+    },
+    {
+      "id": "container",
+      "profile": "container-image",
+      "lifecycle": "active",
+      "authority_files": [
+        "image.json"
+      ],
+      "negative_path": "image.json"
+    },
+    {
+      "id": "site",
+      "profile": "static-site",
+      "lifecycle": "active",
+      "authority_files": [
+        "package.json"
+      ],
+      "negative_path": "package.json"
+    },
+    {
+      "id": "publication",
+      "profile": "publication",
+      "lifecycle": "active",
+      "authority_files": [
+        "publication.yaml"
+      ],
+      "negative_path": "publication.yaml"
+    },
+    {
+      "id": "workspace",
+      "profile": "workspace",
+      "lifecycle": "active",
+      "authority_files": [
+        "workspace.json",
+        "packages/client/package.json"
+      ],
+      "negative_path": "packages/client/package.json"
+    },
+    {
+      "id": "contract-only",
+      "profile": "contract",
+      "lifecycle": "active",
+      "authority_files": [
+        "catalog.json"
+      ],
+      "negative_path": "catalog.json"
+    },
+    {
+      "id": "archived",
+      "profile": "contract",
+      "lifecycle": "archived",
+      "authority_files": [],
+      "negative_path": "CHANGELOG.md"
+    }
+  ]
+}

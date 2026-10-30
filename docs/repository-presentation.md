@@ -44,9 +44,16 @@ default, repository type, visibility, then lifecycle. It validates:
 - a local Identity banner with alt text and fallback metadata;
 - exact badge label, state message, profile version, represented commit, and evidence destination;
 - evidence/profile/repository/slot agreement, including fail-closed states;
-- Identity package and manifest schemas, profile/evidence bindings, byte counts, and SHA-256 values;
+- Identity package and manifest required/closed structure from Identity commit
+  `3c2fd3141371b355628e81f66f63159f19d63338`, profile/evidence bindings, byte counts, and SHA-256 values;
   and
 - repository-relative README and evidence destinations without following symlinks.
+
+The manifest must have a nonempty file map, cover the package descriptor itself, and cover every
+declared banner variant SVG/raster and badge SVG/raster. Missing required descriptors, malformed
+metadata and omitted checksum entries are semantic failures even when the README still resolves.
+The checks preserve offline operation and source bytes; they do not certify rendered pixels, design
+quality or accessibility.
 
 HTTPS destinations are counted but never fetched by this deterministic validator. The report records
 `external_reachability` as `not_checked`, and `EGO-PRESENT-EXTERNAL-001` keeps that limitation

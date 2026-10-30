@@ -92,6 +92,124 @@ facts, preserving diagnostics without claiming conformance. Explicit external ow
 warning because reachability is outside the offline boundary. Suppressions, tool counts, run-report
 status, and SARIF consume these findings through the standard pipeline.
 
+## Supported static Task dispatch
+
+The `task_handoffs` check accepts one literal command in `release:publish`:
+
+```yaml
+release:publish:
+  cmds:
+    - gh workflow run .github/workflows/release.yml
+```
+
+The workflow argument must exactly match `automation.github.workflow_path`. Spaces or tabs may
+separate the four words; the workflow path may be unquoted, single quoted, or double quoted.
+The supported path uses ASCII letters, digits, `.`, `_`, `/`, and `-`. A command mapping containing
+only `cmd: "gh workflow run .github/workflows/release.yml"` is equivalent. The task may also carry
+string `desc` and `summary` metadata and boolean `silent` metadata. Unsupported metadata types
+remain unavailable. All four declared release task names must still exist.
+
+Additional commands, command-mapping fields, Task execution features such as dependencies or
+preconditions, CLI flags, comments, shell operators, multiline commands, substitutions, and templates
+are outside this small static grammar. EgoLint reports their handoff as `unavailable`; it does not
+interpret a shell program or execute any command to decide whether it would eventually dispatch.
+An echo or documentation string containing `gh workflow run`, or a different workflow argument
+accompanied by the declared path elsewhere, cannot establish a passing handoff.
+
+The source-only native matrix in `tests/repository_release_pipeline.rs` retains direct, quoted, and
+command-mapping controls and checks unsupported forms against process exit, focused status, tool
+status, normalized findings, locations, and SARIF. These issue 91 cases are inputs for the broader
+[checkpoint 68 matrix](https://github.com/egohygiene/egolint/issues/68) and subsequent
+[checkpoint 69 dogfood](https://github.com/egohygiene/egolint/issues/69); they do not complete those
+work scopes or prove remote execution or publication.
+
+## Current-v1 fixture matrix
+
+`tests/fixtures/repository-release` contains nine authored source consumers: Rust, Python, npm,
+container, site, publication, workspace, contract-only, and archived. Their local authorities use
+Cargo, PEP 621, package JSON, selected JSON/YAML fields, independent workspace components, catalog
+records, and frozen Git-tag declarations. They are synthetic source fixtures, not released artifacts.
+
+Each consumer runs through compliant, advisory migration, unavailable, external, invalid, and explicit
+not-applicable states. The 54 compact focused goldens preserve lifecycle/profile, adoption, every
+slot's state and requirement, and coverage counters. Separate assertions bind focused checks to run
+findings, tool status/counts, human-readable state and SARIF rule identity/location. All cases retain
+`network_access: not_performed` and `external_publication: not_verified`.
+
+Additional controls cover matching/drifted released authorities, workspace independence, malformed
+tag/declaration fields, missing/malformed/unpinned/external entrypoints and the issue 91 repair. Unix
+executable traps verify that contract-only and archived validation initializes no irrelevant runtime;
+the traps qualify orchestration only. The fixture README explains source mutations and policy limits.
+
+Run the native matrices without executing release Task commands:
+
+```sh
+cargo test --locked --test repository_release_matrix
+cargo test --locked --test repository_release_pipeline
+```
+
+Archived lifecycle applicability remains intact, and explicit caller overrides remain separate from
+policy authority. External Task includes are unavailable to static inspection; a pinned local workflow
+wrapper can establish local structure while preserving externally owned evidence. These issue 68
+fixtures supply issue 69 dogfood and parent 29 review. Hosted qualification, actual release execution,
+publication and adoption require their own evidence.
+
+## EgoLint self-consumer
+
+The repository-owned [.egohygiene/release.json](../.egohygiene/release.json) selects `cli-library`,
+`incubating` and `unreleased`, matching the roadmap's early-alpha/pre-release source state. Cargo.toml
+is the sole product version authority; the private Python and Node toolchains do not become
+independent products. GitHub Release and container delivery remain planned. `required` evidence is a
+future candidate obligation, not an assertion that an artifact was published or signed.
+
+Native `validate`, `lint` and `fix` discover this declaration through the existing universal resolver.
+The actual source-backed self-consumer currently produces:
+
+| Evidence             | Current result                                               |
+| -------------------- | ------------------------------------------------------------ |
+| Process exit         | `0` under incubating/advisory rollout                        |
+| Focused state        | `advisory`                                                   |
+| Check results        | Six passed; `manual_workflow` failed/advisory                |
+| Native tool          | `passed_with_warnings`, advisory enforcement, one warning    |
+| Finding/SARIF        | Same manual-workflow warning, identity and workflow location |
+| Publication boundary | Network not performed; external publication not verified     |
+
+The failed check is intentional evidence of an existing migration gap. The real release workflow
+still publishes from tag push and only rehearses on manual dispatch. The literal `release:publish`
+handoff dispatches that rehearsal; it is not a publication-ready manual adapter. No rule is disabled
+and no passing substitute workflow hides the finding. The pinned Aether migration guidance keeps
+contract adoption separate from replacing a repository-owned publisher; that migration and product
+release remain under issue #5.
+
+For local source inspection, invoke the underlying commands directly:
+
+```sh
+python3 scripts/repository_release_plan.py --workspace "."
+python3 scripts/repository_release_plan.py --workspace "." --output ".reports/egolint/release-review.md"
+cargo run --quiet --locked -- --workspace "." validate
+```
+
+The planner emits human Markdown with current authority/changelog facts and relative source SHA-256
+identities. It selects no bump or tag and is not a conformance report. Preparation creates a new
+caller-selected review handoff exclusively; an existing output or source-file collision fails. Version,
+changelog and declaration bytes remain authored inputs. `release:plan`, `release:prepare` and
+`release:verify` expose these local review stages; preparation passes its path through Task's structured
+environment rather than inserting it into shell code. Release Tasks are inspected statically in tests.
+
+`tests/repository_release_dogfood.rs` materializes the actual repository sources into a disposable Git
+consumer and checks repeatable focused evidence separately from exit, enforcement, findings and SARIF.
+`tests/test_repository_release_plan.py` exercises the helper CLI and its read-only/exclusive behavior.
+The crate includes these source fixtures and the pinned runtime contracts. Packaging them does not
+make the repository's Taskfile a standalone installed release tool. The Rust fixture manifest is
+stored as `Cargo.toml.fixture` and materialized only in disposable consumers so Cargo does not omit
+that nested directory from the archive. Unpacked native-matrix and planner tests qualify the archived
+fixtures directly, in addition to the package build.
+
+The report schema remains `egolint.repository-release-report/v1`; all generated-schema comparisons
+remain required. Source-PR acceptance does not complete issue #69 or parent #29: actual final-head
+hosted/full-image/non-Linux qualification, the publisher migration and full release acceptance remain open.
+Historical merged PR #64 is retained as history. Successor release model issue #76 stays separate.
+
 ## Checkpoint plan
 
 1. Pin and verify the immutable Aether and Hygiene inputs; reconcile the preceding roadmap state.
@@ -102,5 +220,11 @@ status, and SARIF consume these findings through the standard pipeline.
    contract-only, archived, advisory, external, unavailable, and invalid fixtures.
 5. Dogfood the completed capability, document operations and limits, and perform final CI polish.
 
-Checkpoint 1 landed in PR 64. Each remaining checkpoint uses its own focused pull request and stops
-for maintainer review before merge.
+Checkpoints 1–3 landed in PRs 64, 70 and 71. Static-handoff correction PR 108, current-v1 fixture
+matrix PR 109 and self-consumer PR 110 have now merged in that order, verified on 2026-10-30.
+Parent 29 reconciliation records their exact source and merge evidence. Full hosted and release
+acceptance remain unresolved; none of these source checkpoints publishes a product.
+
+The [parent acceptance ledger](repository-release-acceptance.md) maps the original criteria to exact
+checkpoint evidence and unresolved gates. Its [operator/consumer handoff](repository-release-acceptance.md#operator-and-consumer-handoff)
+qualifies a source-pinned native producer without borrowing EgoLint's own repository identity.

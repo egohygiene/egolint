@@ -306,7 +306,9 @@ issues: [29]
 
 #### EGL-Q10 — Validate repository release conformance
 
-**State:** `active` **Depends on:** `EGL-Q04`
+**State:** `active`
+
+**Depends on:** `EGL-Q04`
 
 **Outcome:** Every applicable repository can produce offline, machine-readable evidence for its
 release declaration, changelog, version authority, and publication entrypoints.
@@ -315,14 +317,14 @@ release declaration, changelog, version authority, and publication entrypoints.
 
 - [x] Aether's declaration schema and Hygiene's applicability profile are consumed from immutable,
       verified revisions.
-- [ ] Native validation distinguishes conforming, nonconforming, not-applicable, advisory,
+- [x] Native validation distinguishes conforming, nonconforming, not-applicable, advisory,
       unavailable, and externally owned evidence without network writes.
-- [ ] Representative language, artifact, lifecycle, workspace, and invalid fixtures prove the
+- [x] Representative language, artifact, lifecycle, workspace, and invalid fixtures prove the
       policy boundary.
 - [ ] EgoLint dogfoods the completed capability and documents operational limits.
-- [ ] Every bounded issue #29 checkpoint PR is reviewed and merged by the maintainer.
+- [x] Every bounded issue #29 checkpoint PR is reviewed and merged by the maintainer.
 
-**Current evidence (2026-09-19):**
+**Current evidence (2026-10-30 source integration):**
 
 - Aether #61 and Hygiene #27 are closed. Their accepted merge revisions are pinned with both Git
   blob identities and SHA-256 digests in the repository-release source lock.
@@ -334,8 +336,18 @@ release declaration, changelog, version authority, and publication entrypoints.
 - Checkpoint 3 on PR #71 merged as `8b99ec4377eb84044fac411dff6b8074317ec094`, verified on
   2026-09-28. It maps all seven policy slots to stable offline rules for declarations, changelogs,
   version authorities, Taskfile handoffs, and manual workflow pins.
-- The complete fixture matrix and final dogfood remain checkpoints 4–5 on focused pull requests
-  tracked by issue #29.
+- PR #108 merged the exact static Task/workflow binding correction. PR #109 merged the nine-profile,
+  six-state current-v1 matrix; neither claims external publication.
+- PR #110 merged an incubating self-declaration, local review planner and actual source-backed
+  dogfood. Six checks pass and the legacy tag publisher's `manual_workflow` check remains
+  failed/advisory, distinct from process exit 0. The existing publisher is preserved.
+- The [parent acceptance ledger](docs/repository-release-acceptance.md) maps original criteria, exact
+  producer qualification and the bounded Mantle handoff without completing the remaining gates.
+- The combined source passed 232 Rust, 88 Python and 94 JavaScript tests, strict linting, 23 schemas,
+  an actual 219-file crate build and unpacked release tests. Exact receipts are retained in PR #110.
+  Actual final-head hosted/full-image/non-Linux qualification remains deferred. Publisher migration
+  under issue #5 and full release acceptance remain gates for checkpoint #69 and parent #29.
+  Source merges do not establish a product release or complete the rollout.
 
 <!-- roadmap-step
 id: EGL-Q11
