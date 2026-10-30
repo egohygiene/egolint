@@ -1,3 +1,6 @@
+// Copyright 2026 Ego Hygiene
+// SPDX-License-Identifier: MIT
+
 //! Keep adoption evidence, semantic status, and enforcement distinct through the native CLI.
 
 use std::path::Path;
@@ -101,6 +104,9 @@ fn cli(root: &Path, represented: &str) -> (Output, Value) {
         represented.to_owned()
     };
     let output = Command::new(env!("CARGO_BIN_EXE_egolint"))
+        .env_clear()
+        .env("PATH", std::env::var_os("PATH").unwrap_or_default())
+        .env("CI", "true")
         .arg("--workspace")
         .arg(root)
         .args([
@@ -178,6 +184,13 @@ fn non_adoption_is_distinct_from_missing_and_truncated_evidence() {
         let (output, report) = cli(absent.path(), represented);
         assert_report(&output, &report, "not_applicable", &[]);
     }
+    let (output, report) = cli(absent.path(), "unknown");
+    assert_report(
+        &output,
+        &report,
+        "not_applicable",
+        &["represented commit is unknown"],
+    );
     let unknown = workspace(
         ["unknown", "not-applicable", "not-applicable"],
         "advisory",
@@ -214,5 +227,34 @@ fn disabling_adoption_diagnostics_does_not_upgrade_incomplete_evidence() {
     ] {
         let (output, report) = cli(root.path(), represented);
         assert_report(&output, &report, status, &[]);
+    }
+}
+
+#[test]
+fn enabled_source_failure_remains_invalid_independently_of_enforcement_and_exit() {
+    for (enforcement, expected_exit) in [("blocking", 1), ("advisory", 0)] {
+        let root = workspace(["present"; 3], enforcement, true, 100);
+        std::fs::write(
+            root.path()
+                .join("docs/decisions/ADR-0001-validation-contract.md"),
+            "# Synthetic ADR missing required metadata\n",
+        )
+        .unwrap();
+        let (output, report) = cli(root.path(), "not-applicable");
+        assert_eq!(output.status.code(), Some(expected_exit), "{output:?}");
+        assert_eq!(report["status"], "invalid", "{report}");
+        let diagnostics = report["diagnostics"].as_array().unwrap();
+        assert!(diagnostics.iter().any(|diagnostic| {
+            diagnostic["rule_id"] == ADOPTION_RULE && diagnostic["severity"] == "warning"
+        }));
+        assert!(diagnostics.iter().any(|diagnostic| {
+            diagnostic["rule_id"] == "EGO-INTEL-ADR-METADATA-001"
+                && diagnostic["severity"]
+                    == if enforcement == "blocking" {
+                        "error"
+                    } else {
+                        "warning"
+                    }
+        }));
     }
 }
