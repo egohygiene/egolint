@@ -1,0 +1,63 @@
+{
+  "$schema": "https://egohygiene.io/schemas/aether/repository-release/v1.json",
+  "schema_version": "egohygiene.repository-release/v1",
+  "repository": {
+    "id": "egohygiene/site-release-fixture",
+    "lifecycle": "active",
+    "release_profile": "static-site"
+  },
+  "release": {
+    "state": "unreleased",
+    "tag_prefix": "v",
+    "immutable_tags": true,
+    "major_alias": "disabled"
+  },
+  "changelog": {
+    "path": "CHANGELOG.md",
+    "format": "keep-a-changelog/1.1",
+    "unreleased_heading": "Unreleased"
+  },
+  "components": [
+    {
+      "id": "site",
+      "kind": "static-site",
+      "version_authority": {
+        "kind": "package-json",
+        "path": "package.json"
+      }
+    }
+  ],
+  "delivery": {
+    "channels": [
+      {
+        "kind": "site-deployment",
+        "state": "configured"
+      }
+    ]
+  },
+  "evidence": {
+    "source": "required",
+    "change": "required",
+    "provenance": "required",
+    "sbom": "required",
+    "signature": "required",
+    "rollback": {
+      "strategy": "revert-and-successor-tag",
+      "instructions": "Revert the source change and review a successor tag; fixture source proves no publication."
+    }
+  },
+  "automation": {
+    "taskfile_path": "Taskfile.yml",
+    "tasks": {
+      "plan": "release:plan",
+      "prepare": "release:prepare",
+      "verify": "release:verify",
+      "publish": "release:publish"
+    },
+    "github": {
+      "manual_dispatch_required": true,
+      "workflow_path": ".github/workflows/release.yml",
+      "state": "configured"
+    }
+  }
+}

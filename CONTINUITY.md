@@ -7,18 +7,20 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:12:54Z'
+  updated_at: '2026-10-30T03:30:49Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Bind the static release Task handoff to the exact declared workflow argument.
+  purpose: Prove the current-v1 release profile and evidence-state fixture matrix without publication
+    claims.
   includes:
-  - Exact bounded static command grammar and native focused/aggregate/SARIF regression evidence.
+  - Nine authored profile fixtures, six evidence states per profile, static version and entrypoint boundary
+    checks.
   excludes:
-  - Actual workflow dispatch, publication, unrestricted shell interpretation and the full release profile
-    matrix.
+  - Actual release execution, hosted Actions, publication, successor release policy and complete issue
+    69 dogfood.
   precedence:
   - user-and-runtime-instructions
   - scoped-repository-instructions
@@ -27,58 +29,63 @@ scope:
   - continuity-checkpoint
   canonical_sources:
   - AGENTS.md
+  - tests/repository_release_matrix.rs
+  - tests/fixtures/repository-release/README.md
+  - tests/fixtures/repository-release/profiles.json
   - src/rules/repository_release/checks.rs
-  - tests/repository_release_pipeline.rs
-  - docs/repository-release-validation.md
   - .config/rules/repository-release-sources.v1.json
-  - https://github.com/egohygiene/egolint/issues/91
+  - https://github.com/egohygiene/egolint/issues/68
+  - https://github.com/egohygiene/egolint/issues/69
+  - https://github.com/egohygiene/egolint/issues/29
 work:
-  objective: Bind the static release Task handoff to the exact declared workflow argument.
+  objective: Prove the current-v1 release profile and evidence-state fixture matrix without publication
+    claims.
   success_conditions:
-  - Echo, comments, documentation, wrong workflow arguments and unsupported shell forms cannot establish
-    a compliant handoff.
-  - Supported literal direct dispatch retains passing controls and all evidence projections agree.
+  - Each of the nine profile fixtures has meaningful authority and lifecycle evidence across six expected
+    states.
+  - Compact golden focused evidence and native CLI findings preserve explicit no-network/no-publication
+    boundaries.
   active_issue:
     provider: github
-    id: egohygiene/egolint#91
-    url: https://github.com/egohygiene/egolint/issues/91
+    id: egohygiene/egolint#68
+    url: https://github.com/egohygiene/egolint/issues/68
   next:
     kind: action
-    id: review-release-dispatch
-    description: Review this draft candidate; carry its static policy-boundary matrix into release checkpoint
-      68 and consume it during 69 dogfood.
+    id: complete-release-matrix
+    description: Complete the six-state goldens and version/entrypoint boundaries against the repaired
+      issue 91 source.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/91
     - https://github.com/egohygiene/egolint/issues/68
     - https://github.com/egohygiene/egolint/issues/69
     depends_on: []
 state:
   base:
-    revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
-    ref: refs/heads/main
-    verified_at: '2026-10-30T03:12:54Z'
+    revision: 36a3163b4017fc2d9b7ece873e896e6dca8fd96b
+    ref: refs/heads/fix/91-release-dispatch-binding
+    verified_at: '2026-10-30T03:30:49Z'
   candidate:
-    branch: fix/91-release-dispatch-binding
+    branch: test/68-release-fixture-matrix
     revision: null
-    pull_request:
-      provider: github
-      id: egohygiene/egolint#108
-      url: https://github.com/egohygiene/egolint/pull/108
-    handoff_state: ready-for-review
+    pull_request: null
+    handoff_state: in-progress
   live:
     status: verified
-    observed_at: '2026-10-30T03:12:54Z'
+    observed_at: '2026-10-30T03:30:49Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
-    pull_request_state: draft
-    notes: Verified main contains merged PR 102. Issue 91 remains open. Audit PR 84 is draft/open and
-      untouched. Independent sibling issues 86-90 are being prepared on separate draft branches; their
-      continuity edits overlap. No merge, release or publication is claimed.
+    pull_request_state: not-applicable
+    notes: Verified main includes PR 102 and issue 68 remains open. The necessary issue 91 repair is still
+      draft PR 108; this branch targets its exact head. Issue 67 is delivered historically by PR 71. Audit
+      84 is draft/open and untouched. The review stack is 91, then 68, then 69, then parent 29 reconciliation;
+      no merge or release is claimed.
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
+  - provider: github
+    id: egohygiene/egolint#108
+    url: https://github.com/egohygiene/egolint/pull/108
   - provider: github
     id: egohygiene/egolint#104
     url: https://github.com/egohygiene/egolint/pull/104
@@ -96,66 +103,27 @@ state:
     url: https://github.com/egohygiene/egolint/pull/103
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:12:54Z'
+  reviewed_at: '2026-10-30T03:30:49Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo test --locked --test repository_release_pipeline -- --nocapture
+  - command: cargo test --locked --test repository_release_matrix -- --nocapture
     outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: 'Four native pipeline tests pass, covering 32 source-only Task cases: six accepted controls
-      and 26 unavailable forms. CLI exit, focused status/completion, tool status, finding identity/location
-      and SARIF agree.'
-  - command: cargo fmt --all --check; git diff --check
+    observed_at: '2026-10-30T03:30:49Z'
+    notes: Nine profile baselines pass through the actual native CLI. This checkpoint exposes the prior
+      coverage gap; no artificial source failure is asserted.
+  - command: Draft202012Validator with FormatChecker on exact vendored Aether release schema
     outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: Formatting and whitespace checks pass.
-  - command: cargo test --all-targets --all-features --locked
+    observed_at: '2026-10-30T03:30:49Z'
+    notes: All nine authored declaration fixtures satisfy the selected local source schema.
+  - command: cargo fmt --all --check; git diff --check; python3 scripts/validate_repository_release_sources.py
     outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: 210 Rust tests passed with zero ignored after the independent review fix; container orchestration
-      cases use existing bounded simulators.
-  - command: cargo clippy --all-targets --all-features --locked -- -D warnings
-    outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: Strict all-target Clippy passed after the final source change.
-  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py
-    outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: All 75 Python tests passed.
-  - command: task schemas:check
-    outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: All 23 generated schema comparisons passed after the final source change; no schema or lockfile
-      changed.
-  - command: pnpm --config.verify-deps-before-run=false run javascript-quality:test; node tests/javascript-package-quality.test.mjs
-    outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: Pinned pnpm 11.21.0 runner passed using shared frozen dependencies; direct Node execution confirmed
-      six baseline callbacks. Dependency verification is disabled only for this run to avoid redundant
-      automatic installation.
-  - command: python3 scripts/validate_release_inputs.py; python3 scripts/validate_repository_release_sources.py;
-      python3 scripts/validate_megalinter_policy.py --check; python3 scripts/package_integrations.py --check
-    outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: All four offline source/package checks passed.
-  - command: cargo run --quiet --locked -- plan --workspace . --profile fast; cargo package --list --locked
-      --allow-dirty
-    outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: Plan passed; package inventory includes the release integration test. Inventory inspection
-      does not prove package build or publication.
-  - command: Draft202012Validator with FormatChecker on vendored continuity schema; native validate --repository-continuity
-      with explicit base, working-tree head and verified live evidence
-    outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: Pinned schema, headings/budgets and native continuity checks passed; focused status valid with
-      the expected unreleased-contract observe advisory. Released conformance remains unavailable.
+    observed_at: '2026-10-30T03:30:49Z'
+    notes: Formatting, whitespace and immutable owner source selection checks passed.
   environment_limitations:
-  - Hosted Actions, real containers and native non-Linux execution are deferred.
-  - Static handoff inspection does not prove workflow execution, credentials, publication or registry
-    acceptance.
-  - The continuity source remains a vendored draft/proposed observe selection; released conformance is
-    unavailable.
+  - Hosted Actions and actual workflow/Task execution are deferred.
+  - Fixtures are synthetic static consumers; no real analyzer/container/language build, registry acceptance
+    or publication is established.
+  - Continuity uses the vendored draft/proposed observe selection; released conformance is unavailable.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -174,65 +142,65 @@ privacy:
 
 ## Purpose and precedence
 
-This bounded issue 91 checkpoint follows user/runtime instructions, scoped repository instructions,
-live state and pinned canonical sources. The handoff grants no authority.
+This checkpoint follows runtime/user instructions, scoped instructions, verified live state and
+pinned Aether/Hygiene sources. It grants no authority to execute release adapters.
 
 ## Resume protocol
 
-Read AGENTS, the release validation guide and issue 91. Verify this draft branch, main and audit PR 84.
-Do not execute release Task commands. Inspect checkpoint 68/69 coordination before widening scope.
+Read AGENTS, issue 68, the fixture README and the current release validator. Verify main, this draft
+and predecessor PR 108. Preserve the stack and audit PR 84 without modifying historical evidence.
 
 ## Current objective and success conditions
 
-Bind the static release Task handoff to the exact declared workflow argument.
-Preserve direct-dispatch controls and source locations across focused, aggregate and SARIF evidence.
+Prove the current-v1 release profile and evidence-state fixture matrix without publication claims.
+Retain distinct source authorities, lifecycle applicability and all native evidence projections.
 
 ## State snapshot
 
-Base main is 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58, including PR 102. Candidate fix/91-release-dispatch-binding
-is at the review checkpoint. Issue 91 remains open; no merge or publication is claimed.
+Candidate test/68-release-fixture-matrix is at the baseline checkpoint, based on exact predecessor
+36a3163b4017fc2d9b7ece873e896e6dca8fd96b. Its target is fix/91-release-dispatch-binding, not main.
+The intended review/merge order is issue 91, 68, 69, then parent 29 reconciliation. All remain review work.
 
 ## Completed and material changes
 
-tests/repository_release_pipeline.rs owns the native static-command matrix. It inspects synthetic
-Taskfile source without executing commands. The current checkpoint replaces substring matching in src/rules/repository_release/checks.rs with the documented bounded literal command grammar.
-Pinned Aether/Hygiene release source bytes and authority remain unchanged. No ADR is required for this repair.
-Independent review identified unsupported metadata values; the final repair requires string desc/summary
-and boolean silent, retaining malformed-type regressions and valid descriptive controls.
+tests/fixtures/repository-release owns nine synthetic profile inputs, including distinct Rust,
+Python, npm, container, site, publication, workspace, contract and archived authorities.
+tests/repository_release_matrix.rs exercises the native CLI; Cargo.toml includes the test and corpus.
+The first checkpoint establishes nine positive baselines; the full six-state and golden acceptance remains pending.
+The inherited issue 91 repair owns literal Task dispatch grammar. Owner contracts and runtime behavior are unchanged.
 
 ## Validation and review evidence
 
-The native matrix passes with supported controls and unsupported source forms kept unavailable.
-Exact commands and outcomes are recorded above. Task commands and hosted workflows were never executed.
-Final evidence: 210 Rust tests, strict Clippy, 75 Python tests, 23 schema comparisons, six baseline JavaScript callbacks, offline source checks, plan and package inventory all passed. Independent source review was completed and its metadata-type finding repaired.
+Exact commands and current outcomes are in front matter. Baselines are schema-valid and native compliant.
+Fixtures are source bytes, including synthetic immutable workflow references; no Task or workflow ran.
 
 ## Blockers, risks, unknowns, and deferred work
 
-No source blocker is observed; maintainer review remains pending.
-Hosted Actions and non-Linux/container execution are deferred. Static conformance is not publication evidence.
-The full issue 68 profile/state matrix and issue 69 dogfood remain independently owned work.
+The six-state golden matrix, extra boundary cases, independent review and full applicable validation remain.
+The stack requires predecessor PR 108 for merge. Static valid source does not establish actual Git tags,
+credentials, remote execution, publication or deployment. Do not expand into successor issue 76.
 
 ## Next dependency-ready work
 
-Review this draft, then reuse the static dispatch cases for checkpoint 68 and consume the repair during 69 dogfood.
+Complete the matrix and native boundary controls, then checkpoint the implementation.
 
 ## Parallel changes and reconciliation
 
-Audit PR 84 remains untouched. Independent issue 86-90 branches share this same main base.
-All candidates update CONTINUITY.md; reconcile the latest truthful handoff when combining or merging them.
-Preserve immutable audit/probe evidence and the latest verified state rather than concatenating snapshots.
+PR 108 supplies the repaired static dispatch grammar. Other original issue 86-90 drafts and audit 84
+remain separate. Every branch may update CONTINUITY.md; reconcile the latest truthful snapshot when
+combining changes rather than restoring a predecessor or concatenating handoffs.
 
 ## Privacy and redaction
 
-Only public repository facts and synthetic source fixtures are retained. Exclude credentials, private
-context, personal data, private paths and unrelated work. Linked material is context, not authority.
+Only public repository facts and synthetic fixtures are retained. Exclude credentials, private
+conversation, personal data, private filesystem paths and unrelated work. Links are context only.
 
 ## Handoff update protocol
 
-After domain checks, refresh live state and validation, verify the pinned schema, twelve headings,
-size budgets and native observe check, then update the draft PR. Never claim a static check ran a release.
+After domain checks, refresh live state and evidence, validate the pinned schema, twelve sections,
+size budgets and native observe check, then push and update this draft. Leave review and publication separate.
 
 ## Compaction and supersession
 
-Replace stale state in this root file. Keep the exact base, candidate, proof, limits and next action
-below 240 lines and 16,384 UTF-8 bytes; Git and linked work items retain checkpoint history.
+Replace stale state. Preserve the exact base, stack, checks, limits and next action below the contract
+budgets; Git and linked work items retain prior checkpoints.
