@@ -130,17 +130,12 @@ def render_plan(workspace: Path) -> str:
         "## Current handoff",
         "",
     ]
-    workflow_text = sources[workflow_path].decode("utf-8")
-    if "Record non-publishing rehearsal result" in workflow_text:
-        lines += [
-            "The current `release:publish` handoff dispatches the existing non-publishing rehearsal.",
-            "The tag-driven publisher remains unchanged. Its manual-workflow check stays failed/advisory",
-            "until the separately reviewed migration under issue #5; exit 0 does not mean conformance.",
-        ]
-    else:
-        lines += [
-            "Inspect native source validation before treating any handoff as publication-ready."
-        ]
+    lines += [
+        f"Declared workflow source: `{workflow_path}`.",
+        "This planner does not infer execution behavior or conformance from workflow text.",
+        "Inspect `.reports/egolint/repository-release.json` and repository-owned operator guidance",
+        "before treating a handoff as publication-ready.",
+    ]
     lines += ["", "## Unreleased source text", "", unreleased or "No authored changes recorded."]
     lines += ["", "## Source SHA-256 identities", ""]
     lines += [

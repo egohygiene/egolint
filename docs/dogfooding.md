@@ -40,7 +40,8 @@ task dogfood
 The composed task performs three checks in order:
 
 1. `dogfood:native` invokes the public `egolint validate` CLI against this repository, including the
-   Hygiene v2 required-file contract and focused continuity comparison.
+   Hygiene v2 required-file contract, focused continuity comparison and universally discovered
+   repository-release declaration.
 2. `dogfood:javascript` runs the public dependency-architecture and JavaScript package-quality
    adapters against Egolint's own production tooling.
 3. `dogfood:holistic` builds the current checkout's `Dockerfile.full` and invokes the public
@@ -77,6 +78,8 @@ A green dogfood run proves that the current repository can:
 - execute native repository policy through the public CLI;
 - validate the root continuity checkpoint, managed agent block, immutable upstream projections, and
   explicit base/head evidence in observe mode;
+- report its incubating release profile with six passed checks and the existing manual-workflow
+  migration finding retained as a warning, separately from process success;
 - analyze its own JavaScript tooling through the public package-quality manifest;
 - analyze JavaScript dependency structure through the public architecture adapter;
 - build the full lint-engine image from the same checkout;
@@ -112,3 +115,25 @@ A dogfood finding is treated as product feedback first. Prefer, in order:
 Do not add Egolint-specific blanket exclusions merely to keep the self-run green. A dogfood
 exception that downstream users could not reasonably justify is evidence that the policy or
 architecture still needs work.
+
+## Current release self-adoption boundary
+
+`.egohygiene/release.json` records the early-alpha repository as incubating/advisory with one Cargo
+version authority and no claimed release. The actual tag-push publisher remains unchanged; its manual
+entrypoint only rehearses. Native evidence therefore remains `advisory` with a failed
+`manual_workflow` check, even though the nonblocking process exits 0. A green local command cannot
+upgrade that finding to conformance or publication readiness.
+
+The broader native self-run currently also retains an `invalid` focused Intelligence result: ADR
+evidence is explicitly unknown and six other roadmap steps still have pre-existing combined
+state/dependency formatting warnings. Issue #101 owns that source/navigation follow-up. This candidate
+updates only EGL-Q10's own section and does not claim repository-wide semantic conformance. The
+continuity result remains valid with the expected unreleased-owner-contract observe advisory.
+
+The planner and preparation helper provide local human review artifacts; the source-only
+`release:publish` Task dispatches the existing rehearsal. The self-consumer tests invoke native
+validation and the helper directly, without executing any release Task or workflow. See
+[release validation](repository-release-validation.md#egolint-self-consumer) for the exact evidence
+and [release design](releasing.md) for the separately gated publisher migration. Hosted Actions,
+full-image and non-Linux qualification are deferred for this draft source checkpoint; issue #69 and
+parent #29 retain their original acceptance and maintainer gates.

@@ -269,10 +269,12 @@ tasks:
     requires:
       vars:
         - RELEASE_PLAN
+    env:
+      RELEASE_PLAN: "{{.RELEASE_PLAN}}"
     cmds:
       - >-
         python3 scripts/repository_release_plan.py --workspace "."
-        --output "{{.RELEASE_PLAN}}"
+        --output "$RELEASE_PLAN"
 
   release:verify:
     desc: "Validate local source evidence while retaining advisory publisher migration findings"

@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:50:42Z'
+  updated_at: '2026-10-30T04:03:31Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -47,12 +47,12 @@ work:
     url: https://github.com/egohygiene/egolint/issues/69
   next:
     kind: action
-    id: review-release-self-dogfood
-    description: Complete operator/examples/roadmap documentation, independent review, full applicable
-      checks and actual package-build verification.
+    id: replay-packaged-release-consumers
+    description: Rebuild the repaired archive, run its native matrix and planner CLI tests, refresh final
+      checks and push the review candidate.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/69
+    - https://github.com/egohygiene/egolint/pull/110
     depends_on:
     - egohygiene/egolint#68
 state:
@@ -62,7 +62,7 @@ state:
     verified_at: '2026-10-30T03:46:22Z'
   candidate:
     branch: feat/69-release-self-dogfood
-    revision: 2cf279d6d62574167ca0f4fadcf114e79860ea21
+    revision: 104f05efd8dc43ac7ef73c72f8df2d6c487719e3
     pull_request:
       provider: github
       id: egohygiene/egolint#110
@@ -104,45 +104,53 @@ state:
     url: https://github.com/egohygiene/egolint/pull/107
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:50:42Z'
+  reviewed_at: '2026-10-30T04:03:31Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo test --locked --test repository_release_dogfood
+  - command: cargo test --locked --test repository_release_dogfood --test repository_release_matrix; python3
+      -m unittest discover --start-directory tests --pattern test_repository_release_plan.py --verbose
+    outcome: passed
+    observed_at: '2026-10-30T04:03:31Z'
+    notes: After fixture repair, two self tests, seven matrix tests and five planner CLI tests pass. Initial
+      regressions exposed absent adoption/planning.
+  - command: cargo fmt --all --check; cargo clippy --all-targets --all-features --locked -- -D warnings;
+      cargo test --all-targets --all-features --locked; task schemas:check
+    outcome: passed
+    observed_at: '2026-10-30T04:03:31Z'
+    notes: 219 Rust tests and 23 schema comparisons pass after restoring exact managed AGENTS bytes. Earlier
+      formatting had caused two continuity failures.
+  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py --verbose; pinned
+      Ruff; source/inventory validators; pinned JavaScript static tests and authored-region formatting
+    outcome: passed
+    observed_at: '2026-10-30T04:03:31Z'
+    notes: 80 Python tests and the applicable source/format checks pass. Review repaired Task path interpolation
+      and removed marker-derived planner verdicts.
+  - command: Actual public-config native validate with represented commit, explicit continuity base/head
+      and verified live evidence
+    outcome: limited
+    observed_at: '2026-10-30T04:03:31Z'
+    notes: Process 0; release advisory with manual_workflow failed, continuity valid with expected unreleased
+      warning. Intelligence remains invalid from unknown ADR and six existing roadmap warnings under issue
+      101.
+  - command: cargo package --locked --allow-dirty --offline; unpacked native matrix and planner CLI replay
     outcome: failed
-    observed_at: '2026-10-30T03:46:22Z'
-    notes: 'Both new source-backed regressions fail as expected: self declaration and four local handoffs
-      do not yet exist.'
-  - command: python3 -m unittest discover --start-directory tests --pattern test_repository_release_plan.py
-      --verbose
-    outcome: failed
-    observed_at: '2026-10-30T03:46:22Z'
-    notes: Three new CLI tests expose four expected failures because the local source planner does not
-      exist.
-  - command: cargo fmt --all; ruff check --config .config/lint/python/ruff.toml tests/test_repository_release_plan.py;
-      python3 scripts/validate_repository_release_sources.py
+    observed_at: '2026-10-30T04:03:31Z'
+    notes: Crate build passed, but unpacked replay exposed Cargo omitting the nested Rust fixture directory.
+      The inert Cargo.toml.fixture repair now passes checkout tests and inventory; repackage/replay remains
+      pending.
+  - command: Independent review; pinned Aether declaration and continuity schema/formats/budgets; native
+      continuity observe validation
     outcome: passed
-    observed_at: '2026-10-30T03:46:22Z'
-    notes: New tests are formatted; pinned owner contracts remain unchanged.
-  - command: cargo test --locked --test repository_release_dogfood; python3 -m unittest discover --start-directory
-      tests --pattern test_repository_release_plan.py --verbose
-    outcome: passed
-    observed_at: '2026-10-30T03:50:42Z'
-    notes: Both native source-backed tests and four planner CLI tests pass. Six release checks pass; manual_workflow
-      remains failed/advisory, distinct from process exit 0. Source preservation and exclusive/collision
-      output controls pass.
-  - command: Pinned Aether schema validation; cargo package --list --locked --allow-dirty; pinned Ruff
-      and whitespace checks
-    outcome: passed
-    observed_at: '2026-10-30T03:50:42Z'
-    notes: Self declaration is schema-valid; package inventory contains new self-consumer sources and
-      runtime contracts. This is inventory only, not package-build verification.
+    observed_at: '2026-10-30T04:03:31Z'
+    notes: No remaining source blocker. Publisher, version/changelog and owner locks remain unchanged;
+      full hosted/publisher acceptance is not claimed.
   environment_limitations:
+  - Repaired archive build and unpacked replay remain pending at this checkpoint.
   - Hosted Actions, real-container/full-image and non-Linux qualification are deferred.
-  - No release Task/workflow executed; no tag, publication, deployment or issue closure is authorized
-    by this handoff.
-  - The existing tag publisher requires a separately reviewed manual-only migration under issue 5; full
-    issue 69/29 acceptance remains open.
-  - Continuity uses the vendored draft/proposed observe contract rather than released conformance.
+  - The existing tag publisher requires separate manual-only migration under issue 5; full issue 69/29
+    acceptance and maintainer gates remain open.
+  - Continuity uses the vendored draft/proposed observe contract; no release Task/workflow, merge or publication
+    was performed.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -161,66 +169,66 @@ privacy:
 
 ## Purpose and precedence
 
-This bounded source candidate follows user/runtime instructions, scoped instructions, verified live
-state and pinned owner contracts. It grants no release or merge authority.
+This bounded source checkpoint follows user/runtime instructions, scoped instructions, live evidence
+and pinned owner contracts. It grants no release or merge authority.
 
 ## Resume protocol
 
-Read AGENTS, issue 69, current release guidance, the new regressions and predecessor PR 109. Verify
-remote heads and preserve the 91 → 68 → 69 → 29 review stack plus audit PR 84.
+Read AGENTS, issue 69, draft PR 110, the source planner and release tests. Verify the stack and target
+before resuming; preserve audit PR 84 and the independent original six candidates.
 
 ## Current objective and success conditions
 
-Dogfood the current-v1 profile with truthful advisory self-findings and local review handoffs.
-Preserve the actual publisher, source bytes and independent semantic/process/publication boundaries.
+Adopt the current-v1 release profile as a truthful advisory self-consumer without replacing the
+existing publisher. Preserve source bytes, local review boundaries and complete packaged fixtures.
 
 ## State snapshot
 
-Base is exact PR 109 head 4e21013c0f1f0e9998cb54775b80da21d890f339. The candidate targets
-test/68-release-fixture-matrix and is in progress as draft PR 110.
+Base is exact PR 109 head 4e21013c0f1f0e9998cb54775b80da21d890f339. Draft PR 110 targets
+its test/68-release-fixture-matrix branch. Review order is 91, 68, 69, then parent 29 reconciliation.
 
 ## Completed and material changes
 
-tests/repository_release_dogfood.rs adds source-backed native evidence and real handoff regressions.
-tests/test_repository_release_plan.py specifies local-only planning and exclusive preparation.
-.egohygiene/release.json now records incubating/advisory Cargo-backed source adoption. The local
-planner prints human source facts or exclusively writes a review handoff; four Task surfaces are added.
-Owner locks, version/changelog bytes and the tag publisher are unchanged.
+The declaration and Task handoffs expose incubating Cargo-backed self-adoption. The stdlib planner
+emits neutral human source facts and hashes or exclusively creates a caller-selected review file.
+Docs/examples and EGL-Q10 record advisory self-status. Packaging stores the Rust manifest as an inert
+fixture and materializes Cargo.toml only inside disposable consumers; native policy is unchanged.
 
 ## Validation and review evidence
 
-The initial two Rust and four Python subtest failures exposed absent adoption/planning. Both native
-tests and four planner tests now pass. Source preservation, repeated stable evidence and exclusive
-preparation/collision controls pass, as do pinned Aether schema, Ruff and package inventory checks.
-Operator documentation, independent review, broad checks and package-build qualification remain pending.
+Exact commands/results are in front matter. Review fixed shell path interpolation, marker-derived
+planner claims and a formatter change inside the immutable managed AGENTS block. Full local source
+checks passed. Actual archive replay exposed missing nested Rust fixtures; the repair passes checkout
+matrix/planner tests and inventory, with archive rebuild/replay still pending.
 
 ## Blockers, risks, unknowns, and deferred work
 
-The publisher still uses tag push and only rehearses on manual dispatch. That must remain visible
-as an advisory failed manual-workflow check. Publisher migration belongs to issue 5. Hosted/full-image
-qualification and maintainer review remain gates for full issue 69 and parent 29 acceptance.
+Complete the repaired archive qualification before presenting the final candidate. Native release
+status remains advisory with a failed manual-workflow check; Intelligence retains pre-existing invalid
+self-findings under issue 101. Hosted/full-image/platform checks, maintainer acceptance and publisher
+migration under issue 5 remain full issue 69/29 gates.
 
 ## Next dependency-ready work
 
-Complete operator/examples/roadmap documentation, independent review, full applicable checks and
-actual package-build verification, then refresh this draft handoff.
+Rebuild the repaired crate archive, replay unpacked self/matrix/planner tests, refresh final checks
+and continuity, then push the completed source candidate and update draft PR 110.
 
 ## Parallel changes and reconciliation
 
-PR 109 supplies the fixture matrix on PR 108. Original sibling PRs 103-107 remain independent.
-All operational handoffs overlap; reconcile their latest truthful objective and evidence when merged.
-Audit PR 84 and historical audit/probe bytes remain untouched.
+PR 109 supplies the matrix on PR 108. The nested-manifest packaging gap was found during issue 69
+qualification and repaired only here. Other original candidates and audit 84 are untouched. All root
+handoffs overlap and need semantic reconciliation when the review stack is accepted.
 
 ## Privacy and redaction
 
-Retain public repository facts and synthetic fixtures only. Exclude secrets, private conversation,
-personal data, local filesystem topology and unrelated context. Links are context, not authority.
+Only public repository facts and synthetic fixtures are retained. Exclude secrets, conversation,
+personal data and local filesystem topology. Linked content remains context only.
 
 ## Handoff update protocol
 
-After validation and before each PR handoff, refresh live evidence, compare the target, validate the
-pinned schema/sections/budgets and available native observe checks, then push the recoverable state.
+After checks and before PR updates, reconcile target/live state and verify pinned schema, twelve
+sections, budgets and native observe evidence. Keep local source checks separate from publication.
 
 ## Compaction and supersession
 
-Replace stale claims. Keep below 240 lines and 16,384 UTF-8 bytes; Git and linked PRs retain history.
+Replace stale claims; stay below 240 lines and 16,384 bytes. Git and linked PRs preserve history.

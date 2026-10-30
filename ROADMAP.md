@@ -306,7 +306,9 @@ issues: [29]
 
 #### EGL-Q10 — Validate repository release conformance
 
-**State:** `active` **Depends on:** `EGL-Q04`
+**State:** `active`
+
+**Depends on:** `EGL-Q04`
 
 **Outcome:** Every applicable repository can produce offline, machine-readable evidence for its
 release declaration, changelog, version authority, and publication entrypoints.
@@ -315,14 +317,14 @@ release declaration, changelog, version authority, and publication entrypoints.
 
 - [x] Aether's declaration schema and Hygiene's applicability profile are consumed from immutable,
       verified revisions.
-- [ ] Native validation distinguishes conforming, nonconforming, not-applicable, advisory,
+- [x] Native validation distinguishes conforming, nonconforming, not-applicable, advisory,
       unavailable, and externally owned evidence without network writes.
 - [ ] Representative language, artifact, lifecycle, workspace, and invalid fixtures prove the
       policy boundary.
 - [ ] EgoLint dogfoods the completed capability and documents operational limits.
 - [ ] Every bounded issue #29 checkpoint PR is reviewed and merged by the maintainer.
 
-**Current evidence (2026-09-19):**
+**Current evidence (2026-10-30 source candidate):**
 
 - Aether #61 and Hygiene #27 are closed. Their accepted merge revisions are pinned with both Git
   blob identities and SHA-256 digests in the repository-release source lock.
@@ -334,8 +336,14 @@ release declaration, changelog, version authority, and publication entrypoints.
 - Checkpoint 3 on PR #71 merged as `8b99ec4377eb84044fac411dff6b8074317ec094`, verified on
   2026-09-28. It maps all seven policy slots to stable offline rules for declarations, changelogs,
   version authorities, Taskfile handoffs, and manual workflow pins.
-- The complete fixture matrix and final dogfood remain checkpoints 4–5 on focused pull requests
-  tracked by issue #29.
+- Draft PR #108 repairs exact static Task/workflow binding. Draft PR #109 prepares the nine-profile,
+  six-state current-v1 matrix; these review candidates do not claim external publication.
+- Draft PR #110 adds an incubating self-declaration, local review planner and actual source-backed
+  dogfood. Six checks pass and the legacy tag publisher's `manual_workflow` check remains
+  failed/advisory, distinct from process exit 0. The existing publisher is preserved.
+- Source/local evidence is prepared for review; actual final-head hosted/full-image/non-Linux
+  qualification is deferred. Maintainer acceptance and publisher migration under issue #5 remain
+  gates for full checkpoint #69 and parent #29 acceptance. No issue, release or rollout is complete.
 
 <!-- roadmap-step
 id: EGL-Q11

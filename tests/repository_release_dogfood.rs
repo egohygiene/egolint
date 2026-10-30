@@ -145,6 +145,15 @@ fn real_task_publish_is_literal_rehearsal_and_planning_is_local() {
         );
     }
     assert_eq!(
+        tasks["release:prepare"]["env"]["RELEASE_PLAN"].as_str(),
+        Some("{{.RELEASE_PLAN}}")
+    );
+    let prepare = tasks["release:prepare"]["cmds"][0]
+        .as_str()
+        .expect("literal preparation command");
+    assert!(prepare.contains("--output \"$RELEASE_PLAN\""));
+    assert!(!prepare.contains("{{.RELEASE_PLAN}}"));
+    assert_eq!(
         tasks["release:publish"]["cmds"][0].as_str(),
         Some("gh workflow run .github/workflows/release.yml")
     );

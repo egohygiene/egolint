@@ -51,3 +51,14 @@ On Unix, trusted failing executables trap Docker, Podman, Node, pnpm, Python, Gi
 initialization while the actual native CLI validates contract-only and archived consumers. A harmless
 trap invocation proves the sentinel works before each native check. This verifies orchestration only;
 it is not real container, language-runtime or release-adapter qualification.
+
+## Crate archive materialization
+
+The Rust authority is stored as `rust/Cargo.toml.fixture` with its authored bytes unchanged. Cargo
+omits nested package directories from crate archives when they contain a real `Cargo.toml`, even
+when an include pattern names that directory. The native and Python test materializers copy this
+inert fixture to `Cargo.toml` only inside disposable consumers. Declarations and expected evidence
+continue to refer to the consumer's real authority path.
+
+Checkpoint #69 exercises the unpacked crate's matrix and planner tests as well as package-build
+verification. Inventory patterns or a successful crate build alone do not prove fixture completeness.

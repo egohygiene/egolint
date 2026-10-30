@@ -23,7 +23,7 @@ class RepositoryReleasePlanTests(unittest.TestCase):
         root = Path(directory)
         for source, destination in (
             ("rust/declaration.json", ".egohygiene/release.json"),
-            ("rust/Cargo.toml", "Cargo.toml"),
+            ("rust/Cargo.toml.fixture", "Cargo.toml"),
             ("common/CHANGELOG.md", "CHANGELOG.md"),
             ("common/Taskfile.yml", "Taskfile.yml"),
             ("common/release-workflow.yml", ".github/workflows/release.yml"),
@@ -89,17 +89,30 @@ class RepositoryReleasePlanTests(unittest.TestCase):
                 self.assertEqual(collision.returncode, 1)
                 self.assertEqual((root / name).read_bytes(), original)
 
-    def test_current_repository_workflow_is_described_as_rehearsal(self):
+    def test_preparation_treats_quoted_metacharacter_filename_as_data(self):
         with tempfile.TemporaryDirectory() as directory:
             root = self.consumer(directory)
-            shutil.copyfile(
-                ROOT / ".github/workflows/release.yml", root / ".github/workflows/release.yml"
+            output = root / "review 'quoted' $(touch sentinel).md"
+            result = self.run_plan(root, "--output", str(output))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(output.is_file())
+            self.assertFalse((root / "sentinel").exists())
+
+    def test_workflow_comment_marker_cannot_establish_behavior_or_conformance(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.consumer(directory)
+            workflow = root / ".github/workflows/release.yml"
+            workflow.write_text(
+                workflow.read_text(encoding="utf-8")
+                + "\n# Record non-publishing rehearsal result\n",
+                encoding="utf-8",
             )
             result = self.run_plan(root)
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertIn("existing non-publishing rehearsal", result.stdout)
-            self.assertIn("manual-workflow check stays failed/advisory", result.stdout)
-            self.assertIn("exit 0 does not mean conformance", result.stdout)
+            self.assertIn("does not infer execution behavior or conformance", result.stdout)
+            self.assertNotIn("existing non-publishing rehearsal", result.stdout)
+            self.assertNotIn("manual-workflow check stays failed/advisory", result.stdout)
+            self.assertNotIn("tag-driven publisher remains unchanged", result.stdout)
 
     def test_missing_and_malformed_source_fail_with_controlled_diagnostics(self):
         for malformed in (False, True):

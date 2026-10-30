@@ -154,6 +154,62 @@ wrapper can establish local structure while preserving externally owned evidence
 fixtures supply issue 69 dogfood and parent 29 review. Hosted qualification, actual release execution,
 publication and adoption require their own evidence.
 
+## EgoLint self-consumer
+
+The repository-owned [.egohygiene/release.json](../.egohygiene/release.json) selects `cli-library`,
+`incubating` and `unreleased`, matching the roadmap's early-alpha/pre-release source state. Cargo.toml
+is the sole product version authority; the private Python and Node toolchains do not become
+independent products. GitHub Release and container delivery remain planned. `required` evidence is a
+future candidate obligation, not an assertion that an artifact was published or signed.
+
+Native `validate`, `lint` and `fix` discover this declaration through the existing universal resolver.
+The actual source-backed self-consumer currently produces:
+
+| Evidence             | Current result                                               |
+| -------------------- | ------------------------------------------------------------ |
+| Process exit         | `0` under incubating/advisory rollout                        |
+| Focused state        | `advisory`                                                   |
+| Check results        | Six passed; `manual_workflow` failed/advisory                |
+| Native tool          | `passed_with_warnings`, advisory enforcement, one warning    |
+| Finding/SARIF        | Same manual-workflow warning, identity and workflow location |
+| Publication boundary | Network not performed; external publication not verified     |
+
+The failed check is intentional evidence of an existing migration gap. The real release workflow
+still publishes from tag push and only rehearses on manual dispatch. The literal `release:publish`
+handoff dispatches that rehearsal; it is not a publication-ready manual adapter. No rule is disabled
+and no passing substitute workflow hides the finding. The pinned Aether migration guidance keeps
+contract adoption separate from replacing a repository-owned publisher; that migration and product
+release remain under issue #5.
+
+For local source inspection, invoke the underlying commands directly:
+
+```sh
+python3 scripts/repository_release_plan.py --workspace "."
+python3 scripts/repository_release_plan.py --workspace "." --output ".reports/egolint/release-review.md"
+cargo run --quiet --locked -- --workspace "." validate
+```
+
+The planner emits human Markdown with current authority/changelog facts and relative source SHA-256
+identities. It selects no bump or tag and is not a conformance report. Preparation creates a new
+caller-selected review handoff exclusively; an existing output or source-file collision fails. Version,
+changelog and declaration bytes remain authored inputs. `release:plan`, `release:prepare` and
+`release:verify` expose these local review stages; preparation passes its path through Task's structured
+environment rather than inserting it into shell code. Release Tasks are inspected statically in tests.
+
+`tests/repository_release_dogfood.rs` materializes the actual repository sources into a disposable Git
+consumer and checks repeatable focused evidence separately from exit, enforcement, findings and SARIF.
+`tests/test_repository_release_plan.py` exercises the helper CLI and its read-only/exclusive behavior.
+The crate includes these source fixtures and the pinned runtime contracts. Packaging them does not
+make the repository's Taskfile a standalone installed release tool. The Rust fixture manifest is
+stored as `Cargo.toml.fixture` and materialized only in disposable consumers so Cargo does not omit
+that nested directory from the archive. Unpacked native-matrix and planner tests qualify the archived
+fixtures directly, in addition to the package build.
+
+The report schema remains `egolint.repository-release-report/v1`; all generated-schema comparisons
+remain required. Local source proof does not complete issue #69 or parent #29: maintainer acceptance,
+actual final-head hosted/full-image/non-Linux qualification and the publisher migration remain open.
+Historical merged PR #64 is retained as history. Successor release model issue #76 stays separate.
+
 ## Checkpoint plan
 
 1. Pin and verify the immutable Aether and Hygiene inputs; reconcile the preceding roadmap state.
@@ -164,5 +220,7 @@ publication and adoption require their own evidence.
    contract-only, archived, advisory, external, unavailable, and invalid fixtures.
 5. Dogfood the completed capability, document operations and limits, and perform final CI polish.
 
-Checkpoint 1 landed in PR 64. Each remaining checkpoint uses its own focused pull request and stops
-for maintainer review before merge.
+Checkpoints 1–3 landed in PRs 64, 70 and 71. Draft PR 109 supplies the current-v1 fixture matrix on
+static-handoff repair PR 108; draft PR 110 adds this self-consumer checkpoint. The review stack is
+issue 91 → 68 → 69 → parent 29 reconciliation. Every candidate retains its own maintainer review and
+unresolved hosted acceptance; none of these source checkpoints publishes a product.
