@@ -88,12 +88,22 @@ fn consumer(fixture: &Fixture) -> TempDir {
     root
 }
 
-fn validate(root: &Path, adoption: Option<&str>) -> Output {
+fn native_command(root: &Path) -> Command {
     let mut command = Command::new(env!("CARGO_BIN_EXE_egolint"));
+    for (name, _) in
+        std::env::vars_os().filter(|(name, _)| name.to_string_lossy().starts_with("EGOLINT_"))
+    {
+        command.env_remove(name);
+    }
     command
         .args(["--workspace"])
         .arg(root)
         .args(["validate", "--runtime", "docker"]);
+    command
+}
+
+fn validate(root: &Path, adoption: Option<&str>) -> Output {
+    let mut command = native_command(root);
     if let Some(adoption) = adoption {
         command.args(["--release-adoption-state", adoption]);
     }
@@ -247,6 +257,13 @@ fn all_fifty_four_profile_state_cases_match_reviewed_focused_goldens() {
             let focused = report(root.path(), "repository-release.json");
             assert_eq!(focused_projection(&focused), expected["focused"], "{id}");
             assert_eq!(focused["boundary"], golden["boundary"], "{id}");
+            assert!(
+                output_text(&output).contains(&format!(
+                    "repository-release: {}",
+                    expected["focused"]["state"].as_str().expect("golden state")
+                )),
+                "{id}: human-readable state agrees"
+            );
             assert_projections(root.path(), &id, expected);
         }
     }
@@ -276,6 +293,16 @@ fn assert_projections(root: &Path, id: &str, expected: &Value) {
         .collect();
     let projected: Vec<_> = findings.iter().map(|finding| json!({"rule": finding["rule"]["rule_id"], "severity": finding["severity"], "path": finding["location"]["path"]})).collect();
     assert_eq!(json!(projected), expected["findings"], "{id}");
+    let focused = report(root, "repository-release.json");
+    for finding in &findings {
+        let check = focused["checks"]
+            .as_array()
+            .expect("focused checks")
+            .iter()
+            .find(|check| check["rule_id"] == finding["rule"]["rule_id"])
+            .expect("focused finding rule");
+        assert_eq!(finding["location"], check["location"], "{id}");
+    }
     let sarif = report(root, "egolint.sarif");
     let results: Vec<_> = sarif["runs"][0]["results"]
         .as_array()
@@ -285,6 +312,17 @@ fn assert_projections(root: &Path, id: &str, expected: &Value) {
         .collect();
     assert_eq!(results.len(), findings.len(), "{id}");
     for (finding, result) in findings.iter().zip(results) {
+        let rule = sarif["runs"][0]["tool"]["driver"]["rules"]
+            .as_array()
+            .expect("SARIF rules")
+            .iter()
+            .find(|rule| rule["id"] == result["ruleId"])
+            .expect("SARIF result references a declared rule");
+        assert_eq!(rule["name"], finding["rule"]["rule_id"], "{id}");
+        assert_eq!(
+            rule["properties"]["egolintToolId"], finding["rule"]["tool_id"],
+            "{id}"
+        );
         assert_eq!(
             result["properties"]["egolintFindingId"], finding["id"],
             "{id}"
@@ -577,10 +615,7 @@ fn contract_and_archived_validation_never_initializes_execution_runtimes() {
         assert_eq!(control.status.code(), Some(93));
         assert!(marker.exists(), "the trusted trap records invocation");
         std::fs::remove_file(&marker).expect("clear positive control marker");
-        let output = Command::new(env!("CARGO_BIN_EXE_egolint"))
-            .arg("--workspace")
-            .arg(root.path())
-            .args(["validate", "--runtime", "docker"])
+        let output = native_command(root.path())
             .env("PATH", std::env::join_paths(paths).expect("trap PATH"))
             .env("EGOLINT_TEST_RUNTIME_MARKER", &marker)
             .output()

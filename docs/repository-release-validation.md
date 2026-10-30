@@ -123,6 +123,37 @@ status, normalized findings, locations, and SARIF. These issue 91 cases are inpu
 [checkpoint 69 dogfood](https://github.com/egohygiene/egolint/issues/69); they do not complete those
 work scopes or prove remote execution or publication.
 
+## Current-v1 fixture matrix
+
+`tests/fixtures/repository-release` contains nine authored source consumers: Rust, Python, npm,
+container, site, publication, workspace, contract-only, and archived. Their local authorities use
+Cargo, PEP 621, package JSON, selected JSON/YAML fields, independent workspace components, catalog
+records, and frozen Git-tag declarations. They are synthetic source fixtures, not released artifacts.
+
+Each consumer runs through compliant, advisory migration, unavailable, external, invalid, and explicit
+not-applicable states. The 54 compact focused goldens preserve lifecycle/profile, adoption, every
+slot's state and requirement, and coverage counters. Separate assertions bind focused checks to run
+findings, tool status/counts, human-readable state and SARIF rule identity/location. All cases retain
+`network_access: not_performed` and `external_publication: not_verified`.
+
+Additional controls cover matching/drifted released authorities, workspace independence, malformed
+tag/declaration fields, missing/malformed/unpinned/external entrypoints and the issue 91 repair. Unix
+executable traps verify that contract-only and archived validation initializes no irrelevant runtime;
+the traps qualify orchestration only. The fixture README explains source mutations and policy limits.
+
+Run the native matrices without executing release Task commands:
+
+```sh
+cargo test --locked --test repository_release_matrix
+cargo test --locked --test repository_release_pipeline
+```
+
+Archived lifecycle applicability remains intact, and explicit caller overrides remain separate from
+policy authority. External Task includes are unavailable to static inspection; a pinned local workflow
+wrapper can establish local structure while preserving externally owned evidence. These issue 68
+fixtures supply issue 69 dogfood and parent 29 review. Hosted qualification, actual release execution,
+publication and adoption require their own evidence.
+
 ## Checkpoint plan
 
 1. Pin and verify the immutable Aether and Hygiene inputs; reconcile the preceding roadmap state.

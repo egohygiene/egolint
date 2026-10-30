@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:38:29Z'
+  updated_at: '2026-10-30T03:42:01Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -31,12 +31,9 @@ scope:
   - AGENTS.md
   - tests/repository_release_matrix.rs
   - tests/fixtures/repository-release/README.md
-  - tests/fixtures/repository-release/profiles.json
   - src/rules/repository_release/checks.rs
   - .config/rules/repository-release-sources.v1.json
   - https://github.com/egohygiene/egolint/issues/68
-  - https://github.com/egohygiene/egolint/issues/69
-  - https://github.com/egohygiene/egolint/issues/29
 work:
   objective: Prove the current-v1 release profile and evidence-state fixture matrix without publication
     claims.
@@ -63,7 +60,7 @@ state:
   base:
     revision: 36a3163b4017fc2d9b7ece873e896e6dca8fd96b
     ref: refs/heads/fix/91-release-dispatch-binding
-    verified_at: '2026-10-30T03:38:29Z'
+    verified_at: '2026-10-30T03:42:01Z'
   candidate:
     branch: test/68-release-fixture-matrix
     revision: null
@@ -71,10 +68,10 @@ state:
       provider: github
       id: egohygiene/egolint#109
       url: https://github.com/egohygiene/egolint/pull/109
-    handoff_state: in-progress
+    handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-10-30T03:38:29Z'
+    observed_at: '2026-10-30T03:42:01Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
     pull_request_state: draft
@@ -106,27 +103,55 @@ state:
     url: https://github.com/egohygiene/egolint/pull/103
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:38:29Z'
+  reviewed_at: '2026-10-30T03:42:01Z'
   reviewed_by: Codex
   evidence:
   - command: cargo test --locked --test repository_release_matrix -- --nocapture
     outcome: passed
-    observed_at: '2026-10-30T03:38:29Z'
+    observed_at: '2026-10-30T03:42:01Z'
     notes: Seven native tests pass, including 54 focused golden cells and distinct authority/drift, entrypoint
       and executable-trap controls (96 native invocations total). Required failures, advisory warnings
       and not-applicability remain distinct.
   - command: Draft202012Validator with FormatChecker on exact vendored Aether release schema
     outcome: passed
-    observed_at: '2026-10-30T03:38:29Z'
+    observed_at: '2026-10-30T03:42:01Z'
     notes: All nine authored declaration fixtures satisfy the selected local source schema.
   - command: cargo fmt --all --check; git diff --check; python3 scripts/validate_repository_release_sources.py
     outcome: passed
-    observed_at: '2026-10-30T03:38:29Z'
+    observed_at: '2026-10-30T03:42:01Z'
     notes: Formatting, whitespace and immutable owner source selection checks passed.
   - command: cargo clippy --all-targets --all-features --locked -- -D warnings
     outcome: passed
-    observed_at: '2026-10-30T03:38:29Z'
+    observed_at: '2026-10-30T03:42:01Z'
     notes: Strict all-target Clippy passed.
+  - command: cargo test --all-targets --all-features --locked
+    outcome: passed
+    observed_at: '2026-10-30T03:42:01Z'
+    notes: 217 Rust tests passed with zero ignored; inherited container orchestration uses bounded simulators.
+      The matrix adds 96 native source invocations.
+  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py; task schemas:check
+    outcome: passed
+    observed_at: '2026-10-30T03:42:01Z'
+    notes: All 75 Python tests and 23 generated-schema comparisons passed.
+  - command: pnpm --config.verify-deps-before-run=false run javascript-quality:test; node tests/javascript-package-quality.test.mjs
+    outcome: passed
+    observed_at: '2026-10-30T03:42:01Z'
+    notes: Pinned pnpm runner passed with frozen shared dependencies; direct Node execution confirmed
+      six callbacks.
+  - command: python3 scripts/validate_release_inputs.py; python3 scripts/validate_megalinter_policy.py
+      --check; python3 scripts/package_integrations.py --check; cargo run --quiet --locked -- plan --workspace
+      . --profile fast; cargo package --list --locked --allow-dirty
+    outcome: passed
+    observed_at: '2026-10-30T03:42:01Z'
+    notes: Offline source checks and plan passed. Package inventory includes the new matrix and complete
+      corpus; inventory does not establish a package build.
+  - command: Independent pinned Aether/Hygiene review; Prettier corpus/docs check; pinned continuity schema
+      and native observe check
+    outcome: passed
+    observed_at: '2026-10-30T03:42:01Z'
+    notes: All nine declarations and all 54 golden slot requirements match the selected owner inputs.
+      Focused/aggregate locations and SARIF driver rule identity were strengthened after review; EGOLINT
+      overrides are isolated. Continuity is valid with the expected unreleased-contract advisory.
   environment_limitations:
   - Hosted Actions and actual workflow/Task execution are deferred.
   - Fixtures are synthetic static consumers; no real analyzer/container/language build, registry acceptance
@@ -165,7 +190,7 @@ Retain distinct source authorities, lifecycle applicability and all native evide
 
 ## State snapshot
 
-Candidate test/68-release-fixture-matrix is at the implementation checkpoint, based on exact predecessor
+Candidate test/68-release-fixture-matrix is at the review checkpoint, based on exact predecessor
 36a3163b4017fc2d9b7ece873e896e6dca8fd96b. Its target is fix/91-release-dispatch-binding, not main.
 The intended review/merge order is issue 91, 68, 69, then parent 29 reconciliation. All remain review work.
 
@@ -180,7 +205,8 @@ The inherited issue 91 repair owns literal Task dispatch grammar. Owner contract
 ## Validation and review evidence
 
 Exact commands and current outcomes are in front matter. Baselines are schema-valid and native compliant.
-Fixtures are source bytes, including synthetic immutable workflow references; no Task or workflow ran.
+Fixtures use synthetic source bytes only; no Task or workflow ran.
+Independent review found no source blocker and strengthened rule/location/SARIF identity assertions plus environment isolation. Full Rust, Python, JavaScript, schema and source checks passed; hosted qualification remains deferred.
 
 ## Blockers, risks, unknowns, and deferred work
 
