@@ -23,12 +23,22 @@ ROOT = Path(__file__).resolve().parents[1]
 def main() -> None:
     """Assert actual format registration, digest, and every paired expectation."""
     schema_bytes = (ROOT / "vendor/aether/aether.repository-continuity.v1.schema.json").read_bytes()
-    matrix = json.loads((ROOT / "tests/fixtures/repository-continuity/schema-parity.json").read_text())
-    assert hashlib.sha256(schema_bytes).hexdigest() == matrix["schema_sha256"]
+    matrix = json.loads(
+        (ROOT / "tests/fixtures/repository-continuity/schema-parity.json").read_text()
+    )
+    if hashlib.sha256(schema_bytes).hexdigest() != matrix["schema_sha256"]:
+        message = "bundled schema digest differs from the paired fixture selection"
+        raise ValueError(message)
     checker = FormatChecker()
-    assert "date-time" in checker.checkers, "install the date-time format dependency"
-    assert "uri" in checker.checkers, "install the URI format dependency"
-    assert not checker.conforms("2026-09-08T1:00:00Z", "date-time")
+    if "date-time" not in checker.checkers:
+        message = "install the date-time format dependency"
+        raise RuntimeError(message)
+    if "uri" not in checker.checkers:
+        message = "install the URI format dependency"
+        raise RuntimeError(message)
+    if checker.conforms("2026-09-08T1:00:00Z", "date-time"):
+        message = "date-time format validation must reject unpadded clock fields"
+        raise RuntimeError(message)
     schema = json.loads(schema_bytes)
     Draft202012Validator.check_schema(schema)
     validator = Draft202012Validator(schema, format_checker=checker)
@@ -50,7 +60,9 @@ def main() -> None:
             else:
                 parent[fields[-1]] = mutation["value"]
         actual = validator.is_valid(metadata)
-        assert actual == case["valid"], f"{case['name']}: {list(validator.iter_errors(metadata))}"
+        if actual != case["valid"]:
+            message = f"{case['name']}: {list(validator.iter_errors(metadata))}"
+            raise ValueError(message)
     print(f"{len(matrix['cases'])} paired cases match Draft202012Validator and registered formats")
 
 

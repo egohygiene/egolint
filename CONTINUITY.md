@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:17:23Z'
+  updated_at: '2026-10-30T03:20:49Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -44,18 +44,19 @@ work:
     url: https://github.com/egohygiene/egolint/issues/89
   next:
     kind: action
-    id: repair-continuity-schema-parity
-    description: Review the complete candidate diff, run full applicable checks, and refresh the final draft
-      handoff.
+    id: review-continuity-schema-parity
+    description: Review draft PR 107 and reconcile CONTINUITY.md with parallel candidates before any later
+      merge.
     readiness: ready
     references:
+    - https://github.com/egohygiene/egolint/pull/107
     - https://github.com/egohygiene/egolint/issues/89
     depends_on: []
 state:
   base:
     revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     ref: refs/heads/main
-    verified_at: '2026-10-30T03:05:22Z'
+    verified_at: '2026-10-30T03:20:49Z'
   candidate:
     branch: fix/89-continuity-schema-parity
     revision: null
@@ -63,10 +64,10 @@ state:
       provider: github
       id: egohygiene/egolint#107
       url: https://github.com/egohygiene/egolint/pull/107
-    handoff_state: in-progress
+    handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-10-30T03:05:22Z'
+    observed_at: '2026-10-30T03:20:49Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
     pull_request_state: draft
@@ -93,33 +94,64 @@ state:
     url: https://github.com/egohygiene/egolint/pull/108
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:17:23Z'
+  reviewed_at: '2026-10-30T03:20:49Z'
   reviewed_by: Codex
   evidence:
-  - command: python3 scripts/validate_continuity_schema_parity.py
-    outcome: passed
-    observed_at: '2026-10-30T03:03:19Z'
-    notes: All 64 paired expectations match the exact schema digest with registered date-time and URI format
-      checks.
-  - command: cargo test --locked --test repository_continuity_pipeline -- --nocapture
+  - command: cargo test --locked --test repository_continuity_pipeline on the regression checkpoint
     outcome: failed
-    observed_at: '2026-10-30T03:03:19Z'
-    notes: 'Expected failure on unchanged native implementation: 24 structural verdict mismatches in the 64-case
-      paired matrix.'
-  - command: cargo test --locked --test repository_continuity_pipeline; python3 scripts/validate_continuity_schema_parity.py
+    observed_at: '2026-10-30T03:20:49Z'
+    notes: 'Expected failure: 24 native/schema mismatches in the original 64-case matrix before source repair.'
+  - command: cargo test --all-targets --all-features --locked; cargo clippy --all-targets --all-features --locked
+      -- -D warnings; cargo fmt --all --check
     outcome: passed
-    observed_at: '2026-10-30T03:05:22Z'
-    notes: All 64 actual-native CLI cases now match independently checked schema expectations; observe exits
-      remain 0 and effective diagnostics remain at most warnings.
-  - command: cargo test --locked --test repository_continuity_pipeline; python3 scripts/validate_continuity_schema_parity.py
+    observed_at: '2026-10-30T03:20:49Z'
+    notes: All 208 Rust tests passed, zero ignored; strict lint and formatting passed. The native integration
+      exercises all 280 paired cases.
+  - command: python3 scripts/validate_continuity_schema_parity.py; python3 -O scripts/validate_continuity_schema_parity.py
     outcome: passed
-    observed_at: '2026-10-30T03:17:23Z'
-    notes: Review expanded the shared matrix to 280 cases. Strict YAML scalar types, nonfinite rejection, URI
-      grammar, minLength, numeric const and anchored-format behavior match schema diagnostics independently
-      from semantic restrictions.
+    observed_at: '2026-10-30T03:20:49Z'
+    notes: All 280 expectations match exact bundled Draft 2020-12 schema digest with registered date-time and
+      URI checks, including optimized Python execution.
+  - command: task schemas:check; python3 -m unittest discover --start-directory tests --pattern test_*.py
+    outcome: passed
+    observed_at: '2026-10-30T03:20:49Z'
+    notes: All 23 generated schema comparisons and 75 Python tests passed.
+  - command: python3 scripts/validate_release_inputs.py; python3 scripts/validate_repository_release_sources.py;
+      python3 scripts/validate_megalinter_policy.py --check; python3 scripts/package_integrations.py --check
+    outcome: passed
+    observed_at: '2026-10-30T03:20:49Z'
+    notes: Reviewed release-input, immutable source, MegaLinter and packaged-integration source checks passed.
+  - command: node --test --test-isolation=none tests/javascript-package-quality.test.mjs; ruff check --config
+      .config/lint/python/ruff.toml scripts/validate_continuity_schema_parity.py; ruff format --check --config
+      .config/lint/python/ruff.toml scripts/validate_continuity_schema_parity.py
+    outcome: passed
+    observed_at: '2026-10-30T03:20:49Z'
+    notes: All six actual JavaScript contract tests and pinned Python lint/format checks passed.
+  - command: cargo package --list --locked --allow-dirty; cargo run --quiet --locked -- plan --workspace .
+      --profile fast
+    outcome: passed
+    observed_at: '2026-10-30T03:20:49Z'
+    notes: Package inventory includes native parity integration and fixtures; inventory is not package-build
+      verification. Read-only fast-profile plan passed.
+  - command: Pinned Draft202012Validator handoff check and native validate --repository-continuity with explicit
+      base/head and stable caller-supplied live evidence
+    outcome: limited
+    observed_at: '2026-10-30T03:20:49Z'
+    notes: Schema, twelve sections, budgets, structural/freshness/Git layers and caller-supplied external evidence
+      checks passed; only expected unreleased-contract observe warning remains.
+  - command: Independent source review of typed grammar, URI parser and schema matrix
+    outcome: passed
+    observed_at: '2026-10-30T03:20:49Z'
+    notes: Independent review found no remaining blocking source findings after scalar, format and nonfinite
+      repairs; public matrix retains explicit controls.
   environment_limitations:
-  - Full Rust/Python/source validation and independent review remain pending.
-  - Hosted Actions, container qualification and released-contract acceptance are deferred.
+  - Hosted Actions, real containers, native macOS/Windows and released upstream conformance were not qualified.
+  - The pinned continuity contract remains draft/proposed observe; no policy promotion, release publication
+    or fleet adoption is claimed.
+  - The pnpm runner attempted dependency auto-install under restricted networking; JavaScript tests were run
+    directly with test isolation disabled so all six actual subtests executed.
+  - Combined batch integration is coordinated separately; exact tested candidate heads and aggregate results
+    belong in the draft PR descriptions.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -150,7 +182,7 @@ Require all schema-mandated nullable keys and unique arrays, preserve closed gra
 
 ## State snapshot
 
-Base is the verified PR 102 merge 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58. This issue 89 candidate is in progress in draft PR 107; no merge is claimed.
+Base is the verified PR 102 merge 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58. This issue 89 candidate is ready for review in draft PR 107; no merge is claimed.
 
 ## Completed and material changes
 
@@ -158,15 +190,23 @@ The shared schema-parity fixture matrix and native CLI integration test reproduc
 
 ## Validation and review evidence
 
-The independent schema matrix passed with explicitly registered date-time and URI checks. The unchanged native CLI produced 24 expected structural verdict mismatches. After review repairs, all 280 native cases pass with semantic status, warning severity and process exit asserted separately.
+All 208 Rust tests, strict Clippy, formatting, 23 generated schemas, 75 Python tests and source
+validators passed. The actual native CLI and independent registered-format schema checker agree on
+280 shared cases, including deliberately stricter semantic controls. Six JavaScript contract tests
+passed with test isolation disabled; pinned Ruff checks passed. The handoff passes pinned schema,
+section/budget and native checks with supplied live evidence, retaining only the expected unreleased
+contract warning. Package inventory inspection does not establish a package build.
 
 ## Blockers, risks, unknowns, and deferred work
 
-No external source blocker was identified. Independent review exposed scalar coercion and format/type parity gaps, now covered and repaired. Final full checks remain pending. Hosted Actions, real containers and released-contract acceptance are deferred; authority and rollout remain unchanged.
+No blocking source finding remains after independent review. Hosted Actions, actual containers,
+non-Linux runtime and released upstream qualification remain deferred. Observe authority and rollout
+are unchanged. Combined validation is coordinated through the candidate PR descriptions.
 
 ## Next dependency-ready work
 
-Review the complete bounded diff and run full applicable checks before final handoff; preserve existing freshness, Git, identity, privacy and rollout behavior.
+Review draft PR 107, preserving independent issue scope and canonical owner contracts. Reconcile
+parallel continuity snapshots semantically before any later merge; the work tracker owns broader acceptance.
 
 ## Parallel changes and reconciliation
 
