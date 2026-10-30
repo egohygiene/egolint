@@ -1,0 +1,62 @@
+{
+  "$schema": "https://egohygiene.io/schemas/aether/repository-release/v1.json",
+  "schema_version": "egohygiene.repository-release/v1",
+  "repository": {
+    "id": "egohygiene/archived-release-fixture",
+    "lifecycle": "archived",
+    "release_profile": "contract"
+  },
+  "release": {
+    "state": "frozen",
+    "tag_prefix": "v",
+    "immutable_tags": true,
+    "major_alias": "disabled"
+  },
+  "changelog": {
+    "path": "CHANGELOG.md",
+    "format": "keep-a-changelog/1.1",
+    "unreleased_heading": "Unreleased"
+  },
+  "components": [
+    {
+      "id": "archived",
+      "kind": "repository",
+      "version_authority": {
+        "kind": "git-tag"
+      }
+    }
+  ],
+  "delivery": {
+    "channels": [
+      {
+        "kind": "github-release",
+        "state": "configured"
+      }
+    ]
+  },
+  "evidence": {
+    "source": "required",
+    "change": "required",
+    "provenance": "required",
+    "sbom": "required",
+    "signature": "required",
+    "rollback": {
+      "strategy": "freeze",
+      "instructions": "Retain the archived source and reviewed immutable history; do not initialize publication adapters."
+    }
+  },
+  "automation": {
+    "taskfile_path": "Taskfile.yml",
+    "tasks": {
+      "plan": "release:plan",
+      "prepare": "release:prepare",
+      "verify": "release:verify",
+      "publish": "release:publish"
+    },
+    "github": {
+      "manual_dispatch_required": true,
+      "workflow_path": ".github/workflows/release.yml",
+      "state": "configured"
+    }
+  }
+}

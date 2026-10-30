@@ -1,0 +1,10 @@
+version: "3"
+tasks:
+  release:plan:
+    cmds: ["true"]
+  release:prepare:
+    cmds: ["true"]
+  release:verify:
+    cmds: ["true"]
+  release:publish:
+    cmds: ["gh workflow run .github/workflows/release.yml"]
