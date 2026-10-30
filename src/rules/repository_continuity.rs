@@ -1144,7 +1144,9 @@ struct ContinuityDocumentMetadata {
     updated_at: String,
     max_bytes: u64,
     max_lines: u64,
+    #[serde(deserialize_with = "required_nullable")]
     stale_reason: Option<String>,
+    #[serde(deserialize_with = "required_nullable")]
     superseded_by: Option<String>,
 }
 
@@ -1163,6 +1165,7 @@ struct ContinuityScopeMetadata {
 struct ContinuityWorkMetadata {
     objective: String,
     success_conditions: Vec<String>,
+    #[serde(deserialize_with = "required_nullable")]
     active_issue: Option<ContinuityReference>,
     next: ContinuityNextWork,
 }
@@ -1217,8 +1220,11 @@ enum ContinuityHandoffState {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct ContinuityCandidateState {
+    #[serde(deserialize_with = "required_nullable")]
     branch: Option<String>,
+    #[serde(deserialize_with = "required_nullable")]
     revision: Option<String>,
+    #[serde(deserialize_with = "required_nullable")]
     pull_request: Option<ContinuityReference>,
     handoff_state: ContinuityHandoffState,
 }
@@ -1236,6 +1242,7 @@ enum ContinuityLiveStatus {
 struct ContinuityLiveState {
     status: ContinuityLiveStatus,
     observed_at: String,
+    #[serde(deserialize_with = "required_nullable")]
     default_branch_revision: Option<String>,
     issue_state: String,
     pull_request_state: String,
@@ -1255,7 +1262,9 @@ enum ContinuityReviewStatus {
 #[serde(deny_unknown_fields)]
 struct ContinuityReviewMetadata {
     status: ContinuityReviewStatus,
+    #[serde(deserialize_with = "required_nullable")]
     reviewed_at: Option<String>,
+    #[serde(deserialize_with = "required_nullable")]
     reviewed_by: Option<String>,
     evidence: Vec<ContinuityReviewEvidence>,
     environment_limitations: Vec<String>,
@@ -1278,6 +1287,16 @@ struct ContinuityPrivacyMetadata {
     redactions: Vec<String>,
     excluded: Vec<String>,
     untrusted_content: String,
+}
+
+// Serde normally treats absent Option fields as null. The pinned schema requires
+// the key itself even when its value is null; a field deserializer preserves that distinction.
+fn required_nullable<'de, D, T>(deserializer: D) -> std::result::Result<Option<T>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    Option::<T>::deserialize(deserializer)
 }
 
 #[allow(clippy::too_many_lines)]
@@ -2022,6 +2041,7 @@ fn validate_metadata(
             "ready" | "blocked" | "unknown"
         )
         && !metadata.work.next.references.is_empty()
+        && unique_nonempty(&metadata.work.next.references)
         && metadata
             .work
             .next
@@ -2048,6 +2068,23 @@ fn validate_metadata(
             "active-issue",
             diagnostics,
         );
+    }
+    let parallel_references = metadata
+        .state
+        .parallel_changes
+        .iter()
+        .map(|reference| (&reference.provider, &reference.id, &reference.url))
+        .collect::<BTreeSet<_>>();
+    if parallel_references.len() != metadata.state.parallel_changes.len() {
+        diagnostics.push(RawDiagnostic::new(
+            SCHEMA_RULE,
+            "duplicate-parallel-changes",
+            Some(&policy.continuity_path),
+            "unique parallel-change references",
+            "duplicate references",
+            "continuity parallel changes repeat the same reference",
+            DiagnosticImpact::Invalid,
+        ));
     }
     for (index, reference) in metadata.state.parallel_changes.iter().enumerate() {
         validate_reference(
@@ -3360,50 +3397,49 @@ fn valid_date(value: &str) -> bool {
     year > 0 && day > 0 && day <= maximum
 }
 
+// Match the registered JSON Schema date-time format: ASCII padded clock fields,
+// optional decimal fraction, a mandatory zone, and case-insensitive T/Z delimiters.
 fn valid_datetime(value: &str) -> bool {
-    let Some((date, remainder)) = value.split_once('T') else {
-        return false;
-    };
-    if !valid_date(date) {
-        return false;
-    }
-    let (clock, zone) = if let Some(clock) = remainder.strip_suffix('Z') {
-        (clock, "Z")
-    } else {
-        let Some(index) = remainder
-            .char_indices()
-            .rfind(|&(index, character)| index > 0 && matches!(character, '+' | '-'))
-            .map(|(index, _)| index)
-        else {
-            return false;
-        };
-        (&remainder[..index], &remainder[index..])
-    };
-    let main_clock = clock.split_once('.').map_or(clock, |(main, fraction)| {
-        if fraction.is_empty() || !fraction.bytes().all(|byte| byte.is_ascii_digit()) {
-            ""
-        } else {
-            main
-        }
-    });
-    let mut fields = main_clock.split(':');
-    let hour = fields.next().and_then(|part| part.parse::<u32>().ok());
-    let minute = fields.next().and_then(|part| part.parse::<u32>().ok());
-    let second = fields.next().and_then(|part| part.parse::<u32>().ok());
-    if fields.next().is_some()
-        || !matches!(hour, Some(0..=23))
-        || !matches!(minute, Some(0..=59))
-        || !matches!(second, Some(0..=60))
+    let bytes = value.as_bytes();
+    if !value.is_ascii()
+        || bytes.len() < 20
+        || !matches!(bytes[10], b'T' | b't')
+        || bytes[13] != b':'
+        || bytes[16] != b':'
+        || !valid_date(&value[..10])
     {
         return false;
     }
-    if zone == "Z" {
+    for (start, maximum) in [(11, 23), (14, 59), (17, 59)] {
+        let field = &value[start..start + 2];
+        if !field.bytes().all(|byte| byte.is_ascii_digit())
+            || !field.parse::<u32>().is_ok_and(|number| number <= maximum)
+        {
+            return false;
+        }
+    }
+    let mut zone_start = 19;
+    if bytes[zone_start] == b'.' {
+        zone_start += 1;
+        let fraction_start = zone_start;
+        while bytes.get(zone_start).is_some_and(u8::is_ascii_digit) {
+            zone_start += 1;
+        }
+        if zone_start == fraction_start {
+            return false;
+        }
+    }
+    let zone = &value[zone_start..];
+    if matches!(zone, "Z" | "z") {
         return true;
     }
     let bytes = zone.as_bytes();
     bytes.len() == 6
         && matches!(bytes[0], b'+' | b'-')
         && bytes[3] == b':'
+        && [bytes[1], bytes[2], bytes[4], bytes[5]]
+            .iter()
+            .all(u8::is_ascii_digit)
         && zone[1..3].parse::<u32>().is_ok_and(|hours| hours <= 23)
         && zone[4..6].parse::<u32>().is_ok_and(|minutes| minutes <= 59)
 }

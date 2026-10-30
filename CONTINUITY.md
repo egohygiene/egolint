@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:03:19Z'
+  updated_at: '2026-10-30T03:05:22Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -45,8 +45,8 @@ work:
   next:
     kind: action
     id: repair-continuity-schema-parity
-    description: Implement required nullable fields, missing uniqueness and strict RFC3339 parity, then run
-      the native fixture matrix.
+    description: Review the complete candidate diff, run full applicable checks, and refresh the final draft
+      handoff.
     readiness: ready
     references:
     - https://github.com/egohygiene/egolint/issues/89
@@ -55,27 +55,45 @@ state:
   base:
     revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     ref: refs/heads/main
-    verified_at: '2026-10-30T03:03:19Z'
+    verified_at: '2026-10-30T03:05:22Z'
   candidate:
     branch: fix/89-continuity-schema-parity
     revision: null
-    pull_request: null
+    pull_request:
+      provider: github
+      id: egohygiene/egolint#107
+      url: https://github.com/egohygiene/egolint/pull/107
     handoff_state: in-progress
   live:
     status: verified
-    observed_at: '2026-10-30T03:03:19Z'
+    observed_at: '2026-10-30T03:05:22Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
-    pull_request_state: not-applicable
-    notes: Verified main includes PR 102. Issue 89 is open without comments. Audit PR 84 remains draft; independent
-      issue branches 86-88 and 90-91 are parallel candidates.
+    pull_request_state: draft
+    notes: Verified main includes PR 102. Issue 89 is open and PR 107 is draft. Independent peer PRs 103-106
+      and 108 overlap only in checkpoint and selected inventories; audit PR 84 remains draft.
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
+  - provider: github
+    id: egohygiene/egolint#103
+    url: https://github.com/egohygiene/egolint/pull/103
+  - provider: github
+    id: egohygiene/egolint#104
+    url: https://github.com/egohygiene/egolint/pull/104
+  - provider: github
+    id: egohygiene/egolint#105
+    url: https://github.com/egohygiene/egolint/pull/105
+  - provider: github
+    id: egohygiene/egolint#106
+    url: https://github.com/egohygiene/egolint/pull/106
+  - provider: github
+    id: egohygiene/egolint#108
+    url: https://github.com/egohygiene/egolint/pull/108
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:03:19Z'
+  reviewed_at: '2026-10-30T03:05:22Z'
   reviewed_by: Codex
   evidence:
   - command: python3 scripts/validate_continuity_schema_parity.py
@@ -88,8 +106,13 @@ review:
     observed_at: '2026-10-30T03:03:19Z'
     notes: 'Expected failure on unchanged native implementation: 24 structural verdict mismatches in the 64-case
       paired matrix.'
+  - command: cargo test --locked --test repository_continuity_pipeline; python3 scripts/validate_continuity_schema_parity.py
+    outcome: passed
+    observed_at: '2026-10-30T03:05:22Z'
+    notes: All 64 actual-native CLI cases now match independently checked schema expectations; observe exits
+      remain 0 and effective diagnostics remain at most warnings.
   environment_limitations:
-  - Native regressions deliberately fail on unchanged source; implementation and final validation remain pending.
+  - Full Rust/Python/source validation and independent review remain pending.
   - Hosted Actions, container qualification and released-contract acceptance are deferred.
 privacy:
   classification: public-repository
@@ -121,27 +144,27 @@ Require all schema-mandated nullable keys and unique arrays, preserve closed gra
 
 ## State snapshot
 
-Base is the verified PR 102 merge 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58. This issue 89 candidate is in progress and has no PR yet.
+Base is the verified PR 102 merge 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58. This issue 89 candidate is in progress in draft PR 107; no merge is claimed.
 
 ## Completed and material changes
 
-The shared schema-parity fixture matrix and native CLI integration test reproduce the structural boundary. The independent Python checker validates the same 64 expectations against the exact bundled schema digest. Native source repair is pending.
+The shared schema-parity fixture matrix and native CLI integration test reproduce the structural boundary. The independent Python checker validates the same 64 expectations against the exact bundled schema digest. src/rules/repository_continuity.rs now requires nullable keys, rejects duplicate next/parallel references, and enforces padded RFC3339 clock fields while accepting lowercase delimiters.
 
 ## Validation and review evidence
 
-The independent schema matrix passed with explicitly registered date-time and URI checks. The unchanged native CLI produced 24 expected structural verdict mismatches across 64 cases. No repaired native behavior is claimed yet.
+The independent schema matrix passed with explicitly registered date-time and URI checks. The unchanged native CLI produced 24 expected structural verdict mismatches. After repair, all 64 native cases pass with semantic status, warning severity and process exit asserted separately.
 
 ## Blockers, risks, unknowns, and deferred work
 
-No external source blocker was identified. The native regressions and implementation remain pending. Hosted Actions, real containers and released-contract acceptance are deferred; authority and rollout remain unchanged.
+No external source blocker was identified. Full applicable checks and independent review remain pending. Hosted Actions, real containers and released-contract acceptance are deferred; authority and rollout remain unchanged.
 
 ## Next dependency-ready work
 
-Implement the bounded issue 89 repair, rerun the paired matrix, and preserve existing freshness, Git, identity, privacy and rollout behavior.
+Review the complete bounded diff and run full applicable checks before final handoff; preserve existing freshness, Git, identity, privacy and rollout behavior.
 
 ## Parallel changes and reconciliation
 
-Independent issues 86-88 and 90-91 share the same main base. Their CONTINUITY.md edits overlap and must be reconciled semantically at merge. Preserve audit draft PR 84 and its historical evidence.
+Independent issues 86-88 and 90-91 are draft PRs 104, 106, 105, 103 and 108 from the same main base. Their CONTINUITY.md edits overlap and must be reconciled semantically at merge. Preserve audit draft PR 84 and its historical evidence.
 
 ## Privacy and redaction
 
