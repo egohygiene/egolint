@@ -954,6 +954,18 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
         readme: Option<&str>,
         context: &mut EvaluationContext,
     ) -> Result<()> {
+        if !identity_package_structure(package) || !identity_manifest_structure(manifest) {
+            self.push(
+                context,
+                MANIFEST_RULE,
+                Some(location(&self.policy.manifest_path)),
+                "complete supported Identity package and non-empty integrity manifest",
+                "missing or malformed required descriptor or manifest metadata",
+                "Identity inputs do not satisfy the selected package and manifest structure.",
+            )?;
+            return Ok(());
+        }
+        self.validate_identity_coverage(package, manifest, context)?;
         let profile = package.get("profile");
         let project = package.get("project");
         let badge = package.get("badge");
@@ -978,6 +990,15 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
                 == Some(self.policy.profile_lock.source_revision.as_str())
             && profile.and_then(|value| string(value, "sha256"))
                 == Some(self.policy.profile_lock.digest.as_str())
+            && string(manifest, "projectId") == project.and_then(|value| string(value, "id"))
+            && manifest_profile.and_then(|value| string(value, "id"))
+                == Some(self.policy.profile_lock.id.as_str())
+            && manifest_profile.and_then(|value| string(value, "version"))
+                == Some(self.policy.profile_lock.version.as_str())
+            && manifest_profile.and_then(|value| string(value, "status"))
+                == Some(self.policy.profile_lock.status.as_str())
+            && manifest_profile.and_then(|value| string(value, "commit"))
+                == Some(self.policy.profile_lock.source_revision.as_str())
             && manifest_profile.and_then(|value| string(value, "digest"))
                 == Some(self.policy.profile_lock.digest.as_str())
             && badge.and_then(|value| string(value, "label")) == Some("Hygienic")
@@ -1028,7 +1049,10 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
             .unwrap_or_else(|| Path::new(""));
         if let Some(files) = manifest.get("files").and_then(Value::as_object) {
             for (relative, metadata) in files {
-                let Some(path) = safe_join(package_directory, relative) else {
+                let Some(path) = validate_relative_path(Path::new(relative), "manifest entry")
+                    .ok()
+                    .and_then(|()| safe_join(package_directory, relative))
+                else {
                     self.push(
                         context,
                         MANIFEST_RULE,
@@ -1102,6 +1126,50 @@ impl<'a> RepositoryPresentationEvaluator<'a> {
             if !badge_used || !badge_bound {
                 self.push(context, BADGE_RULE, Some(location(&self.policy.readme)), "local Identity badge bound to profile and evidence", "missing or inconsistent badge binding", "README badge presentation is not tied to the Identity descriptor and Hygiene evidence.")?;
             }
+        }
+        Ok(())
+    }
+
+    fn validate_identity_coverage(
+        &self,
+        package: &Value,
+        manifest: &Value,
+        context: &mut EvaluationContext,
+    ) -> Result<()> {
+        let directory = self
+            .policy
+            .manifest_path
+            .parent()
+            .unwrap_or_else(|| Path::new(""));
+        let descriptor = self
+            .policy
+            .package_path
+            .strip_prefix(directory)
+            .ok()
+            .map(portable_path);
+        let references = identity_asset_references(package);
+        let files = manifest
+            .get("files")
+            .and_then(Value::as_object)
+            .expect("validated manifest file map");
+        let covered = descriptor
+            .as_deref()
+            .is_some_and(|path| files.contains_key(path))
+            && references.as_ref().is_some_and(|paths| {
+                paths.iter().all(|path| {
+                    validate_relative_path(Path::new(path), "Identity asset").is_ok()
+                        && files.contains_key(*path)
+                })
+            });
+        if !covered {
+            self.push(
+                context,
+                MANIFEST_RULE,
+                Some(location(&self.policy.manifest_path)),
+                "checksum coverage for the package descriptor and every declared banner and badge asset",
+                "missing, malformed, unsafe, or unbound Identity reference",
+                "Identity integrity coverage omits a required descriptor or a declared presentation asset.",
+            )?;
         }
         Ok(())
     }
@@ -1345,6 +1413,125 @@ fn profile_state_messages(profile: &Value) -> BTreeMap<String, String> {
                 .map(|message| (state.clone(), message.to_owned()))
         })
         .collect()
+}
+
+// Equivalent object checks for Identity 3c2fd3141371b355628e81f66f63159f19d63338,
+// contracts/v1/repository-presentation-package{,-manifest}.schema.json.
+// The owner intentionally leaves source/profile/banner/badge package objects open.
+fn closed_object(value: &Value, fields: &[&str]) -> bool {
+    value.as_object().is_some_and(|object| {
+        object.len() == fields.len() && fields.iter().all(|field| object.contains_key(*field))
+    })
+}
+
+fn nonempty_strings(value: &Value, fields: &[&str]) -> bool {
+    fields
+        .iter()
+        .all(|field| string(value, field).is_some_and(|value| !value.is_empty()))
+}
+
+fn identity_package_structure(package: &Value) -> bool {
+    closed_object(
+        package,
+        &[
+            "schema",
+            "version",
+            "project",
+            "source",
+            "profile",
+            "banner",
+            "badge",
+            "consumerBoundary",
+        ],
+    ) && string(package, "schema") == Some(PACKAGE_ID)
+        && string(package, "version") == Some("1.0.0")
+        && ["source", "profile", "banner", "badge"]
+            .iter()
+            .all(|field| package.get(field).is_some_and(Value::is_object))
+        && package.get("project").is_some_and(|project| {
+            closed_object(project, &["id", "displayName", "repository", "visibility"])
+                && nonempty_strings(project, &["id", "displayName"])
+                && string(project, "repository").is_some_and(|value| value.starts_with("https://"))
+                && string(project, "visibility")
+                    .is_some_and(|value| matches!(value, "public" | "internal" | "private"))
+        })
+        && package.get("consumerBoundary").is_some_and(|boundary| {
+            closed_object(
+                boundary,
+                &[
+                    "editsReadme",
+                    "evaluatesEvidence",
+                    "networkRequired",
+                    "generatedRegionsOnly",
+                ],
+            ) && ["editsReadme", "evaluatesEvidence", "networkRequired"]
+                .iter()
+                .all(|field| boundary.get(field).and_then(Value::as_bool) == Some(false))
+                && boundary
+                    .get("generatedRegionsOnly")
+                    .and_then(Value::as_bool)
+                    == Some(true)
+        })
+}
+
+fn identity_manifest_structure(manifest: &Value) -> bool {
+    closed_object(
+        manifest,
+        &[
+            "schema",
+            "version",
+            "projectionSchema",
+            "projectId",
+            "sourceDigest",
+            "profile",
+            "evidence",
+            "files",
+        ],
+    ) && string(manifest, "schema") == Some(MANIFEST_ID)
+        && string(manifest, "version") == Some("1.0.0")
+        && string(manifest, "projectionSchema") == Some(PACKAGE_ID)
+        && nonempty_strings(manifest, &["projectId"])
+        && string(manifest, "sourceDigest").is_some_and(valid_digest)
+        && manifest.get("profile").is_some_and(|profile| {
+            closed_object(profile, &["id", "version", "status", "commit", "digest"])
+                && string(profile, "id") == Some(PROFILE_ID)
+                && nonempty_strings(profile, &["version", "status"])
+                && string(profile, "commit").is_some_and(valid_commit)
+                && string(profile, "digest").is_some_and(valid_digest)
+        })
+        && manifest.get("evidence").is_some_and(|evidence| {
+            closed_object(evidence, &["state", "representedCommit", "url", "digest"])
+                && nonempty_strings(evidence, &["state", "url"])
+                && string(evidence, "representedCommit").is_some_and(valid_commit)
+                && string(evidence, "digest").is_some_and(valid_digest)
+        })
+        && manifest
+            .get("files")
+            .and_then(Value::as_object)
+            .is_some_and(|files| {
+                !files.is_empty()
+                    && files.values().all(|metadata| {
+                        closed_object(metadata, &["sha256", "bytes", "mediaType"])
+                            && string(metadata, "sha256").is_some_and(valid_digest)
+                            && metadata.get("bytes").and_then(Value::as_u64).is_some()
+                            && nonempty_strings(metadata, &["mediaType"])
+                    })
+            })
+}
+
+fn identity_asset_references(package: &Value) -> Option<BTreeSet<&str>> {
+    let variants = package.get("banner")?.get("variants")?.as_array()?;
+    if variants.is_empty() {
+        return None;
+    }
+    let mut paths = BTreeSet::new();
+    for descriptor in variants.iter().chain([package.get("badge")?]) {
+        paths.insert(string(descriptor, "svg")?);
+        if let Some(raster) = descriptor.get("raster") {
+            paths.insert(raster.as_str()?);
+        }
+    }
+    Some(paths)
 }
 
 fn normalized_digest(bytes: &[u8]) -> String {

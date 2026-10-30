@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:03:17Z'
+  updated_at: '2026-10-30T03:05:55Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -59,38 +59,64 @@ state:
   candidate:
     branch: fix/88-presentation-asset-coverage
     revision: null
-    pull_request: null
+    pull_request:
+      provider: github
+      id: egohygiene/egolint#105
+      url: https://github.com/egohygiene/egolint/pull/105
     handoff_state: in-progress
   live:
     status: verified
-    observed_at: '2026-10-30T03:03:17Z'
+    observed_at: '2026-10-30T03:05:55Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
-    pull_request_state: not-applicable
-    notes: Verified current main includes merged PR 102. Issue 88 remains open without comments. Audit
-      draft PR 84 remains separate and untouched. Roadmap 42 still contains the earlier issue 85 checkpoint;
-      live merge evidence takes precedence.
+    pull_request_state: draft
+    notes: Verified main includes merged PR 102; issue 88 remains open. Draft PR 105 is the independent
+      candidate. Peer drafts 103, 104, 106, 107 and 108 exist; audit draft 84 remains untouched. Roadmap
+      42 still carries the earlier issue 85 checkpoint; live merge evidence takes precedence.
   parallel_changes:
+  - provider: github
+    id: egohygiene/egolint#84
+    url: https://github.com/egohygiene/egolint/pull/84
   - provider: github
     id: egohygiene/egolint#103
     url: https://github.com/egohygiene/egolint/pull/103
   - provider: github
-    id: egohygiene/egolint#84
-    url: https://github.com/egohygiene/egolint/pull/84
+    id: egohygiene/egolint#104
+    url: https://github.com/egohygiene/egolint/pull/104
+  - provider: github
+    id: egohygiene/egolint#106
+    url: https://github.com/egohygiene/egolint/pull/106
+  - provider: github
+    id: egohygiene/egolint#107
+    url: https://github.com/egohygiene/egolint/pull/107
+  - provider: github
+    id: egohygiene/egolint#108
+    url: https://github.com/egohygiene/egolint/pull/108
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:03:17Z'
+  reviewed_at: '2026-10-30T03:05:55Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo test --locked --test repository_presentation_pipeline -- --nocapture
-    outcome: failed
-    observed_at: '2026-10-30T03:03:17Z'
-    notes: 'Expected baseline failure: complete-map and damaged-file controls pass; four regression groups
-      expose missing checksum coverage, empty files, missing descriptors and malformed manifest metadata.'
-  - command: cargo fmt --all --check
+  - command: cargo test --locked --test repository_presentation_pipeline
     outcome: passed
-    observed_at: '2026-10-30T03:03:17Z'
-    notes: Rust 1.85.1 formatting passed.
+    observed_at: '2026-10-30T03:05:55Z'
+    notes: All five native CLI groups pass, including seven asset/descriptor omissions, eighteen descriptor
+      absence/type cases, empty map, malformed metadata and clean/damaged controls in advisory/blocking
+      modes.
+  - command: cargo fmt --all --check; cargo clippy --all-targets --all-features --locked -- -D warnings
+    outcome: passed
+    observed_at: '2026-10-30T03:05:55Z'
+    notes: Pinned Rust 1.85.1 formatting and strict Clippy pass.
+  - command: Baseline cargo test --locked --test repository_presentation_pipeline -- --nocapture
+    outcome: failed
+    observed_at: '2026-10-30T03:05:55Z'
+    notes: 'Expected unfixed-source failure: one positive/damaged control passed; four independent regression
+      groups incorrectly remained semantic valid.'
+  - command: Pinned Draft202012Validator/FormatChecker and native continuity validation
+    outcome: limited
+    observed_at: '2026-10-30T03:05:55Z'
+    notes: Pinned schema and budgets pass; native structural/freshness/Git checks pass with only the expected
+      unreleased-contract observe diagnostic. Separate release declaration is unavailable.
   environment_limitations:
   - Hosted CI, native non-Linux and container/image qualification are deferred.
   - Fixtures use synthetic bytes and prove offline source/checksum behavior only.
@@ -130,18 +156,21 @@ Keep semantic invalidity distinct from advisory process exits and preserve sourc
 ## State snapshot
 
 Independent base is main at 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58, including merged PR 102.
-The regression checkpoint is in progress on fix/88-presentation-asset-coverage; it is not merged.
+Draft PR 105 is in progress on fix/88-presentation-asset-coverage; it is not merged.
 
 ## Completed and material changes
 
 The new tests/repository_presentation_pipeline.rs exercises actual native validation with a complete synthetic
 Identity package and the exact selected Hygiene profile. Cargo.toml includes this test in package inventory.
-Four regression groups intentionally fail on unfixed source; the complete-map/damaged-file control passes.
+src/rules/repository_presentation.rs validates complete pinned owner grammar before optional paths, requires
+nonempty manifest coverage for the descriptor and every declared banner/badge asset, and binds manifest profile
+metadata to the selected policy. The complete-map/damaged-file control remains intact.
 
 ## Validation and review evidence
 
-Rust 1.85.1 formatting passes. The focused native CLI suite reports one passing control and four expected
-regression failures. The implementation and completion checks remain pending.
+All five native CLI groups, Rust 1.85.1 formatting and strict Clippy pass. The same suite previously proved
+four expected baseline failures. Pinned-schema/budget and native handoff checks pass with the expected
+unreleased-contract observe warning; broad completion checks and independent review remain pending.
 
 ## Blockers, risks, unknowns, and deferred work
 
@@ -150,12 +179,12 @@ Checksum validation does not establish visual quality or accessibility. Proposed
 
 ## Next dependency-ready work
 
-Implement the required package/manifest grammar and complete referenced checksum coverage, then run the native
-fixture matrix and applicable source checks before refreshing this candidate.
+Review the complete diff, add any missing boundary regressions, run applicable completion checks and refresh
+the handoff before presenting the completed draft candidate.
 
 ## Parallel changes and reconciliation
 
-Issues 86, 87, 89, 90 and 91 are independent main-based candidates and may all update this root handoff.
+Peer draft PRs 104, 106, 107, 103 and 108 address issues 86, 87, 89, 90 and 91 independently and may all update this root handoff.
 Reconcile these overlap edits by current evidence when reviewing; do not concatenate snapshots. Audit draft
 PR 84 and its historical evidence remain untouched. No issue is manually closed by this work.
 
