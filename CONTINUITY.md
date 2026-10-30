@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:12:54Z'
+  updated_at: '2026-10-30T08:42:31Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -44,20 +44,18 @@ work:
     url: https://github.com/egohygiene/egolint/issues/91
   next:
     kind: action
-    id: review-release-dispatch
-    description: Review this draft candidate; carry its static policy-boundary matrix into release checkpoint
-      68 and consume it during 69 dogfood.
+    id: merge-qualified-91-candidate
+    description: Merge the qualified source candidate, then verify the resulting default-branch state;
+      retain separate release acceptance gates.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/91
-    - https://github.com/egohygiene/egolint/issues/68
-    - https://github.com/egohygiene/egolint/issues/69
+    - https://github.com/egohygiene/egolint/pull/108
     depends_on: []
 state:
   base:
-    revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
+    revision: ecfc43ecf6e343b4595a716c0235e4992c09c921
     ref: refs/heads/main
-    verified_at: '2026-10-30T03:12:54Z'
+    verified_at: '2026-10-30T08:42:31Z'
   candidate:
     branch: fix/91-release-dispatch-binding
     revision: null
@@ -68,60 +66,31 @@ state:
     handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-10-30T03:12:54Z'
-    default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
+    observed_at: '2026-10-30T08:42:31Z'
+    default_branch_revision: ecfc43ecf6e343b4595a716c0235e4992c09c921
     issue_state: open
-    pull_request_state: draft
-    notes: Verified main contains merged PR 102. Issue 91 remains open. Audit PR 84 is draft/open and
-      untouched. Independent sibling issues 86-90 are being prepared on separate draft branches; their
-      continuity edits overlap. No merge, release or publication is claimed.
+    pull_request_state: open
+    notes: 'GitHub checked this candidate open against the observed main revision. Verified merged predecessors:
+      PR 104, PR 106, PR 105, PR 107, PR 103. Remaining candidates: PR 109, PR 110, PR 111. Audit draft
+      PR 84 remains open and unchanged. Hosted Actions remain deferred.'
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
   - provider: github
-    id: egohygiene/egolint#104
-    url: https://github.com/egohygiene/egolint/pull/104
+    id: egohygiene/egolint#109
+    url: https://github.com/egohygiene/egolint/pull/109
   - provider: github
-    id: egohygiene/egolint#106
-    url: https://github.com/egohygiene/egolint/pull/106
+    id: egohygiene/egolint#110
+    url: https://github.com/egohygiene/egolint/pull/110
   - provider: github
-    id: egohygiene/egolint#105
-    url: https://github.com/egohygiene/egolint/pull/105
-  - provider: github
-    id: egohygiene/egolint#107
-    url: https://github.com/egohygiene/egolint/pull/107
-  - provider: github
-    id: egohygiene/egolint#103
-    url: https://github.com/egohygiene/egolint/pull/103
+    id: egohygiene/egolint#111
+    url: https://github.com/egohygiene/egolint/pull/111
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:12:54Z'
+  reviewed_at: '2026-10-30T08:42:31Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo test --locked --test repository_release_pipeline -- --nocapture
-    outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: 'Four native pipeline tests pass, covering 32 source-only Task cases: six accepted controls
-      and 26 unavailable forms. CLI exit, focused status/completion, tool status, finding identity/location
-      and SARIF agree.'
-  - command: cargo fmt --all --check; git diff --check
-    outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: Formatting and whitespace checks pass.
-  - command: cargo test --all-targets --all-features --locked
-    outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: 210 Rust tests passed with zero ignored after the independent review fix; container orchestration
-      cases use existing bounded simulators.
-  - command: cargo clippy --all-targets --all-features --locked -- -D warnings
-    outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: Strict all-target Clippy passed after the final source change.
-  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py
-    outcome: passed
-    observed_at: '2026-10-30T03:12:54Z'
-    notes: All 75 Python tests passed.
   - command: task schemas:check
     outcome: passed
     observed_at: '2026-10-30T03:12:54Z'
@@ -150,6 +119,21 @@ review:
     observed_at: '2026-10-30T03:12:54Z'
     notes: Pinned schema, headings/budgets and native continuity checks passed; focused status valid with
       the expected unreleased-contract observe advisory. Released conformance remains unavailable.
+  - command: cargo fmt --all --check; cargo test --locked --test repository_release_pipeline; cargo test
+      --locked --lib repository_release
+    outcome: passed
+    observed_at: '2026-10-30T08:42:31Z'
+    notes: Formatting, four native release pipeline tests covering 32 static Task cases, and all 11 release
+      unit tests pass while retaining the five earlier repairs. No Task command or workflow was executed.
+      Existing exact-head combined-source evidence remains in the linked PR; no hosted qualification is
+      inferred.
+  - command: Pinned Draft202012Validator/registered formats, section and budget checks; native continuity
+      validation with explicit current-main base and working-tree head; git diff --check
+    outcome: limited
+    observed_at: '2026-10-30T08:42:31Z'
+    notes: Reconciled handoff passes local schema and native semantic/structural/freshness/Git checks.
+      The proposed/unreleased continuity contract retains its expected observe warning; official released
+      conformance and hosted qualification remain unavailable.
   environment_limitations:
   - Hosted Actions, real containers and native non-Linux execution are deferred.
   - Static handoff inspection does not prove workflow execution, credentials, publication or registry
@@ -179,8 +163,7 @@ live state and pinned canonical sources. The handoff grants no authority.
 
 ## Resume protocol
 
-Read AGENTS, the release validation guide and issue 91. Verify this draft branch, main and audit PR 84.
-Do not execute release Task commands. Inspect checkpoint 68/69 coordination before widening scope.
+Read AGENTS.md, the active issue and linked source evidence. Verify main, this candidate and the remaining PRs against live state before continuing. Audit draft PR 84 is a separate historical change.
 
 ## Current objective and success conditions
 
@@ -189,8 +172,8 @@ Preserve direct-dispatch controls and source locations across focused, aggregate
 
 ## State snapshot
 
-Base main is 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58, including PR 102. Candidate fix/91-release-dispatch-binding
-is at the review checkpoint. Issue 91 remains open; no merge or publication is claimed.
+This candidate was reconciled against observed main `ecfc43ecf6e343b4595a716c0235e4992c09c921` at `2026-10-30T08:42:31Z`.
+GitHub verified PR 104, PR 106, PR 105, PR 107, PR 103 merged; this PR was open at observation. The containing revision remains null to avoid self-reference. Source acceptance does not establish a product release.
 
 ## Completed and material changes
 
@@ -214,13 +197,11 @@ The full issue 68 profile/state matrix and issue 69 dogfood remain independently
 
 ## Next dependency-ready work
 
-Review this draft, then reuse the static dispatch cases for checkpoint 68 and consume the repair during 69 dogfood.
+Merge the qualified source candidate and verify its default-branch result. Preserve the documented hosted, publisher migration, platform and publication gates where applicable.
 
 ## Parallel changes and reconciliation
 
-Audit PR 84 remains untouched. Independent issue 86-90 branches share this same main base.
-All candidates update CONTINUITY.md; reconcile the latest truthful handoff when combining or merging them.
-Preserve immutable audit/probe evidence and the latest verified state rather than concatenating snapshots.
+Observed remaining candidates: PR 109, PR 110, PR 111. Root handoffs overlap and must retain the latest evidence when their candidates are accepted. Merged predecessor source is retained; no audit branch or historical evidence is rewritten.
 
 ## Privacy and redaction
 
