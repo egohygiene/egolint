@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:46:22Z'
+  updated_at: '2026-10-30T03:50:42Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -33,6 +33,8 @@ scope:
   - .config/rules/repository-release-sources.v1.json
   - docs/repository-release-validation.md
   - https://github.com/egohygiene/egolint/issues/69
+  - .egohygiene/release.json
+  - scripts/repository_release_plan.py
 work:
   objective: Adopt the current-v1 release profile as a truthful advisory self-consumer without replacing
     the existing publisher.
@@ -45,9 +47,9 @@ work:
     url: https://github.com/egohygiene/egolint/issues/69
   next:
     kind: action
-    id: implement-release-self-dogfood
-    description: Add the self declaration, local planning helper and four handoffs; retain the tag-publisher
-      limitation.
+    id: review-release-self-dogfood
+    description: Complete operator/examples/roadmap documentation, independent review, full applicable
+      checks and actual package-build verification.
     readiness: ready
     references:
     - https://github.com/egohygiene/egolint/issues/69
@@ -60,18 +62,21 @@ state:
     verified_at: '2026-10-30T03:46:22Z'
   candidate:
     branch: feat/69-release-self-dogfood
-    revision: null
-    pull_request: null
+    revision: 2cf279d6d62574167ca0f4fadcf114e79860ea21
+    pull_request:
+      provider: github
+      id: egohygiene/egolint#110
+      url: https://github.com/egohygiene/egolint/pull/110
     handoff_state: in-progress
   live:
     status: verified
     observed_at: '2026-10-30T03:46:22Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
-    pull_request_state: not-applicable
-    notes: Verified exact predecessor PR 109 is draft/open at 4e21013c0f1f0e9998cb54775b80da21d890f339.
-      This candidate targets its branch. Main and audit PR 84 remain unchanged. Historical PR 64 is already
-      merged; full issue 69 acceptance remains gated.
+    pull_request_state: draft
+    notes: Verified PR 110 is draft/open and targets exact predecessor PR 109 head 4e21013c0f1f0e9998cb54775b80da21d890f339.
+      Main and audit PR 84 remain unchanged. Historical PR 64 is already merged; full issue 69 acceptance
+      remains gated.
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
@@ -99,7 +104,7 @@ state:
     url: https://github.com/egohygiene/egolint/pull/107
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:46:22Z'
+  reviewed_at: '2026-10-30T03:50:42Z'
   reviewed_by: Codex
   evidence:
   - command: cargo test --locked --test repository_release_dogfood
@@ -118,6 +123,19 @@ review:
     outcome: passed
     observed_at: '2026-10-30T03:46:22Z'
     notes: New tests are formatted; pinned owner contracts remain unchanged.
+  - command: cargo test --locked --test repository_release_dogfood; python3 -m unittest discover --start-directory
+      tests --pattern test_repository_release_plan.py --verbose
+    outcome: passed
+    observed_at: '2026-10-30T03:50:42Z'
+    notes: Both native source-backed tests and four planner CLI tests pass. Six release checks pass; manual_workflow
+      remains failed/advisory, distinct from process exit 0. Source preservation and exclusive/collision
+      output controls pass.
+  - command: Pinned Aether schema validation; cargo package --list --locked --allow-dirty; pinned Ruff
+      and whitespace checks
+    outcome: passed
+    observed_at: '2026-10-30T03:50:42Z'
+    notes: Self declaration is schema-valid; package inventory contains new self-consumer sources and
+      runtime contracts. This is inventory only, not package-build verification.
   environment_limitations:
   - Hosted Actions, real-container/full-image and non-Linux qualification are deferred.
   - No release Task/workflow executed; no tag, publication, deployment or issue closure is authorized
@@ -159,19 +177,22 @@ Preserve the actual publisher, source bytes and independent semantic/process/pub
 ## State snapshot
 
 Base is exact PR 109 head 4e21013c0f1f0e9998cb54775b80da21d890f339. The candidate targets
-test/68-release-fixture-matrix and is in progress; it has no PR yet.
+test/68-release-fixture-matrix and is in progress as draft PR 110.
 
 ## Completed and material changes
 
 tests/repository_release_dogfood.rs adds source-backed native evidence and real handoff regressions.
 tests/test_repository_release_plan.py specifies local-only planning and exclusive preparation.
-The tests expose missing source adoption. Owner locks and the tag publisher are unchanged.
+.egohygiene/release.json now records incubating/advisory Cargo-backed source adoption. The local
+planner prints human source facts or exclusively writes a review handoff; four Task surfaces are added.
+Owner locks, version/changelog bytes and the tag publisher are unchanged.
 
 ## Validation and review evidence
 
-Both new Rust tests fail as expected because the declaration and handoffs are absent. Three planner
-CLI tests expose four expected failures because the helper is absent. Test formatting, pinned Ruff
-and immutable owner-source checks pass. Implementation and broad validation remain pending.
+The initial two Rust and four Python subtest failures exposed absent adoption/planning. Both native
+tests and four planner tests now pass. Source preservation, repeated stable evidence and exclusive
+preparation/collision controls pass, as do pinned Aether schema, Ruff and package inventory checks.
+Operator documentation, independent review, broad checks and package-build qualification remain pending.
 
 ## Blockers, risks, unknowns, and deferred work
 
@@ -181,8 +202,8 @@ qualification and maintainer review remain gates for full issue 69 and parent 29
 
 ## Next dependency-ready work
 
-Implement the approved source declaration, local review planner and four handoffs, then verify stable
-native advisory evidence without executing any release Task or workflow.
+Complete operator/examples/roadmap documentation, independent review, full applicable checks and
+actual package-build verification, then refresh this draft handoff.
 
 ## Parallel changes and reconciliation
 

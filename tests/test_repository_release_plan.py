@@ -72,6 +72,8 @@ class RepositoryReleasePlanTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = self.consumer(directory)
             output = root / "review-plan.md"
+            inputs = ("Cargo.toml", "CHANGELOG.md", ".egohygiene/release.json")
+            before = {name: (root / name).read_bytes() for name in inputs}
             result = self.run_plan(root, "--output", str(output))
             self.assertEqual(result.returncode, 0, result.stderr)
             prepared = output.read_bytes()
@@ -81,6 +83,23 @@ class RepositoryReleasePlanTests(unittest.TestCase):
             self.assertIn("release-plan:", result.stderr)
             self.assertNotIn("Traceback", result.stderr)
             self.assertEqual(output.read_bytes(), prepared)
+            for name, original in before.items():
+                self.assertEqual((root / name).read_bytes(), original)
+                collision = self.run_plan(root, "--output", str(root / name))
+                self.assertEqual(collision.returncode, 1)
+                self.assertEqual((root / name).read_bytes(), original)
+
+    def test_current_repository_workflow_is_described_as_rehearsal(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.consumer(directory)
+            shutil.copyfile(
+                ROOT / ".github/workflows/release.yml", root / ".github/workflows/release.yml"
+            )
+            result = self.run_plan(root)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("existing non-publishing rehearsal", result.stdout)
+            self.assertIn("manual-workflow check stays failed/advisory", result.stdout)
+            self.assertIn("exit 0 does not mean conformance", result.stdout)
 
     def test_missing_and_malformed_source_fail_with_controlled_diagnostics(self):
         for malformed in (False, True):

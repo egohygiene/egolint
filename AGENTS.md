@@ -25,3 +25,11 @@ Static instructions do not install or guarantee an automatic pre-pull-request
 hook. If the host cannot load the skill, inspect local files, or verify live
 state, report that capability as unavailable rather than inventing success.
 <!-- END AETHER REPOSITORY-CONTINUITY -->
+
+## Repository release profile
+
+Read [.egohygiene/release.json](.egohygiene/release.json) and
+[release guidance](docs/releasing.md) before changing release behavior. EgoLint's
+early-alpha profile is incubating/advisory. The existing tag publisher remains
+unmigrated; the literal `release:publish` handoff dispatches its non-publishing
+manual rehearsal and does not establish publication readiness.

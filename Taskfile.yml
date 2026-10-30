@@ -258,3 +258,30 @@ tasks:
       - task: dogfood:native
       - task: dogfood:javascript
       - task: dogfood:holistic
+
+  release:plan:
+    desc: "Print current source facts and pending release decisions for review"
+    cmds:
+      - python3 scripts/repository_release_plan.py --workspace "."
+
+  release:prepare:
+    desc: "Write a new local review handoff without changing version or changelog sources"
+    requires:
+      vars:
+        - RELEASE_PLAN
+    cmds:
+      - >-
+        python3 scripts/repository_release_plan.py --workspace "."
+        --output "{{.RELEASE_PLAN}}"
+
+  release:verify:
+    desc: "Validate local source evidence while retaining advisory publisher migration findings"
+    cmds:
+      - python3 scripts/validate_repository_release_sources.py
+      - python3 scripts/validate_release_inputs.py
+      - cargo run --quiet --locked -- --workspace "." validate
+
+  release:publish:
+    desc: "Dispatch the existing non-publishing rehearsal; publisher migration remains pending"
+    cmds:
+      - gh workflow run .github/workflows/release.yml
