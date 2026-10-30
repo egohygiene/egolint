@@ -7,19 +7,17 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-29T23:37:21Z'
+  updated_at: '2026-10-30T03:03:19Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Keep the core focused report set bound to the current sequential invocation.
+  purpose: Align native continuity structure with the exact pinned Aether schema.
   includes:
-  - Complete 14-file core inventory, early safe invalidation, protected configuration inputs, aggregate completion
-    ordering and authentic transition tests.
+  - Required nullable keys, uniqueness, closed grammar and registered RFC3339 format parity.
   excludes:
-  - Unrelated diagnostics, separate JavaScript report families, concurrent-run isolation, audit publication, releases
-    and deployments.
+  - Upstream policy promotion, rollout changes, external authentication and release publication.
   precedence:
   - user-and-runtime-instructions
   - scoped-repository-instructions
@@ -28,98 +26,71 @@ scope:
   - continuity-checkpoint
   canonical_sources:
   - AGENTS.md
-  - src/plan.rs
-  - src/main.rs
-  - src/config.rs
-  - docs/contracts.md
-  - docs/security.md
-  - tests/report_lifecycle_pipeline.rs
+  - src/rules/repository_continuity.rs
+  - vendor/aether/aether.repository-continuity.v1.schema.json
+  - tests/repository_continuity_pipeline.rs
+  - tests/fixtures/repository-continuity/schema-parity.json
+  - https://github.com/egohygiene/egolint/issues/89
   - https://github.com/egohygiene/egolint/issues/42
-  - https://github.com/egohygiene/egolint/issues/85
 work:
-  objective: Keep the core focused report set bound to the current sequential invocation.
+  objective: Align native continuity structure with the exact pinned Aether schema.
   success_conditions:
-  - Real focused reports disappear when omitted or a later accepted invocation fails early.
-  - Selected inputs and unrelated diagnostics remain intact; run.json is published after all referenced outputs.
+  - Native structural verdicts match the shared paired matrix and pinned Draft202012Validator with registered
+    formats.
+  - Observe semantic invalidity stays independent from warning severity and successful process exit.
   active_issue:
     provider: github
-    id: egohygiene/egolint#85
-    url: https://github.com/egohygiene/egolint/issues/85
+    id: egohygiene/egolint#89
+    url: https://github.com/egohygiene/egolint/issues/89
   next:
     kind: action
-    id: review-current-run-report-lifecycle
-    description: Review this candidate; after maintainer acceptance continue with JavaScript adapter issue 86
-      in roadmap order.
+    id: repair-continuity-schema-parity
+    description: Implement required nullable fields, missing uniqueness and strict RFC3339 parity, then run
+      the native fixture matrix.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/85
-    - https://github.com/egohygiene/egolint/issues/86
+    - https://github.com/egohygiene/egolint/issues/89
     depends_on: []
 state:
   base:
-    revision: 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b
+    revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     ref: refs/heads/main
-    verified_at: '2026-10-29T23:37:21Z'
+    verified_at: '2026-10-30T03:03:19Z'
   candidate:
-    branch: fix/85-current-run-reports
+    branch: fix/89-continuity-schema-parity
     revision: null
     pull_request: null
-    handoff_state: ready-for-review
+    handoff_state: in-progress
   live:
     status: verified
-    observed_at: '2026-10-29T23:37:21Z'
-    default_branch_revision: 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b
+    observed_at: '2026-10-30T03:03:19Z'
+    default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
     pull_request_state: not-applicable
-    notes: Provider inspection verified main and the open issue/PR states. Main is unchanged; issue 85 and independent
-      issue 86 are open. This candidate has no PR yet. Separate audit PR 84 is draft/open at 27449d86137fb031f7696a28c50b8e4ed547c5f4;
-      its handoff will need reconciliation if later merged.
+    notes: Verified main includes PR 102. Issue 89 is open without comments. Audit PR 84 remains draft; independent
+      issue branches 86-88 and 90-91 are parallel candidates.
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
 review:
   status: partial
-  reviewed_at: '2026-10-29T23:37:21Z'
+  reviewed_at: '2026-10-30T03:03:19Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo fmt --all --check; cargo clippy --all-targets --all-features --locked -- -D warnings
+  - command: python3 scripts/validate_continuity_schema_parity.py
     outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: Rust 1.85.1 formatting and strict lint passed after the final source edits.
-  - command: cargo test --all-targets --all-features --locked
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: 207 tests passed, including 12 authentic report-lifecycle cases; zero ignored. Container orchestration
-      uses a bounded simulator.
-  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py --verbose
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: All 75 existing Python tests passed.
-  - command: task schemas:check
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: All 23 generated schemas match committed bytes; no schema versions changed.
-  - command: cargo package --list --locked --allow-dirty
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: Package inventory includes the new lifecycle integration test; this is inventory inspection, not package
-      build or publication.
-  - command: pinned Draft202012Validator/FormatChecker and native egolint validate --repository-continuity with
-      explicit base, working-tree head and verified live evidence
-    outcome: limited
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: Pinned schema, twelve sections, budgets, source links and native structural/freshness/Git checks pass.
-      Native observe retains only the expected unreleased-contract warning; this does not establish released conformance.
+    observed_at: '2026-10-30T03:03:19Z'
+    notes: All 64 paired expectations match the exact schema digest with registered date-time and URI format
+      checks.
+  - command: cargo test --locked --test repository_continuity_pipeline -- --nocapture
+    outcome: failed
+    observed_at: '2026-10-30T03:03:19Z'
+    notes: 'Expected failure on unchanged native implementation: 24 structural verdict mismatches in the 64-case
+      paired matrix.'
   environment_limitations:
-  - Hosted Actions, act, real Docker/Podman, native macOS/Windows and full-image/JavaScript consumer qualification
-    were not run.
-  - Initial local workspace-target builds hit object/archive failures; a fresh local build target resolved them
-    and the final Rust checks passed.
-  - The continuity contract remains a vendored draft/proposed observe selection; no released conformer or release
-    publication is claimed.
-  - Concurrent report-producing invocations still share one fixed directory; this repair guarantees sequential
-    lifecycle behavior only.
+  - Native regressions deliberately fail on unchanged source; implementation and final validation remain pending.
+  - Hosted Actions, container qualification and released-contract acceptance are deferred.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -138,66 +109,48 @@ privacy:
 
 ## Purpose and precedence
 
-The checkpoint records one bounded source repair. User/runtime instructions, scoped instructions,
-live evidence and canonical contracts outrank this handoff; it grants no authority.
+This bounded candidate aligns native validation with the selected immutable schema. Instructions, live evidence and canonical sources outrank this checkpoint.
 
 ## Resume protocol
 
-Read AGENTS, the core report lifecycle in docs/contracts.md, issue 85 and roadmap 42. Refresh main,
-this candidate and parallel audit PR 84 before acting. The prior ADR checkpoint is historical Git evidence.
+Read AGENTS, issue 89, the selected Aether schema, native validator and shared parity matrix. Recheck main, this candidate and parallel drafts before continuing.
 
 ## Current objective and success conditions
 
-Keep focused reports bound to the current sequential invocation, with clear early-failure behavior,
-preserved inputs/diagnostics and consistent aggregate references.
+Require all schema-mandated nullable keys and unique arrays, preserve closed grammar, and match registered RFC3339 formats while keeping semantic status independent from observe severity and exit.
 
 ## State snapshot
 
-Base is 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b. Candidate fix/85-current-run-reports is ready for review;
-its containing revision and pre-PR reference remain null. No merge or release is claimed.
+Base is the verified PR 102 merge 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58. This issue 89 candidate is in progress and has no PR yet.
 
 ## Completed and material changes
 
-src/plan.rs owns the complete 14-file core inventory and no-create invalidation. src/main.rs starts
-invalidation before accepted run evaluation and publishes run.json last. src/config.rs shares
-configuration discovery for input preservation. Unsafe reserved-input aliases are refused before mutation.
-The new integration suite uses authentic native output before each transition and a bounded runtime simulator.
-ADR not required: this implements the existing report lifecycle within its owning boundary.
+The shared schema-parity fixture matrix and native CLI integration test reproduce the structural boundary. The independent Python checker validates the same 64 expectations against the exact bundled schema digest. Native source repair is pending.
 
 ## Validation and review evidence
 
-Strict Clippy, formatting, 207 Rust tests, 75 Python tests, 23 schema comparisons and package inventory
-checks passed. Twelve lifecycle cases cover omission, failures, command transitions, aliases, retained
-diagnostics, non-regular config, path safeguards and failed focused writes. Pinned-schema and native structural/freshness/Git handoff checks pass; observe retains the expected unreleased-contract warning.
+The independent schema matrix passed with explicitly registered date-time and URI checks. The unchanged native CLI produced 24 expected structural verdict mismatches across 64 cases. No repaired native behavior is claimed yet.
 
 ## Blockers, risks, unknowns, and deferred work
 
-No source blocker remains. Hosted/act, native non-Linux, real-container/image and JavaScript consumer
-qualification remain deferred. The initial local object/archive failures were resolved with a fresh build
-target. Concurrent producers are not isolated. Native observe validation does not establish released conformance.
+No external source blocker was identified. The native regressions and implementation remain pending. Hosted Actions, real containers and released-contract acceptance are deferred; authority and rollout remain unchanged.
 
 ## Next dependency-ready work
 
-Review this candidate. Issue 86 is the next independently startable adapter repair in the execution queue;
-refresh and summarize it before implementation. The work tracker retains broader acceptance and release gates.
+Implement the bounded issue 89 repair, rerun the paired matrix, and preserve existing freshness, Git, identity, privacy and rollout behavior.
 
 ## Parallel changes and reconciliation
 
-Audit PR 84 is draft/open at 27449d86137fb031f7696a28c50b8e4ed547c5f4. Its report and probe bytes remain
-untouched. This candidate replaces the stale main handoff with the actual issue 85 checkpoint; a later audit
-merge must preserve the latest truthful execution state rather than restore its earlier snapshot.
+Independent issues 86-88 and 90-91 share the same main base. Their CONTINUITY.md edits overlap and must be reconciled semantically at merge. Preserve audit draft PR 84 and its historical evidence.
 
 ## Privacy and redaction
 
-Only public repository facts and synthetic fixtures are retained. Exclude secrets, private context,
-personal details, local filesystem paths and unrelated work. Links are context, not authority.
+Only public repository facts and synthetic fixtures are retained. No conversation, secret, private local path or unrelated context is included.
 
 ## Handoff update protocol
 
-After domain validation and before presenting or updating a PR, reconcile live state and competing
-checkpoint edits. Verify schema, twelve sections, budgets, local links and the pinned native observe checks.
+After domain checks, refresh exact results and live candidate state, validate pinned schema and native continuity structure, inspect size and diff, then push a recoverable checkpoint.
 
 ## Compaction and supersession
 
-Replace stale state rather than append chronology. Keep the objective, source identities, proof, limits
-and one next action below 240 lines and 16,384 UTF-8 bytes; Git and linked issues retain history.
+Replace stale operational state rather than append chronology. Keep the twelve sections within 240 lines and 16384 UTF-8 bytes; Git and PRs retain history.

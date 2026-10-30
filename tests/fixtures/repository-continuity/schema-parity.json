@@ -1,0 +1,746 @@
+{
+  "schema_sha256": "a725e004fe0db2bf96a968c6e3f300d37ecf8b00b9a0923be5c5f4c529655916",
+  "cases": [
+    {
+      "name": "complete-control",
+      "valid": true,
+      "changes": []
+    },
+    {
+      "name": "missing-document-stale_reason",
+      "valid": false,
+      "changes": [
+        {
+          "op": "remove",
+          "path": "document.stale_reason"
+        }
+      ]
+    },
+    {
+      "name": "missing-document-superseded_by",
+      "valid": false,
+      "changes": [
+        {
+          "op": "remove",
+          "path": "document.superseded_by"
+        }
+      ]
+    },
+    {
+      "name": "missing-work-active_issue",
+      "valid": false,
+      "changes": [
+        {
+          "op": "remove",
+          "path": "work.active_issue"
+        }
+      ]
+    },
+    {
+      "name": "missing-state-candidate-branch",
+      "valid": false,
+      "changes": [
+        {
+          "op": "remove",
+          "path": "state.candidate.branch"
+        }
+      ]
+    },
+    {
+      "name": "missing-state-candidate-revision",
+      "valid": false,
+      "changes": [
+        {
+          "op": "remove",
+          "path": "state.candidate.revision"
+        }
+      ]
+    },
+    {
+      "name": "missing-state-candidate-pull_request",
+      "valid": false,
+      "changes": [
+        {
+          "op": "remove",
+          "path": "state.candidate.pull_request"
+        }
+      ]
+    },
+    {
+      "name": "missing-state-live-default_branch_revision",
+      "valid": false,
+      "changes": [
+        {
+          "op": "remove",
+          "path": "state.live.default_branch_revision"
+        }
+      ]
+    },
+    {
+      "name": "missing-review-reviewed_at",
+      "valid": false,
+      "changes": [
+        {
+          "op": "remove",
+          "path": "review.reviewed_at"
+        }
+      ]
+    },
+    {
+      "name": "missing-review-reviewed_by",
+      "valid": false,
+      "changes": [
+        {
+          "op": "remove",
+          "path": "review.reviewed_by"
+        }
+      ]
+    },
+    {
+      "name": "duplicate-scope-includes",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "scope.includes",
+          "value": [
+            "duplicate",
+            "duplicate"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate-scope-excludes",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "scope.excludes",
+          "value": [
+            "duplicate",
+            "duplicate"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate-scope-canonical_sources",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "scope.canonical_sources",
+          "value": [
+            "AGENTS.md",
+            "AGENTS.md"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate-work-success_conditions",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.success_conditions",
+          "value": [
+            "duplicate",
+            "duplicate"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate-work-next-references",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.references",
+          "value": [
+            "https://github.com/example/public/issues/8",
+            "https://github.com/example/public/issues/8"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate-work-next-depends_on",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.depends_on",
+          "value": [
+            "duplicate",
+            "duplicate"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate-state-parallel_changes",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.parallel_changes",
+          "value": [
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://github.com/example/public/pull/9"
+            },
+            {
+              "provider": "github",
+              "id": "example/public#9",
+              "url": "https://github.com/example/public/pull/9"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate-review-environment_limitations",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.environment_limitations",
+          "value": [
+            "duplicate",
+            "duplicate"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate-privacy-redactions",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "privacy.redactions",
+          "value": [
+            "duplicate",
+            "duplicate"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "duplicate-privacy-excluded",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "privacy.excluded",
+          "value": [
+            "secrets-and-credentials",
+            "secrets-and-credentials",
+            "secrets-and-credentials",
+            "secrets-and-credentials",
+            "secrets-and-credentials",
+            "secrets-and-credentials"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unsupported-root",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "unsupported",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "unsupported-repository",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "repository.unsupported",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "unsupported-document",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.unsupported",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "unsupported-scope",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "scope.unsupported",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "unsupported-work",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.unsupported",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "unsupported-work-active_issue",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue.unsupported",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "unsupported-work-next",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.next.unsupported",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "unsupported-state",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.unsupported",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "unsupported-state-base",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.base.unsupported",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "unsupported-state-candidate",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.candidate.unsupported",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "unsupported-state-live",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.unsupported",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "unsupported-review",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.unsupported",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "unsupported-review-evidence-0",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.evidence.0.unsupported",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "unsupported-privacy",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "privacy.unsupported",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-lowercase",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08t12:00:00z"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-lower-t",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08t12:00:00Z"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-lower-z",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08T12:00:00z"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-fraction",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08T12:00:00.123Z"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-offset",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08T12:00:00+05:30"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-negative-offset",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08T12:00:00-05:30"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-unpadded-hour",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08T1:00:00Z"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-unpadded-minute",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08T12:0:00Z"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-unpadded-second",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08T12:00:0Z"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-leap-second",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08T12:00:60Z"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-bad-offset",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08T12:00:00+24:00"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-missing-zone",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08T12:00:00"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-empty-fraction",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08T12:00:00.Z"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-bad-date",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-02-30T12:00:00Z"
+        }
+      ]
+    },
+    {
+      "name": "timestamp-unicode-clock",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.updated_at",
+          "value": "2026-09-08T\uff11\uff12:00:00Z"
+        }
+      ]
+    },
+    {
+      "name": "lowercase-state-base-verified_at",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.base.verified_at",
+          "value": "2026-09-08t12:00:00z"
+        }
+      ]
+    },
+    {
+      "name": "unpadded-state-base-verified_at",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.base.verified_at",
+          "value": "2026-09-08T1:00:00Z"
+        }
+      ]
+    },
+    {
+      "name": "lowercase-state-live-observed_at",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.observed_at",
+          "value": "2026-09-08t12:00:00z"
+        }
+      ]
+    },
+    {
+      "name": "unpadded-state-live-observed_at",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.observed_at",
+          "value": "2026-09-08T1:00:00Z"
+        }
+      ]
+    },
+    {
+      "name": "lowercase-review-reviewed_at",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.reviewed_at",
+          "value": "2026-09-08t12:00:00z"
+        }
+      ]
+    },
+    {
+      "name": "unpadded-review-reviewed_at",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.reviewed_at",
+          "value": "2026-09-08T1:00:00Z"
+        }
+      ]
+    },
+    {
+      "name": "lowercase-review-evidence-0-observed_at",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.evidence.0.observed_at",
+          "value": "2026-09-08t12:00:00z"
+        }
+      ]
+    },
+    {
+      "name": "unpadded-review-evidence-0-observed_at",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.evidence.0.observed_at",
+          "value": "2026-09-08T1:00:00Z"
+        }
+      ]
+    },
+    {
+      "name": "null-active-issue",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "work.active_issue",
+          "value": null
+        }
+      ]
+    },
+    {
+      "name": "not-run-review-null-control",
+      "valid": true,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.status",
+          "value": "not-run"
+        },
+        {
+          "op": "set",
+          "path": "review.reviewed_at",
+          "value": null
+        },
+        {
+          "op": "set",
+          "path": "review.reviewed_by",
+          "value": null
+        }
+      ]
+    },
+    {
+      "name": "not-run-review-with-identity",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "review.status",
+          "value": "not-run"
+        }
+      ]
+    },
+    {
+      "name": "stale-without-reason",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.status",
+          "value": "stale"
+        }
+      ]
+    },
+    {
+      "name": "active-with-reason",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.stale_reason",
+          "value": "synthetic"
+        }
+      ]
+    },
+    {
+      "name": "superseded-without-reference",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "document.status",
+          "value": "superseded"
+        }
+      ]
+    },
+    {
+      "name": "verified-without-revision",
+      "valid": false,
+      "changes": [
+        {
+          "op": "set",
+          "path": "state.live.status",
+          "value": "verified"
+        }
+      ]
+    }
+  ]
+}
