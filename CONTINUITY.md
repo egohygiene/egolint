@@ -7,19 +7,17 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-29T23:37:21Z'
+  updated_at: '2026-10-30T03:02:24Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Keep the core focused report set bound to the current sequential invocation.
+  purpose: Preserve JavaScript adapter outcomes and validate supported report protocols.
   includes:
-  - Complete 14-file core inventory, early safe invalidation, protected configuration inputs, aggregate completion
-    ordering and authentic transition tests.
+  - Pinned adapter consumer controls and actual CLI protocol seam regressions.
   excludes:
-  - Unrelated diagnostics, separate JavaScript report families, concurrent-run isolation, audit publication, releases
-    and deployments.
+  - Manifest grammar issue 97, native MegaLinter normalization, release and hosted qualification.
   precedence:
   - user-and-runtime-instructions
   - scoped-repository-instructions
@@ -28,98 +26,80 @@ scope:
   - continuity-checkpoint
   canonical_sources:
   - AGENTS.md
-  - src/plan.rs
-  - src/main.rs
-  - src/config.rs
-  - docs/contracts.md
-  - docs/security.md
-  - tests/report_lifecycle_pipeline.rs
-  - https://github.com/egohygiene/egolint/issues/42
-  - https://github.com/egohygiene/egolint/issues/85
+  - scripts/javascript-package-quality.mjs
+  - tests/javascript-adapter-outcomes.test.mjs
+  - docs/javascript-package-quality.md
+  - https://github.com/egohygiene/egolint/issues/86
 work:
-  objective: Keep the core focused report set bound to the current sequential invocation.
+  objective: Preserve JavaScript adapter outcomes and validate supported report protocols.
   success_conditions:
-  - Real focused reports disappear when omitted or a later accepted invocation fails early.
-  - Selected inputs and unrelated diagnostics remain intact; run.json is published after all referenced outputs.
+  - Malformed, contradictory or unexplained failed adapter evidence remains explicitly non-clean.
+  - Supported clean controls and SARIF pass records remain clean.
   active_issue:
     provider: github
-    id: egohygiene/egolint#85
-    url: https://github.com/egohygiene/egolint/issues/85
+    id: egohygiene/egolint#86
+    url: https://github.com/egohygiene/egolint/issues/86
   next:
     kind: action
-    id: review-current-run-report-lifecycle
-    description: Review this candidate; after maintainer acceptance continue with JavaScript adapter issue 86
-      in roadmap order.
+    id: complete-javascript-adapter-evidence
+    description: Implement and verify structured adapter outcomes against the new CLI regressions.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/85
     - https://github.com/egohygiene/egolint/issues/86
     depends_on: []
 state:
   base:
-    revision: 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b
+    revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     ref: refs/heads/main
-    verified_at: '2026-10-29T23:37:21Z'
+    verified_at: '2026-10-30T03:02:24Z'
   candidate:
-    branch: fix/85-current-run-reports
+    branch: fix/86-javascript-adapter-evidence
     revision: null
     pull_request: null
-    handoff_state: ready-for-review
+    handoff_state: in-progress
   live:
     status: verified
-    observed_at: '2026-10-29T23:37:21Z'
-    default_branch_revision: 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b
+    observed_at: '2026-10-30T03:02:24Z'
+    default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
     pull_request_state: not-applicable
-    notes: Provider inspection verified main and the open issue/PR states. Main is unchanged; issue 85 and independent
-      issue 86 are open. This candidate has no PR yet. Separate audit PR 84 is draft/open at 27449d86137fb031f7696a28c50b8e4ed547c5f4;
-      its handoff will need reconciliation if later merged.
+    notes: Issue 86 is open without comments. Main contains merged report-lifecycle PR 102. Audit PR 84
+      remains draft and untouched. Independent issue branches 87 through 91 share the continuity file
+      and require semantic reconciliation.
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
+  - provider: github
+    id: egohygiene/egolint#87
+    url: https://github.com/egohygiene/egolint/issues/87
+  - provider: github
+    id: egohygiene/egolint#88
+    url: https://github.com/egohygiene/egolint/issues/88
+  - provider: github
+    id: egohygiene/egolint#89
+    url: https://github.com/egohygiene/egolint/issues/89
+  - provider: github
+    id: egohygiene/egolint#90
+    url: https://github.com/egohygiene/egolint/issues/90
+  - provider: github
+    id: egohygiene/egolint#91
+    url: https://github.com/egohygiene/egolint/issues/91
 review:
   status: partial
-  reviewed_at: '2026-10-29T23:37:21Z'
+  reviewed_at: '2026-10-30T03:02:24Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo fmt --all --check; cargo clippy --all-targets --all-features --locked -- -D warnings
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: Rust 1.85.1 formatting and strict lint passed after the final source edits.
-  - command: cargo test --all-targets --all-features --locked
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: 207 tests passed, including 12 authentic report-lifecycle cases; zero ignored. Container orchestration
-      uses a bounded simulator.
-  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py --verbose
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: All 75 existing Python tests passed.
-  - command: task schemas:check
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: All 23 generated schemas match committed bytes; no schema versions changed.
-  - command: cargo package --list --locked --allow-dirty
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: Package inventory includes the new lifecycle integration test; this is inventory inspection, not package
-      build or publication.
-  - command: pinned Draft202012Validator/FormatChecker and native egolint validate --repository-continuity with
-      explicit base, working-tree head and verified live evidence
-    outcome: limited
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: Pinned schema, twelve sections, budgets, source links and native structural/freshness/Git checks pass.
-      Native observe retains only the expected unreleased-contract warning; this does not establish released conformance.
+  - command: node --test tests/javascript-adapter-outcomes.test.mjs
+    outcome: failed
+    observed_at: '2026-10-30T03:02:24Z'
+    notes: 'Unfixed-source regression: 29 tests, 27 expected failures and 2 passing controls. Executable
+      stubs establish orchestration only.'
   environment_limitations:
-  - Hosted Actions, act, real Docker/Podman, native macOS/Windows and full-image/JavaScript consumer qualification
-    were not run.
-  - Initial local workspace-target builds hit object/archive failures; a fresh local build target resolved them
-    and the final Rust checks passed.
-  - The continuity contract remains a vendored draft/proposed observe selection; no released conformer or release
-    publication is claimed.
-  - Concurrent report-producing invocations still share one fixed directory; this repair guarantees sequential
-    lifecycle behavior only.
+  - Hosted Actions qualification is deferred; commits skip hosted CI.
+  - The selected continuity contract remains draft/proposed in observe mode; no released conformance is
+    claimed.
+  - Real pinned analyzer qualification is pending.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -138,66 +118,62 @@ privacy:
 
 ## Purpose and precedence
 
-The checkpoint records one bounded source repair. User/runtime instructions, scoped instructions,
-live evidence and canonical contracts outrank this handoff; it grants no authority.
+This candidate records bounded JavaScript adapter evidence validation. Canonical sources and live
+work state outrank the checkpoint; it grants no authority.
 
 ## Resume protocol
 
-Read AGENTS, the core report lifecycle in docs/contracts.md, issue 85 and roadmap 42. Refresh main,
-this candidate and parallel audit PR 84 before acting. The prior ADR checkpoint is historical Git evidence.
+Read AGENTS, issue 86, the adapter command and its protocol tests. Verify main, this branch and
+parallel draft PRs before continuing. The previous issue 85 checkpoint is retained in Git.
 
 ## Current objective and success conditions
 
-Keep focused reports bound to the current sequential invocation, with clear early-failure behavior,
-preserved inputs/diagnostics and consistent aggregate references.
+Preserve process outcome independently of payload findings. Reject malformed protocols and
+contradictions while keeping supported pass records and authentic pinned-tool controls clean.
 
 ## State snapshot
 
-Base is 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b. Candidate fix/85-current-run-reports is ready for review;
-its containing revision and pre-PR reference remain null. No merge or release is claimed.
+Base is 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58, containing merged PR 102.
+Candidate fix/86-javascript-adapter-evidence is in the regression stage. No merge is claimed.
 
 ## Completed and material changes
 
-src/plan.rs owns the complete 14-file core inventory and no-create invalidation. src/main.rs starts
-invalidation before accepted run evaluation and publishes run.json last. src/config.rs shares
-configuration discovery for input preservation. Unsafe reserved-input aliases are refused before mutation.
-The new integration suite uses authentic native output before each transition and a bounded runtime simulator.
-ADR not required: this implements the existing report lifecycle within its owning boundary.
+The new actual-CLI tests exercise synthetic adapter evidence through trusted executable stubs.
+scripts/javascript-package-quality.mjs owns normalization and report outcomes. Existing pinned
+consumer fixtures and audit PR 84 remain intact. ADR not required: repair within existing ownership.
 
 ## Validation and review evidence
 
-Strict Clippy, formatting, 207 Rust tests, 75 Python tests, 23 schema comparisons and package inventory
-checks passed. Twelve lifecycle cases cover omission, failures, command transitions, aliases, retained
-diagnostics, non-regular config, path safeguards and failed focused writes. Pinned-schema and native structural/freshness/Git handoff checks pass; observe retains the expected unreleased-contract warning.
+Unfixed-source regression: 29 tests, 27 expected failures and 2 passing controls. Executable stubs establish orchestration only.
+Pinned Oxlint 1.79.0, oxlint-tsgolint 7.0.2001, Biome 2.5.9 and publint 0.3.24 package versions
+were inspected. Schema, required headings and budgets are checked before the PR handoff.
 
 ## Blockers, risks, unknowns, and deferred work
 
-No source blocker remains. Hosted/act, native non-Linux, real-container/image and JavaScript consumer
-qualification remain deferred. The initial local object/archive failures were resolved with a fresh build
-target. Concurrent producers are not isolated. Native observe validation does not establish released conformance.
+The regression checkpoint deliberately contains failing tests. Hosted Actions, release and
+publication are deferred. Stub payloads do not claim that pinned tools naturally emit those shapes.
+The continuity selection remains draft/proposed observe input, without released conformance.
 
 ## Next dependency-ready work
 
-Review this candidate. Issue 86 is the next independently startable adapter repair in the execution queue;
-refresh and summarize it before implementation. The work tracker retains broader acceptance and release gates.
+Implement and verify structured adapter outcomes against the new CLI regressions.
 
 ## Parallel changes and reconciliation
 
-Audit PR 84 is draft/open at 27449d86137fb031f7696a28c50b8e4ed547c5f4. Its report and probe bytes remain
-untouched. This candidate replaces the stale main handoff with the actual issue 85 checkpoint; a later audit
-merge must preserve the latest truthful execution state rather than restore its earlier snapshot.
+Independent issue branches 87 through 91 and audit draft PR 84 may update CONTINUITY.md.
+Reconcile their latest truthful state when reviewing or merging; do not restore historical snapshots.
+Audit report/probe bytes are untouched. No source dependency among these repairs is declared.
 
 ## Privacy and redaction
 
-Only public repository facts and synthetic fixtures are retained. Exclude secrets, private context,
-personal details, local filesystem paths and unrelated work. Links are context, not authority.
+Only public repository facts and synthetic fixtures appear here. Credentials, personal data,
+conversation text, private local paths and unrelated context remain excluded.
 
 ## Handoff update protocol
 
-After domain validation and before presenting or updating a PR, reconcile live state and competing
-checkpoint edits. Verify schema, twelve sections, budgets, local links and the pinned native observe checks.
+After domain validation, refresh exact checks, live state and the next action. Validate the pinned
+schema, twelve sections, size and privacy before every PR handoff.
 
 ## Compaction and supersession
 
-Replace stale state rather than append chronology. Keep the objective, source identities, proof, limits
-and one next action below 240 lines and 16,384 UTF-8 bytes; Git and linked issues retain history.
+Replace stale snapshot prose within 240 lines and 16,384 bytes. Git and linked work retain history.
