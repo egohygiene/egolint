@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T04:19:05Z'
+  updated_at: '2026-10-30T04:23:31Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -46,8 +46,8 @@ work:
   next:
     kind: action
     id: review-release-acceptance-ledger
-    description: Independently review the complete documentation diff, verify evidence and refresh the final
-      handoff.
+    description: Review the draft acceptance ledger with the release stack; use the exact qualified source
+      for bounded Mantle 26 preparation while preserving full acceptance gates.
     readiness: ready
     references:
     - https://github.com/egohygiene/egolint/issues/29
@@ -58,7 +58,7 @@ state:
   base:
     revision: 4e7cc53491a27da5b361ca7ff56568d05fc07701
     ref: refs/heads/feat/69-release-self-dogfood
-    verified_at: '2026-10-30T04:19:05Z'
+    verified_at: '2026-10-30T04:23:31Z'
   candidate:
     branch: docs/29-release-conformance-acceptance
     revision: null
@@ -66,10 +66,10 @@ state:
       provider: github
       id: egohygiene/egolint#111
       url: https://github.com/egohygiene/egolint/pull/111
-    handoff_state: in-progress
+    handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-10-30T04:19:05Z'
+    observed_at: '2026-10-30T04:23:31Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
     pull_request_state: draft
@@ -106,35 +106,37 @@ state:
     url: https://github.com/egohygiene/egolint/pull/107
 review:
   status: partial
-  reviewed_at: '2026-10-30T04:19:05Z'
+  reviewed_at: '2026-10-30T04:23:31Z'
   reviewed_by: Codex
   evidence:
-  - command: Source/issue/PR reconciliation; relative-link and immutable Git identity validation; Prettier
-      3.9.6 --check; git diff --check
+  - command: Original issue/checkpoint and exact-head Actions reconciliation; link/anchor/Git identity validation;
+      Prettier 3.9.6 on ledger and added navigation; cargo fmt --all --check; git diff --check
     outcome: passed
-    observed_at: '2026-10-30T04:19:05Z'
-    notes: All five original criteria and checkpoints are mapped; historical closed/merged heads and green
-      Actions are distinguished from open draft source candidates and deferred hosted qualification.
-  - command: python3 scripts/validate_repository_release_sources.py; python3 scripts/validate_release_inputs.py
+    observed_at: '2026-10-30T04:23:31Z'
+    notes: All five original criteria and checkpoints plus issue 91 are mapped accurately. Independent stage-1/stage-2
+      review found no blocker; its privacy refinement keeps machine paths/private argv/configuration local.
+      Runtime, owner locks, publisher, version/changelog and fixture bytes match exact predecessor 4e7cc53491a27da5b361ca7ff56568d05fc07701.
+  - command: python3 scripts/validate_repository_release_sources.py; python3 scripts/validate_release_inputs.py;
+      pinned Aether declaration schema with registered formats
     outcome: passed
-    observed_at: '2026-10-30T04:19:05Z'
-    notes: Selected owner bytes, source identities, profile compatibility and reviewed platform boundary
-      remain valid; no runtime or lockfile changes.
-  - command: Pinned continuity Draft202012Validator/registered formats; native validate --repository-continuity
-      with exact predecessor base, working-tree head and verified live evidence
+    observed_at: '2026-10-30T04:23:31Z'
+    notes: Actual selected source identities/bytes, applicability/platform boundary and self-declaration
+      remain valid. No dependency, schema or authority promotion.
+  - command: cargo package --locked --allow-dirty --offline; unpacked cargo test --locked --offline --test
+      repository_release_dogfood --test repository_release_matrix; unpacked planner unittest discovery
+    outcome: passed
+    observed_at: '2026-10-30T04:23:31Z'
+    notes: Stage-2 head 05f835e4995f714526cc0ca93710e368abf6aad5 produced a verified 215-file crate. Every
+      tracked release fixture has matching archive bytes; actual unpacked 2 self + 7 matrix + 5 planner tests
+      pass. This local receipt is separate from the predecessor archive failure/repair and from final hosted
+      qualification.
+  - command: Pinned continuity Draft202012Validator/registered formats and native public-config validate
+      with explicit predecessor base, working-tree head and checked live evidence
     outcome: limited
-    observed_at: '2026-10-30T04:19:05Z'
-    notes: 'Schema, twelve sections and budgets passed. Predecessor native binary evaluated this documentation-only
-      worktree: continuity valid with expected unreleased warning, release advisory with the retained manual_workflow
-      failure. No released or global conformance is claimed.'
-  - command: Added-link/anchor and immutable Git identity validation; Prettier 3.9.6 on acceptance ledger
-      and new navigation regions; actual public-config native validate with explicit base/head/live evidence
-    outcome: limited
-    observed_at: '2026-10-30T04:19:05Z'
-    notes: Operator handoff pins exact producer source and invokes consumer-owned workspace directly. Links
-      and authored formatting pass. Native process 0; release advisory (six passed, manual_workflow failed),
-      continuity valid with expected unreleased warning, Intelligence invalid with seven existing diagnostics.
-      No runtime source changes.
+    observed_at: '2026-10-30T04:23:31Z'
+    notes: Schema, twelve sections, budgets and local paths pass. Process 0; release advisory (six passed/manual_workflow
+      failed), continuity valid with expected unreleased warning, Intelligence invalid with unknown ADR plus
+      six existing roadmap diagnostics. No global or released conformance is claimed.
   environment_limitations:
   - Final-head hosted Actions, real full-image and non-Linux qualification remain deferred.
   - Release self-adoption remains advisory with manual_workflow failed; broader Intelligence remains invalid
@@ -176,7 +178,7 @@ Keep each original criterion, actual check result and remaining acceptance bound
 ## State snapshot
 
 This branch targets feat/69-release-self-dogfood at 4e7cc53491a27da5b361ca7ff56568d05fc07701.
-Its containing revision is null to avoid self-reference. The checkpoint stage is implementation; full issue acceptance remains open.
+Its containing revision is null to avoid self-reference. The checkpoint stage is review; full issue acceptance remains open.
 
 ## Completed and material changes
 
@@ -199,7 +201,7 @@ manual-only publisher migration and maintainer acceptance remain gates. No local
 
 ## Next dependency-ready work
 
-Independently review the complete documentation diff, verify evidence and refresh the final handoff.
+Review the draft acceptance ledger with the release stack; use the exact qualified source for bounded Mantle 26 preparation while preserving full acceptance gates.
 
 ## Parallel changes and reconciliation
 

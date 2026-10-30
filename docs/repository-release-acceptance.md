@@ -106,8 +106,8 @@ published binary, container digest or accepted release.
 [Mantle #26](https://github.com/egohygiene/mantle/issues/26) can consume the native producer for bounded
 current-v1 source preparation while its full-outcome gates remain open. Select the reviewed Mantle
 checkout as `MANTLE_WORKSPACE` and the qualified native executable as `EGOLINT_RELEASE_PRODUCER`.
-Invoke that executable directly; retain its actual path/digest and any custom Cargo target directory
-in the receipt:
+Invoke that executable directly; keep its actual path and any custom Cargo target directory in a
+local receipt, and retain the executable digest in shareable evidence:
 
 ```sh
 "${EGOLINT_RELEASE_PRODUCER:?select the qualified native executable}" \
@@ -121,14 +121,18 @@ and must not be copied into Mantle as an authority or identity assertion. The ca
 responsible for binding supplied repository identity and captured source to the authenticated
 checkout; offline conformance does not establish GitHub ownership or live publication state.
 
-Keep a finite consumer receipt:
+Keep a finite consumer receipt. Actual machine paths, private argv details and private configuration
+belong in the local receipt. Public PR or continuity evidence uses repository-relative/generalized
+paths and only the public-safe selected configuration, while retaining exact source commits, executable
+digests and bounded results. Do not copy private filesystem topology or environment values into that
+public evidence.
 
 | Receipt field | Evidence to retain                                                                                            |
 | ------------- | ------------------------------------------------------------------------------------------------------------- |
 | Producer      | Full source commit, executable SHA-256, build command and pinned toolchain.                                   |
 | Consumer      | Exact reviewed commit/tree, any intentional working-tree difference and consumer-owned declaration/context.   |
 | Inputs        | Selected source-lock identities and the bytes/digests actually inspected.                                     |
-| Invocation    | Complete native argv and effective consumer configuration.                                                    |
+| Invocation    | Normalized native argv and public-safe selected consumer configuration.                                       |
 | Results       | Process exit, focused release/check state, enforcement, tool counts and normalized findings/SARIF.            |
 | Limits        | Unavailable/external evidence, platform and hosted omissions, pending review, publication and adoption gates. |
 
