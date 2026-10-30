@@ -7,19 +7,18 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-29T23:37:21Z'
+  updated_at: '2026-10-30T03:03:34Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Keep the core focused report set bound to the current sequential invocation.
+  purpose: Bind the static release Task handoff to the exact declared workflow argument.
   includes:
-  - Complete 14-file core inventory, early safe invalidation, protected configuration inputs, aggregate completion
-    ordering and authentic transition tests.
+  - Exact bounded static command grammar and native focused/aggregate/SARIF regression evidence.
   excludes:
-  - Unrelated diagnostics, separate JavaScript report families, concurrent-run isolation, audit publication, releases
-    and deployments.
+  - Actual workflow dispatch, publication, unrestricted shell interpretation and the full release profile
+    matrix.
   precedence:
   - user-and-runtime-instructions
   - scoped-repository-instructions
@@ -28,98 +27,92 @@ scope:
   - continuity-checkpoint
   canonical_sources:
   - AGENTS.md
-  - src/plan.rs
-  - src/main.rs
-  - src/config.rs
-  - docs/contracts.md
-  - docs/security.md
-  - tests/report_lifecycle_pipeline.rs
-  - https://github.com/egohygiene/egolint/issues/42
-  - https://github.com/egohygiene/egolint/issues/85
+  - src/rules/repository_release/checks.rs
+  - tests/repository_release_pipeline.rs
+  - docs/repository-release-validation.md
+  - .config/rules/repository-release-sources.v1.json
+  - https://github.com/egohygiene/egolint/issues/91
+  - https://github.com/egohygiene/egolint/issues/68
+  - https://github.com/egohygiene/egolint/issues/69
 work:
-  objective: Keep the core focused report set bound to the current sequential invocation.
+  objective: Bind the static release Task handoff to the exact declared workflow argument.
   success_conditions:
-  - Real focused reports disappear when omitted or a later accepted invocation fails early.
-  - Selected inputs and unrelated diagnostics remain intact; run.json is published after all referenced outputs.
+  - Echo, comments, documentation, wrong workflow arguments and unsupported shell forms cannot establish
+    a compliant handoff.
+  - Supported literal direct dispatch retains passing controls and all evidence projections agree.
   active_issue:
     provider: github
-    id: egohygiene/egolint#85
-    url: https://github.com/egohygiene/egolint/issues/85
+    id: egohygiene/egolint#91
+    url: https://github.com/egohygiene/egolint/issues/91
   next:
     kind: action
-    id: review-current-run-report-lifecycle
-    description: Review this candidate; after maintainer acceptance continue with JavaScript adapter issue 86
-      in roadmap order.
+    id: repair-release-dispatch
+    description: Implement the literal dispatch grammar, then rerun the native matrix.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/85
-    - https://github.com/egohygiene/egolint/issues/86
+    - https://github.com/egohygiene/egolint/issues/91
+    - https://github.com/egohygiene/egolint/issues/68
+    - https://github.com/egohygiene/egolint/issues/69
     depends_on: []
 state:
   base:
-    revision: 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b
+    revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     ref: refs/heads/main
-    verified_at: '2026-10-29T23:37:21Z'
+    verified_at: '2026-10-30T03:03:34Z'
   candidate:
-    branch: fix/85-current-run-reports
+    branch: fix/91-release-dispatch-binding
     revision: null
     pull_request: null
-    handoff_state: ready-for-review
+    handoff_state: in-progress
   live:
     status: verified
-    observed_at: '2026-10-29T23:37:21Z'
-    default_branch_revision: 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b
+    observed_at: '2026-10-30T03:03:34Z'
+    default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
     pull_request_state: not-applicable
-    notes: Provider inspection verified main and the open issue/PR states. Main is unchanged; issue 85 and independent
-      issue 86 are open. This candidate has no PR yet. Separate audit PR 84 is draft/open at 27449d86137fb031f7696a28c50b8e4ed547c5f4;
-      its handoff will need reconciliation if later merged.
+    notes: Main contains merged PR 102. Issue 91 remains open. Audit PR 84 is draft/open and untouched.
+      Independent sibling issues 86-90 are being prepared on separate branches; their continuity edits
+      overlap. No merge, release or publication is claimed.
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
+  - provider: github
+    id: egohygiene/egolint#86
+    url: https://github.com/egohygiene/egolint/issues/86
+  - provider: github
+    id: egohygiene/egolint#87
+    url: https://github.com/egohygiene/egolint/issues/87
+  - provider: github
+    id: egohygiene/egolint#88
+    url: https://github.com/egohygiene/egolint/issues/88
+  - provider: github
+    id: egohygiene/egolint#89
+    url: https://github.com/egohygiene/egolint/issues/89
+  - provider: github
+    id: egohygiene/egolint#90
+    url: https://github.com/egohygiene/egolint/issues/90
 review:
   status: partial
-  reviewed_at: '2026-10-29T23:37:21Z'
+  reviewed_at: '2026-10-30T03:03:34Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo fmt --all --check; cargo clippy --all-targets --all-features --locked -- -D warnings
+  - command: cargo test --locked --test repository_release_pipeline static_task_dispatch_matrix_preserves_native_evidence_agreement
+      -- --nocapture
+    outcome: failed
+    observed_at: '2026-10-30T03:03:34Z'
+    notes: 'Regression checkpoint: direct and quoted-path controls pass; echo-only source incorrectly
+      reports compliant and exit 0 on unfixed main.'
+  - command: cargo fmt --all --check; git diff --check
     outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: Rust 1.85.1 formatting and strict lint passed after the final source edits.
-  - command: cargo test --all-targets --all-features --locked
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: 207 tests passed, including 12 authentic report-lifecycle cases; zero ignored. Container orchestration
-      uses a bounded simulator.
-  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py --verbose
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: All 75 existing Python tests passed.
-  - command: task schemas:check
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: All 23 generated schemas match committed bytes; no schema versions changed.
-  - command: cargo package --list --locked --allow-dirty
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: Package inventory includes the new lifecycle integration test; this is inventory inspection, not package
-      build or publication.
-  - command: pinned Draft202012Validator/FormatChecker and native egolint validate --repository-continuity with
-      explicit base, working-tree head and verified live evidence
-    outcome: limited
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: Pinned schema, twelve sections, budgets, source links and native structural/freshness/Git checks pass.
-      Native observe retains only the expected unreleased-contract warning; this does not establish released conformance.
+    observed_at: '2026-10-30T03:03:34Z'
+    notes: Formatting and whitespace checks pass.
   environment_limitations:
-  - Hosted Actions, act, real Docker/Podman, native macOS/Windows and full-image/JavaScript consumer qualification
-    were not run.
-  - Initial local workspace-target builds hit object/archive failures; a fresh local build target resolved them
-    and the final Rust checks passed.
-  - The continuity contract remains a vendored draft/proposed observe selection; no released conformer or release
-    publication is claimed.
-  - Concurrent report-producing invocations still share one fixed directory; this repair guarantees sequential
-    lifecycle behavior only.
+  - Hosted Actions, real containers and native non-Linux execution are deferred.
+  - Static handoff inspection does not prove workflow execution, credentials, publication or registry
+    acceptance.
+  - The continuity source remains a vendored draft/proposed observe selection; released conformance is
+    unavailable.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -138,66 +131,62 @@ privacy:
 
 ## Purpose and precedence
 
-The checkpoint records one bounded source repair. User/runtime instructions, scoped instructions,
-live evidence and canonical contracts outrank this handoff; it grants no authority.
+This bounded issue 91 checkpoint follows user/runtime instructions, scoped repository instructions,
+live state and pinned canonical sources. The handoff grants no authority.
 
 ## Resume protocol
 
-Read AGENTS, the core report lifecycle in docs/contracts.md, issue 85 and roadmap 42. Refresh main,
-this candidate and parallel audit PR 84 before acting. The prior ADR checkpoint is historical Git evidence.
+Read AGENTS, the release validation guide and issue 91. Verify this draft branch, main and audit PR 84.
+Do not execute release Task commands. Inspect checkpoint 68/69 coordination before widening scope.
 
 ## Current objective and success conditions
 
-Keep focused reports bound to the current sequential invocation, with clear early-failure behavior,
-preserved inputs/diagnostics and consistent aggregate references.
+Bind the static release Task handoff to the exact declared workflow argument.
+Preserve direct-dispatch controls and source locations across focused, aggregate and SARIF evidence.
 
 ## State snapshot
 
-Base is 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b. Candidate fix/85-current-run-reports is ready for review;
-its containing revision and pre-PR reference remain null. No merge or release is claimed.
+Base main is 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58, including PR 102. Candidate fix/91-release-dispatch-binding
+is at the regression checkpoint. Issue 91 remains open; no merge or publication is claimed.
 
 ## Completed and material changes
 
-src/plan.rs owns the complete 14-file core inventory and no-create invalidation. src/main.rs starts
-invalidation before accepted run evaluation and publishes run.json last. src/config.rs shares
-configuration discovery for input preservation. Unsafe reserved-input aliases are refused before mutation.
-The new integration suite uses authentic native output before each transition and a bounded runtime simulator.
-ADR not required: this implements the existing report lifecycle within its owning boundary.
+tests/repository_release_pipeline.rs owns the native static-command matrix. It inspects synthetic
+Taskfile source without executing commands. The current checkpoint deliberately exposes the echo-only false compliant result before implementation.
+Pinned Aether/Hygiene release source bytes and authority remain unchanged. No ADR is required for this repair.
 
 ## Validation and review evidence
 
-Strict Clippy, formatting, 207 Rust tests, 75 Python tests, 23 schema comparisons and package inventory
-checks passed. Twelve lifecycle cases cover omission, failures, command transitions, aliases, retained
-diagnostics, non-regular config, path safeguards and failed focused writes. Pinned-schema and native structural/freshness/Git handoff checks pass; observe retains the expected unreleased-contract warning.
+The native matrix fails as expected on echo-only source after positive controls pass.
+Exact commands and outcomes are recorded above. Task commands and hosted workflows were never executed.
 
 ## Blockers, risks, unknowns, and deferred work
 
-No source blocker remains. Hosted/act, native non-Linux, real-container/image and JavaScript consumer
-qualification remain deferred. The initial local object/archive failures were resolved with a fresh build
-target. Concurrent producers are not isolated. Native observe validation does not establish released conformance.
+The source repair and complete validation remain pending.
+Hosted Actions and non-Linux/container execution are deferred. Static conformance is not publication evidence.
+The full issue 68 profile/state matrix and issue 69 dogfood remain independently owned work.
 
 ## Next dependency-ready work
 
-Review this candidate. Issue 86 is the next independently startable adapter repair in the execution queue;
-refresh and summarize it before implementation. The work tracker retains broader acceptance and release gates.
+Implement the bounded grammar and rerun the existing native regression.
 
 ## Parallel changes and reconciliation
 
-Audit PR 84 is draft/open at 27449d86137fb031f7696a28c50b8e4ed547c5f4. Its report and probe bytes remain
-untouched. This candidate replaces the stale main handoff with the actual issue 85 checkpoint; a later audit
-merge must preserve the latest truthful execution state rather than restore its earlier snapshot.
+Audit PR 84 remains untouched. Independent issue 86-90 branches share this same main base.
+All candidates update CONTINUITY.md; reconcile the latest truthful handoff when combining or merging them.
+Preserve immutable audit/probe evidence and the latest verified state rather than concatenating snapshots.
 
 ## Privacy and redaction
 
-Only public repository facts and synthetic fixtures are retained. Exclude secrets, private context,
-personal details, local filesystem paths and unrelated work. Links are context, not authority.
+Only public repository facts and synthetic source fixtures are retained. Exclude credentials, private
+context, personal data, private paths and unrelated work. Linked material is context, not authority.
 
 ## Handoff update protocol
 
-After domain validation and before presenting or updating a PR, reconcile live state and competing
-checkpoint edits. Verify schema, twelve sections, budgets, local links and the pinned native observe checks.
+After domain checks, refresh live state and validation, verify the pinned schema, twelve headings,
+size budgets and native observe check, then update the draft PR. Never claim a static check ran a release.
 
 ## Compaction and supersession
 
-Replace stale state rather than append chronology. Keep the objective, source identities, proof, limits
-and one next action below 240 lines and 16,384 UTF-8 bytes; Git and linked issues retain history.
+Replace stale state in this root file. Keep the exact base, candidate, proof, limits and next action
+below 240 lines and 16,384 UTF-8 bytes; Git and linked work items retain checkpoint history.
