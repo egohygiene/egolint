@@ -75,9 +75,11 @@ def validate_fields(
         findings.append(f"{name} is missing required fields: {', '.join(sorted(missing))}")
     if unsupported := record.keys() - required - optional:
         findings.append(f"{name} has unsupported fields: {', '.join(sorted(unsupported))}")
-    for field in optional & record.keys():
-        if not isinstance(record[field], str) or not record[field].strip():
-            findings.append(f"{name}.{field} must be a nonempty string")
+    findings.extend(
+        f"{name}.{field} must be a nonempty string"
+        for field in sorted(optional & record.keys())
+        if not isinstance(record[field], str) or not record[field].strip()
+    )
     return findings
 
 
@@ -88,8 +90,7 @@ def valid_platforms(value: Any) -> bool:
         isinstance(value, list)
         and bool(value)
         and all(
-            isinstance(item, str) and PLATFORM_PATTERN.fullmatch(item) is not None
-            for item in value
+            isinstance(item, str) and PLATFORM_PATTERN.fullmatch(item) is not None for item in value
         )
         and len(value) == len(set(value))
     )
@@ -101,7 +102,9 @@ def validate_image(name: str, image: Any) -> list[str]:
     if not isinstance(image, dict):
         return [f"{name} must be an object"]
     findings = validate_fields(
-        name, image, {"reference", "digest", "media_type", "platforms"},
+        name,
+        image,
+        {"reference", "digest", "media_type", "platforms"},
         {"upstream_platform_evidence"},
     )
     reference = image.get("reference")
@@ -132,9 +135,7 @@ def validate_product(
 
     if not isinstance(product, dict):
         return [f"{product_name} must be an object"]
-    findings = validate_fields(
-        product_name, product, {"base_images", "platforms"}, {"limitation"}
-    )
+    findings = validate_fields(product_name, product, {"base_images", "platforms"}, {"limitation"})
     bases = product.get("base_images")
     platforms = product.get("platforms")
     if (
@@ -151,6 +152,18 @@ def validate_product(
     return findings
 
 
+def valid_review_date(value: Any) -> bool:
+    """Require the reviewed calendar date's exact supported spelling and value."""
+
+    if not isinstance(value, str) or DATE_PATTERN.fullmatch(value) is None:
+        return False
+    try:
+        date.fromisoformat(value)
+    except ValueError:
+        return False
+    return True
+
+
 def validate_contract(contract: Mapping[str, Any]) -> list[str]:
     """Return every structural or semantic contract finding."""
 
@@ -159,12 +172,7 @@ def validate_contract(contract: Mapping[str, Any]) -> list[str]:
     )
     if type(contract.get("schema_version")) is not int or contract["schema_version"] != 1:
         findings.append("schema_version must equal 1")
-    reviewed_at = contract.get("reviewed_at")
-    try:
-        if not isinstance(reviewed_at, str) or DATE_PATTERN.fullmatch(reviewed_at) is None:
-            raise ValueError
-        date.fromisoformat(reviewed_at)
-    except ValueError:
+    if not valid_review_date(contract.get("reviewed_at")):
         findings.append("reviewed_at must be an ISO calendar date")
 
     images = contract.get("images")
@@ -179,9 +187,7 @@ def validate_contract(contract: Mapping[str, Any]) -> list[str]:
         findings.append("products must contain exactly egolint and egolint-full")
         products = {}
     for product_name, expected_bases in PRODUCT_BASES.items():
-        findings.extend(
-            validate_product(product_name, expected_bases, products.get(product_name))
-        )
+        findings.extend(validate_product(product_name, expected_bases, products.get(product_name)))
     if findings:
         return findings
     for product_name, product in products.items():

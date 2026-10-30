@@ -30,8 +30,15 @@ class ReleaseInputTests(unittest.TestCase):
     def setUp(self) -> None:
         self.contract = release_inputs.load_contract()
 
-
-    def run_validator(self, contract, *, check_environment=False, environment=None):
+    def run_validator(
+        self,
+        contract,
+        *,
+        check_environment=False,
+        environment=None,
+        contract_text=None,
+        missing=False,
+    ):
         """Execute the real script against a disposable repository-shaped copy."""
 
         with tempfile.TemporaryDirectory() as directory:
@@ -41,7 +48,11 @@ class ReleaseInputTests(unittest.TestCase):
             shutil.copyfile(MODULE_PATH, script)
             contract_path = root / ".config" / "release" / "base-images.v1.json"
             contract_path.parent.mkdir(parents=True)
-            contract_path.write_text(json.dumps(contract), encoding="utf-8")
+            if not missing:
+                contract_path.write_text(
+                    json.dumps(contract) if contract_text is None else contract_text,
+                    encoding="utf-8",
+                )
             command = [sys.executable, str(script)]
             if check_environment:
                 command.append("--check-environment")
@@ -51,7 +62,8 @@ class ReleaseInputTests(unittest.TestCase):
                 if key not in release_inputs.IMAGE_NAMES
             }
             process_environment.update(environment or {})
-            return subprocess.run(
+            # The executable is the current interpreter and a repository-owned validator copy.
+            return subprocess.run(  # noqa: S603
                 command, capture_output=True, text=True, check=False, env=process_environment
             )
 
@@ -73,9 +85,7 @@ class ReleaseInputTests(unittest.TestCase):
             name: release_inputs.immutable_reference(image)
             for name, image in self.contract["images"].items()
         }
-        result = self.run_validator(
-            self.contract, check_environment=True, environment=environment
-        )
+        result = self.run_validator(self.contract, check_environment=True, environment=environment)
         self.assertEqual(result.returncode, 0, result.stderr)
         for name in release_inputs.IMAGE_NAMES:
             with self.subTest(image=name):
@@ -130,7 +140,13 @@ class ReleaseInputTests(unittest.TestCase):
     def test_cli_rejects_malformed_nested_product_fields(self):
         malformed = {
             "base_images": (
-                None, {}, [], [[]], [{}], [None], [1],
+                None,
+                {},
+                [],
+                [[]],
+                [{}],
+                [None],
+                [1],
                 ["NODE_POLICY_IMAGE", "MEGALINTER_IMAGE", "NODE_POLICY_IMAGE"],
             ),
             "platforms": (None, {}, [], [[]], [{}], [None], [1], ["linux/amd64"] * 2),
@@ -156,6 +172,21 @@ class ReleaseInputTests(unittest.TestCase):
             contract = deepcopy(self.contract)
             contract[group][name]["unsupported"] = "value"
             self.assert_configuration_rejected(contract, f"{name} has unsupported fields")
+
+    def test_cli_rejects_unreadable_contract_with_controlled_diagnostic(self):
+        for check_environment in (False, True):
+            for missing in (False, True):
+                with self.subTest(check_environment=check_environment, missing=missing):
+                    result = self.run_validator(
+                        self.contract,
+                        check_environment=check_environment,
+                        contract_text="{invalid",
+                        missing=missing,
+                    )
+                    self.assertEqual(result.returncode, 1)
+                    self.assertIn("release-inputs:", result.stderr)
+                    self.assertNotIn("Traceback", result.stderr)
+                    self.assertEqual(result.stdout, "")
 
     def test_cli_rejects_invalid_root_and_map_grammar(self):
         for group in ("images", "products"):
