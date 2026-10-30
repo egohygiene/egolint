@@ -33,6 +33,7 @@ PRODUCT_BASES = {
 DIGEST_PATTERN = re.compile(r"sha256:[0-9a-f]{64}\Z")
 REFERENCE_PATTERN = re.compile(r"[a-z0-9][a-z0-9._/:+-]*:[A-Za-z0-9._-]+\Z")
 PLATFORM_PATTERN = re.compile(r"linux/(?:amd64|arm64)\Z")
+DATE_PATTERN = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}\Z")
 MEDIA_TYPES = {
     "application/vnd.oci.image.index.v1+json",
     "application/vnd.docker.distribution.manifest.v2+json",
@@ -64,12 +65,48 @@ def immutable_reference(image: Mapping[str, Any]) -> str:
     return f"{image['reference']}@{image['digest']}"
 
 
+def validate_fields(
+    name: str, record: Mapping[str, Any], required: set[str], optional: set[str]
+) -> list[str]:
+    """Require complete records without silently accepting unsupported fields."""
+
+    findings = []
+    if missing := required - record.keys():
+        findings.append(f"{name} is missing required fields: {', '.join(sorted(missing))}")
+    if unsupported := record.keys() - required - optional:
+        findings.append(f"{name} has unsupported fields: {', '.join(sorted(unsupported))}")
+    findings.extend(
+        f"{name}.{field} must be a nonempty string"
+        for field in sorted(optional & record.keys())
+        if not isinstance(record[field], str) or not record[field].strip()
+    )
+    return findings
+
+
+def valid_platforms(value: Any) -> bool:
+    """Check element types before applying set operations to platform lists."""
+
+    return (
+        isinstance(value, list)
+        and bool(value)
+        and all(
+            isinstance(item, str) and PLATFORM_PATTERN.fullmatch(item) is not None for item in value
+        )
+        and len(value) == len(set(value))
+    )
+
+
 def validate_image(name: str, image: Any) -> list[str]:
     """Validate one reviewed base-image record."""
 
-    findings: list[str] = []
     if not isinstance(image, dict):
-        return findings
+        return [f"{name} must be an object"]
+    findings = validate_fields(
+        name,
+        image,
+        {"reference", "digest", "media_type", "platforms"},
+        {"upstream_platform_evidence"},
+    )
     reference = image.get("reference")
     digest = image.get("digest")
     media_type = image.get("media_type")
@@ -78,17 +115,9 @@ def validate_image(name: str, image: Any) -> list[str]:
         findings.append(f"{name}.reference must be a tagged registry reference")
     if not isinstance(digest, str) or DIGEST_PATTERN.fullmatch(digest) is None:
         findings.append(f"{name}.digest must be a lowercase SHA-256 digest")
-    if media_type not in MEDIA_TYPES:
+    if not isinstance(media_type, str) or media_type not in MEDIA_TYPES:
         findings.append(f"{name}.media_type is not an approved manifest media type")
-    if (
-        not isinstance(platforms, list)
-        or not platforms
-        or len(platforms) != len(set(platforms))
-        or any(
-            not isinstance(item, str) or PLATFORM_PATTERN.fullmatch(item) is None
-            for item in platforms
-        )
-    ):
+    if not valid_platforms(platforms):
         findings.append(f"{name}.platforms must contain unique supported Linux platforms")
     elif (
         media_type == "application/vnd.docker.distribution.manifest.v2+json" and len(platforms) != 1
@@ -101,53 +130,49 @@ def validate_product(
     product_name: str,
     expected_bases: set[str],
     product: Any,
-    images: Mapping[str, Any],
 ) -> list[str]:
-    """Validate one product against the intersection of its base platforms."""
+    """Validate one product's complete typed record before resolving bases."""
 
     if not isinstance(product, dict):
-        return []
-    findings: list[str] = []
+        return [f"{product_name} must be an object"]
+    findings = validate_fields(product_name, product, {"base_images", "platforms"}, {"limitation"})
     bases = product.get("base_images")
     platforms = product.get("platforms")
-    if not isinstance(bases, list) or set(bases) != expected_bases:
+    if (
+        not isinstance(bases, list)
+        or not all(isinstance(item, str) for item in bases)
+        or len(bases) != len(expected_bases)
+        or set(bases) != expected_bases
+    ):
         findings.append(
             f"{product_name}.base_images must contain exactly: {', '.join(sorted(expected_bases))}"
         )
-        return findings
-    if (
-        not isinstance(platforms, list)
-        or not platforms
-        or len(platforms) != len(set(platforms))
-        or any(
-            not isinstance(item, str) or PLATFORM_PATTERN.fullmatch(item) is None
-            for item in platforms
-        )
-    ):
+    if not valid_platforms(platforms):
         findings.append(f"{product_name}.platforms must contain unique supported Linux platforms")
-        return findings
-    base_platforms = []
-    for name in bases:
-        image = images.get(name)
-        base_platforms.append(set(image.get("platforms", [])) if isinstance(image, dict) else set())
-    available_platforms = set.intersection(*base_platforms)
-    if set(platforms) != available_platforms:
-        findings.append(
-            f"{product_name}.platforms must equal its base-image platform intersection: "
-            f"{', '.join(sorted(available_platforms))}"
-        )
     return findings
+
+
+def valid_review_date(value: Any) -> bool:
+    """Require the reviewed calendar date's exact supported spelling and value."""
+
+    if not isinstance(value, str) or DATE_PATTERN.fullmatch(value) is None:
+        return False
+    try:
+        date.fromisoformat(value)
+    except ValueError:
+        return False
+    return True
 
 
 def validate_contract(contract: Mapping[str, Any]) -> list[str]:
     """Return every structural or semantic contract finding."""
 
-    findings: list[str] = []
-    if contract.get("schema_version") != 1:
+    findings = validate_fields(
+        "contract", contract, {"schema_version", "reviewed_at", "images", "products"}, set()
+    )
+    if type(contract.get("schema_version")) is not int or contract["schema_version"] != 1:
         findings.append("schema_version must equal 1")
-    try:
-        date.fromisoformat(str(contract.get("reviewed_at", "")))
-    except ValueError:
+    if not valid_review_date(contract.get("reviewed_at")):
         findings.append("reviewed_at must be an ISO calendar date")
 
     images = contract.get("images")
@@ -162,9 +187,18 @@ def validate_contract(contract: Mapping[str, Any]) -> list[str]:
         findings.append("products must contain exactly egolint and egolint-full")
         products = {}
     for product_name, expected_bases in PRODUCT_BASES.items():
-        findings.extend(
-            validate_product(product_name, expected_bases, products.get(product_name), images)
+        findings.extend(validate_product(product_name, expected_bases, products.get(product_name)))
+    if findings:
+        return findings
+    for product_name, product in products.items():
+        available_platforms = set.intersection(
+            *(set(images[name]["platforms"]) for name in product["base_images"])
         )
+        if set(product["platforms"]) != available_platforms:
+            findings.append(
+                f"{product_name}.platforms must equal its base-image platform intersection: "
+                f"{', '.join(sorted(available_platforms))}"
+            )
     return findings
 
 
@@ -172,13 +206,11 @@ def validate_environment(contract: Mapping[str, Any], environment: Mapping[str, 
     """Require release variables to equal the checked-in immutable references."""
 
     findings = validate_contract(contract)
-    images = contract.get("images", {})
-    if not isinstance(images, dict):
+    if findings:
         return findings
+    images = contract["images"]
     for name in sorted(IMAGE_NAMES):
         image = images.get(name)
-        if not isinstance(image, dict) or "reference" not in image or "digest" not in image:
-            continue
         expected = immutable_reference(image)
         observed = environment.get(name, "")
         if observed != expected:
@@ -196,7 +228,11 @@ def main() -> int:
         help="also require release image environment variables to match the contract",
     )
     arguments = parser.parse_args()
-    contract = load_contract()
+    try:
+        contract = load_contract()
+    except (OSError, ValueError) as error:
+        print(f"release-inputs: {error}", file=sys.stderr)
+        return 1
     findings = (
         validate_environment(contract, os.environ)
         if arguments.check_environment
