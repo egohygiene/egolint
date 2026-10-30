@@ -7,18 +7,17 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T08:38:14Z'
+  updated_at: '2026-10-30T08:39:52Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Require complete pinned Identity descriptor and referenced-asset integrity coverage.
+  purpose: Align native continuity structure with the exact pinned Aether schema.
   includes:
-  - Required package/manifest grammar, nonempty checksums, every declared banner/badge asset and descriptor
-    binding.
+  - Required nullable keys, uniqueness, closed grammar and registered RFC3339 format parity.
   excludes:
-  - Visual quality, accessibility certification, network reachability, policy promotion and releases.
+  - Upstream policy promotion, rollout changes, external authentication and release publication.
   precedence:
   - user-and-runtime-instructions
   - scoped-repository-instructions
@@ -27,60 +26,57 @@ scope:
   - continuity-checkpoint
   canonical_sources:
   - AGENTS.md
-  - src/rules/repository_presentation.rs
-  - tests/repository_presentation_pipeline.rs
-  - docs/repository-presentation.md
-  - .config/rules/repository-presentation.v1.toml
-  - https://github.com/egohygiene/egolint/issues/88
+  - src/rules/repository_continuity.rs
+  - vendor/aether/aether.repository-continuity.v1.schema.json
+  - tests/repository_continuity_pipeline.rs
+  - tests/fixtures/repository-continuity/schema-parity.json
+  - https://github.com/egohygiene/egolint/issues/89
   - https://github.com/egohygiene/egolint/issues/42
 work:
-  objective: Require complete pinned Identity descriptor and referenced-asset integrity coverage.
+  objective: Align native continuity structure with the exact pinned Aether schema.
   success_conditions:
-  - Missing required descriptors or referenced checksum entries produce semantic invalidity.
-  - Complete-map controls pass; damaged assets fail; advisory remains nonblocking without changing semantic
-    invalidity.
+  - Native structural verdicts match the shared paired matrix and pinned Draft202012Validator with registered
+    formats.
+  - Observe semantic invalidity stays independent from warning severity and successful process exit.
   active_issue:
     provider: github
-    id: egohygiene/egolint#88
-    url: https://github.com/egohygiene/egolint/issues/88
+    id: egohygiene/egolint#89
+    url: https://github.com/egohygiene/egolint/issues/89
   next:
     kind: action
-    id: merge-qualified-88-candidate
+    id: merge-qualified-89-candidate
     description: Merge the qualified source candidate, then verify the resulting default-branch state;
       retain separate release acceptance gates.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/pull/105
+    - https://github.com/egohygiene/egolint/pull/107
     depends_on: []
 state:
   base:
-    revision: 8df66659c5c999116aef7b605530eca2145e6160
+    revision: 684bbbe912c53b9b83793a1984dfb68967eb136e
     ref: refs/heads/main
-    verified_at: '2026-10-30T08:38:14Z'
+    verified_at: '2026-10-30T08:39:52Z'
   candidate:
-    branch: fix/88-presentation-asset-coverage
+    branch: fix/89-continuity-schema-parity
     revision: null
     pull_request:
       provider: github
-      id: egohygiene/egolint#105
-      url: https://github.com/egohygiene/egolint/pull/105
+      id: egohygiene/egolint#107
+      url: https://github.com/egohygiene/egolint/pull/107
     handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-10-30T08:38:14Z'
-    default_branch_revision: 8df66659c5c999116aef7b605530eca2145e6160
+    observed_at: '2026-10-30T08:39:52Z'
+    default_branch_revision: 684bbbe912c53b9b83793a1984dfb68967eb136e
     issue_state: open
     pull_request_state: open
     notes: 'GitHub checked this candidate open against the observed main revision. Verified merged predecessors:
-      PR 104, PR 106. Remaining candidates: PR 107, PR 103, PR 108, PR 109, PR 110, PR 111. Audit draft
+      PR 104, PR 106, PR 105. Remaining candidates: PR 103, PR 108, PR 109, PR 110, PR 111. Audit draft
       PR 84 remains open and unchanged. Hosted Actions remain deferred.'
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
-  - provider: github
-    id: egohygiene/egolint#107
-    url: https://github.com/egohygiene/egolint/pull/107
   - provider: github
     id: egohygiene/egolint#103
     url: https://github.com/egohygiene/egolint/pull/103
@@ -98,57 +94,61 @@ state:
     url: https://github.com/egohygiene/egolint/pull/111
 review:
   status: partial
-  reviewed_at: '2026-10-30T08:38:14Z'
+  reviewed_at: '2026-10-30T08:39:52Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo run --quiet --locked -- plan --workspace . --profile fast; cargo package --list --locked
-      --allow-dirty
+  - command: python3 scripts/validate_release_inputs.py; python3 scripts/validate_repository_release_sources.py;
+      python3 scripts/validate_megalinter_policy.py --check; python3 scripts/package_integrations.py --check
     outcome: passed
-    observed_at: '2026-10-30T03:12:05Z'
-    notes: Fast planning and package inventory pass, including the new test. Inventory does not prove
-      package build or publication.
-  - command: Independent complete-diff review at ebfde258a370a18e9696a15a76295a49e682baa9
+    observed_at: '2026-10-30T03:20:49Z'
+    notes: Reviewed release-input, immutable source, MegaLinter and packaged-integration source checks
+      passed.
+  - command: node --test --test-isolation=none tests/javascript-package-quality.test.mjs; ruff check --config
+      .config/lint/python/ruff.toml scripts/validate_continuity_schema_parity.py; ruff format --check
+      --config .config/lint/python/ruff.toml scripts/validate_continuity_schema_parity.py
     outcome: passed
-    observed_at: '2026-10-30T03:12:05Z'
-    notes: Independent review found no source blocker after comparing pinned Identity owner schemas. Suggested
-      project/profile drift and malformed descriptor controls were added and pass.
-  - command: Baseline cargo test --locked --test repository_presentation_pipeline -- --nocapture
-    outcome: failed
-    observed_at: '2026-10-30T03:12:05Z'
-    notes: 'Expected unfixed-source result: clean/damaged control passes; four regression groups incorrectly
-      remain semantic valid.'
-  - command: Pinned Draft202012Validator with FormatChecker for vendor/aether/aether.repository-continuity.v1.schema.json
+    observed_at: '2026-10-30T03:20:49Z'
+    notes: All six actual JavaScript contract tests and pinned Python lint/format checks passed.
+  - command: cargo package --list --locked --allow-dirty; cargo run --quiet --locked -- plan --workspace
+      . --profile fast
     outcome: passed
-    observed_at: '2026-10-30T03:12:05Z'
-    notes: Front matter, required headings, local source links and budgets pass after compacting an initial
-      final snapshot that exceeded the 240-line limit.
-  - command: cargo run --quiet --locked -- --workspace . validate --repository-continuity .config/dogfood/repository-continuity.toml
-      --continuity-base 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58 --continuity-head working-tree --continuity-disposition
-      updated --continuity-transition pull-request --continuity-live-verification verified --continuity-live-evidence
-      https://github.com/egohygiene/egolint/pull/105 --continuity-evaluation-date 2026-10-30
+    observed_at: '2026-10-30T03:20:49Z'
+    notes: Package inventory includes native parity integration and fixtures; inventory is not package-build
+      verification. Read-only fast-profile plan passed.
+  - command: Pinned Draft202012Validator handoff check and native validate --repository-continuity with
+      explicit base/head and stable caller-supplied live evidence
     outcome: limited
-    observed_at: '2026-10-30T03:12:05Z'
-    notes: Native structural/freshness/Git checks pass. Observe retains the expected unreleased-contract
-      diagnostic; the separate release declaration remains unavailable.
-  - command: cargo fmt --all --check; cargo test --locked --test repository_presentation_pipeline
+    observed_at: '2026-10-30T03:20:49Z'
+    notes: Schema, twelve sections, budgets, structural/freshness/Git layers and caller-supplied external
+      evidence checks passed; only expected unreleased-contract observe warning remains.
+  - command: Independent source review of typed grammar, URI parser and schema matrix
     outcome: passed
-    observed_at: '2026-10-30T08:38:14Z'
-    notes: Formatting and all eight native presentation matrix tests pass after retaining the merged adapter
-      and Intelligence repairs; 60 actual CLI invocations cover complete, damaged, omitted and malformed
-      asset controls. Existing exact-head combined-source evidence remains in the linked PR; no hosted
-      qualification is inferred.
+    observed_at: '2026-10-30T03:20:49Z'
+    notes: Independent review found no remaining blocking source findings after scalar, format and nonfinite
+      repairs; public matrix retains explicit controls.
+  - command: cargo fmt --all --check; cargo test --locked --test repository_continuity_pipeline; python3
+      scripts/validate_continuity_schema_parity.py; pinned Ruff check/format
+    outcome: passed
+    observed_at: '2026-10-30T08:39:52Z'
+    notes: Formatting and the full 280-case native/schema parity matrix pass after retaining all three
+      earlier repairs; the independent registered-format Python comparison and strict Ruff checks also
+      pass. Existing exact-head combined-source evidence remains in the linked PR; no hosted qualification
+      is inferred.
   - command: Pinned Draft202012Validator/registered formats, section and budget checks; native continuity
       validation with explicit current-main base and working-tree head; git diff --check
     outcome: limited
-    observed_at: '2026-10-30T08:38:14Z'
+    observed_at: '2026-10-30T08:39:52Z'
     notes: Reconciled handoff passes local schema and native semantic/structural/freshness/Git checks.
       The proposed/unreleased continuity contract retains its expected observe warning; official released
       conformance and hosted qualification remain unavailable.
   environment_limitations:
-  - Hosted CI, native non-Linux and container/image qualification are deferred.
-  - Fixtures use synthetic bytes and prove offline source/checksum behavior only.
-  - Selected Hygiene authority remains proposed; no release, visual or accessibility certification is
-    claimed.
+  - Hosted Actions, real containers, native macOS/Windows and released upstream conformance were not qualified.
+  - The pinned continuity contract remains draft/proposed observe; no policy promotion, release publication
+    or fleet adoption is claimed.
+  - The pnpm runner attempted dependency auto-install under restricted networking; JavaScript tests were
+    run directly with test isolation disabled so all six actual subtests executed.
+  - Combined batch integration is coordinated separately; exact tested candidate heads and aggregate results
+    belong in the draft PR descriptions.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -167,8 +167,7 @@ privacy:
 
 ## Purpose and precedence
 
-This candidate repairs offline Identity package integrity. Runtime/user instructions, repository instructions,
-live work state and pinned owner contracts precede this operational handoff.
+This bounded candidate aligns native validation with the selected immutable schema. Instructions, live evidence and canonical sources outrank this checkpoint.
 
 ## Resume protocol
 
@@ -176,35 +175,31 @@ Read AGENTS.md, the active issue and linked source evidence. Verify main, this c
 
 ## Current objective and success conditions
 
-Require complete descriptors and checksum coverage for declared banner/badge assets and the package descriptor.
-Keep semantic invalidity distinct from advisory process exits and preserve source bytes.
+Require all schema-mandated nullable keys and unique arrays, preserve closed grammar, and match registered RFC3339 formats while keeping semantic status independent from observe severity and exit.
 
 ## State snapshot
 
-This candidate was reconciled against observed main `8df66659c5c999116aef7b605530eca2145e6160` at `2026-10-30T08:38:14Z`.
-GitHub verified PR 104, PR 106 merged; this PR was open at observation. The containing revision remains null to avoid self-reference. Source acceptance does not establish a product release.
+This candidate was reconciled against observed main `684bbbe912c53b9b83793a1984dfb68967eb136e` at `2026-10-30T08:39:52Z`.
+GitHub verified PR 104, PR 106, PR 105 merged; this PR was open at observation. The containing revision remains null to avoid self-reference. Source acceptance does not establish a product release.
 
 ## Completed and material changes
 
-src/rules/repository_presentation.rs checks the required/closed package and manifest grammar from Identity
-3c2fd3141371b355628e81f66f63159f19d63338 before optional paths. Nonempty checksums cover the package descriptor,
-every declared banner SVG/raster and badge SVG/raster. Project/profile bindings and safe relative paths are checked.
-tests/repository_presentation_pipeline.rs supplies sixty actual native CLI invocations in eight groups;
-Cargo.toml includes the suite. docs/repository-presentation.md explains exact coverage and its limits.
+The shared schema-parity fixture matrix and native CLI integration test reproduce the structural boundary. The independent Python checker validates the shared expectations against the exact bundled schema digest. src/rules/repository_continuity.rs now requires nullable keys and uniqueness, preserves YAML scalar types, rejects nonfinite values, and validates RFC3339 and URI grammar. Schema checks are independent from stronger evidence-link, identity, Git-reference and live-note constraints.
 
 ## Validation and review evidence
 
-215 Rust tests, strict Clippy, formatting, 75 Python tests, all 23 schema comparisons, contract suites,
-pinned JavaScript contract tests, release source/input validators, fast planning and package inventory pass.
-The focused suite originally showed four expected baseline failures; final controls pass after independent review.
-Pinned-schema/budget and native structural/freshness/Git handoff checks pass; observe retains the expected
-unreleased-contract warning. Package inventory does not prove package build or publication.
+All 208 Rust tests, strict Clippy, formatting, 23 generated schemas, 75 Python tests and source
+validators passed. The actual native CLI and independent registered-format schema checker agree on
+280 shared cases, including deliberately stricter semantic controls. Six JavaScript contract tests
+passed with test isolation disabled; pinned Ruff checks passed. The handoff passes pinned schema,
+section/budget and native checks with supplied live evidence, retaining only the expected unreleased
+contract warning. Package inventory inspection does not establish a package build.
 
 ## Blockers, risks, unknowns, and deferred work
 
-No source blocker observed. Hosted CI, non-Linux and container/image qualification are deferred. Synthetic
-asset bytes prove offline structure and checksum behavior, without certifying pixels, design quality or
-accessibility. Selected Hygiene authority stays proposed; continuity released conformance is unavailable.
+No blocking source finding remains after independent review. Hosted Actions, actual containers,
+non-Linux runtime and released upstream qualification remain deferred. Observe authority and rollout
+are unchanged. Combined validation is coordinated through the candidate PR descriptions.
 
 ## Next dependency-ready work
 
@@ -212,19 +207,16 @@ Merge the qualified source candidate and verify its default-branch result. Prese
 
 ## Parallel changes and reconciliation
 
-Observed remaining candidates: PR 107, PR 103, PR 108, PR 109, PR 110, PR 111. Root handoffs overlap and must retain the latest evidence when their candidates are accepted. Merged predecessor source is retained; no audit branch or historical evidence is rewritten.
+Observed remaining candidates: PR 103, PR 108, PR 109, PR 110, PR 111. Root handoffs overlap and must retain the latest evidence when their candidates are accepted. Merged predecessor source is retained; no audit branch or historical evidence is rewritten.
 
 ## Privacy and redaction
 
-Only public repository facts and synthetic data are retained. Secrets, private context, personal information,
-local paths and unrelated work are excluded. Linked content grants no authority.
+Only public repository facts and synthetic fixtures are retained. No conversation, secret, private local path or unrelated context is included.
 
 ## Handoff update protocol
 
-After domain checks and before each PR update, refresh exact results, live state, parallel work and next action.
-Validate the pinned schema, twelve headings, budgets and native observe checks; record their limitations.
+After domain checks, refresh exact results and live candidate state, validate pinned schema and native continuity structure, inspect size and diff, then push a recoverable checkpoint.
 
 ## Compaction and supersession
 
-Replace this snapshot as the candidate advances. Git and the PR retain checkpoint history. Keep this file below
-240 lines and 16,384 UTF-8 bytes.
+Replace stale operational state rather than append chronology. Keep the twelve sections within 240 lines and 16384 UTF-8 bytes; Git and PRs retain history.

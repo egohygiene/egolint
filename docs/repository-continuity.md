@@ -48,6 +48,27 @@ canonical sources, transition state, explicit verified/partial/unavailable wordi
 placeholders, unsafe YAML features, authority-escalation phrases, and secret-shaped values. Source
 content is never copied into diagnostics or the dedicated report.
 
+Native v1 decoding preserves YAML scalar types through a strict JSON-value boundary, rejects
+nonfinite numbers and non-string object keys, and uses closed typed records with explicitly required
+nullable keys: an absent key
+is different from an authored `null`. Every schema-declared unique array is checked, including next-work
+references and complete parallel-change records. Date-time checks use padded ASCII RFC3339 clock
+fields, optional decimal fractions, required UTC/offset zones and case-insensitive `T`/`Z` delimiters,
+matching the independently registered JSON Schema format checker. The selected checker permits a
+terminal line feed in anchored patterns/formats; canonical Git and stable evidence-link restrictions
+remain independent semantic checks. Schema `minLength: 1` accepts whitespace, and fixed numeric
+constants accept equivalent integer/decimal spellings. These schema rules do not certify narrative
+quality or replace repository identity, Git-reference, live-state or privacy checks.
+
+The paired structural matrix is `tests/fixtures/repository-continuity/schema-parity.json`.
+`cargo test --locked --test repository_continuity_pipeline` runs its cases through the actual native
+CLI, separately asserting semantic status, observe severity and process exit. Run
+`python3 scripts/validate_continuity_schema_parity.py` with `jsonschema` 4.26.0,
+`rfc3339-validator` 0.1.4 and `rfc3986-validator` 0.1.1 to check the same expectations independently
+against Draft 2020-12 and the exact bundled schema digest. The 280 shared cases distinguish schema
+diagnostics from deliberately stricter semantic link/identity controls. The checker refuses missing format
+registration; permissive no-op format validation cannot count as parity evidence.
+
 These checks prove structure and locally observable consistency. They do not prove that narrative
 prose is complete or factually true.
 
