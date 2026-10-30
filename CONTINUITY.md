@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:01:37Z'
+  updated_at: '2026-10-30T03:03:16Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -44,8 +44,9 @@ work:
     url: https://github.com/egohygiene/egolint/issues/90
   next:
     kind: action
-    id: repair-release-input-grammar
-    description: Implement typed grammar checks, then rerun focused CLI regressions.
+    id: validate-release-input-candidate
+    description: Review complete diff, run applicable broad source checks and native continuity validation,
+      then push the completed candidate.
     readiness: ready
     references:
     - https://github.com/egohygiene/egolint/issues/90
@@ -57,17 +58,20 @@ state:
     verified_at: '2026-10-30T03:01:37Z'
   candidate:
     branch: fix/90-release-input-grammar
-    revision: null
-    pull_request: null
+    revision: 19f579b9e5afca635e63d1286229cef9133ecfbe
+    pull_request:
+      provider: github
+      id: egohygiene/egolint#103
+      url: https://github.com/egohygiene/egolint/pull/103
     handoff_state: in-progress
   live:
     status: verified
     observed_at: '2026-10-30T03:01:37Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
-    pull_request_state: not-applicable
-    notes: Main includes merged PR 102. Issue 90 is open with no comments. This candidate has no PR yet.
-      Audit PR 84 remains separate and untouched.
+    pull_request_state: open
+    notes: Main includes merged PR 102. Issue 90 remains open. PR 103 is draft/open after the regression
+      checkpoint. Audit PR 84 remains separate and untouched.
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
@@ -89,7 +93,7 @@ state:
     url: https://github.com/egohygiene/egolint/issues/91
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:01:37Z'
+  reviewed_at: '2026-10-30T03:03:16Z'
   reviewed_by: Codex
   evidence:
   - command: python3 -m unittest discover --start-directory tests --pattern test_release_inputs.py --verbose
@@ -97,10 +101,19 @@ review:
     observed_at: '2026-10-30T03:01:37Z'
     notes: Original six controls passed before edits. New 13-test CLI regression suite exposes 162 expected
       subtest failures on unfixed source.
+  - command: python3 -m unittest discover --start-directory tests --pattern test_release_inputs.py --verbose
+    outcome: passed
+    observed_at: '2026-10-30T03:03:16Z'
+    notes: All 13 focused tests pass after implementation, including actual CLI malformed and positive
+      controls.
+  - command: python3 scripts/validate_release_inputs.py; python3 scripts/validate_repository_release_sources.py
+    outcome: passed
+    observed_at: '2026-10-30T03:03:16Z'
+    notes: Reviewed input contract and immutable owner release-source checks pass.
   environment_limitations:
   - Hosted Actions, image builds, registry publication, protected promotion and consumer adoption were
     not run.
-  - Rust tooling and pinned package tooling are being prepared; broad validation remains pending.
+  - Broad Python suite, full diff review and native continuity validation remain pending.
   - Continuity uses the vendored draft/proposed observe contract, not a released conformer.
 privacy:
   classification: public-repository
@@ -141,14 +154,16 @@ and is in progress. No merge, release, publication or adoption is claimed.
 ## Completed and material changes
 
 Tests in tests/test_release_inputs.py execute disposable repository-shaped copies of the real validator.
-They expose null-record acceptance, nested-type exceptions, incomplete grammar and premature environment
-comparisons. The reviewed contract in .config/release/base-images.v1.json remains unchanged.
+They cover null-record acceptance, nested-type exceptions, incomplete grammar and premature environment
+comparisons. scripts/validate_release_inputs.py now checks complete typed records and supported fields
+before platform intersection or environment comparison, with controlled load diagnostics. The reviewed contract in .config/release/base-images.v1.json remains unchanged.
 
 ## Validation and review evidence
 
-The original six focused tests passed. The new 13-test suite has 162 deliberately failing subtests on
-unfixed source. Failures are diagnostic regression evidence, not a complete candidate. Implementation,
-broad checks, schema/native continuity verification and final diff review remain pending.
+The original six focused tests passed. The new 13-test suite exposed 162 expected failures on unfixed
+source; all 13 now pass after repair. Both release-input and immutable release-source validators pass.
+Pinned continuity schema and format validation pass. Broad Python checks, native continuity verification
+and final diff review remain pending.
 
 ## Blockers, risks, unknowns, and deferred work
 
@@ -157,8 +172,8 @@ adoption remain deferred. The vendored continuity selection is draft/proposed an
 
 ## Next dependency-ready work
 
-Implement complete typed grammar and gate environment comparison on a valid contract, then rerun the
-actual CLI matrix and project checks before requesting maintainer review.
+Review the complete candidate diff, run applicable broad source checks and native continuity validation,
+then push the final review checkpoint and refresh draft PR 103.
 
 ## Parallel changes and reconciliation
 
