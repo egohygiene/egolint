@@ -164,7 +164,8 @@ fn focused(root: &Path) -> Value {
 }
 
 fn assert_invalid(root: &Path, mode: &str) {
-    let before = std::fs::read(root.join("README.md")).unwrap();
+    let before = ["README.md", PACKAGE, MANIFEST]
+        .map(|path| (path, std::fs::read(root.join(path)).unwrap()));
     let output = validate(root);
     assert_eq!(
         output.status.code(),
@@ -183,7 +184,13 @@ fn assert_invalid(root: &Path, mode: &str) {
     if mode == "advisory" {
         assert_eq!(report["summary"]["blocking_diagnostics"], 0);
     }
-    assert_eq!(std::fs::read(root.join("README.md")).unwrap(), before);
+    for (path, bytes) in before {
+        assert_eq!(
+            std::fs::read(root.join(path)).unwrap(),
+            bytes,
+            "validator changed {path}"
+        );
+    }
 }
 
 #[test]
@@ -273,4 +280,135 @@ fn malformed_manifest_metadata_is_invalid() {
         write_json(root.path(), MANIFEST, &manifest);
         assert_invalid(root.path(), "advisory");
     }
+}
+
+#[test]
+fn manifest_project_and_profile_bindings_cannot_drift() {
+    for (object, field) in [
+        ("", "projectId"),
+        ("profile", "id"),
+        ("profile", "version"),
+        ("profile", "status"),
+        ("profile", "commit"),
+    ] {
+        let root = consumer("advisory");
+        let mut manifest = read_json(root.path(), MANIFEST);
+        let value = if field == "commit" {
+            json!("2".repeat(40))
+        } else {
+            json!("different")
+        };
+        if object.is_empty() {
+            manifest[field] = value;
+        } else {
+            manifest[object][field] = value;
+        }
+        write_json(root.path(), MANIFEST, &manifest);
+        assert_invalid(root.path(), "advisory");
+    }
+}
+
+#[test]
+fn malformed_or_unbound_descriptor_paths_are_invalid() {
+    for mutation in [
+        "missing-variants",
+        "empty-variants",
+        "wrong-variants",
+        "null-variant",
+        "missing-svg",
+        "wrong-svg",
+        "empty-svg",
+        "wrong-raster",
+        "unsafe-svg",
+        "unsafe-manifest-entry",
+        "missing-alt",
+        "missing-fallback",
+    ] {
+        let root = consumer("advisory");
+        let mut package = read_json(root.path(), PACKAGE);
+        let mut manifest = read_json(root.path(), MANIFEST);
+        match mutation {
+            "missing-variants" => {
+                package["banner"]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("variants");
+            }
+            "empty-variants" => package["banner"]["variants"] = json!([]),
+            "wrong-variants" => package["banner"]["variants"] = json!({}),
+            "null-variant" => package["banner"]["variants"][0] = Value::Null,
+            "missing-svg" => {
+                package["banner"]["variants"][0]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("svg");
+            }
+            "wrong-svg" => package["badge"]["svg"] = json!(42),
+            "empty-svg" => package["badge"]["svg"] = json!(""),
+            "wrong-raster" => package["banner"]["variants"][1]["raster"] = json!([]),
+            "unsafe-svg" => {
+                package["badge"]["svg"] = json!("../badge.svg");
+                manifest["files"]["../badge.svg"] = checksum(b"synthetic");
+            }
+            "unsafe-manifest-entry" => manifest["files"]["../unrelated"] = checksum(b"synthetic"),
+            "missing-alt" => {
+                package["banner"].as_object_mut().unwrap().remove("altText");
+            }
+            "missing-fallback" => {
+                package["banner"]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("fallbackText");
+            }
+            _ => unreachable!(),
+        }
+        write_json(root.path(), PACKAGE, &package);
+        write_json(root.path(), MANIFEST, &manifest);
+        bind_package(root.path());
+        if matches!(mutation, "missing-alt" | "missing-fallback") {
+            let output = validate(root.path());
+            assert!(output.status.success(), "{output:?}");
+            let report = focused(root.path());
+            assert_eq!(report["status"], "invalid");
+            assert!(
+                report["diagnostics"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|item| item["rule_id"] == "EGO-PRESENT-BANNER-001")
+            );
+        } else {
+            assert_invalid(root.path(), "advisory");
+        }
+    }
+}
+
+#[test]
+fn omitted_optional_raster_references_do_not_require_invented_assets() {
+    let root = consumer("advisory");
+    let mut package = read_json(root.path(), PACKAGE);
+    let mut manifest = read_json(root.path(), MANIFEST);
+    for variant in package["banner"]["variants"].as_array_mut().unwrap() {
+        let path = variant.as_object_mut().unwrap().remove("raster").unwrap();
+        manifest["files"]
+            .as_object_mut()
+            .unwrap()
+            .remove(path.as_str().unwrap());
+    }
+    let path = package["badge"]
+        .as_object_mut()
+        .unwrap()
+        .remove("raster")
+        .unwrap();
+    manifest["files"]
+        .as_object_mut()
+        .unwrap()
+        .remove(path.as_str().unwrap());
+    write_json(root.path(), PACKAGE, &package);
+    write_json(root.path(), MANIFEST, &manifest);
+    bind_package(root.path());
+    let output = validate(root.path());
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(focused(root.path())["status"], "valid");
+    assert_eq!(focused(root.path())["summary"]["manifest_files_checked"], 4);
 }

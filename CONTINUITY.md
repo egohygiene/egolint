@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:05:55Z'
+  updated_at: '2026-10-30T03:11:23Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -45,8 +45,9 @@ work:
     url: https://github.com/egohygiene/egolint/issues/88
   next:
     kind: action
-    id: implement-presentation-integrity
-    description: Implement required descriptor grammar and complete checksum coverage.
+    id: review-presentation-integrity
+    description: Review draft PR 105, then reconcile its continuity snapshot with the latest accepted
+      peer state before merge.
     readiness: ready
     references:
     - https://github.com/egohygiene/egolint/issues/88
@@ -63,10 +64,10 @@ state:
       provider: github
       id: egohygiene/egolint#105
       url: https://github.com/egohygiene/egolint/pull/105
-    handoff_state: in-progress
+    handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-10-30T03:05:55Z'
+    observed_at: '2026-10-30T03:11:23Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
     pull_request_state: draft
@@ -94,29 +95,72 @@ state:
     url: https://github.com/egohygiene/egolint/pull/108
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:05:55Z'
+  reviewed_at: '2026-10-30T03:11:23Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo test --locked --test repository_presentation_pipeline
-    outcome: passed
-    observed_at: '2026-10-30T03:05:55Z'
-    notes: All five native CLI groups pass, including seven asset/descriptor omissions, eighteen descriptor
-      absence/type cases, empty map, malformed metadata and clean/damaged controls in advisory/blocking
-      modes.
   - command: cargo fmt --all --check; cargo clippy --all-targets --all-features --locked -- -D warnings
     outcome: passed
-    observed_at: '2026-10-30T03:05:55Z'
+    observed_at: '2026-10-30T03:11:23Z'
     notes: Pinned Rust 1.85.1 formatting and strict Clippy pass.
+  - command: cargo test --all-targets --all-features --locked
+    outcome: passed
+    observed_at: '2026-10-30T03:11:23Z'
+    notes: 215 tests pass, zero ignored. Eight presentation groups execute sixty actual native CLI invocations
+      with clean, damaged, omission, grammar and binding controls. Existing orchestration tests use bounded
+      runtime simulators.
+  - command: cargo test --locked --test repository_presentation_pipeline
+    outcome: passed
+    observed_at: '2026-10-30T03:11:23Z'
+    notes: Final eight groups pass after independent review additions and README/package/manifest byte-preservation
+      assertions.
+  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py
+    outcome: passed
+    observed_at: '2026-10-30T03:11:23Z'
+    notes: All 75 Python tests pass.
+  - command: task schemas:check; task contracts
+    outcome: passed
+    observed_at: '2026-10-30T03:11:23Z'
+    notes: All 23 generated schema comparisons and source/MegaLinter/complementary/JavaScript contract
+      checks pass.
+  - command: pnpm_config_verify_deps_before_run=false pnpm run javascript-quality:test
+    outcome: passed
+    observed_at: '2026-10-30T03:11:23Z'
+    notes: Pinned pnpm 11.21.0 and Node 24.19.0 execute the existing package-quality contract suite. An
+      initial implicit dependency-revalidation attempt was interrupted; this configured rerun passed.
+  - command: python3 scripts/validate_release_inputs.py; python3 scripts/validate_repository_release_sources.py;
+      python3 scripts/validate_megalinter_policy.py --check
+    outcome: passed
+    observed_at: '2026-10-30T03:11:23Z'
+    notes: Reviewed release-input, immutable release-owner source and MegaLinter contract validators pass.
+      The contributor example without required --check initially returned usage; the supported check passes.
+  - command: cargo run --quiet --locked -- plan --workspace . --profile fast; cargo package --list --locked
+      --allow-dirty
+    outcome: passed
+    observed_at: '2026-10-30T03:11:23Z'
+    notes: Fast planning and package inventory pass, including the new test. Inventory does not prove
+      package build or publication.
+  - command: Independent complete-diff review at ebfde258a370a18e9696a15a76295a49e682baa9
+    outcome: passed
+    observed_at: '2026-10-30T03:11:23Z'
+    notes: Independent review found no source blocker after comparing pinned Identity owner schemas. Suggested
+      project/profile drift and malformed descriptor controls were added and pass.
   - command: Baseline cargo test --locked --test repository_presentation_pipeline -- --nocapture
     outcome: failed
-    observed_at: '2026-10-30T03:05:55Z'
-    notes: 'Expected unfixed-source failure: one positive/damaged control passed; four independent regression
-      groups incorrectly remained semantic valid.'
-  - command: Pinned Draft202012Validator/FormatChecker and native continuity validation
+    observed_at: '2026-10-30T03:11:23Z'
+    notes: 'Expected unfixed-source result: clean/damaged control passes; four regression groups incorrectly
+      remain semantic valid.'
+  - command: Pinned Draft202012Validator with FormatChecker for vendor/aether/aether.repository-continuity.v1.schema.json
+    outcome: passed
+    observed_at: '2026-10-30T03:11:23Z'
+    notes: Front matter, required headings, local source links and 16,384-byte/240-line budgets pass.
+  - command: cargo run --quiet --locked -- --workspace . validate --repository-continuity .config/dogfood/repository-continuity.toml
+      --continuity-base 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58 --continuity-head working-tree --continuity-disposition
+      updated --continuity-transition pull-request --continuity-live-verification verified --continuity-live-evidence
+      https://github.com/egohygiene/egolint/pull/105 --continuity-evaluation-date 2026-10-30
     outcome: limited
-    observed_at: '2026-10-30T03:05:55Z'
-    notes: Pinned schema and budgets pass; native structural/freshness/Git checks pass with only the expected
-      unreleased-contract observe diagnostic. Separate release declaration is unavailable.
+    observed_at: '2026-10-30T03:11:23Z'
+    notes: Native structural/freshness/Git checks pass. Observe retains the expected unreleased-contract
+      diagnostic; the separate release declaration remains unavailable.
   environment_limitations:
   - Hosted CI, native non-Linux and container/image qualification are deferred.
   - Fixtures use synthetic bytes and prove offline source/checksum behavior only.
@@ -145,7 +189,7 @@ live work state and pinned owner contracts precede this operational handoff.
 
 ## Resume protocol
 
-Read AGENTS, issue 88, the presentation rule pack, its native CLI tests and the selected owner contract.
+Read AGENTS, issue 88, the presentation rule pack, its native CLI tests and selected owner contract.
 Refresh main and draft PR state before changing this candidate.
 
 ## Current objective and success conditions
@@ -156,37 +200,40 @@ Keep semantic invalidity distinct from advisory process exits and preserve sourc
 ## State snapshot
 
 Independent base is main at 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58, including merged PR 102.
-Draft PR 105 is in progress on fix/88-presentation-asset-coverage; it is not merged.
+Draft PR 105 on fix/88-presentation-asset-coverage is prepared for review; no merge or release is claimed.
 
 ## Completed and material changes
 
-The new tests/repository_presentation_pipeline.rs exercises actual native validation with a complete synthetic
-Identity package and the exact selected Hygiene profile. Cargo.toml includes this test in package inventory.
-src/rules/repository_presentation.rs validates complete pinned owner grammar before optional paths, requires
-nonempty manifest coverage for the descriptor and every declared banner/badge asset, and binds manifest profile
-metadata to the selected policy. The complete-map/damaged-file control remains intact.
+src/rules/repository_presentation.rs checks the required/closed package and manifest grammar from Identity
+3c2fd3141371b355628e81f66f63159f19d63338 before optional paths. Nonempty checksums cover the package descriptor,
+every declared banner SVG/raster and badge SVG/raster. Project/profile bindings and safe relative paths are checked.
+tests/repository_presentation_pipeline.rs supplies sixty actual native CLI invocations in eight groups;
+Cargo.toml includes the suite. docs/repository-presentation.md explains exact coverage and its limits.
 
 ## Validation and review evidence
 
-All five native CLI groups, Rust 1.85.1 formatting and strict Clippy pass. The same suite previously proved
-four expected baseline failures. Pinned-schema/budget and native handoff checks pass with the expected
-unreleased-contract observe warning; broad completion checks and independent review remain pending.
+215 Rust tests, strict Clippy, formatting, 75 Python tests, all 23 schema comparisons, contract suites,
+pinned JavaScript contract tests, release source/input validators, fast planning and package inventory pass.
+The focused suite originally showed four expected baseline failures; final controls pass after independent review.
+Pinned-schema/budget and native structural/freshness/Git handoff checks pass; observe retains the expected
+unreleased-contract warning. Package inventory does not prove package build or publication.
 
 ## Blockers, risks, unknowns, and deferred work
 
-No source blocker observed. Hosted CI, other operating systems and container/image qualification are deferred.
-Checksum validation does not establish visual quality or accessibility. Proposed policy authority is preserved.
+No source blocker observed. Hosted CI, non-Linux and container/image qualification are deferred. Synthetic
+asset bytes prove offline structure and checksum behavior, without certifying pixels, design quality or
+accessibility. Selected Hygiene authority stays proposed; continuity released conformance is unavailable.
 
 ## Next dependency-ready work
 
-Review the complete diff, add any missing boundary regressions, run applicable completion checks and refresh
-the handoff before presenting the completed draft candidate.
+Review draft PR 105. Reconcile its continuity snapshot with the latest accepted peer state before merge.
+No implementation dependency on another candidate was identified.
 
 ## Parallel changes and reconciliation
 
-Peer draft PRs 104, 106, 107, 103 and 108 address issues 86, 87, 89, 90 and 91 independently and may all update this root handoff.
-Reconcile these overlap edits by current evidence when reviewing; do not concatenate snapshots. Audit draft
-PR 84 and its historical evidence remain untouched. No issue is manually closed by this work.
+Peer drafts 104, 106, 107, 103 and 108 address issues 86, 87, 89, 90 and 91 independently from the same main base.
+Every candidate may update this root handoff; reconcile by evidence instead of concatenating snapshots.
+Audit draft PR 84 and its historical evidence remain untouched. Issues are not manually closed by this work.
 
 ## Privacy and redaction
 
