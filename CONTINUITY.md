@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:09:42Z'
+  updated_at: '2026-10-30T08:36:02Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -35,24 +35,26 @@ work:
   objective: Keep Intelligence semantic status consistent with represented-source evidence.
   success_conditions:
   - Present surfaces with not-applicable represented commits report incomplete independently of enforcement.
-  - Exact, unknown, non-adopted and truncated controls retain distinct outcomes; disabled rules emit no diagnostics.
+  - Exact, unknown, non-adopted and truncated controls retain distinct outcomes; disabled rules emit no
+    diagnostics.
   active_issue:
     provider: github
     id: egohygiene/egolint#87
     url: https://github.com/egohygiene/egolint/issues/87
   next:
     kind: action
-    id: review-intelligence-adoption-candidate
-    description: Review the bounded candidate and reconcile continuity with parallel branches before any merge.
+    id: merge-qualified-87-candidate
+    description: Merge the qualified source candidate, then verify the resulting default-branch state;
+      retain separate release acceptance gates.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/87
+    - https://github.com/egohygiene/egolint/pull/106
     depends_on: []
 state:
   base:
-    revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
+    revision: 54f97377ed09a4f41e7a37da0dac7728871f7493
     ref: refs/heads/main
-    verified_at: '2026-10-30T03:09:42Z'
+    verified_at: '2026-10-30T08:36:02Z'
   candidate:
     branch: fix/87-intelligence-source-status
     revision: null
@@ -63,23 +65,17 @@ state:
     handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-10-30T03:09:42Z'
-    default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
+    observed_at: '2026-10-30T08:36:02Z'
+    default_branch_revision: 54f97377ed09a4f41e7a37da0dac7728871f7493
     issue_state: open
-    pull_request_state: draft
-    notes: 'Verified live provider and Git observations: main contains merged PR 102. Issue 87 is open; this
-      branch is an independent candidate from main. Audit PR 84 remains draft/open and untouched. Other issue-sized
-      candidates are being prepared independently; all overlap CONTINUITY.md.'
+    pull_request_state: open
+    notes: 'GitHub checked this candidate open against the observed main revision. Verified merged predecessors:
+      PR 104. Remaining candidates: PR 105, PR 107, PR 103, PR 108, PR 109, PR 110, PR 111. Audit draft
+      PR 84 remains open and unchanged. Hosted Actions remain deferred.'
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
-  - provider: github
-    id: egohygiene/egolint#103
-    url: https://github.com/egohygiene/egolint/pull/103
-  - provider: github
-    id: egohygiene/egolint#104
-    url: https://github.com/egohygiene/egolint/pull/104
   - provider: github
     id: egohygiene/egolint#105
     url: https://github.com/egohygiene/egolint/pull/105
@@ -87,40 +83,38 @@ state:
     id: egohygiene/egolint#107
     url: https://github.com/egohygiene/egolint/pull/107
   - provider: github
+    id: egohygiene/egolint#103
+    url: https://github.com/egohygiene/egolint/pull/103
+  - provider: github
     id: egohygiene/egolint#108
     url: https://github.com/egohygiene/egolint/pull/108
+  - provider: github
+    id: egohygiene/egolint#109
+    url: https://github.com/egohygiene/egolint/pull/109
+  - provider: github
+    id: egohygiene/egolint#110
+    url: https://github.com/egohygiene/egolint/pull/110
+  - provider: github
+    id: egohygiene/egolint#111
+    url: https://github.com/egohygiene/egolint/pull/111
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:09:42Z'
+  reviewed_at: '2026-10-30T08:36:02Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo test --test intelligence_adoption_pipeline --locked (unfixed source at diagnosis checkpoint)
-    outcome: failed
-    observed_at: '2026-10-30T03:09:42Z'
-    notes: 'Expected regression result on unrepaired source: one control test passed; two tests failed because
-      contradictory represented evidence reported valid instead of incomplete.'
-  - command: cargo fmt --all --check
-    outcome: passed
-    observed_at: '2026-10-30T03:09:42Z'
-    notes: Rust 1.85.1 formatting passed for the regression checkpoint.
-  - command: Pinned Draft202012Validator/FormatChecker and native validate --repository-continuity with explicit
-      base, working-tree head and verified live evidence
-    outcome: limited
-    observed_at: '2026-10-30T03:09:42Z'
-    notes: Front matter, twelve sections, budgets and native structure/freshness/Git checks passed. Observe
-      retains only the expected unreleased-contract warning; no released conformance is claimed.
   - command: cargo test --test intelligence_adoption_pipeline --locked; cargo test --locked --lib repository_intelligence
     outcome: passed
     observed_at: '2026-10-30T03:09:42Z'
-    notes: After the repair, all 3 native CLI matrix tests (31 invocations) and all 21 Intelligence unit tests
-      passed. Semantic status, diagnostics and process exit are asserted separately.
-  - command: Independent source and fixture review against main; cargo fmt --all --check; cargo clippy --all-targets
-      --all-features --locked -- -D warnings; cargo test --all-targets --all-features --locked
+    notes: After the repair, all 3 native CLI matrix tests (31 invocations) and all 21 Intelligence unit
+      tests passed. Semantic status, diagnostics and process exit are asserted separately.
+  - command: Independent source and fixture review against main; cargo fmt --all --check; cargo clippy
+      --all-targets --all-features --locked -- -D warnings; cargo test --all-targets --all-features --locked
     outcome: passed
     observed_at: '2026-10-30T03:09:42Z'
     notes: Independent review found no source blocker. Applied test-environment isolation and SPDX suggestions,
-      added non-adoption/unknown and invalid-source precedence controls. Rust 1.85.1 formatting, strict Clippy
-      and all 211 Rust tests passed, zero ignored; the 4 new native matrix tests perform 34 CLI invocations.
+      added non-adoption/unknown and invalid-source precedence controls. Rust 1.85.1 formatting, strict
+      Clippy and all 211 Rust tests passed, zero ignored; the 4 new native matrix tests perform 34 CLI
+      invocations.
   - command: task schemas:check; python3 -m unittest discover --start-directory tests --pattern test_*.py
     outcome: passed
     observed_at: '2026-10-30T03:09:42Z'
@@ -128,15 +122,28 @@ review:
   - command: pnpm --config.verify-deps-before-run=false run javascript-quality:test; node tests/javascript-package-quality.test.mjs
     outcome: passed
     observed_at: '2026-10-30T03:09:42Z'
-    notes: pnpm 11.21.0 wrapper passed. Direct Node 24.19.0 invocation executed all 6 JavaScript contract tests
-      successfully; the node --test wrapper reports only a file-level result in this environment.
+    notes: pnpm 11.21.0 wrapper passed. Direct Node 24.19.0 invocation executed all 6 JavaScript contract
+      tests successfully; the node --test wrapper reports only a file-level result in this environment.
   - command: python3 scripts/validate_release_inputs.py; python3 scripts/validate_repository_release_sources.py;
       python3 scripts/validate_megalinter_policy.py --check; python3 scripts/package_integrations.py --check;
       cargo run --quiet --locked -- plan --workspace . --profile fast; cargo package --list --locked --allow-dirty
     outcome: passed
     observed_at: '2026-10-30T03:09:42Z'
-    notes: Source validators, deterministic planning and package inventory passed. Inventory includes the new
-      native integration test; no package build or publication is claimed.
+    notes: Source validators, deterministic planning and package inventory passed. Inventory includes
+      the new native integration test; no package build or publication is claimed.
+  - command: cargo test --locked --test intelligence_adoption_pipeline
+    outcome: passed
+    observed_at: '2026-10-30T08:36:02Z'
+    notes: All four native Intelligence matrix tests pass against the candidate with the merged JavaScript
+      repair; 34 CLI invocations retain semantic-status and exit distinctions. Existing exact-head combined-source
+      evidence remains in the linked PR; no hosted qualification is inferred.
+  - command: Pinned Draft202012Validator/registered formats, section and budget checks; native continuity
+      validation with explicit current-main base and working-tree head; git diff --check
+    outcome: limited
+    observed_at: '2026-10-30T08:36:02Z'
+    notes: Reconciled handoff passes local schema and native semantic/structural/freshness/Git checks.
+      The proposed/unreleased continuity contract retains its expected observe warning; official released
+      conformance and hosted qualification remain unavailable.
   environment_limitations:
   - Hosted Actions, native non-Linux and real container/image qualification are deferred.
   - Offline source consistency cannot authenticate GitHub ownership or bind supplied identity to the checkout.
@@ -164,8 +171,7 @@ live evidence and canonical sources outrank the handoff; it grants no authority.
 
 ## Resume protocol
 
-Read AGENTS, issue 87, roadmap 42 and the Intelligence source and tests. Verify main, this candidate,
-and parallel draft PRs before continuing. Main contains PR 102; its earlier issue 85 handoff is superseded here.
+Read AGENTS.md, the active issue and linked source evidence. Verify main, this candidate and the remaining PRs against live state before continuing. Audit draft PR 84 is a separate historical change.
 
 ## Current objective and success conditions
 
@@ -174,8 +180,8 @@ non-adopted and truncated outcomes while keeping selected diagnostics and enforc
 
 ## State snapshot
 
-This independent branch starts at main 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58.
-The candidate is review; containing revision remains null to avoid self-reference. No merge is claimed.
+This candidate was reconciled against observed main `54f97377ed09a4f41e7a37da0dac7728871f7493` at `2026-10-30T08:36:02Z`.
+GitHub verified PR 104 merged; this PR was open at observation. The containing revision remains null to avoid self-reference. Source acceptance does not establish a product release.
 
 ## Completed and material changes
 
@@ -196,13 +202,11 @@ Local semantic evidence does not establish authenticated source truth or release
 
 ## Next dependency-ready work
 
-Review the bounded candidate and reconcile continuity with parallel branches before any merge.
+Merge the qualified source candidate and verify its default-branch result. Preserve the documented hosted, publisher migration, platform and publication gates where applicable.
 
 ## Parallel changes and reconciliation
 
-Independent issues 86 and 88 through 91 also prepare bounded candidates from main. Their CONTINUITY.md
-edits overlap and require semantic reconciliation after review. Audit draft PR 84 and historical probe/report
-bytes remain untouched; a later audit merge must retain the latest accurate execution checkpoint.
+Observed remaining candidates: PR 105, PR 107, PR 103, PR 108, PR 109, PR 110, PR 111. Root handoffs overlap and must retain the latest evidence when their candidates are accepted. Merged predecessor source is retained; no audit branch or historical evidence is rewritten.
 
 ## Privacy and redaction
 
