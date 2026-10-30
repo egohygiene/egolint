@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:03:34Z'
+  updated_at: '2026-10-30T03:07:10Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -46,8 +46,9 @@ work:
     url: https://github.com/egohygiene/egolint/issues/91
   next:
     kind: action
-    id: repair-release-dispatch
-    description: Implement the literal dispatch grammar, then rerun the native matrix.
+    id: review-release-dispatch
+    description: Review this draft candidate; carry its static policy-boundary matrix into release checkpoint
+      68 and consume it during 69 dogfood.
     readiness: ready
     references:
     - https://github.com/egohygiene/egolint/issues/91
@@ -58,54 +59,57 @@ state:
   base:
     revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     ref: refs/heads/main
-    verified_at: '2026-10-30T03:03:34Z'
+    verified_at: '2026-10-30T03:07:10Z'
   candidate:
     branch: fix/91-release-dispatch-binding
     revision: null
-    pull_request: null
+    pull_request:
+      provider: github
+      id: egohygiene/egolint#108
+      url: https://github.com/egohygiene/egolint/pull/108
     handoff_state: in-progress
   live:
     status: verified
-    observed_at: '2026-10-30T03:03:34Z'
+    observed_at: '2026-10-30T03:07:10Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
-    pull_request_state: not-applicable
-    notes: Main contains merged PR 102. Issue 91 remains open. Audit PR 84 is draft/open and untouched.
-      Independent sibling issues 86-90 are being prepared on separate branches; their continuity edits
-      overlap. No merge, release or publication is claimed.
+    pull_request_state: draft
+    notes: Verified main contains merged PR 102. Issue 91 remains open. Audit PR 84 is draft/open and
+      untouched. Independent sibling issues 86-90 are being prepared on separate draft branches; their
+      continuity edits overlap. No merge, release or publication is claimed.
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
   - provider: github
-    id: egohygiene/egolint#86
-    url: https://github.com/egohygiene/egolint/issues/86
+    id: egohygiene/egolint#104
+    url: https://github.com/egohygiene/egolint/pull/104
   - provider: github
-    id: egohygiene/egolint#87
-    url: https://github.com/egohygiene/egolint/issues/87
+    id: egohygiene/egolint#106
+    url: https://github.com/egohygiene/egolint/pull/106
   - provider: github
-    id: egohygiene/egolint#88
-    url: https://github.com/egohygiene/egolint/issues/88
+    id: egohygiene/egolint#105
+    url: https://github.com/egohygiene/egolint/pull/105
   - provider: github
-    id: egohygiene/egolint#89
-    url: https://github.com/egohygiene/egolint/issues/89
+    id: egohygiene/egolint#107
+    url: https://github.com/egohygiene/egolint/pull/107
   - provider: github
-    id: egohygiene/egolint#90
-    url: https://github.com/egohygiene/egolint/issues/90
+    id: egohygiene/egolint#103
+    url: https://github.com/egohygiene/egolint/pull/103
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:03:34Z'
+  reviewed_at: '2026-10-30T03:07:10Z'
   reviewed_by: Codex
   evidence:
   - command: cargo test --locked --test repository_release_pipeline static_task_dispatch_matrix_preserves_native_evidence_agreement
       -- --nocapture
-    outcome: failed
-    observed_at: '2026-10-30T03:03:34Z'
-    notes: 'Regression checkpoint: direct and quoted-path controls pass; echo-only source incorrectly
-      reports compliant and exit 0 on unfixed main.'
+    outcome: passed
+    observed_at: '2026-10-30T03:07:10Z'
+    notes: All source-only direct-dispatch and hostile/unsupported-command cases pass through the actual
+      native CLI. No Task command was executed.
   - command: cargo fmt --all --check; git diff --check
     outcome: passed
-    observed_at: '2026-10-30T03:03:34Z'
+    observed_at: '2026-10-30T03:07:10Z'
     notes: Formatting and whitespace checks pass.
   environment_limitations:
   - Hosted Actions, real containers and native non-Linux execution are deferred.
@@ -147,28 +151,28 @@ Preserve direct-dispatch controls and source locations across focused, aggregate
 ## State snapshot
 
 Base main is 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58, including PR 102. Candidate fix/91-release-dispatch-binding
-is at the regression checkpoint. Issue 91 remains open; no merge or publication is claimed.
+is at the implementation checkpoint. Issue 91 remains open; no merge or publication is claimed.
 
 ## Completed and material changes
 
 tests/repository_release_pipeline.rs owns the native static-command matrix. It inspects synthetic
-Taskfile source without executing commands. The current checkpoint deliberately exposes the echo-only false compliant result before implementation.
+Taskfile source without executing commands. The current checkpoint replaces substring matching in src/rules/repository_release/checks.rs with the documented bounded literal command grammar.
 Pinned Aether/Hygiene release source bytes and authority remain unchanged. No ADR is required for this repair.
 
 ## Validation and review evidence
 
-The native matrix fails as expected on echo-only source after positive controls pass.
+The native matrix passes with supported controls and unsupported source forms kept unavailable.
 Exact commands and outcomes are recorded above. Task commands and hosted workflows were never executed.
 
 ## Blockers, risks, unknowns, and deferred work
 
-The source repair and complete validation remain pending.
+No source blocker is observed; maintainer review remains pending.
 Hosted Actions and non-Linux/container execution are deferred. Static conformance is not publication evidence.
 The full issue 68 profile/state matrix and issue 69 dogfood remain independently owned work.
 
 ## Next dependency-ready work
 
-Implement the bounded grammar and rerun the existing native regression.
+Review this draft, then reuse the static dispatch cases for checkpoint 68 and consume the repair during 69 dogfood.
 
 ## Parallel changes and reconciliation
 

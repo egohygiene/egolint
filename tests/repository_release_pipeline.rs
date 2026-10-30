@@ -129,7 +129,11 @@ fn output_text(output: &Output) -> String {
     )
 }
 
-fn publish_commands(root: &Path, commands: Value) {
+fn publish_commands(root: &Path, commands: &Value) {
+    publish_task(root, &json!({"cmds": commands}));
+}
+
+fn publish_task(root: &Path, task: &Value) {
     write(
         root,
         "Taskfile.yml",
@@ -139,7 +143,7 @@ fn publish_commands(root: &Path, commands: Value) {
                 "release:plan": {"cmds": ["true"]},
                 "release:prepare": {"cmds": ["true"]},
                 "release:verify": {"cmds": ["true"]},
-                "release:publish": {"cmds": commands}
+                "release:publish": task
             }
         }))
         .expect("Taskfile YAML-compatible JSON"),
@@ -155,26 +159,6 @@ fn publish_commands(root: &Path, commands: Value) {
 fn static_task_dispatch_matrix_preserves_native_evidence_agreement() {
     // These strings are source fixtures only. The native validator never runs Task commands.
     let cases = [
-        (
-            "direct",
-            json!(["gh workflow run .github/workflows/release.yml"]),
-            true,
-        ),
-        (
-            "quoted-path",
-            json!(["gh workflow run \".github/workflows/release.yml\""]),
-            true,
-        ),
-        (
-            "single-quoted-path",
-            json!(["gh workflow run '.github/workflows/release.yml'"]),
-            true,
-        ),
-        (
-            "structured-command",
-            json!([{"cmd": "gh workflow run .github/workflows/release.yml"}]),
-            true,
-        ),
         (
             "echo-only",
             json!(["echo gh workflow run .github/workflows/release.yml"]),
@@ -251,85 +235,151 @@ fn static_task_dispatch_matrix_preserves_native_evidence_agreement() {
             false,
         ),
         ("non-string-command", json!([{"cmd": null}]), false),
+        (
+            "command-options",
+            json!(["gh workflow run .github/workflows/release.yml --ref main"]),
+            false,
+        ),
+        (
+            "command-modifier",
+            json!([{"cmd": "gh workflow run .github/workflows/release.yml", "ignore_error": true}]),
+            false,
+        ),
     ];
     for (name, commands, accepted) in cases {
         let root = consumer();
-        publish_commands(root.path(), commands);
-        let output = Command::new(env!("CARGO_BIN_EXE_egolint"))
-            .arg("--workspace")
-            .arg(root.path())
-            .arg("validate")
-            .output()
-            .expect("inspect source without executing Task commands");
-        let text = output_text(&output);
+        publish_commands(root.path(), &commands);
+        assert_dispatch_source(root.path(), name, accepted);
+    }
+}
+
+#[test]
+fn literal_direct_task_dispatches_remain_accepted() {
+    for command in [
+        "gh workflow run .github/workflows/release.yml",
+        "gh workflow run \".github/workflows/release.yml\"",
+        "gh workflow run '.github/workflows/release.yml'",
+        "  gh\tworkflow  run .github/workflows/release.yml  ",
+    ] {
+        let root = consumer();
+        publish_commands(root.path(), &json!([command]));
+        assert_dispatch_source(root.path(), command, true);
+    }
+    let root = consumer();
+    publish_commands(
+        root.path(),
+        &json!([{"cmd": "gh workflow run .github/workflows/release.yml"}]),
+    );
+    assert_dispatch_source(root.path(), "cmd mapping", true);
+    let root = consumer();
+    publish_task(
+        root.path(),
+        &json!({
+            "desc": "Dispatch the reviewed workflow",
+            "summary": "Manual dispatch only",
+            "silent": true,
+            "cmds": ["gh workflow run .github/workflows/release.yml"]
+        }),
+    );
+    assert_dispatch_source(root.path(), "descriptive task metadata", true);
+}
+
+#[test]
+fn task_execution_features_remain_unavailable() {
+    for (key, value) in [
+        ("deps", json!(["other-task"])),
+        ("preconditions", json!(["true"])),
+        ("status", json!(["true"])),
+        ("env", json!({"WORKFLOW": ".github/workflows/release.yml"})),
+        ("dir", json!("other-directory")),
+    ] {
+        let root = consumer();
+        let mut task = json!({"cmds": ["gh workflow run .github/workflows/release.yml"]});
+        task[key] = value;
+        publish_task(root.path(), &task);
+        assert_dispatch_source(root.path(), key, false);
+    }
+}
+
+fn assert_dispatch_source(root: &Path, name: &str, accepted: bool) {
+    let output = Command::new(env!("CARGO_BIN_EXE_egolint"))
+        .arg("--workspace")
+        .arg(root)
+        .arg("validate")
+        .output()
+        .expect("inspect source without executing Task commands");
+    let text = output_text(&output);
+    assert_eq!(
+        output.status.code(),
+        Some(i32::from(!accepted)),
+        "{name}: {text}"
+    );
+    let focused = report(root, "repository-release.json");
+    let check = focused["checks"]
+        .as_array()
+        .expect("checks")
+        .iter()
+        .find(|check| check["rule_id"] == "EGOLINT_RELEASE_TASK_HANDOFFS")
+        .expect("task check");
+    assert_eq!(
+        check["state"],
+        if accepted { "passed" } else { "unavailable" },
+        "{name}"
+    );
+    assert_eq!(check["location"]["path"], "Taskfile.yml", "{name}");
+    assert_eq!(
+        focused["state"],
+        if accepted { "compliant" } else { "unavailable" },
+        "{name}"
+    );
+    assert_eq!(
+        focused["summary"]["validation_complete"], accepted,
+        "{name}"
+    );
+    let run = report(root, "run.json");
+    let findings: Vec<_> = run["findings"]
+        .as_array()
+        .expect("findings")
+        .iter()
+        .filter(|finding| finding["rule"]["rule_id"] == "EGOLINT_RELEASE_TASK_HANDOFFS")
+        .collect();
+    let tool = run["tool_results"]
+        .as_array()
+        .expect("tools")
+        .iter()
+        .find(|tool| tool["tool_id"] == "EGOLINT_REPOSITORY_RELEASE")
+        .expect("release tool");
+    assert_eq!(
+        tool["status"],
+        if accepted {
+            "passed"
+        } else {
+            "failed_findings"
+        },
+        "{name}"
+    );
+    assert_eq!(findings.len(), usize::from(!accepted), "{name}");
+    let sarif = report(root, "egolint.sarif");
+    let results: Vec<_> = sarif["runs"][0]["results"]
+        .as_array()
+        .expect("SARIF results")
+        .iter()
+        .filter(|result| result["properties"]["egolintToolId"] == "EGOLINT_REPOSITORY_RELEASE")
+        .collect();
+    assert_eq!(results.len(), findings.len(), "{name}");
+    if !accepted {
+        assert_eq!(findings[0]["severity"], "error", "{name}");
+        assert_eq!(findings[0]["location"], check["location"], "{name}");
+        assert_eq!(results[0]["level"], "error", "{name}");
         assert_eq!(
-            output.status.code(),
-            Some(i32::from(!accepted)),
-            "{name}: {text}"
-        );
-        let focused = report(root.path(), "repository-release.json");
-        let check = focused["checks"]
-            .as_array()
-            .expect("checks")
-            .iter()
-            .find(|check| check["rule_id"] == "EGOLINT_RELEASE_TASK_HANDOFFS")
-            .expect("task check");
-        assert_eq!(
-            check["state"],
-            if accepted { "passed" } else { "unavailable" },
+            results[0]["properties"]["egolintFindingId"], findings[0]["id"],
             "{name}"
         );
-        assert_eq!(check["location"]["path"], "Taskfile.yml", "{name}");
         assert_eq!(
-            focused["state"],
-            if accepted { "compliant" } else { "unavailable" },
+            results[0]["locations"][0]["physicalLocation"]["artifactLocation"]["uri"],
+            "Taskfile.yml",
             "{name}"
         );
-        assert_eq!(
-            focused["summary"]["validation_complete"], accepted,
-            "{name}"
-        );
-        let run = report(root.path(), "run.json");
-        let findings: Vec<_> = run["findings"]
-            .as_array()
-            .expect("findings")
-            .iter()
-            .filter(|finding| finding["rule"]["rule_id"] == "EGOLINT_RELEASE_TASK_HANDOFFS")
-            .collect();
-        let tool = run["tool_results"]
-            .as_array()
-            .expect("tools")
-            .iter()
-            .find(|tool| tool["tool_id"] == "EGOLINT_REPOSITORY_RELEASE")
-            .expect("release tool");
-        assert_eq!(
-            tool["status"],
-            if accepted {
-                "passed"
-            } else {
-                "failed_findings"
-            },
-            "{name}"
-        );
-        assert_eq!(findings.len(), usize::from(!accepted), "{name}");
-        let sarif = report(root.path(), "egolint.sarif");
-        let results: Vec<_> = sarif["runs"][0]["results"]
-            .as_array()
-            .expect("SARIF results")
-            .iter()
-            .filter(|result| result["ruleId"] == "EGOLINT_RELEASE_TASK_HANDOFFS")
-            .collect();
-        assert_eq!(results.len(), findings.len(), "{name}");
-        if !accepted {
-            assert_eq!(findings[0]["severity"], "error", "{name}");
-            assert_eq!(findings[0]["location"], check["location"], "{name}");
-            assert_eq!(results[0]["level"], "error", "{name}");
-            assert_eq!(
-                results[0]["locations"][0]["physicalLocation"]["artifactLocation"]["uri"],
-                "Taskfile.yml",
-                "{name}"
-            );
-        }
     }
 }
 

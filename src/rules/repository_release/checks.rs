@@ -981,7 +981,7 @@ fn check_taskfile(inventory: &RepositoryInventory, declaration: &ReleaseDeclarat
         return Outcome::unavailable(
             path,
             "The release:publish task exists, but its handoff to the declared manual workflow cannot be established statically.",
-            "Make release:publish dispatch the declared path with gh workflow run without performing publication locally.",
+            "Use one literal gh workflow run <declared-path> command, as a string or a cmd-only mapping; keep shell composition and other execution outside this supported static handoff.",
             evidence,
         );
     }
@@ -1405,22 +1405,63 @@ fn collect_unpinned_reference(mapping: &serde_yaml::Mapping, unpinned: &mut Vec<
 }
 
 fn task_dispatches_workflow(task: &YamlValue, workflow: &str) -> bool {
-    task.as_mapping()
-        .and_then(|task| yaml_mapping_value(task, "cmds"))
-        .and_then(YamlValue::as_sequence)
-        .is_some_and(|commands| {
-            commands.iter().any(|command| {
-                let command = command.as_str().or_else(|| {
-                    command
-                        .as_mapping()
-                        .and_then(|command| yaml_mapping_value(command, "cmd"))
-                        .and_then(YamlValue::as_str)
-                });
-                command.is_some_and(|command| {
-                    command.contains("gh workflow run") && command.contains(workflow)
-                })
-            })
+    let Some(task) = task.as_mapping() else {
+        return false;
+    };
+    // Execution-affecting Task features require their own reviewed static model.
+    // Descriptive metadata does not broaden the one-command handoff grammar.
+    if task
+        .keys()
+        .any(|key| !matches!(key.as_str(), Some("cmds" | "desc" | "summary" | "silent")))
+    {
+        return false;
+    }
+    let Some(commands) = yaml_mapping_value(task, "cmds").and_then(YamlValue::as_sequence) else {
+        return false;
+    };
+    let [command] = commands.as_slice() else {
+        return false;
+    };
+    let command = command.as_str().or_else(|| {
+        let mapping = command.as_mapping()?;
+        (mapping.len() == 1)
+            .then(|| yaml_mapping_value(mapping, "cmd").and_then(YamlValue::as_str))
+            .flatten()
+    });
+    command.is_some_and(|command| literal_workflow_dispatch(command, workflow))
+}
+
+fn literal_workflow_dispatch(command: &str, workflow: &str) -> bool {
+    if command
+        .chars()
+        .any(|character| character.is_control() && character != '\t')
+    {
+        return false;
+    }
+    let mut words = command.split_ascii_whitespace();
+    if words.next() != Some("gh") || words.next() != Some("workflow") || words.next() != Some("run")
+    {
+        return false;
+    }
+    let Some(argument) = words.next() else {
+        return false;
+    };
+    if words.next().is_some() {
+        return false;
+    }
+    let argument = argument
+        .strip_prefix('"')
+        .and_then(|value| value.strip_suffix('"'))
+        .or_else(|| {
+            argument
+                .strip_prefix('\'')
+                .and_then(|value| value.strip_suffix('\''))
         })
+        .unwrap_or(argument);
+    argument == workflow
+        && argument
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'_' | b'/' | b'-'))
 }
 
 fn immutable_action_reference(reference: &str) -> bool {
