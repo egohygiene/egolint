@@ -159,6 +159,7 @@ variables, and CLI options. User and local files are skipped when `CI` is truthy
 - [Containers and image boundaries](docs/containers.md)
 - [Security model](docs/security.md)
 - [Release design](docs/releasing.md)
+- [Current-v1 release acceptance and consumer handoff](docs/repository-release-acceptance.md)
 - [Migration from Empathy](docs/migration-from-empathy.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)

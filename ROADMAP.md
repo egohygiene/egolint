@@ -341,6 +341,8 @@ release declaration, changelog, version authority, and publication entrypoints.
 - Draft PR #110 adds an incubating self-declaration, local review planner and actual source-backed
   dogfood. Six checks pass and the legacy tag publisher's `manual_workflow` check remains
   failed/advisory, distinct from process exit 0. The existing publisher is preserved.
+- The [parent acceptance ledger](docs/repository-release-acceptance.md) maps original criteria, exact
+  producer qualification and the bounded Mantle handoff without completing the remaining gates.
 - Source/local evidence is prepared for review; actual final-head hosted/full-image/non-Linux
   qualification is deferred. Maintainer acceptance and publisher migration under issue #5 remain
   gates for full checkpoint #69 and parent #29 acceptance. No issue, release or rollout is complete.

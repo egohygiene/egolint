@@ -28,6 +28,9 @@ python3 scripts/repository_release_plan.py --workspace "." --output ".reports/eg
 No release Task or workflow was executed to qualify this source checkpoint. Hosted final-head,
 full-image and non-Linux qualification remain deferred.
 
+The [acceptance ledger and consumer handoff](repository-release-acceptance.md) identify the exact
+source-qualified producer, retained self-findings and remaining maintainer/hosted gates.
+
 ## Planned products
 
 | Product                                        | Planned channel                     |

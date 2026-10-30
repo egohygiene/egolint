@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T04:14:27Z'
+  updated_at: '2026-10-30T04:19:05Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -46,8 +46,8 @@ work:
   next:
     kind: action
     id: review-release-acceptance-ledger
-    description: Complete the exact producer/consumer handoff and navigation, then independently review the
-      acceptance ledger.
+    description: Independently review the complete documentation diff, verify evidence and refresh the final
+      handoff.
     readiness: ready
     references:
     - https://github.com/egohygiene/egolint/issues/29
@@ -58,18 +58,21 @@ state:
   base:
     revision: 4e7cc53491a27da5b361ca7ff56568d05fc07701
     ref: refs/heads/feat/69-release-self-dogfood
-    verified_at: '2026-10-30T04:14:27Z'
+    verified_at: '2026-10-30T04:19:05Z'
   candidate:
     branch: docs/29-release-conformance-acceptance
     revision: null
-    pull_request: null
+    pull_request:
+      provider: github
+      id: egohygiene/egolint#111
+      url: https://github.com/egohygiene/egolint/pull/111
     handoff_state: in-progress
   live:
     status: verified
-    observed_at: '2026-10-30T04:14:27Z'
+    observed_at: '2026-10-30T04:19:05Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
-    pull_request_state: not-applicable
+    pull_request_state: draft
     notes: Verified exact PR 110 source head 4e7cc53491a27da5b361ca7ff56568d05fc07701 and unchanged main.
       This documentation candidate stacks on that draft; issues 29, 68 and 69 remain open. Historical checkpoints
       65-67 are closed/merged; new hosted qualification and maintainer acceptance remain pending.
@@ -103,27 +106,35 @@ state:
     url: https://github.com/egohygiene/egolint/pull/107
 review:
   status: partial
-  reviewed_at: '2026-10-30T04:14:27Z'
+  reviewed_at: '2026-10-30T04:19:05Z'
   reviewed_by: Codex
   evidence:
   - command: Source/issue/PR reconciliation; relative-link and immutable Git identity validation; Prettier
       3.9.6 --check; git diff --check
     outcome: passed
-    observed_at: '2026-10-30T04:14:27Z'
+    observed_at: '2026-10-30T04:19:05Z'
     notes: All five original criteria and checkpoints are mapped; historical closed/merged heads and green
       Actions are distinguished from open draft source candidates and deferred hosted qualification.
   - command: python3 scripts/validate_repository_release_sources.py; python3 scripts/validate_release_inputs.py
     outcome: passed
-    observed_at: '2026-10-30T04:14:27Z'
+    observed_at: '2026-10-30T04:19:05Z'
     notes: Selected owner bytes, source identities, profile compatibility and reviewed platform boundary
       remain valid; no runtime or lockfile changes.
   - command: Pinned continuity Draft202012Validator/registered formats; native validate --repository-continuity
       with exact predecessor base, working-tree head and verified live evidence
     outcome: limited
-    observed_at: '2026-10-30T04:14:27Z'
+    observed_at: '2026-10-30T04:19:05Z'
     notes: 'Schema, twelve sections and budgets passed. Predecessor native binary evaluated this documentation-only
       worktree: continuity valid with expected unreleased warning, release advisory with the retained manual_workflow
       failure. No released or global conformance is claimed.'
+  - command: Added-link/anchor and immutable Git identity validation; Prettier 3.9.6 on acceptance ledger
+      and new navigation regions; actual public-config native validate with explicit base/head/live evidence
+    outcome: limited
+    observed_at: '2026-10-30T04:19:05Z'
+    notes: Operator handoff pins exact producer source and invokes consumer-owned workspace directly. Links
+      and authored formatting pass. Native process 0; release advisory (six passed, manual_workflow failed),
+      continuity valid with expected unreleased warning, Intelligence invalid with seven existing diagnostics.
+      No runtime source changes.
   environment_limitations:
   - Final-head hosted Actions, real full-image and non-Linux qualification remain deferred.
   - Release self-adoption remains advisory with manual_workflow failed; broader Intelligence remains invalid
@@ -165,13 +176,14 @@ Keep each original criterion, actual check result and remaining acceptance bound
 ## State snapshot
 
 This branch targets feat/69-release-self-dogfood at 4e7cc53491a27da5b361ca7ff56568d05fc07701.
-Its containing revision is null to avoid self-reference. The checkpoint stage is diagnosis; full issue acceptance remains open.
+Its containing revision is null to avoid self-reference. The checkpoint stage is implementation; full issue acceptance remains open.
 
 ## Completed and material changes
 
 docs/repository-release-acceptance.md maps the five original criteria and five checkpoints plus issue 91
 to exact historical/source evidence. It retains the initial archive failure and repaired unpacked proof.
-The consumer handoff and navigation remain the next bounded documentation step.
+The operator/consumer handoff pins the qualified predecessor and connects existing guides without duplicating
+runtime implementation. Navigation points readers to acceptance and its unresolved gates.
 
 ## Validation and review evidence
 
@@ -187,7 +199,7 @@ manual-only publisher migration and maintainer acceptance remain gates. No local
 
 ## Next dependency-ready work
 
-Complete the exact producer/consumer handoff and navigation, then independently review the acceptance ledger.
+Independently review the complete documentation diff, verify evidence and refresh the final handoff.
 
 ## Parallel changes and reconciliation
 

@@ -224,3 +224,7 @@ Checkpoints 1–3 landed in PRs 64, 70 and 71. Draft PR 109 supplies the current
 static-handoff repair PR 108; draft PR 110 adds this self-consumer checkpoint. The review stack is
 issue 91 → 68 → 69 → parent 29 reconciliation. Every candidate retains its own maintainer review and
 unresolved hosted acceptance; none of these source checkpoints publishes a product.
+
+The [parent acceptance ledger](repository-release-acceptance.md) maps the original criteria to exact
+checkpoint evidence and unresolved gates. Its [operator/consumer handoff](repository-release-acceptance.md#operator-and-consumer-handoff)
+qualifies a source-pinned native producer without borrowing EgoLint's own repository identity.
