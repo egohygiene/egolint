@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:07:10Z'
+  updated_at: '2026-10-30T03:12:54Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -32,8 +32,6 @@ scope:
   - docs/repository-release-validation.md
   - .config/rules/repository-release-sources.v1.json
   - https://github.com/egohygiene/egolint/issues/91
-  - https://github.com/egohygiene/egolint/issues/68
-  - https://github.com/egohygiene/egolint/issues/69
 work:
   objective: Bind the static release Task handoff to the exact declared workflow argument.
   success_conditions:
@@ -59,7 +57,7 @@ state:
   base:
     revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     ref: refs/heads/main
-    verified_at: '2026-10-30T03:07:10Z'
+    verified_at: '2026-10-30T03:12:54Z'
   candidate:
     branch: fix/91-release-dispatch-binding
     revision: null
@@ -67,10 +65,10 @@ state:
       provider: github
       id: egohygiene/egolint#108
       url: https://github.com/egohygiene/egolint/pull/108
-    handoff_state: in-progress
+    handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-10-30T03:07:10Z'
+    observed_at: '2026-10-30T03:12:54Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
     pull_request_state: draft
@@ -98,19 +96,60 @@ state:
     url: https://github.com/egohygiene/egolint/pull/103
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:07:10Z'
+  reviewed_at: '2026-10-30T03:12:54Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo test --locked --test repository_release_pipeline static_task_dispatch_matrix_preserves_native_evidence_agreement
-      -- --nocapture
+  - command: cargo test --locked --test repository_release_pipeline -- --nocapture
     outcome: passed
-    observed_at: '2026-10-30T03:07:10Z'
-    notes: All source-only direct-dispatch and hostile/unsupported-command cases pass through the actual
-      native CLI. No Task command was executed.
+    observed_at: '2026-10-30T03:12:54Z'
+    notes: 'Four native pipeline tests pass, covering 32 source-only Task cases: six accepted controls
+      and 26 unavailable forms. CLI exit, focused status/completion, tool status, finding identity/location
+      and SARIF agree.'
   - command: cargo fmt --all --check; git diff --check
     outcome: passed
-    observed_at: '2026-10-30T03:07:10Z'
+    observed_at: '2026-10-30T03:12:54Z'
     notes: Formatting and whitespace checks pass.
+  - command: cargo test --all-targets --all-features --locked
+    outcome: passed
+    observed_at: '2026-10-30T03:12:54Z'
+    notes: 210 Rust tests passed with zero ignored after the independent review fix; container orchestration
+      cases use existing bounded simulators.
+  - command: cargo clippy --all-targets --all-features --locked -- -D warnings
+    outcome: passed
+    observed_at: '2026-10-30T03:12:54Z'
+    notes: Strict all-target Clippy passed after the final source change.
+  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py
+    outcome: passed
+    observed_at: '2026-10-30T03:12:54Z'
+    notes: All 75 Python tests passed.
+  - command: task schemas:check
+    outcome: passed
+    observed_at: '2026-10-30T03:12:54Z'
+    notes: All 23 generated schema comparisons passed after the final source change; no schema or lockfile
+      changed.
+  - command: pnpm --config.verify-deps-before-run=false run javascript-quality:test; node tests/javascript-package-quality.test.mjs
+    outcome: passed
+    observed_at: '2026-10-30T03:12:54Z'
+    notes: Pinned pnpm 11.21.0 runner passed using shared frozen dependencies; direct Node execution confirmed
+      six baseline callbacks. Dependency verification is disabled only for this run to avoid redundant
+      automatic installation.
+  - command: python3 scripts/validate_release_inputs.py; python3 scripts/validate_repository_release_sources.py;
+      python3 scripts/validate_megalinter_policy.py --check; python3 scripts/package_integrations.py --check
+    outcome: passed
+    observed_at: '2026-10-30T03:12:54Z'
+    notes: All four offline source/package checks passed.
+  - command: cargo run --quiet --locked -- plan --workspace . --profile fast; cargo package --list --locked
+      --allow-dirty
+    outcome: passed
+    observed_at: '2026-10-30T03:12:54Z'
+    notes: Plan passed; package inventory includes the release integration test. Inventory inspection
+      does not prove package build or publication.
+  - command: Draft202012Validator with FormatChecker on vendored continuity schema; native validate --repository-continuity
+      with explicit base, working-tree head and verified live evidence
+    outcome: passed
+    observed_at: '2026-10-30T03:12:54Z'
+    notes: Pinned schema, headings/budgets and native continuity checks passed; focused status valid with
+      the expected unreleased-contract observe advisory. Released conformance remains unavailable.
   environment_limitations:
   - Hosted Actions, real containers and native non-Linux execution are deferred.
   - Static handoff inspection does not prove workflow execution, credentials, publication or registry
@@ -151,18 +190,21 @@ Preserve direct-dispatch controls and source locations across focused, aggregate
 ## State snapshot
 
 Base main is 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58, including PR 102. Candidate fix/91-release-dispatch-binding
-is at the implementation checkpoint. Issue 91 remains open; no merge or publication is claimed.
+is at the review checkpoint. Issue 91 remains open; no merge or publication is claimed.
 
 ## Completed and material changes
 
 tests/repository_release_pipeline.rs owns the native static-command matrix. It inspects synthetic
 Taskfile source without executing commands. The current checkpoint replaces substring matching in src/rules/repository_release/checks.rs with the documented bounded literal command grammar.
 Pinned Aether/Hygiene release source bytes and authority remain unchanged. No ADR is required for this repair.
+Independent review identified unsupported metadata values; the final repair requires string desc/summary
+and boolean silent, retaining malformed-type regressions and valid descriptive controls.
 
 ## Validation and review evidence
 
 The native matrix passes with supported controls and unsupported source forms kept unavailable.
 Exact commands and outcomes are recorded above. Task commands and hosted workflows were never executed.
+Final evidence: 210 Rust tests, strict Clippy, 75 Python tests, 23 schema comparisons, six baseline JavaScript callbacks, offline source checks, plan and package inventory all passed. Independent source review was completed and its metadata-type finding repaired.
 
 ## Blockers, risks, unknowns, and deferred work
 

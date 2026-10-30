@@ -106,7 +106,8 @@ The workflow argument must exactly match `automation.github.workflow_path`. Spac
 separate the four words; the workflow path may be unquoted, single quoted, or double quoted.
 The supported path uses ASCII letters, digits, `.`, `_`, `/`, and `-`. A command mapping containing
 only `cmd: "gh workflow run .github/workflows/release.yml"` is equivalent. The task may also carry
-`desc`, `summary`, and `silent` metadata. All four declared release task names must still exist.
+string `desc` and `summary` metadata and boolean `silent` metadata. Unsupported metadata types
+remain unavailable. All four declared release task names must still exist.
 
 Additional commands, command-mapping fields, Task execution features such as dependencies or
 preconditions, CLI flags, comments, shell operators, multiline commands, substitutions, and templates

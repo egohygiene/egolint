@@ -1416,6 +1416,13 @@ fn task_dispatches_workflow(task: &YamlValue, workflow: &str) -> bool {
     {
         return false;
     }
+    if ["desc", "summary"]
+        .iter()
+        .any(|key| yaml_mapping_value(task, key).is_some_and(|value| value.as_str().is_none()))
+        || yaml_mapping_value(task, "silent").is_some_and(|value| value.as_bool().is_none())
+    {
+        return false;
+    }
     let Some(commands) = yaml_mapping_value(task, "cmds").and_then(YamlValue::as_sequence) else {
         return false;
     };

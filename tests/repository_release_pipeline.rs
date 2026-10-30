@@ -285,13 +285,17 @@ fn literal_direct_task_dispatches_remain_accepted() {
 }
 
 #[test]
-fn task_execution_features_remain_unavailable() {
+fn unsupported_task_features_and_metadata_remain_unavailable() {
     for (key, value) in [
         ("deps", json!(["other-task"])),
         ("preconditions", json!(["true"])),
         ("status", json!(["true"])),
         ("env", json!({"WORKFLOW": ".github/workflows/release.yml"})),
         ("dir", json!("other-directory")),
+        ("desc", json!({"invalid": "metadata"})),
+        ("summary", json!([1])),
+        ("silent", json!({"invalid": "metadata"})),
+        ("silent", json!("true")),
     ] {
         let root = consumer();
         let mut task = json!({"cmds": ["gh workflow run .github/workflows/release.yml"]});
@@ -336,6 +340,14 @@ fn assert_dispatch_source(root: &Path, name: &str, accepted: bool) {
         focused["summary"]["validation_complete"], accepted,
         "{name}"
     );
+    assert_eq!(
+        focused["boundary"]["network_access"], "not_performed",
+        "{name}"
+    );
+    assert_eq!(
+        focused["boundary"]["external_publication"], "not_verified",
+        "{name}"
+    );
     let run = report(root, "run.json");
     let findings: Vec<_> = run["findings"]
         .as_array()
@@ -359,6 +371,7 @@ fn assert_dispatch_source(root: &Path, name: &str, accepted: bool) {
         "{name}"
     );
     assert_eq!(findings.len(), usize::from(!accepted), "{name}");
+    assert_eq!(tool["finding_count"], u64::from(!accepted), "{name}");
     let sarif = report(root, "egolint.sarif");
     let results: Vec<_> = sarif["runs"][0]["results"]
         .as_array()
