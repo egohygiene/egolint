@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:30:49Z'
+  updated_at: '2026-10-30T03:38:29Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -51,9 +51,9 @@ work:
     url: https://github.com/egohygiene/egolint/issues/68
   next:
     kind: action
-    id: complete-release-matrix
-    description: Complete the six-state goldens and version/entrypoint boundaries against the repaired
-      issue 91 source.
+    id: review-release-matrix
+    description: Review this draft matrix, then consume the exact candidate in issue 69 dogfood before
+      parent 29 reconciliation.
     readiness: ready
     references:
     - https://github.com/egohygiene/egolint/issues/68
@@ -63,18 +63,21 @@ state:
   base:
     revision: 36a3163b4017fc2d9b7ece873e896e6dca8fd96b
     ref: refs/heads/fix/91-release-dispatch-binding
-    verified_at: '2026-10-30T03:30:49Z'
+    verified_at: '2026-10-30T03:38:29Z'
   candidate:
     branch: test/68-release-fixture-matrix
     revision: null
-    pull_request: null
+    pull_request:
+      provider: github
+      id: egohygiene/egolint#109
+      url: https://github.com/egohygiene/egolint/pull/109
     handoff_state: in-progress
   live:
     status: verified
-    observed_at: '2026-10-30T03:30:49Z'
+    observed_at: '2026-10-30T03:38:29Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
-    pull_request_state: not-applicable
+    pull_request_state: draft
     notes: Verified main includes PR 102 and issue 68 remains open. The necessary issue 91 repair is still
       draft PR 108; this branch targets its exact head. Issue 67 is delivered historically by PR 71. Audit
       84 is draft/open and untouched. The review stack is 91, then 68, then 69, then parent 29 reconciliation;
@@ -103,22 +106,27 @@ state:
     url: https://github.com/egohygiene/egolint/pull/103
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:30:49Z'
+  reviewed_at: '2026-10-30T03:38:29Z'
   reviewed_by: Codex
   evidence:
   - command: cargo test --locked --test repository_release_matrix -- --nocapture
     outcome: passed
-    observed_at: '2026-10-30T03:30:49Z'
-    notes: Nine profile baselines pass through the actual native CLI. This checkpoint exposes the prior
-      coverage gap; no artificial source failure is asserted.
+    observed_at: '2026-10-30T03:38:29Z'
+    notes: Seven native tests pass, including 54 focused golden cells and distinct authority/drift, entrypoint
+      and executable-trap controls (96 native invocations total). Required failures, advisory warnings
+      and not-applicability remain distinct.
   - command: Draft202012Validator with FormatChecker on exact vendored Aether release schema
     outcome: passed
-    observed_at: '2026-10-30T03:30:49Z'
+    observed_at: '2026-10-30T03:38:29Z'
     notes: All nine authored declaration fixtures satisfy the selected local source schema.
   - command: cargo fmt --all --check; git diff --check; python3 scripts/validate_repository_release_sources.py
     outcome: passed
-    observed_at: '2026-10-30T03:30:49Z'
+    observed_at: '2026-10-30T03:38:29Z'
     notes: Formatting, whitespace and immutable owner source selection checks passed.
+  - command: cargo clippy --all-targets --all-features --locked -- -D warnings
+    outcome: passed
+    observed_at: '2026-10-30T03:38:29Z'
+    notes: Strict all-target Clippy passed.
   environment_limitations:
   - Hosted Actions and actual workflow/Task execution are deferred.
   - Fixtures are synthetic static consumers; no real analyzer/container/language build, registry acceptance
@@ -157,7 +165,7 @@ Retain distinct source authorities, lifecycle applicability and all native evide
 
 ## State snapshot
 
-Candidate test/68-release-fixture-matrix is at the baseline checkpoint, based on exact predecessor
+Candidate test/68-release-fixture-matrix is at the implementation checkpoint, based on exact predecessor
 36a3163b4017fc2d9b7ece873e896e6dca8fd96b. Its target is fix/91-release-dispatch-binding, not main.
 The intended review/merge order is issue 91, 68, 69, then parent 29 reconciliation. All remain review work.
 
@@ -166,7 +174,7 @@ The intended review/merge order is issue 91, 68, 69, then parent 29 reconciliati
 tests/fixtures/repository-release owns nine synthetic profile inputs, including distinct Rust,
 Python, npm, container, site, publication, workspace, contract and archived authorities.
 tests/repository_release_matrix.rs exercises the native CLI; Cargo.toml includes the test and corpus.
-The first checkpoint establishes nine positive baselines; the full six-state and golden acceptance remains pending.
+The candidate extends the corpus across six states with checked compact focused goldens and static boundary controls.
 The inherited issue 91 repair owns literal Task dispatch grammar. Owner contracts and runtime behavior are unchanged.
 
 ## Validation and review evidence
@@ -176,13 +184,13 @@ Fixtures are source bytes, including synthetic immutable workflow references; no
 
 ## Blockers, risks, unknowns, and deferred work
 
-The six-state golden matrix, extra boundary cases, independent review and full applicable validation remain.
+Maintainer review and the subsequent issue 69 dogfood remain; hosted qualification is deferred.
 The stack requires predecessor PR 108 for merge. Static valid source does not establish actual Git tags,
 credentials, remote execution, publication or deployment. Do not expand into successor issue 76.
 
 ## Next dependency-ready work
 
-Complete the matrix and native boundary controls, then checkpoint the implementation.
+Review this candidate and consume its exact head in issue 69; reconcile parent 29 afterward.
 
 ## Parallel changes and reconciliation
 
