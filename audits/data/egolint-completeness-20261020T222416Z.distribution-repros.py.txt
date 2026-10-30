@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+"""Replay bounded EgoLint release-input and integration distribution checks."""
+from __future__ import annotations
+import argparse
+import copy
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tarfile
+import tempfile
+
+def run(script: Path, args: list[str], env: dict[str, str]) -> dict[str, object]:
+    completed = subprocess.run([sys.executable, str(script), *args], capture_output=True, text=True, env=env, check=False)
+    return {"exit_code": completed.returncode, "stdout": completed.stdout.strip(), "stderr": completed.stderr.strip()}
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repository", type=Path, required=True)
+    args = parser.parse_args()
+    repo = args.repository.resolve()
+    source_script = repo / "scripts/validate_release_inputs.py"
+    source_contract = json.loads((repo / ".config/release/base-images.v1.json").read_text())
+    clean_env = {key: value for key, value in os.environ.items() if key not in source_contract["images"]}
+    pinned_env = {**clean_env, **{key: value["reference"] + "@" + value["digest"] for key, value in source_contract["images"].items()}}
+    probes = []
+    with tempfile.TemporaryDirectory(prefix="egolint-distribution-replay-") as temporary:
+        root = Path(temporary)
+        script = root / "scripts/validate_release_inputs.py"
+        script.parent.mkdir(parents=True)
+        shutil.copyfile(source_script, script)
+        contract_path = root / ".config/release/base-images.v1.json"
+        contract_path.parent.mkdir(parents=True)
+        cases = [
+            ("valid_contract_missing_environment_control", copy.deepcopy(source_contract), clean_env),
+            ("valid_contract_pinned_environment_control", copy.deepcopy(source_contract), pinned_env),
+            ("null_product_record", copy.deepcopy(source_contract), pinned_env),
+            ("null_all_image_and_product_records", copy.deepcopy(source_contract), clean_env),
+        ]
+        cases[2][1]["products"]["egolint-full"] = None
+        cases[3][1]["images"] = {key: None for key in source_contract["images"]}
+        cases[3][1]["products"] = {key: None for key in source_contract["products"]}
+        for name, contract, environment in cases:
+            contract_path.write_text(json.dumps(contract))
+            result = run(script, ["--check-environment"], environment)
+            probes.append({"case": name, **result})
+        bundle_reports = []
+        for index in range(2):
+            out = root / f"bundle-{index}"
+            result = run(repo / "scripts/package_integrations.py", ["--source-date-epoch", "0", "--output-directory", str(out)], clean_env)
+            archives = list(out.glob("*.tar.gz"))
+            if len(archives) != 1:
+                raise RuntimeError("Expected one generated integration archive")
+            result["stdout"] = archives[0].name
+            result["stdout_normalization"] = "generated archive basename; disposable path omitted"
+            payload = archives[0].read_bytes()
+            with tarfile.open(archives[0]) as archive:
+                members = archive.getmembers()
+                manifest_member = next(member for member in members if member.name.endswith("/MANIFEST.json"))
+                manifest = json.load(archive.extractfile(manifest_member))
+                root_name = manifest_member.name.removesuffix("/MANIFEST.json")
+                checksum_matches = {
+                    path: hashlib.sha256(archive.extractfile(root_name + "/" + path).read()).hexdigest() == expected
+                    for path, expected in manifest["files"].items()
+                }
+            bundle_reports.append({**result, "sha256": hashlib.sha256(payload).hexdigest(), "member_count": len(members), "manifest_checksums_match": all(checksum_matches.values()), "source_member_count": len(checksum_matches)})
+        result = {
+            "schema_version": "egolint.audit.distribution-replay/v1",
+            "release_input_script_sha256": hashlib.sha256(source_script.read_bytes()).hexdigest(),
+            "release_input_probes": probes,
+            "integration_bundles": bundle_reports,
+            "integration_bundle_deterministic": bundle_reports[0]["sha256"] == bundle_reports[1]["sha256"],
+            "limits": [
+                "Disposable copied release-input CLI only; no actual release, registry push, or container build.",
+                "Null-record acceptance is validator behavior, not proof a release can bypass later build or promotion checks.",
+                "Integration bundle checks establish deterministic bytes and member integrity, not all consumer integration execution.",
+            ],
+        }
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+

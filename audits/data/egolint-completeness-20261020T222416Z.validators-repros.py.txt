@@ -1,0 +1,316 @@
+#!/usr/bin/env python3
+"""Public-safe synthetic probes for the frozen EgoLint validator audit.
+
+Requires PyYAML and jsonschema. Invokes an already built binary; does not build,
+fetch, modify the audited checkout, or use a container.
+"""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import tempfile
+
+import jsonschema
+import yaml
+
+
+def environment(root: Path) -> dict[str, str]:
+    env = {
+        key: value
+        for key, value in os.environ.items()
+        if not key.startswith(("GIT_", "EGOLINT_"))
+    }
+    empty = root / "empty-git-config"
+    empty.write_text("", encoding="utf-8")
+    env.update(
+        CI="true",
+        GIT_CONFIG_NOSYSTEM="1",
+        GIT_CONFIG_GLOBAL=str(empty),
+        GIT_CONFIG_SYSTEM=str(empty),
+        GIT_TERMINAL_PROMPT="0",
+        GIT_OPTIONAL_LOCKS="0",
+        LC_ALL="C",
+    )
+    return env
+
+
+def init(root: Path, env: dict[str, str]) -> None:
+    root.mkdir()
+    subprocess.run(
+        ["git", "init", "--quiet", "--initial-branch=main", str(root)],
+        env=env,
+        check=True,
+        capture_output=True,
+    )
+
+
+def invoke(binary: Path, root: Path, env: dict[str, str], extra=()) -> dict:
+    result = subprocess.run(
+        [str(binary), "--workspace", str(root), "validate", *extra],
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    report_path = root / ".reports/egolint/run.json"
+    report = json.loads(report_path.read_text()) if report_path.exists() else {}
+    return {
+        "exit_code": result.returncode,
+        "run_status": report.get("status"),
+        "rules": sorted({item["rule"]["rule_id"] for item in report.get("findings", [])}),
+        "findings": [
+            {
+                "rule": item["rule"]["rule_id"],
+                "severity": item["severity"],
+                "path": (item.get("location") or {}).get("path"),
+            }
+            for item in report.get("findings", [])
+        ],
+        "report_present": report_path.exists(),
+    }
+
+
+def continuity_probes(repo: Path, binary: Path, temporary: Path, env: dict) -> dict:
+    fixture = (repo / "tests/fixtures/repository-continuity/valid-public.md").read_text()
+    _, front, body = fixture.split("---", 2)
+    baseline = yaml.safe_load(front)
+    baseline["state"]["base"]["revision"] = "unborn"
+    schema_path = repo / "vendor/aether/aether.repository-continuity.v1.schema.json"
+    schema_bytes = schema_path.read_bytes()
+    validator = jsonschema.Draft202012Validator(
+        json.loads(schema_bytes), format_checker=jsonschema.FormatChecker()
+    )
+    cases = {"valid_control": baseline}
+    missing = copy.deepcopy(baseline)
+    for parent, key in [
+        (missing["document"], "stale_reason"),
+        (missing["document"], "superseded_by"),
+        (missing["work"], "active_issue"),
+        (missing["state"]["candidate"], "revision"),
+        (missing["state"]["candidate"], "pull_request"),
+        (missing["state"]["live"], "default_branch_revision"),
+    ]:
+        del parent[key]
+    cases["missing_required_nullable_keys"] = missing
+    duplicate = copy.deepcopy(baseline)
+    duplicate["work"]["next"]["references"] *= 2
+    cases["duplicate_next_references"] = duplicate
+    duplicate = copy.deepcopy(baseline)
+    reference = {
+        "provider": "github",
+        "id": "example/public#9",
+        "url": "https://github.com/example/public/pull/9",
+    }
+    duplicate["state"]["parallel_changes"] = [reference, reference.copy()]
+    cases["duplicate_parallel_changes"] = duplicate
+    timestamp = copy.deepcopy(baseline)
+    timestamp["document"]["updated_at"] = "2026-09-08T1:2:3Z"
+    cases["non_rfc3339_clock_width"] = timestamp
+    timestamp = copy.deepcopy(baseline)
+    timestamp["document"]["updated_at"] = "2026-09-08t12:00:00z"
+    cases["rfc3339_lowercase_delimiters"] = timestamp
+    results = {}
+    for name, data in cases.items():
+        workspace = temporary / name
+        init(workspace, env)
+        for source in [
+            "AGENTS.md",
+            "vendor/hygiene/repository-continuity-policy.v1.json",
+            "vendor/aether/aether.repository-continuity.v1.schema.json",
+            "vendor/aether/repository-continuity.INSTRUCTION.md",
+            "vendor/aether/CONTINUITY.template.md",
+        ]:
+            destination = workspace / source
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(repo / source, destination)
+        policy = (repo / ".config/dogfood/repository-continuity.toml").read_text()
+        (workspace / "continuity-policy.toml").write_text(
+            policy.replace('repository = "egohygiene/egolint"', 'repository = "example/public"'),
+            encoding="utf-8",
+        )
+        (workspace / "CONTINUITY.md").write_text(
+            "---\n" + yaml.safe_dump(data, sort_keys=False) + "---" + body,
+            encoding="utf-8",
+        )
+        result = invoke(
+            binary,
+            workspace,
+            env,
+            [
+                "--repository-continuity", "continuity-policy.toml",
+                "--continuity-base", "unborn",
+                "--continuity-head", "working-tree",
+                "--continuity-disposition", "updated",
+                "--continuity-evaluation-date", "2026-10-20",
+            ],
+        )
+        focused = json.loads(
+            (workspace / ".reports/egolint/repository-continuity.json").read_text()
+        )
+        result["native_continuity_status"] = focused["status"]
+        result["native_diagnostics"] = [
+            {"rule": item["rule_id"], "message": item["message"]}
+            for item in focused["diagnostics"]
+        ]
+        result["pinned_schema_errors"] = [
+            {"path": list(error.absolute_path), "validator": error.validator}
+            for error in validator.iter_errors(data)
+        ]
+        results[name] = result
+    return {
+        "schema_sha256": hashlib.sha256(schema_bytes).hexdigest(),
+        "format_checkers_registered": sorted(validator.format_checker.checkers),
+        "cases": results,
+    }
+
+
+def portability_probes(binary: Path, temporary: Path, env: dict) -> dict:
+    results = {}
+    file_cases = {
+        "exact_case_collision_control": {"Readme.md": "a\n", "README.md": "b\n"},
+        "file_directory_case_collision": {"Readme": "a\n", "README/page.md": "b\n"},
+        "ancestor_directory_case_collision": {"src/Foo/a.txt": "a\n", "src/foo/b.txt": "b\n"},
+    }
+    for name, files in file_cases.items():
+        workspace = temporary / name
+        init(workspace, env)
+        for path, content in files.items():
+            destination = workspace / path
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(content, encoding="utf-8")
+        results[name] = invoke(binary, workspace, env)
+    workflows = {
+        "direct_multi_os_matrix_control": """name: Direct matrix
+on: push
+jobs:
+  check:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - run: echo hello
+""",
+        "include_multi_os_matrix": """name: Include matrix
+on: push
+jobs:
+  check:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: windows-latest
+    steps:
+      - run: echo hello
+""",
+    }
+    for name, content in workflows.items():
+        workspace = temporary / name
+        init(workspace, env)
+        destination = workspace / ".github/workflows/test.yml"
+        destination.parent.mkdir(parents=True)
+        destination.write_text(content, encoding="utf-8")
+        results[name] = invoke(binary, workspace, env)
+    return results
+
+
+def gitignore_probes(repo: Path, binary: Path, temporary: Path, env: dict) -> dict:
+    results = {}
+    fixture = repo / "tests/fixtures/repository-gitignore"
+    for name, selection, negative in [
+        ("accepted_filament", "filament", False),
+        ("accepted_scoped_rust", "scoped-rust", False),
+        ("inherited_override_rejected", "filament", True),
+    ]:
+        workspace = temporary / name
+        init(workspace, env)
+        for path in [
+            "foundation/catalog.json",
+            "foundation/ignore/universal.gitignore",
+            "foundation/ignore/rust.gitignore",
+        ]:
+            destination = workspace / "vendor/empathy" / path
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(fixture / "source" / path, destination)
+        composition = json.loads((fixture / selection / "composition.json").read_text())
+        foundation = workspace / "foundation"
+        foundation.mkdir()
+        shutil.copyfile(fixture / selection / "composition.json", foundation / "gitignore-plan.json")
+        shutil.copyfile(fixture / selection / "policy.toml", foundation / "gitignore-policy.toml")
+        for file in composition["files"]:
+            destination = workspace / file["path"]
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(file["content"], encoding="utf-8")
+        if negative:
+            destination = workspace / ".devcontainer/.gitignore"
+            destination.parent.mkdir()
+            destination.write_text("!/.env\n", encoding="utf-8")
+        before = {
+            str(path.relative_to(workspace)): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in workspace.rglob("*")
+            if path.is_file() and ".git" not in path.relative_to(workspace).parts
+        }
+        result = subprocess.run(
+            [
+                str(binary), "--workspace", str(workspace), "gitignore",
+                "--policy", "foundation/gitignore-policy.toml",
+                "--evaluation-date", "2026-10-20",
+            ],
+            env=env, capture_output=True, text=True, timeout=30,
+        )
+        focused = json.loads((workspace / ".reports/egolint/repository-gitignore.json").read_text())
+        after = {
+            relative: hashlib.sha256((workspace / relative).read_bytes()).hexdigest()
+            for relative in before
+        }
+        results[name] = {
+            "exit_code": result.returncode,
+            "status": focused["status"],
+            "checks": focused["checks"],
+            "behavior_count": len(focused["behavior"]),
+            "rule_ids": sorted({item["rule_id"] for item in focused["diagnostics"]}),
+            "source_and_consumer_input_bytes_unchanged": before == after,
+        }
+    return results
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repository", required=True, type=Path)
+    parser.add_argument("--binary", required=True, type=Path)
+    parser.add_argument("--output", type=Path)
+    args = parser.parse_args()
+    repository = args.repository.resolve()
+    binary = args.binary.resolve()
+    with tempfile.TemporaryDirectory(prefix="egolint-validator-audit-") as directory:
+        temporary = Path(directory)
+        env = environment(temporary)
+        result = {
+            "probe_contract": "egolint-validator-audit/v1",
+            "source_revision": "834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b",
+            "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
+            "continuity": continuity_probes(repository, binary, temporary, env),
+            "portability": portability_probes(binary, temporary, env),
+            "gitignore": gitignore_probes(repository, binary, temporary, env),
+            "limits": [
+                "Linux synthetic worktrees only; no Windows or macOS checkout was executed.",
+                "Continuity native semantic status is distinct from observe-mode process success.",
+                "All reviewed contract projections retain exact source bytes.",
+            ],
+        }
+    rendered = json.dumps(result, indent=2, sort_keys=True) + "\n"
+    if args.output:
+        args.output.write_text(rendered, encoding="utf-8")
+    print(rendered, end="")
+
+
+if __name__ == "__main__":
+    main()
