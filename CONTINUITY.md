@@ -7,20 +7,18 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T08:43:51Z'
+  updated_at: '2026-10-30T08:48:33Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Prove the current-v1 release profile and evidence-state fixture matrix without publication
-    claims.
+  purpose: Adopt the current-v1 release profile as a truthful advisory self-consumer without replacing
+    the existing publisher.
   includes:
-  - Nine authored profile fixtures, six evidence states per profile, static version and entrypoint boundary
-    checks.
+  - Source-backed self-consumer regressions, local source planning/preparation and exact profile evidence.
   excludes:
-  - Actual release execution, hosted Actions, publication, successor release policy and complete issue
-    69 dogfood.
+  - Actual release Task/workflow execution, publisher migration, hosted qualification and issue closure.
   precedence:
   - user-and-runtime-instructions
   - scoped-repository-instructions
@@ -29,117 +27,123 @@ scope:
   - continuity-checkpoint
   canonical_sources:
   - AGENTS.md
-  - tests/repository_release_matrix.rs
-  - tests/fixtures/repository-release/README.md
-  - src/rules/repository_release/checks.rs
+  - Taskfile.yml
+  - tests/repository_release_dogfood.rs
+  - tests/test_repository_release_plan.py
   - .config/rules/repository-release-sources.v1.json
-  - https://github.com/egohygiene/egolint/issues/68
+  - docs/repository-release-validation.md
+  - https://github.com/egohygiene/egolint/issues/69
+  - .egohygiene/release.json
+  - scripts/repository_release_plan.py
 work:
-  objective: Prove the current-v1 release profile and evidence-state fixture matrix without publication
-    claims.
+  objective: Adopt the current-v1 release profile as a truthful advisory self-consumer without replacing
+    the existing publisher.
   success_conditions:
-  - Each of the nine profile fixtures has meaningful authority and lifecycle evidence across six expected
-    states.
-  - Compact golden focused evidence and native CLI findings preserve explicit no-network/no-publication
-    boundaries.
+  - Self-adoption retains the actual manual-workflow finding as advisory, independently from process success.
+  - Local planning and exclusive preparation preserve version/changelog source bytes and claim no publication.
   active_issue:
     provider: github
-    id: egohygiene/egolint#68
-    url: https://github.com/egohygiene/egolint/issues/68
+    id: egohygiene/egolint#69
+    url: https://github.com/egohygiene/egolint/issues/69
   next:
     kind: action
-    id: merge-qualified-68-candidate
+    id: merge-qualified-69-candidate
     description: Merge the qualified source candidate, then verify the resulting default-branch state;
       retain separate release acceptance gates.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/pull/109
+    - https://github.com/egohygiene/egolint/pull/110
     depends_on: []
 state:
   base:
-    revision: 1da179bf9b30a4e8c5ab1f1dcdf39e03d09010df
+    revision: 7a28bc8410f6c5a8c9fbf570ce591f13eaa739a9
     ref: refs/heads/main
-    verified_at: '2026-10-30T08:43:51Z'
+    verified_at: '2026-10-30T08:48:33Z'
   candidate:
-    branch: test/68-release-fixture-matrix
+    branch: feat/69-release-self-dogfood
     revision: null
     pull_request:
       provider: github
-      id: egohygiene/egolint#109
-      url: https://github.com/egohygiene/egolint/pull/109
+      id: egohygiene/egolint#110
+      url: https://github.com/egohygiene/egolint/pull/110
     handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-10-30T08:43:51Z'
-    default_branch_revision: 1da179bf9b30a4e8c5ab1f1dcdf39e03d09010df
+    observed_at: '2026-10-30T08:48:33Z'
+    default_branch_revision: 7a28bc8410f6c5a8c9fbf570ce591f13eaa739a9
     issue_state: open
     pull_request_state: open
     notes: 'GitHub checked this candidate open against the observed main revision. Verified merged predecessors:
-      PR 104, PR 106, PR 105, PR 107, PR 103, PR 108. Remaining candidates: PR 110, PR 111. Audit draft
+      PR 104, PR 106, PR 105, PR 107, PR 103, PR 108, PR 109. Remaining candidates: PR 111. Audit draft
       PR 84 remains open and unchanged. Hosted Actions remain deferred.'
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
   - provider: github
-    id: egohygiene/egolint#110
-    url: https://github.com/egohygiene/egolint/pull/110
-  - provider: github
     id: egohygiene/egolint#111
     url: https://github.com/egohygiene/egolint/pull/111
 review:
   status: partial
-  reviewed_at: '2026-10-30T08:43:51Z'
+  reviewed_at: '2026-10-30T08:48:33Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo test --all-targets --all-features --locked
+  - command: cargo fmt --all --check; cargo clippy --all-targets --all-features --locked -- -D warnings;
+      cargo test --all-targets --all-features --locked; task schemas:check
     outcome: passed
-    observed_at: '2026-10-30T03:42:01Z'
-    notes: 217 Rust tests passed with zero ignored; inherited container orchestration uses bounded simulators.
-      The matrix adds 96 native source invocations.
-  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py; task schemas:check
+    observed_at: '2026-10-30T04:07:57Z'
+    notes: Final repaired source passes 219 Rust tests and 23 schema comparisons. Restoring the exact
+      managed AGENTS block resolved two initial formatter-induced continuity failures.
+  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py --verbose; pinned
+      Ruff; source/inventory validators; pinned JavaScript static tests and authored-region Prettier checks
     outcome: passed
-    observed_at: '2026-10-30T03:42:01Z'
-    notes: All 75 Python tests and 23 generated-schema comparisons passed.
-  - command: pnpm --config.verify-deps-before-run=false run javascript-quality:test; node tests/javascript-package-quality.test.mjs
+    observed_at: '2026-10-30T04:07:57Z'
+    notes: 80 Python tests and applicable source/format checks pass. An initial fixture README formatting
+      failure was corrected and rechecked; owner-managed AGENTS bytes remain intact.
+  - command: Actual public-config native validate with represented commit, explicit continuity base/head
+      and verified live evidence
+    outcome: limited
+    observed_at: '2026-10-30T04:07:57Z'
+    notes: Process 0; release advisory with manual_workflow failed, continuity valid with the expected
+      unreleased warning. Intelligence remains invalid from unknown ADR evidence and six existing roadmap
+      warnings under issue 101.
+  - command: cargo package --locked --allow-dirty --offline; cargo test --manifest-path "$CARGO_TARGET_DIR/package/egolint-0.1.0-alpha.1/Cargo.toml"
+      --locked --offline --test repository_release_dogfood --test repository_release_matrix; unpacked
+      planner unittest discovery
     outcome: passed
-    observed_at: '2026-10-30T03:42:01Z'
-    notes: Pinned pnpm runner passed with frozen shared dependencies; direct Node execution confirmed
-      six callbacks.
-  - command: python3 scripts/validate_release_inputs.py; python3 scripts/validate_megalinter_policy.py
-      --check; python3 scripts/package_integrations.py --check; cargo run --quiet --locked -- plan --workspace
-      . --profile fast; cargo package --list --locked --allow-dirty
+    observed_at: '2026-10-30T04:07:57Z'
+    notes: Repaired archive builds with 215 files; unpacked native self/matrix tests (2+7) and all five
+      planner tests pass. Every tracked release fixture is present and Rust manifest bytes equal the predecessor.
+      Initial unpacked failures exposed the repaired nested-package omission.
+  - command: Independent full/incremental review; pinned Aether declaration and continuity schema/formats/budgets;
+      native continuity observe validation
     outcome: passed
-    observed_at: '2026-10-30T03:42:01Z'
-    notes: Offline source checks and plan passed. Package inventory includes the new matrix and complete
-      corpus; inventory does not establish a package build.
-  - command: Independent pinned Aether/Hygiene review; Prettier corpus/docs check; pinned continuity schema
-      and native observe check
+    observed_at: '2026-10-30T04:07:57Z'
+    notes: No remaining source blocker. Task paths are environment data; planner output is neutral. Version/changelog,
+      publisher and owner locks remain unchanged. Local validation is distinct from full acceptance/publication.
+  - command: 'Full combined local qualification: Rust fmt/strict Clippy/tests; 23 schemas; Python/Ruff/source
+      validators; pinned JavaScript tests/quality; offline Cargo package build and unpacked replay'
     outcome: passed
-    observed_at: '2026-10-30T03:42:01Z'
-    notes: All nine declarations and all 54 golden slot requirements match the selected owner inputs.
-      Focused/aggregate locations and SARIF driver rule identity were strengthened after review; EGOLINT
-      overrides are isolated. Continuity is valid with the expected unreleased-contract advisory.
-  - command: cargo fmt --all --check; cargo test --locked --test repository_release_matrix; python3 scripts/validate_repository_release_sources.py
-    outcome: passed
-    observed_at: '2026-10-30T08:43:51Z'
-    notes: 'All seven native matrix tests pass on the reconciled source: 96 CLI invocations include 54
-      reviewed profile/state projections, drift and entrypoint controls. The Cargo conflict retains both
-      matrix and continuity test entries. The documented nested-manifest archive limitation is repaired
-      by the immediately following PR 110. Existing exact-head combined-source evidence remains in the
-      linked PR; no hosted qualification is inferred.'
+    observed_at: '2026-10-30T08:48:33Z'
+    notes: All 232 Rust tests, 88 Python tests and 94 JavaScript tests pass with zero skips; all source/schema/lint
+      checks pass. The actual 219-file crate builds, all 25 release fixtures match, and unpacked two self
+      plus seven matrix and five planner tests pass. All 661 non-Markdown files and Cargo semantics match
+      the previously qualified composite, without dependency drift. Existing exact-head combined-source
+      evidence remains in the linked PR; no hosted qualification is inferred.
   - command: Pinned Draft202012Validator/registered formats, section and budget checks; native continuity
       validation with explicit current-main base and working-tree head; git diff --check
     outcome: limited
-    observed_at: '2026-10-30T08:43:51Z'
+    observed_at: '2026-10-30T08:48:33Z'
     notes: Reconciled handoff passes local schema and native semantic/structural/freshness/Git checks.
       The proposed/unreleased continuity contract retains its expected observe warning; official released
       conformance and hosted qualification remain unavailable.
   environment_limitations:
-  - Hosted Actions and actual workflow/Task execution are deferred.
-  - Fixtures are synthetic static consumers; no real analyzer/container/language build, registry acceptance
-    or publication is established.
-  - Continuity uses the vendored draft/proposed observe selection; released conformance is unavailable.
+  - Hosted Actions, real-container/full-image and non-Linux qualification are deferred.
+  - Actual tag publication, registry acceptance, signing and adoption were not exercised. No release Task/workflow,
+    merge or manual issue closure was performed.
+  - The existing tag publisher requires separate manual-only migration under issue 5; full issue 69/29
+    acceptance and maintainer gates remain open.
+  - Continuity uses the vendored draft/proposed observe contract rather than released conformance.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -158,8 +162,8 @@ privacy:
 
 ## Purpose and precedence
 
-This checkpoint follows runtime/user instructions, scoped instructions, verified live state and
-pinned Aether/Hygiene sources. It grants no authority to execute release adapters.
+This bounded source candidate follows user/runtime instructions, scoped instructions, verified live
+state and pinned owner contracts. It grants no merge or publication authority.
 
 ## Resume protocol
 
@@ -167,33 +171,34 @@ Read AGENTS.md, the active issue and linked source evidence. Verify main, this c
 
 ## Current objective and success conditions
 
-Prove the current-v1 release profile and evidence-state fixture matrix without publication claims.
-Retain distinct source authorities, lifecycle applicability and all native evidence projections.
+Adopt the current-v1 release profile as a truthful advisory self-consumer without replacing the
+publisher. Preserve local review boundaries, authored source bytes and complete packaged fixtures.
 
 ## State snapshot
 
-This candidate was reconciled against observed main `1da179bf9b30a4e8c5ab1f1dcdf39e03d09010df` at `2026-10-30T08:43:51Z`.
-GitHub verified PR 104, PR 106, PR 105, PR 107, PR 103, PR 108 merged; this PR was open at observation. The containing revision remains null to avoid self-reference. Source acceptance does not establish a product release.
+This candidate was reconciled against observed main `7a28bc8410f6c5a8c9fbf570ce591f13eaa739a9` at `2026-10-30T08:48:33Z`.
+GitHub verified PR 104, PR 106, PR 105, PR 107, PR 103, PR 108, PR 109 merged; this PR was open at observation. The containing revision remains null to avoid self-reference. Source acceptance does not establish a product release.
 
 ## Completed and material changes
 
-tests/fixtures/repository-release owns nine synthetic profile inputs, including distinct Rust,
-Python, npm, container, site, publication, workspace, contract and archived authorities.
-tests/repository_release_matrix.rs exercises the native CLI; Cargo.toml includes the test and corpus.
-The candidate extends the corpus across six states with checked compact focused goldens and static boundary controls.
-The inherited issue 91 repair owns literal Task dispatch grammar. Owner contracts and runtime behavior are unchanged.
+The declaration and four Task surfaces expose incubating Cargo-backed self-adoption. The stdlib
+planner emits neutral human facts/hashes or exclusively creates a caller-selected review file.
+Docs/examples/EGL-Q10 record actual advisory evidence. Cargo.toml.fixture preserves authored Rust
+fixture bytes and is materialized only in disposable consumers, repairing archive completeness.
 
 ## Validation and review evidence
 
-Exact commands and current outcomes are in front matter. Baselines are schema-valid and native compliant.
-Fixtures use synthetic source bytes only; no Task or workflow ran.
-Independent review found no source blocker and strengthened rule/location/SARIF identity assertions plus environment isolation. Full Rust, Python, JavaScript, schema and source checks passed; hosted qualification remains deferred.
+219 Rust tests, 80 Python tests, strict Clippy, formatting, 23 schemas and source validators pass.
+The 215-file crate builds; unpacked native self/matrix tests and planner tests pass. Independent review
+found no blocker after path/marker fixes. Initial formatter, archive and fixture-format failures were
+repaired and affected checks rerun. Exact command outcomes are retained above.
 
 ## Blockers, risks, unknowns, and deferred work
 
-Maintainer review and the subsequent issue 69 dogfood remain; hosted qualification is deferred.
-The stack requires predecessor PR 108 for merge. Static valid source does not establish actual Git tags,
-credentials, remote execution, publication or deployment. Do not expand into successor issue 76.
+No source blocker remains. Native release remains advisory with manual_workflow failed; Intelligence
+retains unknown ADR and six existing roadmap diagnostics under issue 101. Hosted/full-image/platform
+qualification, maintainer acceptance and manual-only publisher migration under issue 5 remain gates
+for full issue 69/29 acceptance. No source check proves external publication.
 
 ## Next dependency-ready work
 
@@ -201,19 +206,18 @@ Merge the qualified source candidate and verify its default-branch result. Prese
 
 ## Parallel changes and reconciliation
 
-Observed remaining candidates: PR 110, PR 111. Root handoffs overlap and must retain the latest evidence when their candidates are accepted. Merged predecessor source is retained; no audit branch or historical evidence is rewritten.
+Observed remaining candidates: PR 111. Root handoffs overlap and must retain the latest evidence when their candidates are accepted. Merged predecessor source is retained; no audit branch or historical evidence is rewritten.
 
 ## Privacy and redaction
 
-Only public repository facts and synthetic fixtures are retained. Exclude credentials, private
-conversation, personal data, private filesystem paths and unrelated work. Links are context only.
+Retain public repository facts and synthetic fixtures only. Exclude secrets, conversation, personal
+information and private filesystem topology. Links remain context only.
 
 ## Handoff update protocol
 
-After domain checks, refresh live state and evidence, validate the pinned schema, twelve sections,
-size budgets and native observe check, then push and update this draft. Leave review and publication separate.
+After validation and before each PR handoff, refresh live/target evidence and verify pinned schema,
+twelve sections, budgets and native observe checks. Keep source, acceptance and publication separate.
 
 ## Compaction and supersession
 
-Replace stale state. Preserve the exact base, stack, checks, limits and next action below the contract
-budgets; Git and linked work items retain prior checkpoints.
+Replace stale claims; stay below 240 lines and 16,384 bytes. Git and linked PRs retain prior checkpoints.

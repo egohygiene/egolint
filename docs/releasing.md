@@ -4,6 +4,30 @@
 prove that a release or public artifact exists: the first write-once tag, signed artifacts, OCI
 digests, attestations, and post-push smoke evidence remain observed closure gates.
 
+## Current source adoption
+
+The repository's [.egohygiene/release.json](../.egohygiene/release.json) records one Cargo authority
+under the incubating `cli-library` profile. Its local source plan leaves the version/changelog decision
+pending maintainer review. `release:plan` prints that draft; `release:prepare` exclusively writes a
+caller-selected Markdown review handoff; `release:verify` invokes local source validators.
+
+The literal `release:publish` Task dispatches the existing **non-publishing manual rehearsal**. It does
+not publish a product. The tag-push workflow below remains unchanged and does not satisfy the accepted
+current-v1 manual-only publication convention. Native self-dogfood retains that failed check as an
+advisory warning. Migrating the publisher is separate issue #5 work; introducing the declaration does
+not grant publication authority or close issue #69/#29 acceptance.
+
+The helper records relative paths and hashes, preserves authored Cargo/changelog/declaration bytes,
+and refuses to overwrite an existing preparation file. Review a source handoff with:
+
+```sh
+python3 scripts/repository_release_plan.py --workspace "."
+python3 scripts/repository_release_plan.py --workspace "." --output ".reports/egolint/release-review.md"
+```
+
+No release Task or workflow was executed to qualify this source checkpoint. Hosted final-head,
+full-image and non-Linux qualification remain deferred.
+
 ## Planned products
 
 | Product                                        | Planned channel                     |

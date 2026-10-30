@@ -48,10 +48,16 @@ fn write(root: &Path, path: &str, content: impl AsRef<[u8]>) {
 }
 
 fn copy(root: &Path, source: &str, destination: &str) {
+    let mut source = fixture_root().join(source);
+    // Cargo omits entire nested packages from crate archives. Keep authored Cargo
+    // manifests as inert fixture files and materialize their real consumer name here.
+    if source.file_name().is_some_and(|name| name == "Cargo.toml") {
+        source.set_file_name("Cargo.toml.fixture");
+    }
     write(
         root,
         destination,
-        std::fs::read(fixture_root().join(source)).expect("authored fixture source"),
+        std::fs::read(source).expect("authored fixture source"),
     );
 }
 
