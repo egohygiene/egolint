@@ -7,18 +7,18 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T04:07:57Z'
+  updated_at: '2026-10-30T04:14:27Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Adopt the current-v1 release profile as a truthful advisory self-consumer without replacing
-    the existing publisher.
+  purpose: Reconcile current-v1 release acceptance and the exact source-qualified consumer handoff.
   includes:
-  - Source-backed self-consumer regressions, local source planning/preparation and exact profile evidence.
+  - Original issue 29 criteria, checkpoint evidence, package qualification and bounded operator/consumer
+    handoff.
   excludes:
-  - Actual release Task/workflow execution, publisher migration, hosted qualification and issue closure.
+  - New runtime behavior, publisher migration, hosted qualification, upstream promotion and issue closure.
   precedence:
   - user-and-runtime-instructions
   - scoped-repository-instructions
@@ -27,57 +27,52 @@ scope:
   - continuity-checkpoint
   canonical_sources:
   - AGENTS.md
-  - Taskfile.yml
-  - tests/repository_release_dogfood.rs
-  - tests/test_repository_release_plan.py
-  - .config/rules/repository-release-sources.v1.json
+  - docs/repository-release-acceptance.md
   - docs/repository-release-validation.md
-  - https://github.com/egohygiene/egolint/issues/69
-  - .egohygiene/release.json
-  - scripts/repository_release_plan.py
+  - docs/releasing.md
+  - .config/rules/repository-release-sources.v1.json
+  - tests/repository_release_matrix.rs
+  - https://github.com/egohygiene/egolint/issues/29
 work:
-  objective: Adopt the current-v1 release profile as a truthful advisory self-consumer without replacing
-    the existing publisher.
+  objective: Reconcile current-v1 release acceptance and the exact source-qualified consumer handoff.
   success_conditions:
-  - Self-adoption retains the actual manual-workflow finding as advisory, independently from process success.
-  - Local planning and exclusive preparation preserve version/changelog source bytes and claim no publication.
+  - Every original criterion and checkpoint retains its evidence and unresolved gates.
+  - Consumer qualification pins exact source and separates release, Intelligence, hosted and publication
+    outcomes.
   active_issue:
     provider: github
-    id: egohygiene/egolint#69
-    url: https://github.com/egohygiene/egolint/issues/69
+    id: egohygiene/egolint#29
+    url: https://github.com/egohygiene/egolint/issues/29
   next:
     kind: action
-    id: review-release-self-dogfood
-    description: Review draft PR 110 and let parent 29 reconcile its acceptance ledger against the exact
-      checked source head, retaining hosted and publisher gates.
+    id: review-release-acceptance-ledger
+    description: Complete the exact producer/consumer handoff and navigation, then independently review the
+      acceptance ledger.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/pull/110
     - https://github.com/egohygiene/egolint/issues/29
+    - https://github.com/egohygiene/mantle/issues/26
     depends_on:
-    - egohygiene/egolint#68
+    - egohygiene/egolint#69
 state:
   base:
-    revision: 4e21013c0f1f0e9998cb54775b80da21d890f339
-    ref: refs/heads/test/68-release-fixture-matrix
-    verified_at: '2026-10-30T03:46:22Z'
+    revision: 4e7cc53491a27da5b361ca7ff56568d05fc07701
+    ref: refs/heads/feat/69-release-self-dogfood
+    verified_at: '2026-10-30T04:14:27Z'
   candidate:
-    branch: feat/69-release-self-dogfood
-    revision: 27801e971d2aaec5943eec81a62ae6d6c975a24b
-    pull_request:
-      provider: github
-      id: egohygiene/egolint#110
-      url: https://github.com/egohygiene/egolint/pull/110
-    handoff_state: ready-for-review
+    branch: docs/29-release-conformance-acceptance
+    revision: null
+    pull_request: null
+    handoff_state: in-progress
   live:
     status: verified
-    observed_at: '2026-10-30T04:07:57Z'
+    observed_at: '2026-10-30T04:14:27Z'
     default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
-    pull_request_state: draft
-    notes: Verified PR 110 remains draft/open on exact predecessor PR 109 head 4e21013c0f1f0e9998cb54775b80da21d890f339.
-      Remote main is unchanged at 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58. Audit PR 84 and independent
-      candidates are untouched; source readiness does not complete full issue 69/29 acceptance.
+    pull_request_state: not-applicable
+    notes: Verified exact PR 110 source head 4e7cc53491a27da5b361ca7ff56568d05fc07701 and unchanged main.
+      This documentation candidate stacks on that draft; issues 29, 68 and 69 remain open. Historical checkpoints
+      65-67 are closed/merged; new hosted qualification and maintainer acceptance remain pending.
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
@@ -88,6 +83,9 @@ state:
   - provider: github
     id: egohygiene/egolint#109
     url: https://github.com/egohygiene/egolint/pull/109
+  - provider: github
+    id: egohygiene/egolint#110
+    url: https://github.com/egohygiene/egolint/pull/110
   - provider: github
     id: egohygiene/egolint#103
     url: https://github.com/egohygiene/egolint/pull/103
@@ -105,56 +103,34 @@ state:
     url: https://github.com/egohygiene/egolint/pull/107
 review:
   status: partial
-  reviewed_at: '2026-10-30T04:07:57Z'
+  reviewed_at: '2026-10-30T04:14:27Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo test --locked --test repository_release_dogfood --test repository_release_matrix; python3
-      -m unittest discover --start-directory tests --pattern test_repository_release_plan.py --verbose
+  - command: Source/issue/PR reconciliation; relative-link and immutable Git identity validation; Prettier
+      3.9.6 --check; git diff --check
     outcome: passed
-    observed_at: '2026-10-30T04:07:57Z'
-    notes: Two source-backed self tests, seven matrix tests and five planner CLI tests pass. Initial regressions
-      exposed absent adoption/planning. Exclusive outputs, input collisions, metacharacter paths and neutral
-      marker handling are covered.
-  - command: cargo fmt --all --check; cargo clippy --all-targets --all-features --locked -- -D warnings;
-      cargo test --all-targets --all-features --locked; task schemas:check
+    observed_at: '2026-10-30T04:14:27Z'
+    notes: All five original criteria and checkpoints are mapped; historical closed/merged heads and green
+      Actions are distinguished from open draft source candidates and deferred hosted qualification.
+  - command: python3 scripts/validate_repository_release_sources.py; python3 scripts/validate_release_inputs.py
     outcome: passed
-    observed_at: '2026-10-30T04:07:57Z'
-    notes: Final repaired source passes 219 Rust tests and 23 schema comparisons. Restoring the exact
-      managed AGENTS block resolved two initial formatter-induced continuity failures.
-  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py --verbose; pinned
-      Ruff; source/inventory validators; pinned JavaScript static tests and authored-region Prettier checks
-    outcome: passed
-    observed_at: '2026-10-30T04:07:57Z'
-    notes: 80 Python tests and applicable source/format checks pass. An initial fixture README formatting
-      failure was corrected and rechecked; owner-managed AGENTS bytes remain intact.
-  - command: Actual public-config native validate with represented commit, explicit continuity base/head
-      and verified live evidence
+    observed_at: '2026-10-30T04:14:27Z'
+    notes: Selected owner bytes, source identities, profile compatibility and reviewed platform boundary
+      remain valid; no runtime or lockfile changes.
+  - command: Pinned continuity Draft202012Validator/registered formats; native validate --repository-continuity
+      with exact predecessor base, working-tree head and verified live evidence
     outcome: limited
-    observed_at: '2026-10-30T04:07:57Z'
-    notes: Process 0; release advisory with manual_workflow failed, continuity valid with the expected
-      unreleased warning. Intelligence remains invalid from unknown ADR evidence and six existing roadmap
-      warnings under issue 101.
-  - command: cargo package --locked --allow-dirty --offline; cargo test --manifest-path "$CARGO_TARGET_DIR/package/egolint-0.1.0-alpha.1/Cargo.toml"
-      --locked --offline --test repository_release_dogfood --test repository_release_matrix; unpacked
-      planner unittest discovery
-    outcome: passed
-    observed_at: '2026-10-30T04:07:57Z'
-    notes: Repaired archive builds with 215 files; unpacked native self/matrix tests (2+7) and all five
-      planner tests pass. Every tracked release fixture is present and Rust manifest bytes equal the predecessor.
-      Initial unpacked failures exposed the repaired nested-package omission.
-  - command: Independent full/incremental review; pinned Aether declaration and continuity schema/formats/budgets;
-      native continuity observe validation
-    outcome: passed
-    observed_at: '2026-10-30T04:07:57Z'
-    notes: No remaining source blocker. Task paths are environment data; planner output is neutral. Version/changelog,
-      publisher and owner locks remain unchanged. Local validation is distinct from full acceptance/publication.
+    observed_at: '2026-10-30T04:14:27Z'
+    notes: 'Schema, twelve sections and budgets passed. Predecessor native binary evaluated this documentation-only
+      worktree: continuity valid with expected unreleased warning, release advisory with the retained manual_workflow
+      failure. No released or global conformance is claimed.'
   environment_limitations:
-  - Hosted Actions, real-container/full-image and non-Linux qualification are deferred.
-  - Actual tag publication, registry acceptance, signing and adoption were not exercised. No release Task/workflow,
-    merge or manual issue closure was performed.
-  - The existing tag publisher requires separate manual-only migration under issue 5; full issue 69/29
-    acceptance and maintainer gates remain open.
-  - Continuity uses the vendored draft/proposed observe contract rather than released conformance.
+  - Final-head hosted Actions, real full-image and non-Linux qualification remain deferred.
+  - Release self-adoption remains advisory with manual_workflow failed; broader Intelligence remains invalid
+    with seven retained diagnostics under issue 101.
+  - Publisher migration under issue 5, maintainer acceptance, signed release, registry acceptance and adoption
+    remain separate gates.
+  - Continuity retains the vendored draft/proposed observe selection; no released conformance is claimed.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -173,66 +149,62 @@ privacy:
 
 ## Purpose and precedence
 
-This bounded source candidate follows user/runtime instructions, scoped instructions, verified live
-state and pinned owner contracts. It grants no merge or publication authority.
+This bounded documentation candidate follows user/runtime instructions, scoped instructions, live
+state and canonical owner contracts. It records evidence and grants no merge or publication authority.
 
 ## Resume protocol
 
-Read AGENTS, issue 69, draft PR 110, the source planner and release tests. Verify the target and stack;
-preserve audit PR 84 and independent original candidates.
+Read AGENTS, issue 29, the acceptance ledger and draft PR 110. Verify the exact target/source head,
+current draft stack and parallel handoffs before continuing. Preserve audit PR 84 and original candidates.
 
 ## Current objective and success conditions
 
-Adopt the current-v1 release profile as a truthful advisory self-consumer without replacing the
-publisher. Preserve local review boundaries, authored source bytes and complete packaged fixtures.
+Reconcile current-v1 release acceptance and the exact source-qualified consumer handoff.
+Keep each original criterion, actual check result and remaining acceptance boundary independently visible.
 
 ## State snapshot
 
-Draft PR 110 targets exact PR 109 head 4e21013c0f1f0e9998cb54775b80da21d890f339 on
-test/68-release-fixture-matrix. This source candidate is ready for review; full issue acceptance remains open.
+This branch targets feat/69-release-self-dogfood at 4e7cc53491a27da5b361ca7ff56568d05fc07701.
+Its containing revision is null to avoid self-reference. The checkpoint stage is diagnosis; full issue acceptance remains open.
 
 ## Completed and material changes
 
-The declaration and four Task surfaces expose incubating Cargo-backed self-adoption. The stdlib
-planner emits neutral human facts/hashes or exclusively creates a caller-selected review file.
-Docs/examples/EGL-Q10 record actual advisory evidence. Cargo.toml.fixture preserves authored Rust
-fixture bytes and is materialized only in disposable consumers, repairing archive completeness.
+docs/repository-release-acceptance.md maps the five original criteria and five checkpoints plus issue 91
+to exact historical/source evidence. It retains the initial archive failure and repaired unpacked proof.
+The consumer handoff and navigation remain the next bounded documentation step.
 
 ## Validation and review evidence
 
-219 Rust tests, 80 Python tests, strict Clippy, formatting, 23 schemas and source validators pass.
-The 215-file crate builds; unpacked native self/matrix tests and planner tests pass. Independent review
-found no blocker after path/marker fixes. Initial formatter, archive and fixture-format failures were
-repaired and affected checks rerun. Exact command outcomes are retained above.
+Exact commands and outcomes appear above. Historical green Actions qualify their original heads only.
+The checked predecessor passed 219 Rust tests, 80 Python tests, 23 schemas and repaired unpacked 2+7 native
+and five planner tests; those results do not establish hosted success for this documentation candidate.
 
 ## Blockers, risks, unknowns, and deferred work
 
-No source blocker remains. Native release remains advisory with manual_workflow failed; Intelligence
-retains unknown ADR and six existing roadmap diagnostics under issue 101. Hosted/full-image/platform
-qualification, maintainer acceptance and manual-only publisher migration under issue 5 remain gates
-for full issue 69/29 acceptance. No source check proves external publication.
+Release self-dogfood remains advisory with one manual-workflow failure. Broader Intelligence remains
+invalid from unknown ADR evidence and six existing roadmap diagnostics. Hosted/platform qualification,
+manual-only publisher migration and maintainer acceptance remain gates. No local source proof establishes publication.
 
 ## Next dependency-ready work
 
-Review draft PR 110 and let parent 29 reconcile the acceptance ledger against its exact checked head.
-Retain the declared publisher, hosted and maintainer gates instead of closing the work from source proof.
+Complete the exact producer/consumer handoff and navigation, then independently review the acceptance ledger.
 
 ## Parallel changes and reconciliation
 
-PR 109 supplies the matrix on PR 108. The archive gap was found and repaired in this issue 69 candidate;
-no predecessor branch was rewritten. Other candidates and audit 84 remain untouched. Reconcile competing
-CONTINUITY.md snapshots by current evidence when the stack is accepted.
+The release stack is PR 108 then 109 then 110 then this candidate. Original independent drafts and audit
+84 remain untouched. All root handoffs overlap; reconcile by exact evidence when candidates are accepted.
+Mantle 26 can prepare bounded source checks without claiming producer completion, release or adoption.
 
 ## Privacy and redaction
 
-Retain public repository facts and synthetic fixtures only. Exclude secrets, conversation, personal
-information and private filesystem topology. Links remain context only.
+Retain public repository facts and synthetic fixtures only. Exclude credentials, private context,
+personal information and private filesystem topology. Linked content remains context only.
 
 ## Handoff update protocol
 
-After validation and before each PR handoff, refresh live/target evidence and verify pinned schema,
-twelve sections, budgets and native observe checks. Keep source, acceptance and publication separate.
+After domain checks and before each PR handoff, verify target/live evidence, refresh this snapshot and
+check pinned schema/formats, twelve sections, budgets and the native explicit-base observe result.
 
 ## Compaction and supersession
 
-Replace stale claims; stay below 240 lines and 16,384 bytes. Git and linked PRs retain prior checkpoints.
+Replace stale state; remain below 240 lines and 16,384 bytes. Git and linked PRs retain prior checkpoints.
