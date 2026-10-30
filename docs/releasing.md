@@ -117,6 +117,14 @@ checked-in release-input contract:
 | `EGOLINT_NODE_POLICY_IMAGE`  | Node policy dependency stage   |
 | `EGOLINT_MEGALINTER_IMAGE`   | MegaLinter v10 full-image base |
 
+The input validator requires a complete closed contract before comparing environment values. Every
+image record contains `reference`, `digest`, `media_type` and a nonempty unique supported `platforms`
+list; `upstream_platform_evidence` is optional nonempty text. Every product contains a unique exact
+`base_images` list and a nonempty unique supported `platforms` list; `limitation` is optional nonempty
+text. Unsupported fields, missing/non-object records and malformed nested elements produce controlled
+configuration errors. Only a structurally valid contract proceeds to base-platform intersection checks
+and exact environment comparison.
+
 The workflow rejects missing, tag-only, merely well-formed, or drifted values. It freezes only the
 four references that match `.config/release/base-images.v1.json` byte-for-byte.
 

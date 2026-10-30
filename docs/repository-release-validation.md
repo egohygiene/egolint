@@ -206,8 +206,8 @@ that nested directory from the archive. Unpacked native-matrix and planner tests
 fixtures directly, in addition to the package build.
 
 The report schema remains `egolint.repository-release-report/v1`; all generated-schema comparisons
-remain required. Local source proof does not complete issue #69 or parent #29: maintainer acceptance,
-actual final-head hosted/full-image/non-Linux qualification and the publisher migration remain open.
+remain required. Source-PR acceptance does not complete issue #69 or parent #29: actual final-head
+hosted/full-image/non-Linux qualification, the publisher migration and full release acceptance remain open.
 Historical merged PR #64 is retained as history. Successor release model issue #76 stays separate.
 
 ## Checkpoint plan
@@ -220,10 +220,10 @@ Historical merged PR #64 is retained as history. Successor release model issue #
    contract-only, archived, advisory, external, unavailable, and invalid fixtures.
 5. Dogfood the completed capability, document operations and limits, and perform final CI polish.
 
-Checkpoints 1–3 landed in PRs 64, 70 and 71. Draft PR 109 supplies the current-v1 fixture matrix on
-static-handoff repair PR 108; draft PR 110 adds this self-consumer checkpoint. The review stack is
-issue 91 → 68 → 69 → parent 29 reconciliation. Every candidate retains its own maintainer review and
-unresolved hosted acceptance; none of these source checkpoints publishes a product.
+Checkpoints 1–3 landed in PRs 64, 70 and 71. Static-handoff correction PR 108, current-v1 fixture
+matrix PR 109 and self-consumer PR 110 have now merged in that order, verified on 2026-10-30.
+Parent 29 reconciliation records their exact source and merge evidence. Full hosted and release
+acceptance remain unresolved; none of these source checkpoints publishes a product.
 
 The [parent acceptance ledger](repository-release-acceptance.md) maps the original criteria to exact
 checkpoint evidence and unresolved gates. Its [operator/consumer handoff](repository-release-acceptance.md#operator-and-consumer-handoff)

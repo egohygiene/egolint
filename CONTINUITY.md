@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T04:23:31Z'
+  updated_at: '2026-10-30T08:51:53Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -45,20 +45,18 @@ work:
     url: https://github.com/egohygiene/egolint/issues/29
   next:
     kind: action
-    id: review-release-acceptance-ledger
-    description: Review the draft acceptance ledger with the release stack; use the exact qualified source
-      for bounded Mantle 26 preparation while preserving full acceptance gates.
+    id: merge-qualified-29-candidate
+    description: Merge the qualified source candidate, then verify the resulting default-branch state;
+      retain separate release acceptance gates.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/29
-    - https://github.com/egohygiene/mantle/issues/26
-    depends_on:
-    - egohygiene/egolint#69
+    - https://github.com/egohygiene/egolint/pull/111
+    depends_on: []
 state:
   base:
-    revision: 4e7cc53491a27da5b361ca7ff56568d05fc07701
-    ref: refs/heads/feat/69-release-self-dogfood
-    verified_at: '2026-10-30T04:23:31Z'
+    revision: 817652a9574700ec18465928ca3bcdc1a074cc25
+    ref: refs/heads/main
+    verified_at: '2026-10-30T08:51:53Z'
   candidate:
     branch: docs/29-release-conformance-acceptance
     revision: null
@@ -69,53 +67,30 @@ state:
     handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-10-30T04:23:31Z'
-    default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
+    observed_at: '2026-10-30T08:51:53Z'
+    default_branch_revision: 817652a9574700ec18465928ca3bcdc1a074cc25
     issue_state: open
-    pull_request_state: draft
-    notes: Verified exact PR 110 source head 4e7cc53491a27da5b361ca7ff56568d05fc07701 and unchanged main.
-      This documentation candidate stacks on that draft; issues 29, 68 and 69 remain open. Historical checkpoints
-      65-67 are closed/merged; new hosted qualification and maintainer acceptance remain pending.
+    pull_request_state: open
+    notes: 'GitHub checked this candidate open against the observed main revision. Verified merged predecessors:
+      PR 104, PR 106, PR 105, PR 107, PR 103, PR 108, PR 109, PR 110. Remaining candidates: none in this
+      batch. Audit draft PR 84 remains open and unchanged. Hosted Actions remain deferred.'
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
-  - provider: github
-    id: egohygiene/egolint#108
-    url: https://github.com/egohygiene/egolint/pull/108
-  - provider: github
-    id: egohygiene/egolint#109
-    url: https://github.com/egohygiene/egolint/pull/109
-  - provider: github
-    id: egohygiene/egolint#110
-    url: https://github.com/egohygiene/egolint/pull/110
-  - provider: github
-    id: egohygiene/egolint#103
-    url: https://github.com/egohygiene/egolint/pull/103
-  - provider: github
-    id: egohygiene/egolint#104
-    url: https://github.com/egohygiene/egolint/pull/104
-  - provider: github
-    id: egohygiene/egolint#105
-    url: https://github.com/egohygiene/egolint/pull/105
-  - provider: github
-    id: egohygiene/egolint#106
-    url: https://github.com/egohygiene/egolint/pull/106
-  - provider: github
-    id: egohygiene/egolint#107
-    url: https://github.com/egohygiene/egolint/pull/107
 review:
   status: partial
-  reviewed_at: '2026-10-30T04:23:31Z'
+  reviewed_at: '2026-10-30T08:51:53Z'
   reviewed_by: Codex
   evidence:
-  - command: Original issue/checkpoint and exact-head Actions reconciliation; link/anchor/Git identity validation;
-      Prettier 3.9.6 on ledger and added navigation; cargo fmt --all --check; git diff --check
+  - command: Original issue/checkpoint and exact-head Actions reconciliation; link/anchor/Git identity
+      validation; Prettier 3.9.6 on ledger and added navigation; cargo fmt --all --check; git diff --check
     outcome: passed
     observed_at: '2026-10-30T04:23:31Z'
-    notes: All five original criteria and checkpoints plus issue 91 are mapped accurately. Independent stage-1/stage-2
-      review found no blocker; its privacy refinement keeps machine paths/private argv/configuration local.
-      Runtime, owner locks, publisher, version/changelog and fixture bytes match exact predecessor 4e7cc53491a27da5b361ca7ff56568d05fc07701.
+    notes: All five original criteria and checkpoints plus issue 91 are mapped accurately. Independent
+      stage-1/stage-2 review found no blocker; its privacy refinement keeps machine paths/private argv/configuration
+      local. Runtime, owner locks, publisher, version/changelog and fixture bytes match exact predecessor
+      4e7cc53491a27da5b361ca7ff56568d05fc07701.
   - command: python3 scripts/validate_repository_release_sources.py; python3 scripts/validate_release_inputs.py;
       pinned Aether declaration schema with registered formats
     outcome: passed
@@ -127,22 +102,38 @@ review:
     outcome: passed
     observed_at: '2026-10-30T04:23:31Z'
     notes: Stage-2 head 05f835e4995f714526cc0ca93710e368abf6aad5 produced a verified 215-file crate. Every
-      tracked release fixture has matching archive bytes; actual unpacked 2 self + 7 matrix + 5 planner tests
-      pass. This local receipt is separate from the predecessor archive failure/repair and from final hosted
-      qualification.
+      tracked release fixture has matching archive bytes; actual unpacked 2 self + 7 matrix + 5 planner
+      tests pass. This local receipt is separate from the predecessor archive failure/repair and from
+      final hosted qualification.
   - command: Pinned continuity Draft202012Validator/registered formats and native public-config validate
       with explicit predecessor base, working-tree head and checked live evidence
     outcome: limited
     observed_at: '2026-10-30T04:23:31Z'
     notes: Schema, twelve sections, budgets and local paths pass. Process 0; release advisory (six passed/manual_workflow
-      failed), continuity valid with expected unreleased warning, Intelligence invalid with unknown ADR plus
-      six existing roadmap diagnostics. No global or released conformance is claimed.
+      failed), continuity valid with expected unreleased warning, Intelligence invalid with unknown ADR
+      plus six existing roadmap diagnostics. No global or released conformance is claimed.
+  - command: Acceptance ledger links/anchors/Git identities; current issue/PR merge reconciliation; Prettier
+      check; source validators; Rust fmt; runtime and lockfile comparison to current main
+    outcome: passed
+    observed_at: '2026-10-30T08:51:53Z'
+    notes: All documentation/source checks pass. The six-file Markdown-only delta records merged correction
+      and checkpoint source without changing runtime, fixtures, workflows, version/changelog or locks
+      from main 817652a9574700ec18465928ca3bcdc1a074cc25. Combined runtime qualification remains 232 Rust,
+      88 Python and 94 JavaScript tests; full release acceptance remains open. Existing exact-head combined-source
+      evidence remains in the linked PR; no hosted qualification is inferred.
+  - command: Pinned Draft202012Validator/registered formats, section and budget checks; native continuity
+      validation with explicit current-main base and working-tree head; git diff --check
+    outcome: limited
+    observed_at: '2026-10-30T08:51:53Z'
+    notes: Reconciled handoff passes local schema and native semantic/structural/freshness/Git checks.
+      The proposed/unreleased continuity contract retains its expected observe warning; official released
+      conformance and hosted qualification remain unavailable.
   environment_limitations:
   - Final-head hosted Actions, real full-image and non-Linux qualification remain deferred.
   - Release self-adoption remains advisory with manual_workflow failed; broader Intelligence remains invalid
     with seven retained diagnostics under issue 101.
-  - Publisher migration under issue 5, maintainer acceptance, signed release, registry acceptance and adoption
-    remain separate gates.
+  - Publisher migration under issue 5, maintainer acceptance, signed release, registry acceptance and
+    adoption remain separate gates.
   - Continuity retains the vendored draft/proposed observe selection; no released conformance is claimed.
 privacy:
   classification: public-repository
@@ -167,8 +158,7 @@ state and canonical owner contracts. It records evidence and grants no merge or 
 
 ## Resume protocol
 
-Read AGENTS, issue 29, the acceptance ledger and draft PR 110. Verify the exact target/source head,
-current draft stack and parallel handoffs before continuing. Preserve audit PR 84 and original candidates.
+Read AGENTS.md, the active issue and linked source evidence. Verify main, this candidate and the remaining PRs against live state before continuing. Audit draft PR 84 is a separate historical change.
 
 ## Current objective and success conditions
 
@@ -177,8 +167,8 @@ Keep each original criterion, actual check result and remaining acceptance bound
 
 ## State snapshot
 
-This branch targets feat/69-release-self-dogfood at 4e7cc53491a27da5b361ca7ff56568d05fc07701.
-Its containing revision is null to avoid self-reference. The checkpoint stage is review; full issue acceptance remains open.
+This candidate was reconciled against observed main `817652a9574700ec18465928ca3bcdc1a074cc25` at `2026-10-30T08:51:53Z`.
+GitHub verified PR 104, PR 106, PR 105, PR 107, PR 103, PR 108, PR 109, PR 110 merged; this PR was open at observation. The containing revision remains null to avoid self-reference. Source acceptance does not establish a product release.
 
 ## Completed and material changes
 
@@ -201,13 +191,11 @@ manual-only publisher migration and maintainer acceptance remain gates. No local
 
 ## Next dependency-ready work
 
-Review the draft acceptance ledger with the release stack; use the exact qualified source for bounded Mantle 26 preparation while preserving full acceptance gates.
+Merge the qualified source candidate and verify its default-branch result. Preserve the documented hosted, publisher migration, platform and publication gates where applicable.
 
 ## Parallel changes and reconciliation
 
-The release stack is PR 108 then 109 then 110 then this candidate. Original independent drafts and audit
-84 remain untouched. All root handoffs overlap; reconcile by exact evidence when candidates are accepted.
-Mantle 26 can prepare bounded source checks without claiming producer completion, release or adoption.
+Observed remaining candidates: none in this batch. Root handoffs overlap and must retain the latest evidence when their candidates are accepted. Merged predecessor source is retained; no audit branch or historical evidence is rewritten.
 
 ## Privacy and redaction
 

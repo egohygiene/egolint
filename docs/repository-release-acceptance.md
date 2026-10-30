@@ -1,11 +1,12 @@
 # Current-v1 release capability acceptance
 
-This ledger reconciles [issue #29](https://github.com/egohygiene/egolint/issues/29) against the
-source candidate at `4e7cc53491a27da5b361ca7ff56568d05fc07701`, the verified final head of
-[draft PR #110](https://github.com/egohygiene/egolint/pull/110). It records source and local evidence
-for review. Issues #29, #68 and #69 remain open; their original acceptance criteria are preserved.
-The current publisher migration, final-head hosted qualification and maintainer acceptance remain
-gates. No release, deployment or registry publication is established by this ledger.
+This ledger reconciles [issue #29](https://github.com/egohygiene/egolint/issues/29) using the original
+qualified implementation pin `4e7cc53491a27da5b361ca7ff56568d05fc07701` and its subsequent integration.
+[PR #110](https://github.com/egohygiene/egolint/pull/110) is now merged on main at
+`817652a9574700ec18465928ca3bcdc1a074cc25`, following correction PR #108 and fixture PR #109.
+These source dispositions were verified on 2026-10-30. Issues #29, #68 and #69 remain open;
+their original acceptance criteria are preserved. Publisher migration, final-head hosted qualification
+and full release acceptance remain gates. No release, deployment or registry publication is established.
 
 The [capability guide](repository-release-validation.md) owns supported checks and report semantics;
 the [release operator guide](releasing.md) owns the existing repository adapter. This ledger connects
@@ -13,26 +14,26 @@ their evidence to the original work without replacing either guide or the upstre
 
 ## Original acceptance criteria
 
-| Original #29 criterion                                                                                          | Source evidence available for review                                                                                                                                                                                  | Acceptance still required                                                                                                                  |
-| --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Fixtures cover Rust, Python, npm, container, site, publication, workspace, contract-only and archived profiles. | Checkpoint #68 has nine authored profiles and 54 compact focused projections covering six states, plus version drift, entrypoint and no-runtime controls. The repaired #69 archive replays this matrix.               | Maintainer acceptance of draft PR #109; final-head hosted qualification remains deferred.                                                  |
-| The validator never claims that an external registry or deployment occurred.                                    | The focused report retains `network_access: not_performed` and `external_publication: not_verified`; native fixtures also check finding, tool and SARIF agreement. This criterion was already checked in #29.         | Retain this boundary in every consumer and any later report change.                                                                        |
-| The rule supports advisory-to-required rollout without false conformance.                                       | The existing resolver and matrix preserve separate semantic/check state, effective severity, enforcement and exit. Self-adoption is advisory with a failed workflow check. This criterion was already checked in #29. | Retain the actual failure; process exit 0 must not become a conformance claim.                                                             |
-| EgoLint dogfoods the profile.                                                                                   | Checkpoint #69 activates the real incubating declaration and exercises actual source bytes through the public native CLI. Six release checks pass; `manual_workflow` remains failed/advisory.                         | Maintainer acceptance of draft PR #110, the separately owned publisher migration and deferred hosted/platform qualification.               |
-| Every checkpoint issue is complete and every checkpoint PR has green validation.                                | Checkpoints #65–#67 are closed and merged, with exact-head historical green runs below. #68/#69 are draft source/local-validation candidates.                                                                         | This criterion is **not satisfied**. New candidates have no claimed hosted green result; their reviews and full acceptance remain pending. |
+| Original #29 criterion                                                                                          | Source evidence available for review                                                                                                                                                                                  | Acceptance still required                                                                                                       |
+| --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Fixtures cover Rust, Python, npm, container, site, publication, workspace, contract-only and archived profiles. | Checkpoint #68 has nine authored profiles and 54 compact focused projections covering six states, plus version drift, entrypoint and no-runtime controls. The repaired #69 archive replays this matrix.               | Final-head hosted qualification remains deferred; PR #109 source is merged.                                                     |
+| The validator never claims that an external registry or deployment occurred.                                    | The focused report retains `network_access: not_performed` and `external_publication: not_verified`; native fixtures also check finding, tool and SARIF agreement. This criterion was already checked in #29.         | Retain this boundary in every consumer and any later report change.                                                             |
+| The rule supports advisory-to-required rollout without false conformance.                                       | The existing resolver and matrix preserve separate semantic/check state, effective severity, enforcement and exit. Self-adoption is advisory with a failed workflow check. This criterion was already checked in #29. | Retain the actual failure; process exit 0 must not become a conformance claim.                                                  |
+| EgoLint dogfoods the profile.                                                                                   | Checkpoint #69 activates the real incubating declaration and exercises actual source bytes through the public native CLI. Six release checks pass; `manual_workflow` remains failed/advisory.                         | The separately owned publisher migration, deferred hosted/platform qualification and full checkpoint acceptance.                |
+| Every checkpoint issue is complete and every checkpoint PR has green validation.                                | Checkpoints #65–#67 are closed and merged, with exact-head historical green runs below. #68/#69 source PRs are merged with local validation; their issues remain open.                                                | This criterion is **not satisfied**. The new source heads have no claimed hosted green result; full acceptance remains pending. |
 
 ## Checkpoint and correction evidence
 
-| Work                                                                                    | Observed disposition                                                          | Exact evaluated source                     | Evidence boundary                                                                                                                                                                                  |
-| --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [#65](https://github.com/egohygiene/egolint/issues/65): immutable inputs                | Closed; [PR #64](https://github.com/egohygiene/egolint/pull/64) merged        | `b8de3ed2636e1cb7b8e81e9c8737f555ddb31a0a` | Historical [CI](https://github.com/egohygiene/egolint/actions/runs/35465366245) and [Dogfood](https://github.com/egohygiene/egolint/actions/runs/35465366258) completed successfully on this head. |
-| [#66](https://github.com/egohygiene/egolint/issues/66): applicability/reports           | Closed; [PR #70](https://github.com/egohygiene/egolint/pull/70) merged        | `e00a6b87d15b244418ed8ced200c613994d3d3dc` | Historical [CI](https://github.com/egohygiene/egolint/actions/runs/35469058347) and [Dogfood](https://github.com/egohygiene/egolint/actions/runs/35469058350) completed successfully on this head. |
-| [#67](https://github.com/egohygiene/egolint/issues/67): mechanical checks               | Closed; [PR #71](https://github.com/egohygiene/egolint/pull/71) merged        | `9f2073f39df3851584be8956a2b27f7d506739b5` | Historical [CI](https://github.com/egohygiene/egolint/actions/runs/35473934916) and [Dogfood](https://github.com/egohygiene/egolint/actions/runs/35473934967) completed successfully on this head. |
-| [#91](https://github.com/egohygiene/egolint/issues/91): exact static handoff correction | Open; [PR #108](https://github.com/egohygiene/egolint/pull/108) draft         | `36a3163b4017fc2d9b7ece873e896e6dca8fd96b` | Direct/quoted controls and 32 Task-source cases exercise actual CLI/focused/run/SARIF behavior. Commands are inspected, never dispatched.                                                          |
-| [#68](https://github.com/egohygiene/egolint/issues/68): fixture matrix                  | Open; [PR #109](https://github.com/egohygiene/egolint/pull/109) draft on #108 | `4e21013c0f1f0e9998cb54775b80da21d890f339` | Nine-profile/six-state source matrix; the first crate archive omitted the nested Rust fixture despite its include glob.                                                                            |
-| [#69](https://github.com/egohygiene/egolint/issues/69): self-dogfood                    | Open; [PR #110](https://github.com/egohygiene/egolint/pull/110) draft on #109 | `4e7cc53491a27da5b361ca7ff56568d05fc07701` | Source/local review candidate, including the archive repair and unpacked replay below. Hosted and full acceptance remain pending.                                                                  |
+| Work                                                                                    | Observed disposition                                                                                                   | Exact evaluated source                     | Evidence boundary                                                                                                                                                                                  |
+| --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#65](https://github.com/egohygiene/egolint/issues/65): immutable inputs                | Closed; [PR #64](https://github.com/egohygiene/egolint/pull/64) merged                                                 | `b8de3ed2636e1cb7b8e81e9c8737f555ddb31a0a` | Historical [CI](https://github.com/egohygiene/egolint/actions/runs/35465366245) and [Dogfood](https://github.com/egohygiene/egolint/actions/runs/35465366258) completed successfully on this head. |
+| [#66](https://github.com/egohygiene/egolint/issues/66): applicability/reports           | Closed; [PR #70](https://github.com/egohygiene/egolint/pull/70) merged                                                 | `e00a6b87d15b244418ed8ced200c613994d3d3dc` | Historical [CI](https://github.com/egohygiene/egolint/actions/runs/35469058347) and [Dogfood](https://github.com/egohygiene/egolint/actions/runs/35469058350) completed successfully on this head. |
+| [#67](https://github.com/egohygiene/egolint/issues/67): mechanical checks               | Closed; [PR #71](https://github.com/egohygiene/egolint/pull/71) merged                                                 | `9f2073f39df3851584be8956a2b27f7d506739b5` | Historical [CI](https://github.com/egohygiene/egolint/actions/runs/35473934916) and [Dogfood](https://github.com/egohygiene/egolint/actions/runs/35473934967) completed successfully on this head. |
+| [#91](https://github.com/egohygiene/egolint/issues/91): exact static handoff correction | Closed; [PR #108](https://github.com/egohygiene/egolint/pull/108) merged as `1da179bf9b30a4e8c5ab1f1dcdf39e03d09010df` | `36a3163b4017fc2d9b7ece873e896e6dca8fd96b` | Direct/quoted controls and 32 Task-source cases exercise actual CLI/focused/run/SARIF behavior. Commands are inspected, never dispatched.                                                          |
+| [#68](https://github.com/egohygiene/egolint/issues/68): fixture matrix                  | Open; [PR #109](https://github.com/egohygiene/egolint/pull/109) merged as `7a28bc8410f6c5a8c9fbf570ce591f13eaa739a9`   | `4e21013c0f1f0e9998cb54775b80da21d890f339` | Nine-profile/six-state source matrix; the first crate archive omitted the nested Rust fixture despite its include glob.                                                                            |
+| [#69](https://github.com/egohygiene/egolint/issues/69): self-dogfood                    | Open; [PR #110](https://github.com/egohygiene/egolint/pull/110) merged as `817652a9574700ec18465928ca3bcdc1a074cc25`   | `4e7cc53491a27da5b361ca7ff56568d05fc07701` | Merged source includes the archive repair and unpacked replay below. Hosted and full acceptance remain pending.                                                                                    |
 
-Historical green runs qualify their recorded heads only. The new draft stack uses `[skip ci]`;
+Historical green runs qualify their recorded heads only. The merged source stack uses `[skip ci]`;
 hosted Actions, full-image and native non-Linux qualification are deferred. A merged historical PR,
 a local passing suite and a completed external release are different evidence. PR #64 is historical;
 the old instruction to move it out of draft does not apply to these new focused candidates.
@@ -55,9 +56,14 @@ seven matrix tests and five planner CLI tests. The final archive also contained 
 handoff and fixture README bytes. This is stronger than inventory inspection, while remaining local
 package qualification without publication.
 
-The same #69 source passed formatting, strict Clippy, 219 Rust tests with zero ignored, 80 Python tests
-and 23 schema comparisons. Its draft PR records the precise commands, review repairs and remaining
-limits. Those results do not create a hosted pass for this later documentation candidate.
+The same original #69 source passed formatting, strict Clippy, 219 Rust tests with zero ignored,
+80 Python tests and 23 schema comparisons. Its PR retains the precise commands and review repairs.
+The subsequent main integration adds the independent audit repairs: 232 Rust tests, 88 Python tests,
+94 JavaScript tests, strict linting and all 23 schemas passed. Its actual 219-file crate built, all
+25 tracked release fixtures matched, and the unpacked two self, seven matrix and five planner tests
+passed. All 661 non-Markdown files matched the previously qualified composite, with equivalent Cargo
+include semantics and no dependency drift. This records local evidence; hosted qualification remains
+deferred and the final handoff-only refresh has separate continuity evidence in PR #110.
 
 ## Separate self-consumer verdicts
 
@@ -77,7 +83,7 @@ process result or folded into a false completed parent state.
 ## Operator and consumer handoff
 
 For bounded preparation, the known implementation pin is
-`4e7cc53491a27da5b361ca7ff56568d05fc07701` from draft PR #110. It includes the #91 correction,
+`4e7cc53491a27da5b361ca7ff56568d05fc07701` from the original PR #110 qualification. It includes the #91 correction,
 #68 matrix and #69 archive repair. Use a clean disposable producer checkout and verify that exact
 commit before building or replaying controls. The pinned Rust toolchain and lockfiles remain part of
 the source contract:
@@ -97,7 +103,7 @@ new authority from a local check. Current self-adoption and package qualificatio
 above; [the capability guide](repository-release-validation.md) owns the detailed commands and
 supported grammar.
 
-A final #29 documentation candidate may instead be pinned by the full commit recorded in its draft
+A final #29 documentation candidate may instead be pinned by the full commit recorded in its
 PR handoff. Verify its runtime-source difference against the implementation pin and qualify that
 exact checkout. Record the actual producer commit and executable SHA-256 in the consumer's evidence;
 the containing ledger does not need to embed its own future commit identifier. A source pin is not a
@@ -145,12 +151,14 @@ producer or fleet-conformance claim to the consumer.
 
 ## Remaining acceptance gates
 
-The review order is #91 → #68 → #69 → this parent #29 ledger. Reconcile each continuity snapshot
-when its candidate is accepted. Keep all three new release-chain PRs and this ledger in draft until
-the maintainer chooses their disposition; no issue checklist or state is changed here.
+The source correction PR #108, fixture PR #109 and self-consumer PR #110 have merged in that order.
+This parent #29 ledger is reconciled against main `817652a9574700ec18465928ca3bcdc1a074cc25`;
+its containing candidate and disposition are recorded in PR #111 rather than embedding its own
+future commit identifier. Source-PR acceptance does not complete the original release acceptance
+criteria. This ledger does not edit issue checklists or manually close issues.
 
 Full #69/#29 acceptance still needs the separately reviewed publisher migration, actual final-head
-hosted/full-image/non-Linux evidence and maintainer acceptance of the stack. Signed immutable product
+hosted/full-image/non-Linux evidence and full release acceptance. Signed immutable product
 release, registry acceptance and consumer adoption require their own evidence under their owning
 issues. Successor release-model issue #76 does not replace this current-v1 work or promote the
 selected upstream authority.
