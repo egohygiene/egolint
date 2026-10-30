@@ -148,12 +148,17 @@ result and CLI exit 3. Valid findings remain visible even when the process outco
 them. Exit 1 with diagnostics remains `failed_findings`, including warning-only diagnostics;
 exit 0 with error findings is contradictory. Clean and warning-only successful runs exit 0.
 Protocol failures are separate from lint findings and do not create synthetic rule violations.
+The SARIF projection carries failed invocation metadata and execution notifications alongside
+any valid findings. Publint API failures also produce a structured non-clean outcome while
+retaining the other adapters' evidence.
 
 The supported Oxlint envelope is an object with a diagnostics array. Diagnostic messages and
 severities are validated before normalization. Optional `number_of_errors` and
 `number_of_warnings` counts must agree with the diagnostics when supplied. The pinned Oxlint
 1.79.0 reporter does not currently supply those optional counts; contradictory-count tests use
 trusted stubs and qualify the seam handling only.
+Supported source coordinates must be integers with positive lines and columns; invalid spans
+and regions cannot become malformed normalized locations.
 
 The supported Biome envelope uses SARIF 2.1.0 with at least one run and an explicit results array
 per run. Results require textual messages and supported kind/level combinations. An absent kind

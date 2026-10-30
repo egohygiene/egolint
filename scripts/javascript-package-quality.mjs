@@ -264,6 +264,22 @@ function normalizedFinding({
     fixSafety,
     applicability = "applicable",
 }) {
+    const coordinates = [startLine, startColumn, endLine, endColumn];
+    if (
+        coordinates.some(
+            (value) =>
+                value !== undefined &&
+                value !== null &&
+                (!Number.isSafeInteger(value) || value < 1),
+        ) ||
+        (endLine !== undefined && startLine !== undefined && endLine < startLine) ||
+        (endLine === startLine &&
+            endColumn !== undefined &&
+            startColumn !== undefined &&
+            endColumn < startColumn)
+    ) {
+        throw runtimeError(`${toolName} source coordinates are invalid`);
+    }
     const cleanMessage = boundedText(message, 16384);
     const location = path
         ? {
@@ -327,6 +343,17 @@ function requireText(value, label) {
     }
 }
 
+function validateCoordinateFields(value, fields, label, minimum = 1) {
+    for (const field of fields) {
+        if (
+            value[field] !== undefined &&
+            (!Number.isSafeInteger(value[field]) || value[field] < minimum)
+        ) {
+            throw runtimeError(`${label} coordinates must be supported integers`);
+        }
+    }
+}
+
 function validateCounts(document, diagnostics) {
     for (const [key, expected] of [
         ["number_of_errors", diagnostics.filter((item) => item.severity === "error").length],
@@ -364,7 +391,11 @@ function normalizeOxlint(raw, context) {
         if (diagnostic.labels !== undefined) {
             for (const label of requireArray(diagnostic.labels, "Oxlint labels")) {
                 requireObject(label, "Oxlint label");
-                if (label.span !== undefined) requireObject(label.span, "Oxlint span");
+                if (label.span !== undefined) {
+                    requireObject(label.span, "Oxlint span");
+                    validateCoordinateFields(label.span, ["line", "column"], "Oxlint span");
+                    validateCoordinateFields(label.span, ["length", "offset"], "Oxlint span", 0);
+                }
             }
         }
         const span = diagnostic.labels?.[0]?.span ?? {};
@@ -433,8 +464,14 @@ function normalizeBiome(raw, context) {
                         location.physicalLocation,
                         "Biome physical location",
                     );
-                    if (physical.region !== undefined)
+                    if (physical.region !== undefined) {
                         requireObject(physical.region, "Biome source region");
+                        validateCoordinateFields(
+                            physical.region,
+                            ["startLine", "startColumn", "endLine", "endColumn"],
+                            "Biome region",
+                        );
+                    }
                     if (physical.artifactLocation !== undefined) {
                         requireObject(physical.artifactLocation, "Biome artifact location");
                         requireText(physical.artifactLocation.uri, "Biome artifact URI");
@@ -529,21 +566,39 @@ function publintLocation(message, packageDirectory, workspace) {
 }
 
 async function runPublint(context) {
+    try {
+        return await evaluatePublint(context);
+    } catch (error) {
+        return {
+            findings: [],
+            status: "execution_error",
+            outcome: {
+                protocol_status:
+                    error instanceof EgolintJavascriptError ? "invalid" : "unavailable",
+                reason: "publint API returned invalid evidence or could not complete normally",
+            },
+        };
+    }
+}
+
+async function evaluatePublint(context) {
     if (context.manifest.publication === "private") {
         return { findings: [], status: "not_applicable" };
     }
-    let result;
-    try {
-        result = await publint({
-            pkgDir: context.packageDirectory,
-            pack: "pnpm",
-            strict: false,
-            level: "suggestion",
-        });
-    } catch (error) {
-        throw runtimeError(`publint failed: ${error.message}`);
-    }
-    const findings = (result.messages ?? []).map((message) => {
+    const result = await publint({
+        pkgDir: context.packageDirectory,
+        pack: "pnpm",
+        strict: false,
+        level: "suggestion",
+    });
+    requireObject(result, "publint result");
+    requireObject(result.pkg, "publint package");
+    const findings = requireArray(result.messages, "publint messages").map((message) => {
+        requireObject(message, "publint message");
+        requireText(message.code, "publint message code");
+        if (!["error", "warning", "suggestion"].includes(message.type)) {
+            throw runtimeError("publint message type is unsupported");
+        }
         const location = publintLocation(message, context.packageDirectory, context.workspace);
         let rendered;
         try {
@@ -568,7 +623,7 @@ async function runPublint(context) {
             fixSafety: "none",
         });
     });
-    return { findings, status: undefined };
+    return { findings, status: undefined, outcome: { protocol_status: "valid", reason: null } };
 }
 
 function toolResult(toolId, findings, statusOverride) {
@@ -698,10 +753,26 @@ function toSarif(report) {
                     },
                 },
                 results,
+                invocations: [
+                    {
+                        executionSuccessful: !report.tool_results.some(
+                            (item) => item.status === "execution_error",
+                        ),
+                        toolExecutionNotifications: report.tool_results
+                            .filter((item) => item.status === "execution_error")
+                            .map((item) => ({
+                                level: "error",
+                                message: {
+                                    text: `${item.tool_id} adapter evidence is unavailable, invalid or contradictory.`,
+                                },
+                            })),
+                    },
+                ],
                 properties: {
                     egolintProfile: report.profile.id,
                     egolintProfileVersion: report.profile.version,
                     egolintVariant: report.profile.variant,
+                    egolintToolResults: report.tool_results,
                 },
             },
         ],
@@ -734,6 +805,13 @@ async function materializeBiomeConfig(configurationPath, workspace, ignorePatter
 }
 
 function printFindings(report) {
+    for (const result of report.tool_results) {
+        if (result.status === "execution_error") {
+            console.error(
+                `egolint: ${result.tool_id} adapter evidence is unavailable, invalid or contradictory`,
+            );
+        }
+    }
     for (const item of report.findings) {
         const finding = item.finding;
         const location = finding.location
@@ -872,6 +950,7 @@ async function main() {
         adapter_outcomes: {
             oxlint: oxlintResult.outcome,
             biome: biomeResult.outcome,
+            publint: publintResult.outcome ?? { protocol_status: "not_applicable", reason: null },
         },
         tool_results: toolResults,
         findings,
