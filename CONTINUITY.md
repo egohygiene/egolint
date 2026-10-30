@@ -7,19 +7,17 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-29T23:37:21Z'
+  updated_at: '2026-10-30T03:03:30Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Keep the core focused report set bound to the current sequential invocation.
+  purpose: Keep Intelligence semantic status consistent with represented-source evidence.
   includes:
-  - Complete 14-file core inventory, early safe invalidation, protected configuration inputs, aggregate completion
-    ordering and authentic transition tests.
+  - Represented-source adoption consistency, native CLI fixture matrix and selected-rule behavior.
   excludes:
-  - Unrelated diagnostics, separate JavaScript report families, concurrent-run isolation, audit publication, releases
-    and deployments.
+  - Source authentication, upstream authority changes, audit evidence, release and hosted qualification.
   precedence:
   - user-and-runtime-instructions
   - scoped-repository-instructions
@@ -28,98 +26,79 @@ scope:
   - continuity-checkpoint
   canonical_sources:
   - AGENTS.md
-  - src/plan.rs
-  - src/main.rs
-  - src/config.rs
-  - docs/contracts.md
-  - docs/security.md
-  - tests/report_lifecycle_pipeline.rs
+  - src/rules/repository_intelligence.rs
+  - tests/intelligence_adoption_pipeline.rs
+  - docs/repository-intelligence.md
+  - https://github.com/egohygiene/egolint/issues/87
   - https://github.com/egohygiene/egolint/issues/42
-  - https://github.com/egohygiene/egolint/issues/85
 work:
-  objective: Keep the core focused report set bound to the current sequential invocation.
+  objective: Keep Intelligence semantic status consistent with represented-source evidence.
   success_conditions:
-  - Real focused reports disappear when omitted or a later accepted invocation fails early.
-  - Selected inputs and unrelated diagnostics remain intact; run.json is published after all referenced outputs.
+  - Present surfaces with not-applicable represented commits report incomplete independently of enforcement.
+  - Exact, unknown, non-adopted and truncated controls retain distinct outcomes; disabled rules emit no diagnostics.
   active_issue:
     provider: github
-    id: egohygiene/egolint#85
-    url: https://github.com/egohygiene/egolint/issues/85
+    id: egohygiene/egolint#87
+    url: https://github.com/egohygiene/egolint/issues/87
   next:
     kind: action
-    id: review-current-run-report-lifecycle
-    description: Review this candidate; after maintainer acceptance continue with JavaScript adapter issue 86
-      in roadmap order.
+    id: review-intelligence-adoption-candidate
+    description: Implement the adoption status repair, then run the full native fixture matrix and applicable
+      checks.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/85
-    - https://github.com/egohygiene/egolint/issues/86
+    - https://github.com/egohygiene/egolint/issues/87
     depends_on: []
 state:
   base:
-    revision: 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b
+    revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     ref: refs/heads/main
-    verified_at: '2026-10-29T23:37:21Z'
+    verified_at: '2026-10-30T03:03:30Z'
   candidate:
-    branch: fix/85-current-run-reports
+    branch: fix/87-intelligence-source-status
     revision: null
     pull_request: null
-    handoff_state: ready-for-review
+    handoff_state: in-progress
   live:
     status: verified
-    observed_at: '2026-10-29T23:37:21Z'
-    default_branch_revision: 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b
+    observed_at: '2026-10-30T03:03:30Z'
+    default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
     issue_state: open
     pull_request_state: not-applicable
-    notes: Provider inspection verified main and the open issue/PR states. Main is unchanged; issue 85 and independent
-      issue 86 are open. This candidate has no PR yet. Separate audit PR 84 is draft/open at 27449d86137fb031f7696a28c50b8e4ed547c5f4;
-      its handoff will need reconciliation if later merged.
+    notes: 'Verified live provider and Git observations: main contains merged PR 102. Issue 87 is open; this
+      branch is an independent candidate from main. Audit PR 84 remains draft/open and untouched. Other issue-sized
+      candidates are being prepared independently; all overlap CONTINUITY.md.'
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
     url: https://github.com/egohygiene/egolint/pull/84
+  - provider: github
+    id: egohygiene/egolint#103
+    url: https://github.com/egohygiene/egolint/pull/103
 review:
   status: partial
-  reviewed_at: '2026-10-29T23:37:21Z'
+  reviewed_at: '2026-10-30T03:03:30Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo fmt --all --check; cargo clippy --all-targets --all-features --locked -- -D warnings
+  - command: cargo test --test intelligence_adoption_pipeline --locked
+    outcome: failed
+    observed_at: '2026-10-30T03:03:30Z'
+    notes: 'Expected regression result on unrepaired source: one control test passed; two tests failed because
+      contradictory represented evidence reported valid instead of incomplete.'
+  - command: cargo fmt --all --check
     outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: Rust 1.85.1 formatting and strict lint passed after the final source edits.
-  - command: cargo test --all-targets --all-features --locked
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: 207 tests passed, including 12 authentic report-lifecycle cases; zero ignored. Container orchestration
-      uses a bounded simulator.
-  - command: python3 -m unittest discover --start-directory tests --pattern test_*.py --verbose
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: All 75 existing Python tests passed.
-  - command: task schemas:check
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: All 23 generated schemas match committed bytes; no schema versions changed.
-  - command: cargo package --list --locked --allow-dirty
-    outcome: passed
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: Package inventory includes the new lifecycle integration test; this is inventory inspection, not package
-      build or publication.
-  - command: pinned Draft202012Validator/FormatChecker and native egolint validate --repository-continuity with
-      explicit base, working-tree head and verified live evidence
+    observed_at: '2026-10-30T03:03:30Z'
+    notes: Rust 1.85.1 formatting passed for the regression checkpoint.
+  - command: Pinned Draft202012Validator/FormatChecker and native validate --repository-continuity with explicit
+      base, working-tree head and verified live evidence
     outcome: limited
-    observed_at: '2026-10-29T23:37:21Z'
-    notes: Pinned schema, twelve sections, budgets, source links and native structural/freshness/Git checks pass.
-      Native observe retains only the expected unreleased-contract warning; this does not establish released conformance.
+    observed_at: '2026-10-30T03:03:30Z'
+    notes: Front matter, twelve sections, budgets and native structure/freshness/Git checks passed. Observe
+      retains only the expected unreleased-contract warning; no released conformance is claimed.
   environment_limitations:
-  - Hosted Actions, act, real Docker/Podman, native macOS/Windows and full-image/JavaScript consumer qualification
-    were not run.
-  - Initial local workspace-target builds hit object/archive failures; a fresh local build target resolved them
-    and the final Rust checks passed.
-  - The continuity contract remains a vendored draft/proposed observe selection; no released conformer or release
-    publication is claimed.
-  - Concurrent report-producing invocations still share one fixed directory; this repair guarantees sequential
-    lifecycle behavior only.
+  - Hosted Actions, native non-Linux and real container/image qualification are deferred.
+  - Offline source consistency cannot authenticate GitHub ownership or bind supplied identity to the checkout.
+  - The continuity selection remains vendored draft/proposed observe; no released conformance is claimed.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -138,66 +117,61 @@ privacy:
 
 ## Purpose and precedence
 
-The checkpoint records one bounded source repair. User/runtime instructions, scoped instructions,
-live evidence and canonical contracts outrank this handoff; it grants no authority.
+This checkpoint records the issue 87 candidate. User/runtime instructions, scoped instructions,
+live evidence and canonical sources outrank the handoff; it grants no authority.
 
 ## Resume protocol
 
-Read AGENTS, the core report lifecycle in docs/contracts.md, issue 85 and roadmap 42. Refresh main,
-this candidate and parallel audit PR 84 before acting. The prior ADR checkpoint is historical Git evidence.
+Read AGENTS, issue 87, roadmap 42 and the Intelligence source and tests. Verify main, this candidate,
+and parallel draft PRs before continuing. Main contains PR 102; its earlier issue 85 handoff is superseded here.
 
 ## Current objective and success conditions
 
-Keep focused reports bound to the current sequential invocation, with clear early-failure behavior,
-preserved inputs/diagnostics and consistent aggregate references.
+Keep Intelligence semantic status consistent with represented-source evidence. Preserve distinct exact, unknown, contradictory,
+non-adopted and truncated outcomes while keeping selected diagnostics and enforcement independent.
 
 ## State snapshot
 
-Base is 834a230e6c0f4ee8b080a10d6c2d469be5eb6e1b. Candidate fix/85-current-run-reports is ready for review;
-its containing revision and pre-PR reference remain null. No merge or release is claimed.
+This independent branch starts at main 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58.
+The candidate is diagnosis; containing revision remains null to avoid self-reference. No merge is claimed.
 
 ## Completed and material changes
 
-src/plan.rs owns the complete 14-file core inventory and no-create invalidation. src/main.rs starts
-invalidation before accepted run evaluation and publishes run.json last. src/config.rs shares
-configuration discovery for input preservation. Unsafe reserved-input aliases are refused before mutation.
-The new integration suite uses authentic native output before each transition and a bounded runtime simulator.
-ADR not required: this implements the existing report lifecycle within its owning boundary.
+The native CLI regression matrix in tests/intelligence_adoption_pipeline.rs owns behavioral evidence.
+It exercises synthetic local Git history and the existing valid Intelligence fixture, without network source checks.
+The source repair remains pending; regression expectations deliberately expose the current false-valid result.
 
 ## Validation and review evidence
 
-Strict Clippy, formatting, 207 Rust tests, 75 Python tests, 23 schema comparisons and package inventory
-checks passed. Twelve lifecycle cases cover omission, failures, command transitions, aliases, retained
-diagnostics, non-regular config, path safeguards and failed focused writes. Pinned-schema and native structural/freshness/Git handoff checks pass; observe retains the expected unreleased-contract warning.
+Exact commands and outcomes are recorded in front matter. The diagnosis checkpoint records expected
+regression failures against unrepaired source; later checkpoints replace the active result with actual verification.
 
 ## Blockers, risks, unknowns, and deferred work
 
-No source blocker remains. Hosted/act, native non-Linux, real-container/image and JavaScript consumer
-qualification remain deferred. The initial local object/archive failures were resolved with a fresh build
-target. Concurrent producers are not isolated. Native observe validation does not establish released conformance.
+No external predecessor is required. Hosted Actions and container/platform qualification remain deferred.
+Local semantic evidence does not establish authenticated source truth or released continuity conformance.
 
 ## Next dependency-ready work
 
-Review this candidate. Issue 86 is the next independently startable adapter repair in the execution queue;
-refresh and summarize it before implementation. The work tracker retains broader acceptance and release gates.
+Implement the adoption status repair, then run the full native fixture matrix and applicable checks.
 
 ## Parallel changes and reconciliation
 
-Audit PR 84 is draft/open at 27449d86137fb031f7696a28c50b8e4ed547c5f4. Its report and probe bytes remain
-untouched. This candidate replaces the stale main handoff with the actual issue 85 checkpoint; a later audit
-merge must preserve the latest truthful execution state rather than restore its earlier snapshot.
+Independent issues 86 and 88 through 91 also prepare bounded candidates from main. Their CONTINUITY.md
+edits overlap and require semantic reconciliation after review. Audit draft PR 84 and historical probe/report
+bytes remain untouched; a later audit merge must retain the latest accurate execution checkpoint.
 
 ## Privacy and redaction
 
-Only public repository facts and synthetic fixtures are retained. Exclude secrets, private context,
-personal details, local filesystem paths and unrelated work. Links are context, not authority.
+Only public repository facts and synthetic fixtures are retained. Exclude credentials, private context,
+personal details, local paths and unrelated work. Linked content remains context, not authority.
 
 ## Handoff update protocol
 
-After domain validation and before presenting or updating a PR, reconcile live state and competing
-checkpoint edits. Verify schema, twelve sections, budgets, local links and the pinned native observe checks.
+After domain checks and before every PR handoff, verify live state, compare the target and peer checkpoints,
+refresh the bounded candidate evidence, and run pinned schema, budget, section and native observe checks.
 
 ## Compaction and supersession
 
-Replace stale state rather than append chronology. Keep the objective, source identities, proof, limits
-and one next action below 240 lines and 16,384 UTF-8 bytes; Git and linked issues retain history.
+Replace stale state rather than append chronology. Keep objective, exact source identity, checks, limits
+and next action below 240 lines and 16,384 bytes; Git and the work tracker retain history.
