@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-10-30T03:20:49Z'
+  updated_at: '2026-10-30T08:39:52Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -44,19 +44,18 @@ work:
     url: https://github.com/egohygiene/egolint/issues/89
   next:
     kind: action
-    id: review-continuity-schema-parity
-    description: Review draft PR 107 and reconcile CONTINUITY.md with parallel candidates before any later
-      merge.
+    id: merge-qualified-89-candidate
+    description: Merge the qualified source candidate, then verify the resulting default-branch state;
+      retain separate release acceptance gates.
     readiness: ready
     references:
     - https://github.com/egohygiene/egolint/pull/107
-    - https://github.com/egohygiene/egolint/issues/89
     depends_on: []
 state:
   base:
-    revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
+    revision: 684bbbe912c53b9b83793a1984dfb68967eb136e
     ref: refs/heads/main
-    verified_at: '2026-10-30T03:20:49Z'
+    verified_at: '2026-10-30T08:39:52Z'
   candidate:
     branch: fix/89-continuity-schema-parity
     revision: null
@@ -67,12 +66,13 @@ state:
     handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-10-30T03:20:49Z'
-    default_branch_revision: 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58
+    observed_at: '2026-10-30T08:39:52Z'
+    default_branch_revision: 684bbbe912c53b9b83793a1984dfb68967eb136e
     issue_state: open
-    pull_request_state: draft
-    notes: Verified main includes PR 102. Issue 89 is open and PR 107 is draft. Independent peer PRs 103-106
-      and 108 overlap only in checkpoint and selected inventories; audit PR 84 remains draft.
+    pull_request_state: open
+    notes: 'GitHub checked this candidate open against the observed main revision. Verified merged predecessors:
+      PR 104, PR 106, PR 105. Remaining candidates: PR 103, PR 108, PR 109, PR 110, PR 111. Audit draft
+      PR 84 remains open and unchanged. Hosted Actions remain deferred.'
   parallel_changes:
   - provider: github
     id: egohygiene/egolint#84
@@ -81,75 +81,72 @@ state:
     id: egohygiene/egolint#103
     url: https://github.com/egohygiene/egolint/pull/103
   - provider: github
-    id: egohygiene/egolint#104
-    url: https://github.com/egohygiene/egolint/pull/104
-  - provider: github
-    id: egohygiene/egolint#105
-    url: https://github.com/egohygiene/egolint/pull/105
-  - provider: github
-    id: egohygiene/egolint#106
-    url: https://github.com/egohygiene/egolint/pull/106
-  - provider: github
     id: egohygiene/egolint#108
     url: https://github.com/egohygiene/egolint/pull/108
+  - provider: github
+    id: egohygiene/egolint#109
+    url: https://github.com/egohygiene/egolint/pull/109
+  - provider: github
+    id: egohygiene/egolint#110
+    url: https://github.com/egohygiene/egolint/pull/110
+  - provider: github
+    id: egohygiene/egolint#111
+    url: https://github.com/egohygiene/egolint/pull/111
 review:
   status: partial
-  reviewed_at: '2026-10-30T03:20:49Z'
+  reviewed_at: '2026-10-30T08:39:52Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo test --locked --test repository_continuity_pipeline on the regression checkpoint
-    outcome: failed
-    observed_at: '2026-10-30T03:20:49Z'
-    notes: 'Expected failure: 24 native/schema mismatches in the original 64-case matrix before source repair.'
-  - command: cargo test --all-targets --all-features --locked; cargo clippy --all-targets --all-features --locked
-      -- -D warnings; cargo fmt --all --check
-    outcome: passed
-    observed_at: '2026-10-30T03:20:49Z'
-    notes: All 208 Rust tests passed, zero ignored; strict lint and formatting passed. The native integration
-      exercises all 280 paired cases.
-  - command: python3 scripts/validate_continuity_schema_parity.py; python3 -O scripts/validate_continuity_schema_parity.py
-    outcome: passed
-    observed_at: '2026-10-30T03:20:49Z'
-    notes: All 280 expectations match exact bundled Draft 2020-12 schema digest with registered date-time and
-      URI checks, including optimized Python execution.
-  - command: task schemas:check; python3 -m unittest discover --start-directory tests --pattern test_*.py
-    outcome: passed
-    observed_at: '2026-10-30T03:20:49Z'
-    notes: All 23 generated schema comparisons and 75 Python tests passed.
   - command: python3 scripts/validate_release_inputs.py; python3 scripts/validate_repository_release_sources.py;
       python3 scripts/validate_megalinter_policy.py --check; python3 scripts/package_integrations.py --check
     outcome: passed
     observed_at: '2026-10-30T03:20:49Z'
-    notes: Reviewed release-input, immutable source, MegaLinter and packaged-integration source checks passed.
+    notes: Reviewed release-input, immutable source, MegaLinter and packaged-integration source checks
+      passed.
   - command: node --test --test-isolation=none tests/javascript-package-quality.test.mjs; ruff check --config
-      .config/lint/python/ruff.toml scripts/validate_continuity_schema_parity.py; ruff format --check --config
-      .config/lint/python/ruff.toml scripts/validate_continuity_schema_parity.py
+      .config/lint/python/ruff.toml scripts/validate_continuity_schema_parity.py; ruff format --check
+      --config .config/lint/python/ruff.toml scripts/validate_continuity_schema_parity.py
     outcome: passed
     observed_at: '2026-10-30T03:20:49Z'
     notes: All six actual JavaScript contract tests and pinned Python lint/format checks passed.
-  - command: cargo package --list --locked --allow-dirty; cargo run --quiet --locked -- plan --workspace .
-      --profile fast
+  - command: cargo package --list --locked --allow-dirty; cargo run --quiet --locked -- plan --workspace
+      . --profile fast
     outcome: passed
     observed_at: '2026-10-30T03:20:49Z'
     notes: Package inventory includes native parity integration and fixtures; inventory is not package-build
       verification. Read-only fast-profile plan passed.
-  - command: Pinned Draft202012Validator handoff check and native validate --repository-continuity with explicit
-      base/head and stable caller-supplied live evidence
+  - command: Pinned Draft202012Validator handoff check and native validate --repository-continuity with
+      explicit base/head and stable caller-supplied live evidence
     outcome: limited
     observed_at: '2026-10-30T03:20:49Z'
-    notes: Schema, twelve sections, budgets, structural/freshness/Git layers and caller-supplied external evidence
-      checks passed; only expected unreleased-contract observe warning remains.
+    notes: Schema, twelve sections, budgets, structural/freshness/Git layers and caller-supplied external
+      evidence checks passed; only expected unreleased-contract observe warning remains.
   - command: Independent source review of typed grammar, URI parser and schema matrix
     outcome: passed
     observed_at: '2026-10-30T03:20:49Z'
     notes: Independent review found no remaining blocking source findings after scalar, format and nonfinite
       repairs; public matrix retains explicit controls.
+  - command: cargo fmt --all --check; cargo test --locked --test repository_continuity_pipeline; python3
+      scripts/validate_continuity_schema_parity.py; pinned Ruff check/format
+    outcome: passed
+    observed_at: '2026-10-30T08:39:52Z'
+    notes: Formatting and the full 280-case native/schema parity matrix pass after retaining all three
+      earlier repairs; the independent registered-format Python comparison and strict Ruff checks also
+      pass. Existing exact-head combined-source evidence remains in the linked PR; no hosted qualification
+      is inferred.
+  - command: Pinned Draft202012Validator/registered formats, section and budget checks; native continuity
+      validation with explicit current-main base and working-tree head; git diff --check
+    outcome: limited
+    observed_at: '2026-10-30T08:39:52Z'
+    notes: Reconciled handoff passes local schema and native semantic/structural/freshness/Git checks.
+      The proposed/unreleased continuity contract retains its expected observe warning; official released
+      conformance and hosted qualification remain unavailable.
   environment_limitations:
   - Hosted Actions, real containers, native macOS/Windows and released upstream conformance were not qualified.
   - The pinned continuity contract remains draft/proposed observe; no policy promotion, release publication
     or fleet adoption is claimed.
-  - The pnpm runner attempted dependency auto-install under restricted networking; JavaScript tests were run
-    directly with test isolation disabled so all six actual subtests executed.
+  - The pnpm runner attempted dependency auto-install under restricted networking; JavaScript tests were
+    run directly with test isolation disabled so all six actual subtests executed.
   - Combined batch integration is coordinated separately; exact tested candidate heads and aggregate results
     belong in the draft PR descriptions.
 privacy:
@@ -174,7 +171,7 @@ This bounded candidate aligns native validation with the selected immutable sche
 
 ## Resume protocol
 
-Read AGENTS, issue 89, the selected Aether schema, native validator and shared parity matrix. Recheck main, this candidate and parallel drafts before continuing.
+Read AGENTS.md, the active issue and linked source evidence. Verify main, this candidate and the remaining PRs against live state before continuing. Audit draft PR 84 is a separate historical change.
 
 ## Current objective and success conditions
 
@@ -182,7 +179,8 @@ Require all schema-mandated nullable keys and unique arrays, preserve closed gra
 
 ## State snapshot
 
-Base is the verified PR 102 merge 0e0b2a6b842ef733e03d22ccb0b76d916a6b7c58. This issue 89 candidate is ready for review in draft PR 107; no merge is claimed.
+This candidate was reconciled against observed main `684bbbe912c53b9b83793a1984dfb68967eb136e` at `2026-10-30T08:39:52Z`.
+GitHub verified PR 104, PR 106, PR 105 merged; this PR was open at observation. The containing revision remains null to avoid self-reference. Source acceptance does not establish a product release.
 
 ## Completed and material changes
 
@@ -205,12 +203,11 @@ are unchanged. Combined validation is coordinated through the candidate PR descr
 
 ## Next dependency-ready work
 
-Review draft PR 107, preserving independent issue scope and canonical owner contracts. Reconcile
-parallel continuity snapshots semantically before any later merge; the work tracker owns broader acceptance.
+Merge the qualified source candidate and verify its default-branch result. Preserve the documented hosted, publisher migration, platform and publication gates where applicable.
 
 ## Parallel changes and reconciliation
 
-Independent issues 86-88 and 90-91 are draft PRs 104, 106, 105, 103 and 108 from the same main base. Their CONTINUITY.md edits overlap and must be reconciled semantically at merge. Preserve audit draft PR 84 and its historical evidence.
+Observed remaining candidates: PR 103, PR 108, PR 109, PR 110, PR 111. Root handoffs overlap and must retain the latest evidence when their candidates are accepted. Merged predecessor source is retained; no audit branch or historical evidence is rewritten.
 
 ## Privacy and redaction
 

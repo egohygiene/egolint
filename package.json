@@ -36,7 +36,7 @@
     "eslint-config:test": "node --test tests/eslint-config.test.mjs",
     "hooks:install": "husky .husky",
     "javascript-quality:check": "node scripts/javascript-package-quality.mjs",
-    "javascript-quality:test": "node --test tests/javascript-package-quality.test.mjs",
+    "javascript-quality:test": "node --test tests/javascript-package-quality.test.mjs tests/javascript-adapter-outcomes.test.mjs",
     "lint-staged": "lint-staged --cwd . --config .config/lint/commits/lint-staged.config.mjs",
     "prepare": "pnpm run hooks:install"
   },
