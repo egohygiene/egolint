@@ -12,6 +12,7 @@ use egolint::intelligence_coverage::{
 use egolint::issue_titles::{
     IssueTitlePolicy, IssueTitleProposal, IssueTitleReport, IssueTitleSnapshot, IssueTitleStatus,
 };
+use egolint::plan::{REPORT_DIRECTORY, invalidate_run_artifacts};
 use egolint::rules::repository_gitignore::{
     self, RepositoryGitignorePolicy, RepositoryGitignoreReport, evaluate_gitignore,
     write_gitignore_report_atomic,
@@ -517,11 +518,96 @@ fn plan_options(arguments: &RunArgs) -> PlanOptions {
     }
 }
 
+// A reserved output must never double as an explicitly selected input. Reject
+// lexical paths and existing aliases before invalidation can unlink that input.
+fn protect_report_input(workspace: &Path, requested: &Path) -> Result<(), EgolintError> {
+    let candidate = workspace.join(requested);
+    let mut normalized = PathBuf::new();
+    for component in candidate.components() {
+        match component {
+            Component::CurDir => {}
+            Component::ParentDir => {
+                normalized.pop();
+            }
+            other => normalized.push(other.as_os_str()),
+        }
+    }
+    let boundary = workspace.join(REPORT_DIRECTORY);
+    if normalized.starts_with(&boundary)
+        || candidate
+            .canonicalize()
+            .is_ok_and(|path| path.starts_with(&boundary))
+    {
+        return Err(EgolintError::Configuration(format!(
+            "input may not use Egolint's writable report boundary: {}",
+            requested.display()
+        )));
+    }
+    Ok(())
+}
+
+fn begin_report_run(
+    workspace: &Path,
+    config_path: Option<&Path>,
+    inputs: &[&Path],
+) -> Result<(), EgolintError> {
+    let config_paths = Config::input_paths(workspace, config_path);
+    for path in &config_paths {
+        protect_report_input(workspace, path)?;
+    }
+    for path in inputs {
+        protect_report_input(workspace, path)?;
+    }
+    if let Some(path) = std::env::var_os("EGOLINT_MEGALINTER_CONFIG") {
+        protect_report_input(workspace, Path::new(&path))?;
+    }
+    // Preserve declared adapter inputs too. Syntax/type errors remain the
+    // normal resolver's responsibility and must still invalidate old reports.
+    for path in config_paths {
+        if !path.is_file() {
+            continue;
+        }
+        if let Ok(contents) = std::fs::read_to_string(path) {
+            if let Ok(table) = toml::from_str::<toml::Table>(&contents) {
+                if let Some(path) = table.get("megalinter-config").and_then(toml::Value::as_str) {
+                    protect_report_input(workspace, Path::new(path))?;
+                }
+            }
+        }
+    }
+    invalidate_run_artifacts(workspace)
+}
+
+fn begin_native_run(
+    workspace: &Path,
+    config_path: Option<&Path>,
+    arguments: &RunArgs,
+) -> Result<(), EgolintError> {
+    let inputs = arguments
+        .repository_contracts
+        .iter()
+        .chain(&arguments.suppressions)
+        .map(PathBuf::as_path)
+        .chain(
+            [
+                arguments.megalinter_config.as_deref(),
+                arguments.repository_continuity.as_deref(),
+                arguments.repository_intelligence.as_deref(),
+                arguments.repository_presentation.as_deref(),
+            ]
+            .into_iter()
+            .flatten(),
+        )
+        .collect::<Vec<_>>();
+    begin_report_run(workspace, config_path, &inputs)
+}
+
 fn execute_lint(
     workspace: &Path,
     config_path: Option<&Path>,
     arguments: &RunArgs,
 ) -> Result<i32, EgolintError> {
+    begin_native_run(workspace, config_path, arguments)?;
     let (_, plan) = build(workspace, config_path, Operation::Check, arguments, true)?;
     // Load every repository-owned policy input before invoking the untrusted
     // adapter. The check container receives only a read-only repository mount,
@@ -594,6 +680,7 @@ fn execute_validate(
     config_path: Option<&Path>,
     arguments: &RunArgs,
 ) -> Result<i32, EgolintError> {
+    begin_native_run(workspace, config_path, arguments)?;
     let (_, plan) = build(workspace, config_path, Operation::Check, arguments, false)?;
     plan.prepare_report_directory()?;
     let native = evaluate_native(workspace, arguments)?;
@@ -649,6 +736,7 @@ fn execute_gitignore(
     config_path: Option<&Path>,
     arguments: &GitignoreArgs,
 ) -> Result<i32, EgolintError> {
+    begin_report_run(workspace, config_path, &[arguments.policy.as_path()])?;
     let policy = RepositoryGitignorePolicy::load(workspace, &arguments.policy)?;
     let (_, plan) = build(
         workspace,
@@ -704,6 +792,7 @@ fn execute_fix_preview(
     config_path: Option<&Path>,
     arguments: &RunArgs,
 ) -> Result<i32, EgolintError> {
+    begin_native_run(workspace, config_path, arguments)?;
     let (resolved, plan) = build(workspace, config_path, Operation::Fix, arguments, false)?;
     let outcome = run_isolated_fix(workspace, &resolved, &plan_options(arguments))?;
     let native = evaluate_native(workspace, arguments)?;
@@ -1303,8 +1392,6 @@ fn write_run_outputs(
     release_report: Option<&RepositoryReleaseReport>,
 ) -> Result<(), EgolintError> {
     plan.validate_report_path()?;
-    report.write_atomic(&plan.report_path().join("run.json"))?;
-    plan.validate_report_path()?;
     write_sarif_atomic(report, &plan.view.workspace.join(EGOLINT_SARIF_REPORT))?;
     if let Some(continuity_report) = continuity_report {
         plan.validate_report_path()?;
@@ -1339,6 +1426,10 @@ fn write_run_outputs(
         let debt = egolint::debt::DebtReport::from_run(report)?;
         egolint::debt::write_debt_reports(&debt, plan.report_path())?;
     }
+    // Publish the aggregate completion marker only after its focused evidence
+    // and derived outputs exist. A failed write must not advertise a full run.
+    plan.validate_report_path()?;
+    report.write_atomic(&plan.report_path().join("run.json"))?;
     plan.validate_report_path()
 }
 

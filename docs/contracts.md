@@ -106,6 +106,36 @@ and rollout semantics. `plan` prints the redacted execution plan. `doctor` addit
 and probes Docker or Podman before printing that plan. `check` is a compatibility alias for `lint`;
 `config explain` remains a compatibility form of `explain`.
 
+### Current-run artifact lifecycle
+
+Sequential `lint`/`check`, `validate`, `gitignore`, and `fix` invocations invalidate the previous core report set before
+loading configuration or policy content. Invalidation uses the existing fixed report-directory
+safeguards and does not create a report directory on a fresh failed invocation. Declared inputs
+inside that writable boundary, including existing aliases, are refused before cleanup so a
+selected input cannot be deleted as an output. Read-only introspection and `apply-fix` preserve
+the existing reports and reviewed patch.
+
+This is a shared single-run boundary; concurrent report-producing invocations in the same workspace
+are not isolated from each other.
+
+The complete core run-owned inventory under `.reports/egolint` is:
+
+| Family | Files |
+| --- | --- |
+| Aggregate | `run.json`, `egolint.sarif` |
+| Focused | `repository-continuity.json`, `repository-intelligence.json`, `repository-presentation.json`, `repository-release.json`, `repository-gitignore.json` |
+| Adapter inputs and diagnostics | `mega-linter-report.json`, `mega-linter-report.sarif`, `mega-linter.log`, `mega-linter-adapter.log` |
+| Derived outputs | `debt.json`, `debt.md`, `fixes.patch` |
+
+Cleanup removes only these names. Unrelated diagnostics, separately owned JavaScript reports, and
+other retained private artifacts remain untouched. An omitted capability leaves no old focused
+file behind. Archive prior reports outside this single current-run boundary when retaining them.
+
+`run.json` is published atomically after the selected focused reports, canonical SARIF, and any
+derived debt outputs. Consumers must require that aggregate completion marker and its referenced
+evidence. A failed handoff can leave partial new outputs, but no completed aggregate for that
+attempt; their presence alone does not establish a completed run.
+
 ## Empathy compatibility
 
 The first executable compatibility fixture is
