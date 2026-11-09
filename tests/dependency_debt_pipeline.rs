@@ -88,6 +88,11 @@ fn all_six_debt_tools_flow_from_private_adapter_data_to_public_summaries() {
         report_directory: PathBuf::from(".reports/egolint"),
         config_sources: vec!["compiled defaults".to_owned()],
         argv: Vec::new(),
+        capabilities: Vec::new(),
+        enforcement_mode: egolint::enforcement::EnforcementMode::Enforce,
+        invocation: egolint::enforcement::Invocation::Local,
+        source: None,
+        policy_sha256: "f".repeat(64),
     };
     let mut run = RunReport::from_plan(&plan, Some(0));
     run.set_normalized(

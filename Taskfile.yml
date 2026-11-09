@@ -106,6 +106,10 @@ tasks:
       - cargo run --quiet --locked -- schema tool-result > schemas/tool-result.schema.json
       - cargo run --quiet --locked -- schema plan > schemas/plan.schema.json
       - cargo run --quiet --locked -- schema report > schemas/report.schema.json
+      - cargo run --quiet --locked -- schema capability-registry > schemas/capability-registry.schema.json
+      - cargo run --quiet --locked -- schema capability-decision > schemas/capability-decision.schema.json
+      - cargo run --quiet --locked -- schema baseline > schemas/baseline.schema.json
+      - cargo run --quiet --locked -- schema enforcement > schemas/enforcement.schema.json
       - cargo run --quiet --locked -- schema debt > schemas/debt.schema.json
       - cargo run --quiet --locked -- schema repository-contract >
         schemas/repository-contract.schema.json
@@ -151,6 +155,10 @@ tasks:
           tool-result \
           plan \
           report \
+          capability-registry \
+          capability-decision \
+          baseline \
+          enforcement \
           debt \
           repository-contract \
           repository-intelligence \

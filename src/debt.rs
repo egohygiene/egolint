@@ -560,6 +560,10 @@ mod tests {
             }],
             suppressions: Vec::new(),
             evidence: Vec::new(),
+            capabilities: Vec::new(),
+            source: None,
+            enforcement: None,
+            policy_sha256: None,
         };
 
         let debt = DebtReport::from_run(&report).expect("compact debt report");

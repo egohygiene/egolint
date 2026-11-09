@@ -19,6 +19,9 @@ COPY .config/rules/issue-title-sources.v1.json .config/rules/issue-title-sources
 COPY .config/rules/repository-intelligence-coverage-sources.v1.json .config/rules/repository-intelligence-coverage-sources.v1.json
 COPY .config/rules/javascript-architecture.v1.json .config/rules/javascript-architecture.v1.json
 COPY .config/megalinter/tool-matrix.json .config/megalinter/tool-matrix.json
+COPY .config/megalinter/v10-catalog.json .config/megalinter/v10-catalog.json
+COPY .config/toolchain/complementary-tools.json .config/toolchain/complementary-tools.json
+COPY .config/structural/ .config/structural/
 COPY .config/megalinter/snapshots/ .config/megalinter/snapshots/
 COPY .config/security/scanner-ownership.json .config/security/scanner-ownership.json
 COPY vendor/aether/aether.repository-release.v1.schema.json vendor/aether/aether.repository-release.v1.schema.json

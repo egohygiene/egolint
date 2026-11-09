@@ -7,6 +7,13 @@ use Semantic Versioning once its public contracts stabilize.
 
 ### Added
 
+- Adaptive capability registry and per-tool plan/report explanations, preserving
+  profile defaults and explicit legacy selection.
+- Manual, observe, reviewed-baseline ratchet and enforce modes with visible debt,
+  source/policy/tool binding and independent execution failures.
+- Optional pinned advisory ast-grep structural rules, normalized JSON/SARIF,
+  synthetic controls and reproducible benchmark driver.
+
 - Four-digit ADR policy v1.2.0 support, explicit compatibility for older pinned consumers, and
   historical trailer lookup to mapped padded records.
 

@@ -47,12 +47,19 @@ pub fn to_sarif(report: &RunReport) -> Result<Value> {
         rules
             .entry(sarif_rule_id.clone())
             .or_insert_with(|| sarif_rule(finding, &sarif_rule_id));
-        results.push(sarif_result(
-            finding,
-            &sarif_rule_id,
-            &result_id,
-            &suppression_states,
-        )?);
+        let mut result = sarif_result(finding, &sarif_rule_id, &result_id, &suppression_states)?;
+        let fingerprint = crate::enforcement::canonical_fingerprint(finding);
+        if let Some(decision) = &report.enforcement {
+            if let Some(change) = decision.changes.iter().find(|c| {
+                c.finding.fingerprint == fingerprint
+                    && (finding.suppressed_by.is_some()
+                        == (c.state == crate::enforcement::FindingState::Suppressed))
+            }) {
+                result["properties"]["egolintAdoptionState"] = json!(change.state);
+            }
+            result["partialFingerprints"]["egolintCanonical/v1"] = json!(fingerprint);
+        }
+        results.push(result);
     }
 
     let execution_successful = report.status != RunStatus::ExecutionError;
@@ -75,6 +82,7 @@ pub fn to_sarif(report: &RunReport) -> Result<Value> {
                 "properties": {
                     "egolintCompleteness": format!("{:?}", report.completeness).to_ascii_lowercase(),
                     "egolintProfile": report.profile.name.as_str(),
+                    "egolintEnforcement": report.enforcement,
                 },
             }],
             "results": results,
@@ -461,6 +469,10 @@ mod tests {
             findings: vec![finding],
             suppressions: Vec::new(),
             evidence: Vec::new(),
+            capabilities: Vec::new(),
+            source: None,
+            enforcement: None,
+            policy_sha256: None,
         };
 
         let sarif = to_sarif(&report).expect("valid SARIF");

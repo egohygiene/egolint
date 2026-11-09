@@ -4,11 +4,31 @@
   "description": "Fully resolved Egolint configuration.",
   "type": "object",
   "properties": {
+    "capabilities": {
+      "description": "Metadata-driven selection and explicit optional declarations.",
+      "$ref": "#/$defs/CapabilityConfig",
+      "default": {
+        "declarations": [],
+        "disable": [],
+        "enabled": true,
+        "services": []
+      }
+    },
     "config-version": {
       "description": "Configuration contract version.",
       "type": "integer",
       "const": 1,
       "default": 1
+    },
+    "enforcement": {
+      "description": "Progressive adoption is independent of individual tool ownership.",
+      "$ref": "#/$defs/EnforcementConfig",
+      "default": {
+        "baseline": null,
+        "baseline-sha256": null,
+        "mode": "enforce",
+        "repository": null
+      }
     },
     "environment": {
       "description": "Explicit, non-secret environment additions for the adapter.",
@@ -57,6 +77,87 @@
     "config-version"
   ],
   "$defs": {
+    "CapabilityConfig": {
+      "description": "Repository overrides may narrow the registry; declarations do not authorize shell commands.",
+      "type": "object",
+      "properties": {
+        "declarations": {
+          "description": "Explicitly authorized optional capabilities, never executable text.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "disable": {
+          "description": "Exact capability IDs to exclude in addition to organization policy.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "enabled": {
+          "description": "Disable adaptation explicitly to retain the original profile selection.",
+          "type": "boolean",
+          "default": true
+        },
+        "services": {
+          "description": "Named services made available by the caller; no endpoint is probed.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "EnforcementConfig": {
+      "description": "Ratchet needs a separately pinned, explicitly reviewed baseline.",
+      "type": "object",
+      "properties": {
+        "baseline": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "baseline-sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "mode": {
+          "$ref": "#/$defs/EnforcementMode",
+          "default": "enforce"
+        },
+        "repository": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        }
+      },
+      "additionalProperties": false
+    },
+    "EnforcementMode": {
+      "description": "Existing consumers retain blocking behavior unless they explicitly select another mode.",
+      "type": "string",
+      "enum": [
+        "manual",
+        "observe",
+        "ratchet",
+        "enforce"
+      ]
+    },
     "NetworkMode": {
       "description": "Network access granted to a lint container.",
       "oneOf": [

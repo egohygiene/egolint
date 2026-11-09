@@ -13,13 +13,14 @@ use crate::error::{EgolintError, Result};
 /// Current configuration contract version.
 pub const CONFIG_VERSION: u32 = 1;
 
-const ENVIRONMENT_OVERRIDE_NAMES: [&str; 6] = [
+const ENVIRONMENT_OVERRIDE_NAMES: [&str; 7] = [
     "EGOLINT_IMAGE",
     "EGOLINT_PROFILE",
     "EGOLINT_RUNTIME",
     "EGOLINT_PULL_POLICY",
     "EGOLINT_NETWORK",
     "EGOLINT_MEGALINTER_CONFIG",
+    "EGOLINT_ENFORCEMENT",
 ];
 
 const RESERVED_ADAPTER_ENVIRONMENT_NAMES: [&str; 7] = [
@@ -173,6 +174,10 @@ pub struct Config {
     pub megalinter_config: Option<PathBuf>,
     /// Explicit, non-secret environment additions for the adapter.
     pub environment: BTreeMap<String, String>,
+    /// Metadata-driven selection and explicit optional declarations.
+    pub capabilities: crate::capabilities::CapabilityConfig,
+    /// Progressive adoption is independent of individual tool ownership.
+    pub enforcement: crate::enforcement::EnforcementConfig,
 }
 
 impl Default for Config {
@@ -186,6 +191,8 @@ impl Default for Config {
             network: NetworkMode::None,
             megalinter_config: None,
             environment: BTreeMap::new(),
+            capabilities: crate::capabilities::CapabilityConfig::default(),
+            enforcement: crate::enforcement::EnforcementConfig::default(),
         }
     }
 }
@@ -193,6 +200,8 @@ impl Default for Config {
 /// Optional values contributed by the command line.
 #[derive(Debug, Clone, Default)]
 pub struct ConfigOverrides {
+    /// Explicit mode override; baseline identity stays in reviewed configuration.
+    pub enforcement_mode: Option<crate::enforcement::EnforcementMode>,
     /// Profile override.
     pub profile: Option<Profile>,
     /// Runtime override.
@@ -227,6 +236,26 @@ struct ConfigLayer {
     network: Option<NetworkMode>,
     megalinter_config: Option<PathBuf>,
     environment: BTreeMap<String, String>,
+    capabilities: Option<CapabilityLayer>,
+    enforcement: Option<EnforcementLayer>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default, deny_unknown_fields, rename_all = "kebab-case")]
+struct CapabilityLayer {
+    enabled: Option<bool>,
+    disable: BTreeSet<String>,
+    declarations: BTreeSet<String>,
+    services: BTreeSet<String>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default, deny_unknown_fields, rename_all = "kebab-case")]
+struct EnforcementLayer {
+    mode: Option<crate::enforcement::EnforcementMode>,
+    repository: Option<String>,
+    baseline: Option<PathBuf>,
+    baseline_sha256: Option<String>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -273,6 +302,32 @@ impl Config {
         if let Some(path) = explicit {
             paths.push(workspace.join(path));
         }
+        // Preserve a selected baseline before current-run report invalidation,
+        // including a disallowed selection that normal validation will reject.
+        let mut baseline_paths = Vec::new();
+        for path in &paths {
+            let Ok(metadata) = path.symlink_metadata() else {
+                continue;
+            };
+            if !metadata.is_file()
+                || metadata.file_type().is_symlink()
+                || metadata.len() > 4 * 1024 * 1024
+            {
+                continue;
+            }
+            if let Ok(text) = std::fs::read_to_string(path) {
+                if let Ok(document) = toml::from_str::<toml::Value>(&text) {
+                    if let Some(baseline) = document
+                        .get("enforcement")
+                        .and_then(|e| e.get("baseline"))
+                        .and_then(toml::Value::as_str)
+                    {
+                        baseline_paths.push(workspace.join(baseline));
+                    }
+                }
+            }
+        }
+        paths.extend(baseline_paths);
         paths
     }
 
@@ -378,6 +433,20 @@ fn apply_file(config: &mut Config, path: &Path) -> Result<()> {
 }
 
 fn apply_layer(config: &mut Config, layer: ConfigLayer) {
+    if let Some(value) = layer.enforcement {
+        if let Some(mode) = value.mode {
+            config.enforcement.mode = mode;
+        }
+        if value.repository.is_some() {
+            config.enforcement.repository = value.repository;
+        }
+        if value.baseline.is_some() {
+            config.enforcement.baseline = value.baseline;
+        }
+        if value.baseline_sha256.is_some() {
+            config.enforcement.baseline_sha256 = value.baseline_sha256;
+        }
+    }
     if let Some(value) = layer.profile {
         config.profile = value;
     }
@@ -397,12 +466,27 @@ fn apply_layer(config: &mut Config, layer: ConfigLayer) {
         config.megalinter_config = Some(value);
     }
     config.environment.extend(layer.environment);
+    if let Some(value) = layer.capabilities {
+        if let Some(enabled) = value.enabled {
+            config.capabilities.enabled = enabled;
+        }
+        config.capabilities.disable.extend(value.disable);
+        config.capabilities.declarations.extend(value.declarations);
+        config.capabilities.services.extend(value.services);
+    }
 }
 
 fn apply_environment(
     config: &mut Config,
     environment: &BTreeMap<&'static str, String>,
 ) -> Result<()> {
+    if let Some(value) = environment.get("EGOLINT_ENFORCEMENT") {
+        config.enforcement.mode = parse_environment_enum(
+            "EGOLINT_ENFORCEMENT",
+            value,
+            &["manual", "observe", "ratchet", "enforce"],
+        )?;
+    }
     if let Some(value) = environment.get("EGOLINT_IMAGE") {
         config.image.clone_from(value);
     }
@@ -443,6 +527,9 @@ where
 }
 
 fn apply_overrides(config: &mut Config, overrides: &ConfigOverrides) {
+    if let Some(mode) = overrides.enforcement_mode {
+        config.enforcement.mode = mode;
+    }
     if let Some(value) = overrides.profile {
         config.profile = value;
     }
@@ -464,6 +551,7 @@ fn apply_overrides(config: &mut Config, overrides: &ConfigOverrides) {
 }
 
 fn validate_and_normalize(workspace: &Path, config: &mut Config) -> Result<()> {
+    config.enforcement.validate()?;
     if config.config_version != CONFIG_VERSION {
         return Err(EgolintError::Configuration(format!(
             "config-version must equal {CONFIG_VERSION}"
@@ -728,7 +816,8 @@ fn environment_value_truthy(value: &std::ffi::OsStr) -> bool {
 }
 
 fn overrides_present(overrides: &ConfigOverrides) -> bool {
-    overrides.profile.is_some()
+    overrides.enforcement_mode.is_some()
+        || overrides.profile.is_some()
         || overrides.runtime.is_some()
         || overrides.image.is_some()
         || overrides.pull_policy.is_some()
@@ -763,6 +852,91 @@ mod tests {
         environment: &ResolutionEnvironment,
     ) -> Result<ResolvedConfig> {
         Config::resolve_with_environment(workspace, explicit, overrides, environment)
+    }
+
+    #[test]
+    fn capability_and_adoption_layers_preserve_defaults_and_override_provenance() {
+        use crate::enforcement::EnforcementMode;
+
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path();
+        write_config(
+            &root.join("egolint.toml"),
+            "[capabilities]\ndisable = ['COPYPASTE_JSCPD']\n\
+             declarations = ['AST_GREP']\n[enforcement]\n\
+             mode = 'manual'\nrepository = 'owner/repository'\n",
+        );
+        write_config(
+            &root.join("explicit.toml"),
+            "[capabilities]\nservices = ['external-http']\n\
+             [enforcement]\nmode = 'observe'\n",
+        );
+        let mut environment = ResolutionEnvironment::default();
+        let resolve = |overrides: &ConfigOverrides, environment: &ResolutionEnvironment| {
+            resolve_for_test(
+                root,
+                Some(Path::new("explicit.toml")),
+                overrides,
+                environment,
+            )
+        };
+        let defaults = ConfigOverrides::default();
+        let layered = resolve(&defaults, &environment).unwrap();
+        assert!(layered.config.capabilities.enabled);
+        assert!(
+            layered
+                .config
+                .capabilities
+                .disable
+                .contains("COPYPASTE_JSCPD")
+        );
+        assert!(
+            layered
+                .config
+                .capabilities
+                .declarations
+                .contains("AST_GREP")
+        );
+        assert!(
+            layered
+                .config
+                .capabilities
+                .services
+                .contains("external-http")
+        );
+        assert_eq!(layered.config.enforcement.mode, EnforcementMode::Observe);
+        assert_eq!(
+            layered.config.enforcement.repository.as_deref(),
+            Some("owner/repository")
+        );
+
+        environment
+            .overrides
+            .insert("EGOLINT_ENFORCEMENT", "manual".to_owned());
+        let from_environment = resolve(&defaults, &environment).unwrap();
+        assert_eq!(
+            from_environment.config.enforcement.mode,
+            EnforcementMode::Manual
+        );
+        assert_eq!(
+            from_environment.sources.last().unwrap(),
+            "EGOLINT_* environment"
+        );
+        let cli = ConfigOverrides {
+            enforcement_mode: Some(EnforcementMode::Enforce),
+            ..ConfigOverrides::default()
+        };
+        let from_cli = resolve(&cli, &environment).unwrap();
+        assert_eq!(from_cli.config.enforcement.mode, EnforcementMode::Enforce);
+        assert_eq!(from_cli.sources.last().unwrap(), "command line");
+        environment
+            .overrides
+            .insert("EGOLINT_ENFORCEMENT", "ratchet".to_owned());
+        assert!(resolve(&defaults, &environment).is_err());
+        environment
+            .overrides
+            .insert("EGOLINT_ENFORCEMENT", "unknown".to_owned());
+        assert!(resolve(&defaults, &environment).is_err());
     }
 
     #[test]

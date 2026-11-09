@@ -14,6 +14,9 @@ use std::thread;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+use crate::capabilities::{
+    CapabilityContext, CapabilityDecision, CapabilityRegistry, CapabilityState, Placement,
+};
 use crate::config::{CONFIG_VERSION, Profile, ResolvedConfig, Runtime};
 use crate::contracts::CONTRACT_VERSION;
 use crate::error::{EgolintError, Result};
@@ -61,12 +64,20 @@ pub enum Operation {
 /// Per-run options that do not belong in persistent configuration.
 #[derive(Debug, Clone, Default)]
 pub struct PlanOptions {
+    /// Explicit policy inputs whose reviewed bytes bind a ratchet comparison.
+    pub policy_inputs: Vec<PathBuf>,
+    /// Typed policy decisions independent of mutable source or evaluation dates.
+    pub policy_overrides: Vec<String>,
+    /// Explicit or observed invocation provenance.
+    pub invocation: crate::enforcement::Invocation,
     /// Force changed-file behavior independently of the named profile.
     pub changed_only: bool,
     /// Explicit `MegaLinter` linter selections.
     pub enable_linters: Vec<String>,
     /// Explicit `MegaLinter` linter exclusions.
     pub disable_linters: Vec<String>,
+    /// Native policies explicitly selected through typed CLI options.
+    pub declared_capabilities: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -97,6 +108,14 @@ pub struct PlanView {
     pub config_sources: Vec<String>,
     /// Redacted argument vector. This is evidence, not shell syntax.
     pub argv: Vec<String>,
+    /// Availability, applicability and selection reasons for compiled capabilities.
+    pub capabilities: Vec<CapabilityDecision>,
+    /// Adoption mode is independent of the selected profile.
+    pub enforcement_mode: crate::enforcement::EnforcementMode,
+    pub invocation: crate::enforcement::Invocation,
+    pub source: Option<crate::enforcement::SourceSnapshot>,
+    /// Effective policy identity excludes adoption-mode/baseline self-references.
+    pub policy_sha256: String,
 }
 
 /// Internal plan containing both public evidence and unredacted argv.
@@ -131,7 +150,7 @@ impl ExecutionPlan {
         }
         crate::config::validate_image_reference(&resolved.config.image)?;
         crate::config::validate_adapter_environment(&resolved.config.environment)?;
-        let runtime = resolve_runtime(resolved.config.runtime, require_runtime)?;
+        let runtime = resolve_runtime(resolved.config.runtime, false)?;
         let report_relative = PathBuf::from(REPORT_DIRECTORY);
         let report_path = workspace.join(&report_relative);
         validate_report_directory(&workspace, &report_path)?;
@@ -142,13 +161,24 @@ impl ExecutionPlan {
         )?;
 
         let container_report = container_relative_path(&report_relative, "report-directory")?;
-        let environment = build_environment(
+        let mut environment = build_environment(
             resolved,
             operation,
             options,
             megalinter_config,
             &container_report,
         )?;
+        let capabilities =
+            resolve_capabilities(&workspace, resolved, operation, options, &mut environment)?;
+        if require_runtime
+            && !resolved.config.enforcement.should_skip(options.invocation)
+            && (capabilities.is_empty()
+                || capabilities.iter().any(|d| {
+                    d.placement == Placement::FullImage && d.state == CapabilityState::Selected
+                }))
+        {
+            resolve_runtime(resolved.config.runtime, true)?;
+        }
         let workspace_mount = bind_mount(
             &workspace,
             CONTAINER_WORKSPACE,
@@ -174,10 +204,15 @@ impl ExecutionPlan {
             profile: resolved.config.profile,
             runtime: runtime.to_owned(),
             image: resolved.config.image.clone(),
+            source: crate::enforcement::SourceSnapshot::discover(&workspace),
+            policy_sha256: effective_policy_hash(&workspace, resolved, options)?,
             workspace,
             report_directory: report_relative,
             config_sources: resolved.sources.clone(),
             argv: redacted,
+            capabilities,
+            enforcement_mode: resolved.config.enforcement.mode,
+            invocation: options.invocation,
         };
 
         Ok(Self {
@@ -363,6 +398,182 @@ fn join_capture(
                 "could not capture adapter {stream_name}: {error}"
             ))
         })
+}
+
+fn effective_policy_hash(
+    workspace: &Path,
+    resolved: &ResolvedConfig,
+    options: &PlanOptions,
+) -> Result<String> {
+    use sha2::{Digest, Sha256};
+    let mut config = serde_json::to_value(&resolved.config)?;
+    config
+        .as_object_mut()
+        .ok_or_else(|| EgolintError::Configuration("invalid resolved policy".to_owned()))?
+        .remove("enforcement");
+    let mut hash = Sha256::new();
+    hash.update(CapabilityRegistry::built_in()?.policy_sha256);
+    hash.update(serde_json::to_vec(&config)?);
+    hash.update(serde_json::to_vec(&options.enable_linters)?);
+    hash.update(serde_json::to_vec(&options.disable_linters)?);
+    hash.update(serde_json::to_vec(&options.policy_overrides)?);
+    hash_policy_inputs(workspace, resolved, options, &mut hash)?;
+    Ok(format!("{:x}", hash.finalize()))
+}
+
+fn hash_policy_inputs(
+    workspace: &Path,
+    resolved: &ResolvedConfig,
+    options: &PlanOptions,
+    hash: &mut sha2::Sha256,
+) -> Result<()> {
+    use sha2::Digest;
+    let mut paths = options.policy_inputs.clone();
+    paths.extend(resolved.config.megalinter_config.iter().cloned());
+    if workspace.join(".egohygiene/release.json").is_file() {
+        paths.push(".egohygiene/release.json".into());
+    }
+    paths.sort();
+    paths.dedup();
+    let mut visited = BTreeSet::new();
+    while let Some(path) = paths.pop() {
+        if !visited.insert(path.clone()) {
+            continue;
+        }
+        if visited.len() > 128 {
+            return Err(EgolintError::Configuration(
+                "policy input graph exceeds limit".to_owned(),
+            ));
+        }
+        let absolute = workspace.join(&path);
+        let metadata = absolute
+            .symlink_metadata()
+            .map_err(|source| EgolintError::Filesystem {
+                path: path.clone(),
+                source,
+            })?;
+        if !metadata.is_file()
+            || metadata.file_type().is_symlink()
+            || metadata.len() > 4 * 1024 * 1024
+        {
+            return Err(EgolintError::Configuration(
+                "policy identity requires bounded regular inputs".to_owned(),
+            ));
+        }
+        let bytes = std::fs::read(&absolute).map_err(|source| EgolintError::Filesystem {
+            path: path.clone(),
+            source,
+        })?;
+        let label = path
+            .strip_prefix(workspace)
+            .ok()
+            .or_else(|| (!path.is_absolute()).then_some(path.as_path()))
+            .map_or_else(
+                || "<external-policy>".to_owned(),
+                |p| p.to_string_lossy().into_owned(),
+            );
+        hash.update(serde_json::to_vec(&(
+            label,
+            format!("{:x}", sha2::Sha256::digest(&bytes)),
+        ))?);
+        if path
+            .extension()
+            .is_some_and(|e| e.eq_ignore_ascii_case("yml") || e.eq_ignore_ascii_case("yaml"))
+        {
+            if let Ok(document) = serde_yaml::from_slice::<serde_yaml::Value>(&bytes) {
+                if let Some(extends) = document.get("EXTENDS") {
+                    let references = extends
+                        .as_sequence()
+                        .map_or_else(|| vec![extends], |values| values.iter().collect());
+                    for reference in references.into_iter().filter_map(serde_yaml::Value::as_str) {
+                        // Bundled /opt inputs are bound by the immutable engine image in ratchet.
+                        if reference.starts_with("/opt/egolint/") {
+                            continue;
+                        }
+                        let nested = workspace
+                            .join(path.parent().unwrap_or(Path::new("")))
+                            .join(reference);
+                        let canonical =
+                            nested
+                                .canonicalize()
+                                .map_err(|source| EgolintError::Filesystem {
+                                    path: nested,
+                                    source,
+                                })?;
+                        if !canonical.starts_with(workspace) {
+                            return Err(EgolintError::Configuration(
+                                "extended policy escapes workspace".to_owned(),
+                            ));
+                        }
+                        paths.push(
+                            canonical
+                                .strip_prefix(workspace)
+                                .map_err(|_| {
+                                    EgolintError::Configuration(
+                                        "invalid extended policy root".to_owned(),
+                                    )
+                                })?
+                                .to_path_buf(),
+                        );
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn resolve_capabilities(
+    workspace: &Path,
+    resolved: &ResolvedConfig,
+    operation: Operation,
+    options: &PlanOptions,
+    environment: &mut BTreeMap<String, String>,
+) -> Result<Vec<CapabilityDecision>> {
+    Ok(
+        if operation == Operation::Check
+            && resolved.config.capabilities.enabled
+            && !resolved.config.enforcement.should_skip(options.invocation)
+        {
+            let registry = CapabilityRegistry::built_in()?;
+            let mut context =
+                CapabilityContext::discover(workspace, &resolved.config.capabilities)?;
+            context
+                .declarations
+                .extend(options.declared_capabilities.iter().cloned());
+            context.network_allowed = resolved.config.network == crate::config::NetworkMode::Bridge;
+            context.invocation = options.invocation;
+            let decisions = registry.decide(
+                workspace,
+                &resolved.config.capabilities,
+                &context,
+                resolved.config.profile,
+                &normalize_linter_values(&options.enable_linters)?
+                    .into_iter()
+                    .collect::<Vec<_>>(),
+                &normalize_linter_values(&options.disable_linters)?
+                    .into_iter()
+                    .collect::<Vec<_>>(),
+            )?;
+            let selected = decisions
+                .iter()
+                .filter(|d| d.provider == "megalinter" && d.state == CapabilityState::Selected)
+                .map(|d| d.id.as_str())
+                .collect::<Vec<_>>();
+            let disabled = decisions
+                .iter()
+                .filter(|d| d.provider == "megalinter" && d.state != CapabilityState::Selected)
+                .map(|d| d.id.as_str())
+                .collect::<Vec<_>>();
+            if resolved.config.megalinter_config.is_none() {
+                environment.insert("ENABLE_LINTERS".to_owned(), selected.join(","));
+            }
+            environment.insert("DISABLE_LINTERS".to_owned(), disabled.join(","));
+            decisions
+        } else {
+            Vec::new()
+        },
+    )
 }
 
 fn build_environment(
@@ -871,6 +1082,8 @@ mod tests {
     fn check_overrides_preserve_the_built_in_profile_selection() {
         let directory = tempfile::tempdir().expect("temporary directory");
         let mut resolved = resolved();
+        // The explicit legacy switch preserves the pre-adaptive overlay contract.
+        resolved.config.capabilities.enabled = false;
         resolved.config.profile = Profile::Holistic;
         let options = PlanOptions {
             enable_linters: vec!["action_zizmor".to_owned()],

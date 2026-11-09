@@ -1,0 +1,6 @@
+id: EGO-AST-TS-EVAL-001
+language: TypeScript
+severity: warning
+message: Review direct eval; prefer an explicit parser or dispatcher.
+rule:
+  pattern: eval($CODE)
