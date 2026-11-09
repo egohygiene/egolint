@@ -12,6 +12,22 @@ The [capability guide](repository-release-validation.md) owns supported checks a
 the [release operator guide](releasing.md) owns the existing repository adapter. This ledger connects
 their evidence to the original work without replacing either guide or the upstream contracts.
 
+## Manual publisher source candidate — 2026-11-09
+
+The current #5/#101 dependency candidate removes tag-push publication and binds
+manual publication to an exact current-main revision, Cargo version, matching
+version tag and successful prior rehearsal of that same workflow/source. Native
+self-dogfood now passes all seven source checks with advisory rollout and no
+release finding. A hostile control restores tag automation and retains the
+original visible failure. No release workflow or publication has been executed
+to establish this candidate.
+
+This new source evidence does not rewrite the exact #69 historical results
+below. Its publisher migration remains under review; final-head hosted release,
+signing, registry/platform acceptance and Empathy plus non-Empathy adoption
+remain separate #5/#69/#29 gates. The source-qualified #90 input repair already
+merged through PR #103; its open issue state is retained for acceptance.
+
 ## Original acceptance criteria
 
 | Original #29 criterion                                                                                          | Source evidence available for review                                                                                                                                                                                  | Acceptance still required                                                                                                       |
@@ -65,7 +81,7 @@ passed. All 661 non-Markdown files matched the previously qualified composite, w
 include semantics and no dependency drift. This records local evidence; hosted qualification remains
 deferred and the final handoff-only refresh has separate continuity evidence in PR #110.
 
-## Separate self-consumer verdicts
+## Original #69 self-consumer verdicts
 
 | Surface                     | Actual #69 source result                                    | Meaning                                                                                                                  |
 | --------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |

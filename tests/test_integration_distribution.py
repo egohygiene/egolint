@@ -422,22 +422,24 @@ class IntegrationDistributionTests(unittest.TestCase):
                 continue
             self.assertRegex(reference, r"^[^@\s]+@[0-9a-f]{40}$")
 
-        self.assertIn('tags:\n      - "v*.*.*"', workflow)
-        self.assertIn("workflow_dispatch:", workflow)
-        self.assertIn("Exact Cargo package version to rehearse without publishing", workflow)
-        self.assertIn(
-            'test "${GITHUB_SHA}" = "$(git rev-parse refs/remotes/origin/main)"',
-            workflow,
-        )
+        parsed = self.load_yaml(".github/workflows/release.yml")
+        triggers = parsed.get("on", parsed.get(True))
+        self.assertEqual(set(triggers), {"workflow_dispatch"})
+        inputs = triggers["workflow_dispatch"]["inputs"]
+        self.assertEqual(inputs["operation"]["default"], "rehearse")
+        self.assertEqual(inputs["operation"]["options"], ["rehearse", "publish"])
+        self.assertTrue(inputs["version"]["required"])
+        self.assertTrue(inputs["revision"]["required"])
+        self.assertIn("validate_release_request.py", workflow)
+        self.assertIn("REQUESTED_REHEARSAL_RUN", workflow)
+        self.assertEqual(parsed["env"]["RELEASE_TAG"], "v${{ inputs.version }}")
         self.assertIn("This run built and tested the candidate without signing", workflow)
         self.assertIn("cosign verify", workflow)
         self.assertIn("gh attestation verify", workflow)
         self.assertIn("linux/amd64,linux/arm64", workflow)
         self.assertIn("subject-digest:", workflow)
-        self.assertRegex(
-            workflow,
-            r"\breport \\\n\s+debt \\\n\s+repository-contract \\\n\s+repository-intelligence \\\n\s+repository-intelligence-report \\\n\s+repository-presentation \\\n\s+repository-presentation-report \\\n\s+repository-continuity \\\n\s+repository-continuity-report \\\n\s+repository-gitignore \\\n\s+repository-gitignore-report \\\n\s+repository-release-report; do",
-        )
+        self.assertIn("for schema_path in schemas/*.schema.json; do", workflow)
+        self.assertIn('schema "${schema}"', workflow)
         self.assertNotRegex(workflow, r"tags:.*:(latest|edge)\s*$")
 
     def test_release_metadata_binds_the_exact_package_version(self) -> None:
@@ -465,7 +467,7 @@ class IntegrationDistributionTests(unittest.TestCase):
         jobs = workflow["jobs"]
 
         candidate = jobs["candidate"]
-        self.assertEqual(candidate["permissions"], {"contents": "read"})
+        self.assertEqual(candidate["permissions"], {"contents": "read", "actions": "read"})
         candidate_text = json.dumps(candidate)
         self.assertNotIn("id-token", candidate_text)
         self.assertNotIn("attestations", candidate_text)
@@ -474,7 +476,7 @@ class IntegrationDistributionTests(unittest.TestCase):
         signer = jobs["sign-candidate"]
         self.assertEqual(
             signer["if"],
-            "github.event_name == 'push' && github.ref_type == 'tag'",
+            "github.event_name == 'workflow_dispatch' && needs.candidate.outputs.publish == 'true'",
         )
         self.assertEqual(signer["environment"], "release")
         self.assertEqual(signer["permissions"]["id-token"], "write")

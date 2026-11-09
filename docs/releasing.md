@@ -1,6 +1,6 @@
 # Release design
 
-`.github/workflows/release.yml` is a tag-driven release candidate pipeline. Its presence does not
+`.github/workflows/release.yml` is a manual release candidate pipeline. Its presence does not
 prove that a release or public artifact exists: the first write-once tag, signed artifacts, OCI
 digests, attestations, and post-push smoke evidence remain observed closure gates.
 
@@ -11,11 +11,12 @@ under the incubating `cli-library` profile. Its local source plan leaves the ver
 pending maintainer review. `release:plan` prints that draft; `release:prepare` exclusively writes a
 caller-selected Markdown review handoff; `release:verify` invokes local source validators.
 
-The literal `release:publish` Task dispatches the existing **non-publishing manual rehearsal**. It does
-not publish a product. The tag-push workflow below remains unchanged and does not satisfy the accepted
-current-v1 manual-only publication convention. Native self-dogfood retains that failed check as an
-advisory warning. Migrating the publisher is separate issue #5 work; introducing the declaration does
-not grant publication authority or close issue #69/#29 acceptance.
+The literal `release:publish` Task opens the manual workflow input handoff. `operation` defaults to
+`rehearse`; `publish` requires a separately selected successful rehearsal run, exact reviewed main
+revision, matching Cargo version and existing version tag. Tag pushes do not trigger publication.
+Native self-dogfood passes all seven current-v1 source checks while retaining incubating/advisory
+rollout. This source result leaves signed publication and consumer adoption under #5, and final
+checkpoint acceptance under #69/#29, open.
 
 The helper records relative paths and hashes, preserves authored Cargo/changelog/declaration bytes,
 and refuses to overwrite an existing preparation file. Review a source handoff with:
@@ -43,8 +44,8 @@ source-qualified producer, retained self-findings and remaining maintainer/hoste
 ## Promotion checklist
 
 1. Update the version and changelog from one reviewed commit.
-2. Merge that commit to `main`, then run the **Release** workflow manually with the exact Cargo
-   version. This rehearsal must pass from the current `main` commit before a tag is created. It has
+2. Merge that commit to `main`, then run the **Release** workflow manually with `operation=rehearse`,
+   the exact Cargo version and full main revision. This rehearsal must pass before a tag is created. It has
    read-only repository permission and does not sign bytes, push images, create tags, or publish a
    GitHub release.
 3. Run formatting, tests, policy validation, the reusable action, and clean and findings consumer
@@ -58,24 +59,45 @@ source-qualified producer, retained self-findings and remaining maintainer/hoste
    `.config/release/base-images.v1.json`.
 8. Generate CycloneDX/SPDX SBOMs and build provenance for binaries and images.
 9. Sign image digests with keyless Sigstore/Cosign after provenance succeeds.
-10. Publish only a write-once version tag. `latest`, `edge`, moving action tags, and crates.io
-    publication require separate approval after adoption evidence.
+10. Create the protected write-once Git version tag at that source, then request `operation=publish`
+    from `main` with the same version/revision and successful rehearsal run ID. `latest`, `edge`,
+    moving action tags and crates.io publication remain separate channels.
 11. Verify downloaded archives and `oci://` images against the repository's attestations before
     announcing the release.
 
-The manual rehearsal is intentionally the only branch-mode execution path. It rejects any selected
-ref that is not the current `main` commit, requires its version input to equal `Cargo.toml`, and
-validates the same digest-qualified base-image variables used by tag promotion. A rehearsal artifact
-is temporary candidate evidence, not a release and not an approved consumer pin.
+Both operations execute the reviewed workflow from `main`. The request validator checks the supplied
+full revision against the dispatch SHA, checkout and freshly fetched main, and the version against
+`Cargo.toml`. Publication also checks authenticated Actions metadata for the same repository,
+workflow, main revision, successful completed status and exact non-publishing rehearsal run title.
+It rejects a run approving itself, another workflow/source, failed or incomplete rehearsal, and a
+missing or mismatched version tag. A local caller-supplied JSON fixture is useful for tests; the
+production workflow fetches metadata with its read-only Actions token.
+
+Both operations validate the same digest-qualified base-image variables. A rehearsal artifact is
+temporary candidate evidence, not a release or approved consumer pin. Publication rebuilds from
+the exact source and verifies the newly produced bytes; it does not promote rehearsal artifacts.
 
 An authorized maintainer can start the rehearsal after the release-preparation pull request merges:
 
 ```sh
-gh workflow run "Release" --ref "main" --field "version=0.1.0-alpha.1"
+release_revision="$(git rev-parse --verify HEAD)"
+gh workflow run .github/workflows/release.yml --ref main \
+  --field operation=rehearse --field version=0.1.0-alpha.1 \
+  --field "revision=${release_revision}"
 ```
 
-Only after that run is green should the protected `v0.1.0-alpha.1` tag be created from the rehearsed
-commit. The tag run rebuilds from source; it never promotes the rehearsal's temporary artifacts.
+After a successful rehearsal, an authorized maintainer creates the protected `v0.1.0-alpha.1` tag
+from that exact commit and selects the successful rehearsal's run ID for a second manual dispatch:
+
+```sh
+gh workflow run .github/workflows/release.yml --ref main \
+  --field operation=publish --field version=0.1.0-alpha.1 \
+  --field "revision=${release_revision:?select the reviewed main revision}" \
+  --field "rehearsal_run=${release_rehearsal_run:?select the successful rehearsal run ID}"
+```
+
+If main advances, rehearse the new reviewed source and choose its version/tag deliberately; an
+old successful run cannot authorize a changed commit. The default operation remains rehearsal.
 
 The release workflow fails closed unless the Rust, Debian, Node, and MegaLinter base images are
 supplied as reviewed manifest digests. Its unprivileged candidate job has no OIDC or attestation
@@ -87,9 +109,9 @@ then verifies the downloaded bytes, signature, attestations, and executable arch
 OCI builds initially publish only per-attempt `release-candidate-<run>-<attempt>` quarantine tags. A
 build fails closed if its attempt tag already exists; it never trusts, resumes, or replaces a
 previous quarantine reference. The build/smoke matrix has package write access but no OIDC
-authority. It inspects both manifest platforms, executes the CLI entrypoint on amd64 and arm64, and
-executes the full image's inherited MegaLinter entrypoint against a minimal clean consumer on both
-architectures. It also parses every packaged full-image profile as a separate packaging check.
+authority. It executes the CLI entrypoint on AMD64 and ARM64. The full engine's inherited MegaLinter
+entrypoint runs against a minimal clean consumer on its supported AMD64 platform only; it does not
+promise a full-engine ARM64 image. Every packaged full-image profile is parsed separately.
 
 A separate protected, no-checkout job downloads the exact digest evidence from the current workflow
 run, resolves that immutable `image@sha256` reference directly, signs and attests both products, and
@@ -131,9 +153,8 @@ four references that match `.config/release/base-images.v1.json` byte-for-byte.
 MegaLinter `v10.0.0` publishes its full image as a single `linux/amd64` manifest. Version 10 adds
 ARM64 support for compatible custom and standalone-linter builds, but does not make the complete
 124-tool image multi-architecture; upstream tracks complete-image support in
-[MegaLinter #1180](https://github.com/oxsecurity/megalinter/issues/1180). EgoLint therefore
-publishes its lightweight CLI image for AMD64 and ARM64 while advertising `egolint-full` as
-AMD64-only. The product-platform matrix is derived from the intersection of its reviewed base images
+[MegaLinter #1180](https://github.com/oxsecurity/megalinter/issues/1180). The reviewed first-release boundary selects
+a lightweight CLI image for AMD64 and ARM64 and `egolint-full` for AMD64 only. The product-platform matrix is derived from the intersection of its reviewed base images
 and fails closed if the contract overclaims a platform. ARM64 full-engine publication remains
 blocked on an upstream-compatible base or a separately reviewed reduced flavor.
 

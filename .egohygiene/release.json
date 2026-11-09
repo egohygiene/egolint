@@ -33,7 +33,7 @@
         "kind": "github-release",
         "state": "planned",
         "relay_profile": "binary",
-        "notes": "Source adapter exists; final-head hosted qualification and manual-only migration remain pending. No release is claimed."
+        "notes": "Manual source adapter binds publication to reviewed main and successful rehearsal; final-head hosted qualification and signed publication remain pending. No release is claimed."
       },
       {
         "kind": "container-registry",

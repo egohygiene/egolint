@@ -285,13 +285,13 @@ tasks:
         --output "$RELEASE_PLAN"
 
   release:verify:
-    desc: "Validate local source evidence while retaining advisory publisher migration findings"
+    desc: "Validate local source evidence without dispatching publication"
     cmds:
       - python3 scripts/validate_repository_release_sources.py
       - python3 scripts/validate_release_inputs.py
       - cargo run --quiet --locked -- --workspace "." validate
 
   release:publish:
-    desc: "Dispatch the existing non-publishing rehearsal; publisher migration remains pending"
+    desc: "Open the manual release input handoff; publication requires an exact successful rehearsal"
     cmds:
       - gh workflow run .github/workflows/release.yml

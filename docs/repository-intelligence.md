@@ -13,9 +13,9 @@ Policy acceptance never supplies a consumer decision's human approval or changes
 
 The ADR source revision is `a05b14f8b9e2772124f879f818e09a911e996ad8` in `egohygiene/hygiene`. Its
 [ratification record](https://github.com/egohygiene/hygiene/blob/a05b14f8b9e2772124f879f818e09a911e996ad8/docs/decisions/RATIFICATION.md)
-records explicit human approval and activation through Hygiene PR #48. The policy is accepted and
-the contract catalog marks both ADR contracts active; this is the basis for `accepted` authority,
-rather than an inference from merged implementation.
+preserves the original 1.1.0 activation through Hygiene PR #48 and the later human-approved
+1.2.0 naming amendment through PR #72. Both current ADR contract entries are active; their
+accepted authority comes from those recorded decisions, rather than merged implementation alone.
 
 | Contract                                               | Version         | Authority  | Source revision                            |
 | ------------------------------------------------------ | --------------- | ---------- | ------------------------------------------ |
@@ -24,23 +24,37 @@ rather than an inference from merged implementation.
 | `hygiene.roadmap/v1alpha1`                             | `0.1.0`         | `proposed` | `f598ed659a43dd759d4ede41c27f9e5daf991aa7` |
 | `egohygiene.repository-intelligence/v1`                | `1.0.0-alpha.1` | `proposed` | `f598ed659a43dd759d4ede41c27f9e5daf991aa7` |
 
-The two ADR schema files are byte-identical between these revisions. Their SHA-256 digests are:
+The current accepted policy is **1.2.0**. Its four-digit naming amendment is
+recorded in [Hygiene PR #72](https://github.com/egohygiene/hygiene/pull/72).
+The original v1.1.0 ratification remains historical evidence for its exact source
+revision; it does not make the later schema bytes identical.
 
-| Source path                                                     | SHA-256                                                            |
-| --------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `schemas/architecture-decision.v1.schema.json`                  | `491eae26e498ee311bb37d5eff23a51d682eb687196c80a3df10ac1ce98e04d4` |
-| `schemas/architecture-decision-policy-reference.v1.schema.json` | `fdf451cfa38ba666ec579aa75d2acbd52a56b95e73c7437565b79dfcfb689216` |
+| Source path                                                     | Current 1.2.0 SHA-256                                              | Exact historical 1.1.0 SHA-256                                     |
+| --------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| `schemas/architecture-decision.v1.schema.json`                  | `725a7cf58cd0b0454d4d481e8ef72815f29ecca80a5b44da5ce48f7ec6e6b8c4` | `491eae26e498ee311bb37d5eff23a51d682eb687196c80a3df10ac1ce98e04d4` |
+| `schemas/architecture-decision-policy-reference.v1.schema.json` | `fdf451cfa38ba666ec579aa75d2acbd52a56b95e73c7437565b79dfcfb689216` | `fdf451cfa38ba666ec579aa75d2acbd52a56b95e73c7437565b79dfcfb689216` |
 
-Consumer migration requires updating both ADR entries in the local TOML policy to the exact accepted
-pins, plus `policy.source.revision` in the local policy-reference JSON. Contract versions, source
-paths, decision schemas, diagnostic IDs, and report schema version 1 remain unchanged. The bundled
-fixture shows the complete supported tuple for every contract. The native validator does not fetch,
-rewrite, or silently upgrade consumer policy.
+The current schema files and authority hashes are locked in
+[the native catalog](../.config/rules/repository-intelligence.v1.toml) and
+[vendored authority](../vendor/hygiene/adr-policy-owner/README.md). The historical
+ordinary-consumer tuple is ADR policy `1.1.0` plus reference contract `1.0.0`,
+both accepted at `c589587395750cd1c79c6fa0bef010189c547249`. That exact pair
+remains a supported compatibility alternative with its historical three-digit
+records; it must not be mixed with the current owner authority.
 
-Older proposed ADR pins, arbitrary revisions, moving refs, and mismatched versions, authority,
-repositories, or paths produce `EGO-INTEL-CONTRACT-001`. Historical replay can use a separately
-pinned older EgoLint build; that is not a ratified-policy conformance claim. Advisory enforcement
-still records invalid or incomplete semantics even when findings do not block execution.
+Migration to 1.2.0 updates both ADR entries to the current accepted source and
+`policy.source.revision` in the consumer policy-reference JSON, then reconciles
+canonical IDs, filenames, headings and links to four digits. Contract IDs,
+canonical schema paths, diagnostic IDs and report schema version 1 remain
+stable; the ADR policy version and schema bytes change. The validator does not
+fetch, rewrite or silently upgrade a consumer policy. Existing fixtures exercise
+both exact selections and reject mixed or unsupported pins.
+
+Older proposed pins, arbitrary revisions, moving refs and mismatched versions,
+authority, repositories or paths produce `EGO-INTEL-CONTRACT-001`. Advisory
+execution preserves invalid/incomplete semantics even when findings are
+nonblocking. Historical replay should retain its original source and binary
+rather than re-label that evidence as current conformance.
 
 Relay adoption is a separate review gate: pin the reviewed EgoLint commit, refresh the runtime lock
 and verified source digests, and rerun its native ADR fixtures before removing the explicit

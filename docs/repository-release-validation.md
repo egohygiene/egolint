@@ -165,21 +165,24 @@ future candidate obligation, not an assertion that an artifact was published or 
 Native `validate`, `lint` and `fix` discover this declaration through the existing universal resolver.
 The actual source-backed self-consumer currently produces:
 
-| Evidence             | Current result                                               |
-| -------------------- | ------------------------------------------------------------ |
-| Process exit         | `0` under incubating/advisory rollout                        |
-| Focused state        | `advisory`                                                   |
-| Check results        | Six passed; `manual_workflow` failed/advisory                |
-| Native tool          | `passed_with_warnings`, advisory enforcement, one warning    |
-| Finding/SARIF        | Same manual-workflow warning, identity and workflow location |
-| Publication boundary | Network not performed; external publication not verified     |
+| Evidence             | Current result                                           |
+| -------------------- | -------------------------------------------------------- |
+| Process exit         | `0` under incubating/advisory rollout                    |
+| Focused state        | `advisory`                                               |
+| Check results        | Seven passed; manual-only workflow is source-conformant  |
+| Native tool          | `passed`, advisory enforcement, zero warnings            |
+| Finding/SARIF        | No release finding or SARIF result                       |
+| Publication boundary | Network not performed; external publication not verified |
 
-The failed check is intentional evidence of an existing migration gap. The real release workflow
-still publishes from tag push and only rehearses on manual dispatch. The literal `release:publish`
-handoff dispatches that rehearsal; it is not a publication-ready manual adapter. No rule is disabled
-and no passing substitute workflow hides the finding. The pinned Aether migration guidance keeps
-contract adoption separate from replacing a repository-owned publisher; that migration and product
-release remain under issue #5.
+The current candidate migrates the repository-owned publisher to manual dispatch. Its default
+operation rehearses without publication; explicit publication binds a reviewed current-main commit,
+matching version/tag and successful rehearsal of that source, then retains the protected signing
+and promotion stages. The real self-consumer tests also restore tag automation in a disposable copy
+and verify that the failed advisory workflow finding returns. No rule is disabled.
+
+These are source-conformance results. Hosted release execution, signatures, image acceptance and
+pinned consumer adoption still require their own evidence under issue #5. The declaration remains
+incubating/unreleased, and the focused report still makes no external publication claim.
 
 For local source inspection, invoke the underlying commands directly:
 
@@ -207,7 +210,8 @@ fixtures directly, in addition to the package build.
 
 The report schema remains `egolint.repository-release-report/v1`; all generated-schema comparisons
 remain required. Source-PR acceptance does not complete issue #69 or parent #29: actual final-head
-hosted/full-image/non-Linux qualification, the publisher migration and full release acceptance remain open.
+hosted/full-image/non-Linux qualification, review of this manual publisher migration and full release
+acceptance remain open.
 Historical merged PR #64 is retained as history. Successor release model issue #76 stays separate.
 
 ## Checkpoint plan

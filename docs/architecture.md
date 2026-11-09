@@ -68,8 +68,10 @@ access, or runtime installation.
 
 The adapter is exposed through the complementary-tool contract and as an executable in
 `egolint-full`. It is not attached to MegaLinter's global command hooks: repository policy forbids
-those hooks because they can obscure engine results. Issue #35 owns automatic selection through the
-versioned capability registry, plan explanation, and normalized cross-adapter result integration.
+those hooks because they can obscure engine results. [PR #112](https://github.com/egohygiene/egolint/pull/112) contains the general capability registry,
+plan explanation and progressive enforcement candidate. That separate source change inventories
+complementary integrations as configuration-only; it does not turn their command arrays into
+arbitrary native executors. JSONSkooma retains its explicit full-image selector boundary.
 
 ## Contract and evidence boundary
 

@@ -30,6 +30,8 @@ state, report that capability as unavailable rather than inventing success.
 
 Read [.egohygiene/release.json](.egohygiene/release.json) and
 [release guidance](docs/releasing.md) before changing release behavior. EgoLint's
-early-alpha profile is incubating/advisory. The existing tag publisher remains
-unmigrated; the literal `release:publish` handoff dispatches its non-publishing
-manual rehearsal and does not establish publication readiness.
+early-alpha profile is incubating/advisory. The manual release adapter defaults
+to rehearsal. Publication requires an exact reviewed main commit, a successful
+rehearsal of that source, its matching version tag and the protected release
+environment. The literal `release:publish` handoff opens those workflow inputs;
+source conformance does not establish publication readiness.
