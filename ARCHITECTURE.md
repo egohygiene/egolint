@@ -100,7 +100,8 @@ selects CLI `linux/amd64,linux/arm64` and full engine `linux/amd64` only.
   in source. Their package/fixture checks are distinct from release and consumer acceptance.
 - **Current candidate:** The manual release adapter retains repository-owned signing, attestations,
   supported-platform smoke and immutable promotion stages behind the protected release environment.
-- **Parallel review:** [PR #112](https://github.com/egohygiene/egolint/pull/112) adds adaptive selection,
-  adoption modes and an advisory structural host adapter without merging those modules here.
+- **Review base:** [PR #112](https://github.com/egohygiene/egolint/pull/112) adds adaptive selection,
+  adoption modes and an advisory structural host adapter. This stacked candidate changes release
+  orchestration and source guidance above that review base.
 - **Deferred:** Signed publication and pinned fleet adoption remain under #5. Full-engine ARM64
   remains separate #45 work; source-build portability does not expand the promised product matrix.

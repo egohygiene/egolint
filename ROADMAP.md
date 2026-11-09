@@ -69,7 +69,8 @@ issues: []
 
 #### EGL-Q01 — Establish the core lint engine
 
-**State:** `complete`  
+**State:** `complete`
+
 **Depends on:** None
 
 **Outcome:** A working lint engine and green core CI can evaluate repository policy.
@@ -172,6 +173,7 @@ issues: [5]
 #### EGL-Q05 — Publish and adopt the first release
 
 **State:** `active`
+
 **Depends on:** `EGL-Q03`, `EGL-Q04`
 
 **Outcome:** A pinned Egolint release enforces the roadmap contract in representative repositories.
@@ -198,7 +200,8 @@ issues: []
 
 #### EGL-Q06 — Validate roadmap execution graphs
 
-**State:** `planned`  
+**State:** `planned`
+
 **Depends on:** `HYG-Q06`, `EGL-Q05`
 
 **Outcome:** A pinned Egolint release validates roadmap IDs, states, dependencies, issue references,

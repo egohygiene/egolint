@@ -7,6 +7,8 @@ use Semantic Versioning once its public contracts stabilize.
 
 ### Added
 
+- Manual release requests bound to exact reviewed main, a successful rehearsal
+  and matching immutable version tag; protected signing/promotion remains separate.
 - Adaptive capability registry and per-tool plan/report explanations, preserving
   profile defaults and explicit legacy selection.
 - Manual, observe, reviewed-baseline ratchet and enforce modes with visible debt,
