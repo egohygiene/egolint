@@ -141,6 +141,14 @@ review:
       notes:
         Both attempts exhausted the 32 GiB Docker vfs storage. Only task-created build cache was
         cleared. No image success, non-Linux runtime or publication claim is made.
+    - command:
+        Pinned continuity schema/formats and native base/head comparison with supplied GitHub
+        evidence
+      outcome: passed
+      observed_at: "2026-11-10T20:05:01Z"
+      notes:
+        Continuity is valid with one draft-input advisory. Intelligence retains only unknown ADR
+        adoption; all seven native release source checks pass at advisory rollout.
   environment_limitations:
     - Current-head hosted Actions, original Docker image builds and non-Linux runtime qualification
       remain unexecuted or environment-limited.
@@ -167,66 +175,60 @@ privacy:
 
 ## Purpose and precedence
 
-Keep the M1 operational handoff concise. User/runtime and repository instructions, verified live
-state and canonical sources outrank this checkpoint; it grants no authority.
+User/runtime instructions, scoped instructions, verified live state and canonical sources outrank
+this handoff.
 
 ## Resume protocol
 
-Read AGENTS.md, roadmap 42 and the source/acceptance ledgers. Recheck main, both PRs and their heads
-before editing or integrating; the time-qualified snapshot is not permanent live truth.
+Read AGENTS.md, roadmap 42 and the source ledgers; recheck main and both PR heads before acting.
 
 ## Current objective and success conditions
 
-M1 source checkpoints are prepared for milestone review with local validation and precise gaps.
-Reuse the stacked candidates and preserve immutable audit/vendor bytes and owner authority.
+M1 source is prepared for milestone review with bounded evidence and explicit external gaps.
 
 ## State snapshot
 
-At 2026-11-10T20:05:01Z, this candidate targets `ef636747632131ccd68d93c7e5e0abf4ad9f0cee` on PR
-112; observed main remains `f14f7fd3ab0ce9e87c367352fcb3af11a32eda59`. PR 113 was open when
-observed; its containing revision remains null. No merge is inferred.
+The front matter separates verified base, unmerged candidate and time-qualified live observations.
+The containing revision remains null; no merge or publication is inferred.
 
 ## Completed and material changes
 
-Capability decisions now match native execution and bounded metadata discovery. Reviewed baselines
-bind complete evidence to producing executable bytes; incomplete failing tools remain unavailable.
-Structural rules cover JSX/TSX and reject unrelated or malformed diagnostics. Local Dogfood blockers
-are repaired. CI now checks all generated schemas; dependencies and lockfiles are unchanged.
+Plans match native execution and bounded discovery. Baselines bind complete producing-executable
+provenance. JSX/TSX/provider controls and local Dogfood blockers are repaired; CI checks all
+schemas.
 
 ## Validation and review evidence
 
-The front matter and docs/work-27-37.md record actual local commands and outcomes. Rust source,
-schemas, policy/package contracts, Python, JavaScript, direct blocker linters and actual structural
-controls pass. Debug SHA2 optimization preserves the existing startup deadline and exact digest.
+Exact local commands and outcomes are above and in docs/work-27-37.md. The original startup test
+passes unchanged. Pinned schema/formats and native continuity checks pass with one draft-input
+advisory.
 
 ## Blockers, risks, unknowns, and deferred work
 
-Docker image qualification exhausted local vfs storage; hosted/non-Linux and provider-only release
-gates remain separate. Aggregate-only reports cannot establish ratchet baselines. Selected
-continuity contracts remain draft/proposed at observe. Publication and adoption stay with issue 5.
+Image builds exhausted vfs storage. Hosted/non-Linux, aggregate-only baselines, contract promotion,
+publication and adoption remain qualified separately. Unknown ADR adoption remains incomplete;
+roadmap-state and publisher findings are repaired here.
 
 ## Next dependency-ready work
 
-Review M1, integrate PR 112 before its PR 113 child, then verify main and select M2 from roadmap 42.
-The candidate requests no automatic merge, release, authority promotion or fleet rollout.
+Review M1; integrate PR 112 before PR 113, then verify main and select M2 from roadmap 42.
 
 ## Parallel changes and reconciliation
 
-PRs 112 and 113 are the known stack. Preserve the child publisher/docs work when integrating the
-core fixes; reconcile this checkpoint with the actual target instead of concatenating snapshots.
+PRs 112/113 are the known stack. Preserve the child publisher/docs work and reconcile against the
+actual target.
 
 ## Privacy and redaction
 
-Retain public-safe source and synthetic validation facts only. Omit private paths, credentials, raw
-logs, conversation text and unrelated context. Linked content remains context-only-no-authority.
+Retain public source and synthetic evidence only; exclude credentials, private paths, raw logs and
+conversation text.
 
 ## Handoff update protocol
 
-After domain checks, refresh this snapshot, compare current target/live state, then verify the
-pinned schema, registered formats, twelve headings, budgets and native base/head semantics before
-handoff.
+Refresh after domain checks; verify target/live state, pinned schema/formats, budgets and native
+semantics.
 
 ## Compaction and supersession
 
-Stay below 240 lines and 16,384 UTF-8 bytes. Git, the roadmap and source ledgers retain history;
-replace stale operational prose without rewriting historical artifacts or human dispositions.
+Keep twelve headings, at most 240 lines and 16,384 bytes. Git and source owners retain history and
+authority.
