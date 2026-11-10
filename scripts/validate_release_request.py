@@ -12,10 +12,10 @@ import os
 from pathlib import Path
 import re
 import shutil
-import subprocess
+import subprocess  # nosec B404
 import sys
 import tomllib
-from typing import Any
+from typing import Any, Never
 
 REPOSITORY = "egohygiene/egolint"
 WORKFLOW = ".github/workflows/release.yml"
@@ -32,17 +32,24 @@ class RequestError(ValueError):
     """The requested publication lacks exact local or hosted evidence."""
 
 
+def reject(message: str) -> Never:
+    """Reject evidence while preserving type narrowing at validation boundaries."""
+    raise RequestError(message)
+
+
 def require(condition: bool, message: str) -> None:
     """Reject a request without echoing raw API or environment content."""
     if not condition:
-        raise RequestError(message)
+        reject(message)
 
 
 def git_revision(workspace: Path, ref: str) -> str:
     """Resolve a fixed, validated ref without a shell or network access."""
     executable = shutil.which("git")
-    require(executable is not None, "Git is required for release source verification")
-    result = subprocess.run(  # noqa: S603 - fixed Git operation and validated ref; no shell.
+    if executable is None:
+        reject("Git is required for release source verification")
+    # The executable is resolved Git; the operation/ref are fixed or validated, without a shell.
+    result = subprocess.run(  # nosec B603  # noqa: S603
         [executable, "rev-parse", "--verify", "--end-of-options", f"{ref}^{{commit}}"],
         cwd=workspace,
         capture_output=True,
@@ -63,8 +70,9 @@ def load_rehearsal(path: Path) -> dict[str, Any]:
         path.is_file() and not path.is_symlink() and metadata.st_size <= 1024 * 1024,
         "rehearsal metadata must be a bounded regular JSON file",
     )
-    value = json.loads(path.read_bytes())
-    require(isinstance(value, dict), "rehearsal metadata must be an object")
+    value: object = json.loads(path.read_bytes())
+    if not isinstance(value, dict):
+        reject("rehearsal metadata must be an object")
     return value
 
 
@@ -94,12 +102,13 @@ def validate_request(
     )
     manifest = tomllib.loads((workspace / "Cargo.toml").read_text(encoding="utf-8"))
     package = manifest.get("package")
-    require(isinstance(package, dict), "Cargo version authority must contain a package table")
+    if not isinstance(package, dict):
+        reject("Cargo version authority must contain a package table")
     version = package.get("version")
+    if not isinstance(version, str):
+        reject("requested version must equal the Cargo version authority")
     require(
-        isinstance(version, str)
-        and VERSION.fullmatch(version) is not None
-        and environment.get("REQUESTED_VERSION") == version,
+        VERSION.fullmatch(version) is not None and environment.get("REQUESTED_VERSION") == version,
         "requested version must equal the Cargo version authority",
     )
     tag = f"v{version}"
@@ -107,7 +116,8 @@ def validate_request(
         prior_id = environment.get("REQUESTED_REHEARSAL_RUN", "")
         require(RUN_ID.fullmatch(prior_id) is not None, "publish requires a rehearsal run ID")
         require(prior_id != environment.get("GITHUB_RUN_ID"), "a run cannot approve itself")
-        require(rehearsal is not None, "publish requires authenticated rehearsal metadata")
+        if rehearsal is None:
+            reject("publish requires authenticated rehearsal metadata")
         require(
             type(rehearsal.get("id")) is int and rehearsal["id"] == int(prior_id),
             "rehearsal run identity differs from request",

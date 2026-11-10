@@ -1,8 +1,8 @@
 # Repository release validation
 
-EgoLint validates repository release declarations against immutable, separately owned policy
-inputs. The capability remains offline and evidence-based: it does not publish releases, mutate
-workflows, or infer conformance from the existence of a tag alone.
+EgoLint validates repository release declarations against immutable, separately owned policy inputs.
+The capability remains offline and evidence-based: it does not publish releases, mutate workflows,
+or infer conformance from the existence of a tag alone.
 
 ## Ownership boundary
 
@@ -82,15 +82,15 @@ sanitized evidence, message, and remediation.
 
 Static version drift is checked only when it is safe: one released or frozen component, one local
 manifest value, and one valid latest promoted changelog version. Multi-component workspaces retain
-their independent authorities instead of acquiring an invented workspace-wide version. Git-tag
-and external authorities remain explicit; EgoLint does not query tags, registries, workflows, or
+their independent authorities instead of acquiring an invented workspace-wide version. Git-tag and
+external authorities remain explicit; EgoLint does not query tags, registries, workflows, or
 publication services.
 
 `failed`, `unavailable`, and `external` check states become normalized findings. Required local
-failures and unavailable evidence are errors; advisory rollout produces warnings for the same
-facts, preserving diagnostics without claiming conformance. Explicit external ownership remains a
-warning because reachability is outside the offline boundary. Suppressions, tool counts, run-report
-status, and SARIF consume these findings through the standard pipeline.
+failures and unavailable evidence are errors; advisory rollout produces warnings for the same facts,
+preserving diagnostics without claiming conformance. Explicit external ownership remains a warning
+because reachability is outside the offline boundary. Suppressions, tool counts, run-report status,
+and SARIF consume these findings through the standard pipeline.
 
 ## Supported static Task dispatch
 
@@ -103,18 +103,18 @@ release:publish:
 ```
 
 The workflow argument must exactly match `automation.github.workflow_path`. Spaces or tabs may
-separate the four words; the workflow path may be unquoted, single quoted, or double quoted.
-The supported path uses ASCII letters, digits, `.`, `_`, `/`, and `-`. A command mapping containing
-only `cmd: "gh workflow run .github/workflows/release.yml"` is equivalent. The task may also carry
-string `desc` and `summary` metadata and boolean `silent` metadata. Unsupported metadata types
-remain unavailable. All four declared release task names must still exist.
+separate the four words; the workflow path may be unquoted, single quoted, or double quoted. The
+supported path uses ASCII letters, digits, `.`, `_`, `/`, and `-`. A command mapping containing only
+`cmd: "gh workflow run .github/workflows/release.yml"` is equivalent. The task may also carry string
+`desc` and `summary` metadata and boolean `silent` metadata. Unsupported metadata types remain
+unavailable. All four declared release task names must still exist.
 
 Additional commands, command-mapping fields, Task execution features such as dependencies or
-preconditions, CLI flags, comments, shell operators, multiline commands, substitutions, and templates
-are outside this small static grammar. EgoLint reports their handoff as `unavailable`; it does not
-interpret a shell program or execute any command to decide whether it would eventually dispatch.
-An echo or documentation string containing `gh workflow run`, or a different workflow argument
-accompanied by the declared path elsewhere, cannot establish a passing handoff.
+preconditions, CLI flags, comments, shell operators, multiline commands, substitutions, and
+templates are outside this small static grammar. EgoLint reports their handoff as `unavailable`; it
+does not interpret a shell program or execute any command to decide whether it would eventually
+dispatch. An echo or documentation string containing `gh workflow run`, or a different workflow
+argument accompanied by the declared path elsewhere, cannot establish a passing handoff.
 
 The source-only native matrix in `tests/repository_release_pipeline.rs` retains direct, quoted, and
 command-mapping controls and checks unsupported forms against process exit, focused status, tool
@@ -128,18 +128,20 @@ work scopes or prove remote execution or publication.
 `tests/fixtures/repository-release` contains nine authored source consumers: Rust, Python, npm,
 container, site, publication, workspace, contract-only, and archived. Their local authorities use
 Cargo, PEP 621, package JSON, selected JSON/YAML fields, independent workspace components, catalog
-records, and frozen Git-tag declarations. They are synthetic source fixtures, not released artifacts.
+records, and frozen Git-tag declarations. They are synthetic source fixtures, not released
+artifacts.
 
-Each consumer runs through compliant, advisory migration, unavailable, external, invalid, and explicit
-not-applicable states. The 54 compact focused goldens preserve lifecycle/profile, adoption, every
-slot's state and requirement, and coverage counters. Separate assertions bind focused checks to run
-findings, tool status/counts, human-readable state and SARIF rule identity/location. All cases retain
-`network_access: not_performed` and `external_publication: not_verified`.
+Each consumer runs through compliant, advisory migration, unavailable, external, invalid, and
+explicit not-applicable states. The 54 compact focused goldens preserve lifecycle/profile, adoption,
+every slot's state and requirement, and coverage counters. Separate assertions bind focused checks
+to run findings, tool status/counts, human-readable state and SARIF rule identity/location. All
+cases retain `network_access: not_performed` and `external_publication: not_verified`.
 
 Additional controls cover matching/drifted released authorities, workspace independence, malformed
-tag/declaration fields, missing/malformed/unpinned/external entrypoints and the issue 91 repair. Unix
-executable traps verify that contract-only and archived validation initializes no irrelevant runtime;
-the traps qualify orchestration only. The fixture README explains source mutations and policy limits.
+tag/declaration fields, missing/malformed/unpinned/external entrypoints and the issue 91 repair.
+Unix executable traps verify that contract-only and archived validation initializes no irrelevant
+runtime; the traps qualify orchestration only. The fixture README explains source mutations and
+policy limits.
 
 Run the native matrices without executing release Task commands:
 
@@ -149,21 +151,22 @@ cargo test --locked --test repository_release_pipeline
 ```
 
 Archived lifecycle applicability remains intact, and explicit caller overrides remain separate from
-policy authority. External Task includes are unavailable to static inspection; a pinned local workflow
-wrapper can establish local structure while preserving externally owned evidence. These issue 68
-fixtures supply issue 69 dogfood and parent 29 review. Hosted qualification, actual release execution,
-publication and adoption require their own evidence.
+policy authority. External Task includes are unavailable to static inspection; a pinned local
+workflow wrapper can establish local structure while preserving externally owned evidence. These
+issue 68 fixtures supply issue 69 dogfood and parent 29 review. Hosted qualification, actual release
+execution, publication and adoption require their own evidence.
 
 ## EgoLint self-consumer
 
 The repository-owned [.egohygiene/release.json](../.egohygiene/release.json) selects `cli-library`,
-`incubating` and `unreleased`, matching the roadmap's early-alpha/pre-release source state. Cargo.toml
-is the sole product version authority; the private Python and Node toolchains do not become
-independent products. GitHub Release and container delivery remain planned. `required` evidence is a
-future candidate obligation, not an assertion that an artifact was published or signed.
+`incubating` and `unreleased`, matching the roadmap's early-alpha/pre-release source state.
+Cargo.toml is the sole product version authority; the private Python and Node toolchains do not
+become independent products. GitHub Release and container delivery remain planned. `required`
+evidence is a future candidate obligation, not an assertion that an artifact was published or
+signed.
 
-Native `validate`, `lint` and `fix` discover this declaration through the existing universal resolver.
-The actual source-backed self-consumer currently produces:
+Native `validate`, `lint` and `fix` discover this declaration through the existing universal
+resolver. The actual source-backed self-consumer currently produces:
 
 | Evidence             | Current result                                           |
 | -------------------- | -------------------------------------------------------- |
@@ -176,9 +179,9 @@ The actual source-backed self-consumer currently produces:
 
 The current candidate migrates the repository-owned publisher to manual dispatch. Its default
 operation rehearses without publication; explicit publication binds a reviewed current-main commit,
-matching version/tag and successful rehearsal of that source, then retains the protected signing
-and promotion stages. The real self-consumer tests also restore tag automation in a disposable copy
-and verify that the failed advisory workflow finding returns. No rule is disabled.
+matching version/tag and successful rehearsal of that source, then retains the protected signing and
+promotion stages. The real self-consumer tests also restore tag automation in a disposable copy and
+verify that the failed advisory workflow finding returns. No rule is disabled.
 
 These are source-conformance results. Hosted release execution, signatures, image acceptance and
 pinned consumer adoption still require their own evidence under issue #5. The declaration remains
@@ -194,27 +197,33 @@ cargo run --quiet --locked -- --workspace "." validate
 
 The planner emits human Markdown with current authority/changelog facts and relative source SHA-256
 identities. It selects no bump or tag and is not a conformance report. Preparation creates a new
-caller-selected review handoff exclusively; an existing output or source-file collision fails. Version,
-changelog and declaration bytes remain authored inputs. `release:plan`, `release:prepare` and
-`release:verify` expose these local review stages; preparation passes its path through Task's structured
-environment rather than inserting it into shell code. Release Tasks are inspected statically in tests.
+caller-selected review handoff exclusively; an existing output or source-file collision fails.
+Version, changelog and declaration bytes remain authored inputs. `release:plan`, `release:prepare`
+and `release:verify` expose these local review stages; preparation passes its path through Task's
+structured environment rather than inserting it into shell code. Release Tasks are inspected
+statically in tests.
 
-`tests/repository_release_dogfood.rs` materializes the actual repository sources into a disposable Git
-consumer and checks repeatable focused evidence separately from exit, enforcement, findings and SARIF.
-`tests/test_repository_release_plan.py` exercises the helper CLI and its read-only/exclusive behavior.
-The crate includes these source fixtures and the pinned runtime contracts. Packaging them does not
-make the repository's Taskfile a standalone installed release tool. The Rust fixture manifest is
-stored as `Cargo.toml.fixture` and materialized only in disposable consumers so Cargo does not omit
-that nested directory from the archive. Unpacked native-matrix and planner tests qualify the archived
-fixtures directly, in addition to the package build.
+`tests/repository_release_dogfood.rs` materializes the actual repository sources into a disposable
+Git consumer and checks repeatable focused evidence separately from exit, enforcement, findings and
+SARIF. `tests/test_repository_release_plan.py` exercises the helper CLI and its read-only/exclusive
+behavior. The crate includes these source fixtures and the pinned runtime contracts. Packaging them
+does not make the repository's Taskfile a standalone installed release tool. The Rust fixture
+manifest is stored as `Cargo.toml.fixture` and materialized only in disposable consumers so Cargo
+does not omit that nested directory from the archive. Unpacked native-matrix and planner tests
+qualify the archived fixtures directly, in addition to the package build.
 
 The report schema remains `egolint.repository-release-report/v1`; all generated-schema comparisons
-remain required. Source-PR acceptance does not complete issue #69 or parent #29: actual final-head
-hosted/full-image/non-Linux qualification, review of this manual publisher migration and full release
-acceptance remain open.
+remain required. Source-PR acceptance does not complete parent #29 or the former #69 scope now
+tracked inline there: final-head qualification, explicit hosted/full-image/non-Linux evidence or
+recorded gaps, review of this manual publisher migration and full release acceptance remain open.
 Historical merged PR #64 is retained as history. Successor release model issue #76 stays separate.
 
-## Checkpoint plan
+## Historical checkpoint plan
+
+The original five-stage delivery sequence below records implementation history. Current execution
+uses #29's four inline checkpoints under
+[roadmap #42](https://github.com/egohygiene/egolint/issues/42); former tickets #68/#69 are
+consolidated tracking records, with their original acceptance retained.
 
 1. Pin and verify the immutable Aether and Hygiene inputs; reconcile the preceding roadmap state.
 2. Resolve native release policy and applicability, then define the focused report contract.
@@ -225,10 +234,11 @@ Historical merged PR #64 is retained as history. Successor release model issue #
 5. Dogfood the completed capability, document operations and limits, and perform final CI polish.
 
 Checkpoints 1–3 landed in PRs 64, 70 and 71. Static-handoff correction PR 108, current-v1 fixture
-matrix PR 109 and self-consumer PR 110 have now merged in that order, verified on 2026-10-30.
-Parent 29 reconciliation records their exact source and merge evidence. Full hosted and release
-acceptance remain unresolved; none of these source checkpoints publishes a product.
+matrix PR 109 and self-consumer PR 110 have now merged in that order, verified on 2026-10-30. Parent
+29 reconciliation records their exact source and merge evidence. Full hosted and release acceptance
+remain unresolved; none of these source checkpoints publishes a product.
 
 The [parent acceptance ledger](repository-release-acceptance.md) maps the original criteria to exact
-checkpoint evidence and unresolved gates. Its [operator/consumer handoff](repository-release-acceptance.md#operator-and-consumer-handoff)
+checkpoint evidence and unresolved gates. Its
+[operator/consumer handoff](repository-release-acceptance.md#operator-and-consumer-handoff)
 qualifies a source-pinned native producer without borrowing EgoLint's own repository identity.

@@ -1,22 +1,23 @@
 # Release design
 
-`.github/workflows/release.yml` is a manual release candidate pipeline. Its presence does not
-prove that a release or public artifact exists: the first write-once tag, signed artifacts, OCI
-digests, attestations, and post-push smoke evidence remain observed closure gates.
+`.github/workflows/release.yml` is a manual release candidate pipeline. Its presence does not prove
+that a release or public artifact exists: the first write-once tag, signed artifacts, OCI digests,
+attestations, and post-push smoke evidence remain observed closure gates.
 
 ## Current source adoption
 
 The repository's [.egohygiene/release.json](../.egohygiene/release.json) records one Cargo authority
-under the incubating `cli-library` profile. Its local source plan leaves the version/changelog decision
-pending maintainer review. `release:plan` prints that draft; `release:prepare` exclusively writes a
-caller-selected Markdown review handoff; `release:verify` invokes local source validators.
+under the incubating `cli-library` profile. Its local source plan leaves the version/changelog
+decision pending maintainer review. `release:plan` prints that draft; `release:prepare` exclusively
+writes a caller-selected Markdown review handoff; `release:verify` invokes local source validators.
 
 The literal `release:publish` Task opens the manual workflow input handoff. `operation` defaults to
 `rehearse`; `publish` requires a separately selected successful rehearsal run, exact reviewed main
 revision, matching Cargo version and existing version tag. Tag pushes do not trigger publication.
 Native self-dogfood passes all seven current-v1 source checks while retaining incubating/advisory
-rollout. This source result leaves signed publication and consumer adoption under #5, and final
-checkpoint acceptance under #69/#29, open.
+rollout. This source result leaves signed publication and consumer adoption under #5, and the
+consolidated fixture/self-dogfood acceptance under #29, open. Former checkpoint tickets #68/#69
+remain linked historical records; their complete scope now lives in #29's inline checkpoints.
 
 The helper records relative paths and hashes, preserves authored Cargo/changelog/declaration bytes,
 and refuses to overwrite an existing preparation file. Review a source handoff with:
@@ -44,10 +45,10 @@ source-qualified producer, retained self-findings and remaining maintainer/hoste
 ## Promotion checklist
 
 1. Update the version and changelog from one reviewed commit.
-2. Merge that commit to `main`, then run the **Release** workflow manually with `operation=rehearse`,
-   the exact Cargo version and full main revision. This rehearsal must pass before a tag is created. It has
-   read-only repository permission and does not sign bytes, push images, create tags, or publish a
-   GitHub release.
+2. Merge that commit to `main`, then run the **Release** workflow manually with
+   `operation=rehearse`, the exact Cargo version and full main revision. This rehearsal must pass
+   before a tag is created. It has read-only repository permission and does not sign bytes, push
+   images, create tags, or publish a GitHub release.
 3. Run formatting, tests, policy validation, the reusable action, and clean and findings consumer
    smoke tests against both local images.
 4. Confirm crate contents with `cargo package --list` and a dry run.
@@ -74,8 +75,8 @@ missing or mismatched version tag. A local caller-supplied JSON fixture is usefu
 production workflow fetches metadata with its read-only Actions token.
 
 Both operations validate the same digest-qualified base-image variables. A rehearsal artifact is
-temporary candidate evidence, not a release or approved consumer pin. Publication rebuilds from
-the exact source and verifies the newly produced bytes; it does not promote rehearsal artifacts.
+temporary candidate evidence, not a release or approved consumer pin. Publication rebuilds from the
+exact source and verifies the newly produced bytes; it does not promote rehearsal artifacts.
 
 An authorized maintainer can start the rehearsal after the release-preparation pull request merges:
 
@@ -96,8 +97,8 @@ gh workflow run .github/workflows/release.yml --ref main \
   --field "rehearsal_run=${release_rehearsal_run:?select the successful rehearsal run ID}"
 ```
 
-If main advances, rehearse the new reviewed source and choose its version/tag deliberately; an
-old successful run cannot authorize a changed commit. The default operation remains rehearsal.
+If main advances, rehearse the new reviewed source and choose its version/tag deliberately; an old
+successful run cannot authorize a changed commit. The default operation remains rehearsal.
 
 The release workflow fails closed unless the Rust, Debian, Node, and MegaLinter base images are
 supplied as reviewed manifest digests. Its unprivileged candidate job has no OIDC or attestation
@@ -140,12 +141,12 @@ checked-in release-input contract:
 | `EGOLINT_MEGALINTER_IMAGE`   | MegaLinter v10 full-image base |
 
 The input validator requires a complete closed contract before comparing environment values. Every
-image record contains `reference`, `digest`, `media_type` and a nonempty unique supported `platforms`
-list; `upstream_platform_evidence` is optional nonempty text. Every product contains a unique exact
-`base_images` list and a nonempty unique supported `platforms` list; `limitation` is optional nonempty
-text. Unsupported fields, missing/non-object records and malformed nested elements produce controlled
-configuration errors. Only a structurally valid contract proceeds to base-platform intersection checks
-and exact environment comparison.
+image record contains `reference`, `digest`, `media_type` and a nonempty unique supported
+`platforms` list; `upstream_platform_evidence` is optional nonempty text. Every product contains a
+unique exact `base_images` list and a nonempty unique supported `platforms` list; `limitation` is
+optional nonempty text. Unsupported fields, missing/non-object records and malformed nested elements
+produce controlled configuration errors. Only a structurally valid contract proceeds to
+base-platform intersection checks and exact environment comparison.
 
 The workflow rejects missing, tag-only, merely well-formed, or drifted values. It freezes only the
 four references that match `.config/release/base-images.v1.json` byte-for-byte.
@@ -153,10 +154,11 @@ four references that match `.config/release/base-images.v1.json` byte-for-byte.
 MegaLinter `v10.0.0` publishes its full image as a single `linux/amd64` manifest. Version 10 adds
 ARM64 support for compatible custom and standalone-linter builds, but does not make the complete
 124-tool image multi-architecture; upstream tracks complete-image support in
-[MegaLinter #1180](https://github.com/oxsecurity/megalinter/issues/1180). The reviewed first-release boundary selects
-a lightweight CLI image for AMD64 and ARM64 and `egolint-full` for AMD64 only. The product-platform matrix is derived from the intersection of its reviewed base images
-and fails closed if the contract overclaims a platform. ARM64 full-engine publication remains
-blocked on an upstream-compatible base or a separately reviewed reduced flavor.
+[MegaLinter #1180](https://github.com/oxsecurity/megalinter/issues/1180). The reviewed first-release
+boundary selects a lightweight CLI image for AMD64 and ARM64 and `egolint-full` for AMD64 only. The
+product-platform matrix is derived from the intersection of its reviewed base images and fails
+closed if the contract overclaims a platform. ARM64 full-engine publication remains blocked on an
+upstream-compatible base or a separately reviewed reduced flavor.
 
 GitHub Actions used by generated or handwritten workflows are pinned to reviewed immutable commit
 SHAs. `.github/workflows/ci.yml` checks the Rust MSRV, package contents, generated schemas, policy

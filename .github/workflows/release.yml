@@ -35,7 +35,8 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
-  CERTIFICATE_IDENTITY: https://github.com/${{ github.repository }}/.github/workflows/release.yml@${{ github.ref }}
+  CERTIFICATE_IDENTITY:
+    https://github.com/${{ github.repository }}/.github/workflows/release.yml@${{ github.ref }}
   REGISTRY: ghcr.io
   RUST_BUILDER_IMAGE: ${{ vars.EGOLINT_RUST_BUILDER_IMAGE }}
   CLI_RUNTIME_IMAGE: ${{ vars.EGOLINT_CLI_RUNTIME_IMAGE }}
@@ -465,7 +466,8 @@ jobs:
 
       - name: Refuse a pre-existing attempt quarantine tag
         env:
-          STAGING_TAG: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.product
+          STAGING_TAG:
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.product
             }}:release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
         shell: bash
         run: |
@@ -496,7 +498,8 @@ jobs:
           file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.product
+          tags:
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.product
             }}:release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
           build-args: |
             RUST_BUILDER_IMAGE=${{ needs.candidate.outputs.rust-builder-image }}
@@ -514,7 +517,8 @@ jobs:
         env:
           IMAGE: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.product }}
           BUILD_DIGEST: ${{ steps.build.outputs.digest }}
-          STAGING_TAG: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.product
+          STAGING_TAG:
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.product
             }}:release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
         shell: bash
         run: |

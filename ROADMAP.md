@@ -8,7 +8,7 @@ status: provisional
 owners:
   - egohygiene
 created: 2026-08-19
-updated: 2026-11-09
+updated: 2026-11-10
 governed_by:
   - architecture-roadmap
 depends_on:
@@ -33,21 +33,44 @@ repository: egohygiene/egolint
 visibility: public
 publication: central
 route: /roadmap/egolint/
-updated: 2026-11-09
+updated: 2026-11-10
 -->
 
-## 2026-11-09 execution snapshot
+## 2026-11-10 execution snapshot
 
 > This evidence-reconciled snapshot is the issue-generation and visual-roadmap handoff. The
 > longer-horizon strategy below remains canonical context; generated HTML, JSON, progress, issue
 > plans, and commit lists are projections.
 
 **Lifecycle:** early alpha, pre-release  
-**Current gate:** Review the manual publisher source under #5 and current-source guidance under
-#101. [PR #112](https://github.com/egohygiene/egolint/pull/112) separately contains the #35–#37
-adaptive selection/adoption/structural candidate. Issue #29 retains final-head release-conformance
-acceptance; signed release and pinned consumer adoption remain open. **North-star outcome:**
-A portable lint platform whose source, execution and publication evidence remain distinguishable.
+**Current gate:** Complete M1's local qualification of issues #35, #36, #37, #90 and #101, reusing
+[PR #112](https://github.com/egohygiene/egolint/pull/112) before its stacked
+[PR #113](https://github.com/egohygiene/egolint/pull/113). The active execution ledger is
+[roadmap issue #42](https://github.com/egohygiene/egolint/issues/42). Its milestone boundaries
+govern the current batch; the EGL quest IDs below preserve capability history and release
+acceptance. Issue #29 retains release-conformance acceptance; signed release and pinned consumer
+adoption remain open. **North-star outcome:** A portable lint platform whose source, execution and
+publication evidence remain distinguishable.
+
+### Current milestone queue
+
+| Milestone | Scope                                                     | Execution boundary                                                                                                           |
+| --------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| M1        | Existing PRs and baseline reconciliation                  | Qualify adaptive execution, enforcement, ast-grep, release-input grammar and current documentation.                          |
+| M2        | Current validator and fix-preview correctness             | Repair retained regressions using actual CLI controls and compatible pinned contracts.                                       |
+| M3        | Canonical policy corpus and formatter ownership           | Accept the baseline and gap/overlap audit before adopting more complementary tools.                                          |
+| M4        | Complementary offline capabilities                        | Record measured decisions and qualify selected adapters with deterministic evidence.                                         |
+| M5        | Governed contract validation and repository adoption      | Verify each compatible owner input and retain unavailable external or human-disposition gates.                               |
+| M6        | Declared web runtime and security                         | Prove bounded local browser and explicitly authorized DAST behavior.                                                         |
+| M7        | Identity branding, reflection audit and release readiness | Revise the existing governed kit after art approval, polish usability, rehearse locally and qualify actual release/adoption. |
+| M8        | ARM64 full-engine expansion                               | Independent upstream-dependent expansion; it does not block the selected first-release platform boundary.                    |
+
+Each retained work issue has two to four inline execution checkpoints. Work proceeds within the
+selected milestone, then pauses for the milestone sync before merging. Run local checks and
+supported `act` rehearsals; record hosted/provider-only gaps without dispatching paid Actions.
+Milestone numbers are focus order, not a strict all-issues-closed dependency chain: #29's current-v1
+source can support #39 while release and contract-owner acceptance remains visible. Former
+checkpoint tickets #68/#69 are consolidated into #29 with their complete acceptance preserved.
 
 ### Visual roadmap publication
 
@@ -244,8 +267,8 @@ declared GitHub links, and optional commit trailers without network access.
 **Current evidence:**
 
 - Issue #24 is closed and PR #26 is merged. `src/rules/repository_intelligence.rs` and the
-  positive/hostile native fixtures cover ADR/roadmap linkage, represented source, adoption state
-  and normalized evidence. Later corrections preserve incomplete evidence independently of exit.
+  positive/hostile native fixtures cover ADR/roadmap linkage, represented source, adoption state and
+  normalized evidence. Later corrections preserve incomplete evidence independently of exit.
 - This source capability permits downstream consumption; it does not establish release, required
   fleet enforcement or publication. Those outcomes retain their separate owner gates.
 
@@ -276,8 +299,8 @@ actual Git behavior without reading ordinary repository payloads or changing con
 **Current evidence (2026-09-19):**
 
 - PR #62 merged to `main` as `ec97ed8b3f1a4a2198aec03355600ea6c9caa1e1`; issue #61 is closed.
-- The accepted capability consumes Empathy `b44f798bb49259f9f48416b4ffebde1103e135c0`;
-  Holon #60 is merged as `660b941f99618806fcadd589bcdae61c519f96e4`.
+- The accepted capability consumes Empathy `b44f798bb49259f9f48416b4ffebde1103e135c0`; Holon #60 is
+  merged as `660b941f99618806fcadd589bcdae61c519f96e4`.
 - See `docs/repository-gitignore.md`, its compatibility fixtures, and `CONTINUITY.md` for validation
   evidence and limits.
 - After merge, Empathy #92 is the next scheduled proof. Relay #5/#49 retain shared execution and
@@ -306,7 +329,8 @@ JSON Schema contracts or affecting repositories where Ruby schema execution is i
 - [x] JSONSkooma support, diagnostics, packaging, maintenance, and alternatives are compared.
 - [x] The conditional-adoption decision defines applicability, overrides, skip behavior, and costs.
 - [x] A pinned full-image adapter preserves normalized paths, keyword, dialect, and versions.
-- [x] Valid, invalid, non-Ruby, schema-absent, override, and external-reference fixtures prove the boundary.
+- [x] Valid, invalid, non-Ruby, schema-absent, override, and external-reference fixtures prove the
+      boundary.
 - [x] The bounded issue #14 PR is reviewed and merged by the maintainer.
 
 **Current evidence (2026-09-19):**
@@ -342,8 +366,8 @@ release declaration, changelog, version authority, and publication entrypoints.
       verified revisions.
 - [x] Native validation distinguishes conforming, nonconforming, not-applicable, advisory,
       unavailable, and externally owned evidence without network writes.
-- [x] Representative language, artifact, lifecycle, workspace, and invalid fixtures prove the
-      policy boundary.
+- [x] Representative language, artifact, lifecycle, workspace, and invalid fixtures prove the policy
+      boundary.
 - [ ] EgoLint dogfoods the completed capability and documents operational limits.
 - [x] Every bounded issue #29 checkpoint PR is reviewed and merged by the maintainer.
 
@@ -353,9 +377,8 @@ release declaration, changelog, version authority, and publication entrypoints.
   blob identities and SHA-256 digests in the repository-release source lock.
 - Checkpoint 1 verifies vendored byte integrity and cross-source revision, schema, profile, and
   lifecycle compatibility without claiming repository conformance.
-- Checkpoint 2 on PR #70 makes applicability universal, composes lifecycle and explicit rollout,
-  and defines closed focused-report states without permitting empty validation to claim
-  conformance.
+- Checkpoint 2 on PR #70 makes applicability universal, composes lifecycle and explicit rollout, and
+  defines closed focused-report states without permitting empty validation to claim conformance.
 - Checkpoint 3 on PR #71 merged as `8b99ec4377eb84044fac411dff6b8074317ec094`, verified on
   2026-09-28. It maps all seven policy slots to stable offline rules for declarations, changelogs,
   version authorities, Taskfile handoffs, and manual workflow pins.
@@ -364,18 +387,22 @@ release declaration, changelog, version authority, and publication entrypoints.
 - PR #110 merged an incubating self-declaration, local review planner and actual source-backed
   dogfood. Six checks pass and the legacy tag publisher's `manual_workflow` check remains
   failed/advisory, distinct from process exit 0. The existing publisher is preserved.
-- The [parent acceptance ledger](docs/repository-release-acceptance.md) maps original criteria, exact
-  producer qualification and the bounded Mantle handoff without completing the remaining gates.
-- The combined source passed 232 Rust, 88 Python and 94 JavaScript tests, strict linting, 23 schemas,
-  an actual 219-file crate build and unpacked release tests. Exact receipts are retained in PR #110.
-  Actual final-head hosted/full-image/non-Linux qualification remains deferred. Publisher migration
-  under issue #5 and full release acceptance remain gates for checkpoint #69 and parent #29.
-  Source merges do not establish a product release or complete the rollout.
+- The [parent acceptance ledger](docs/repository-release-acceptance.md) maps original criteria,
+  exact producer qualification and the bounded Mantle handoff without completing the remaining
+  gates.
+- The combined source passed 232 Rust, 88 Python and 94 JavaScript tests, strict linting, 23
+  schemas, an actual 219-file crate build and unpacked release tests. Exact receipts are retained in
+  PR #110. Actual final-head hosted/full-image/non-Linux qualification remains deferred. Publisher
+  migration under issue #5 and full release acceptance remain gates for the former #69 scope, now
+  inline in parent #29. Source merges do not establish a product release or complete the rollout.
 - The 2026-11-09 #5 source candidate migrates the publisher to manual dispatch; its self-consumer
-  passes all seven static checks, and a restored tag-trigger control still fails advisory.
-  The original #69 six-pass/one-failure receipt remains historical evidence for its recorded pin.
-- #101 separates body state from dependency lines, removing six known roadmap parser warnings.
-  The remaining unknown-ADR adoption warning stays visible; no validator or rule is disabled.
+  passes all seven static checks, and a restored tag-trigger control still fails advisory. The
+  original #69 six-pass/one-failure receipt remains historical evidence for its recorded pin.
+- #101 separates body state from dependency lines, removing six known roadmap parser warnings. The
+  remaining unknown-ADR adoption warning stays visible; no validator or rule is disabled.
+- The 2026-11-10 issue reorganization closes #68/#69 as consolidated tracking records, preserving
+  their complete scope and remaining qualification in #29. This changes scheduling, not the original
+  source receipts or the evidence required for release conformance.
 
 <!-- roadmap-step
 id: EGL-Q11
@@ -401,17 +428,17 @@ changing unrelated proposed contracts.
 
 **Current evidence (verified 2026-11-09):**
 
-- Issue #73 is closed and compatibility PR #75 is merged. The current catalog selects accepted
-  ADR policy 1.2.0 at Hygiene `a05b14f8b9e2772124f879f818e09a911e996ad8`; PR #83 adds four-digit
-  naming while preserving the exact accepted 1.1.0 ordinary-consumer alternative.
+- Issue #73 is closed and compatibility PR #75 is merged. The current catalog selects accepted ADR
+  policy 1.2.0 at Hygiene `a05b14f8b9e2772124f879f818e09a911e996ad8`; PR #83 adds four-digit naming
+  while preserving the exact accepted 1.1.0 ordinary-consumer alternative.
 - Issue #81 and owner-support PR #82 are delivered. Source locks and native fixtures distinguish
   Hygiene ownership from ordinary inheritance without supplying human decision approval.
 - Relay #144 is closed, delivered by #154 with #155 follow-up. Its two runtimes adopted exact
   EgoLint `72267fd0a371da6d94922cbc6bd3dedddb68df30` and replayed owner/ordinary-consumer controls.
   This dated adoption is separate from current EgoLint candidate qualification.
 - `docs/repository-intelligence.md` records the current/historical tuples and differing schema
-  hashes. EgoLint's own ADR coverage stays explicitly unknown; source policy support does not
-  make that corpus complete or authorize Relay publication/fleet rollout.
+  hashes. EgoLint's own ADR coverage stays explicitly unknown; source policy support does not make
+  that corpus complete or authorize Relay publication/fleet rollout.
 
 ### Roadmap-to-issue handoff
 

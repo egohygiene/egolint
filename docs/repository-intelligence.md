@@ -13,9 +13,9 @@ Policy acceptance never supplies a consumer decision's human approval or changes
 
 The ADR source revision is `a05b14f8b9e2772124f879f818e09a911e996ad8` in `egohygiene/hygiene`. Its
 [ratification record](https://github.com/egohygiene/hygiene/blob/a05b14f8b9e2772124f879f818e09a911e996ad8/docs/decisions/RATIFICATION.md)
-preserves the original 1.1.0 activation through Hygiene PR #48 and the later human-approved
-1.2.0 naming amendment through PR #72. Both current ADR contract entries are active; their
-accepted authority comes from those recorded decisions, rather than merged implementation alone.
+preserves the original 1.1.0 activation through Hygiene PR #48 and the later human-approved 1.2.0
+naming amendment through PR #72. Both current ADR contract entries are active; their accepted
+authority comes from those recorded decisions, rather than merged implementation alone.
 
 | Contract                                               | Version         | Authority  | Source revision                            |
 | ------------------------------------------------------ | --------------- | ---------- | ------------------------------------------ |
@@ -24,10 +24,10 @@ accepted authority comes from those recorded decisions, rather than merged imple
 | `hygiene.roadmap/v1alpha1`                             | `0.1.0`         | `proposed` | `f598ed659a43dd759d4ede41c27f9e5daf991aa7` |
 | `egohygiene.repository-intelligence/v1`                | `1.0.0-alpha.1` | `proposed` | `f598ed659a43dd759d4ede41c27f9e5daf991aa7` |
 
-The current accepted policy is **1.2.0**. Its four-digit naming amendment is
-recorded in [Hygiene PR #72](https://github.com/egohygiene/hygiene/pull/72).
-The original v1.1.0 ratification remains historical evidence for its exact source
-revision; it does not make the later schema bytes identical.
+The current accepted policy is **1.2.0**. Its four-digit naming amendment is recorded in
+[Hygiene PR #72](https://github.com/egohygiene/hygiene/pull/72). The original v1.1.0 ratification
+remains historical evidence for its exact source revision; it does not make the later schema bytes
+identical.
 
 | Source path                                                     | Current 1.2.0 SHA-256                                              | Exact historical 1.1.0 SHA-256                                     |
 | --------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
@@ -36,31 +36,32 @@ revision; it does not make the later schema bytes identical.
 
 The current schema files and authority hashes are locked in
 [the native catalog](../.config/rules/repository-intelligence.v1.toml) and
-[vendored authority](../vendor/hygiene/adr-policy-owner/README.md). The historical
-ordinary-consumer tuple is ADR policy `1.1.0` plus reference contract `1.0.0`,
-both accepted at `c589587395750cd1c79c6fa0bef010189c547249`. That exact pair
-remains a supported compatibility alternative with its historical three-digit
-records; it must not be mixed with the current owner authority.
+[vendored authority](../vendor/hygiene/adr-policy-owner/README.md). The historical ordinary-consumer
+tuple is ADR policy `1.1.0` plus reference contract `1.0.0`, both accepted at
+`c589587395750cd1c79c6fa0bef010189c547249`. That exact pair remains a supported compatibility
+alternative with its historical three-digit records; it must not be mixed with the current owner
+authority.
 
 Migration to 1.2.0 updates both ADR entries to the current accepted source and
-`policy.source.revision` in the consumer policy-reference JSON, then reconciles
-canonical IDs, filenames, headings and links to four digits. Contract IDs,
-canonical schema paths, diagnostic IDs and report schema version 1 remain
-stable; the ADR policy version and schema bytes change. The validator does not
-fetch, rewrite or silently upgrade a consumer policy. Existing fixtures exercise
+`policy.source.revision` in the consumer policy-reference JSON, then reconciles canonical IDs,
+filenames, headings and links to four digits. Contract IDs, canonical schema paths, diagnostic IDs
+and report schema version 1 remain stable; the ADR policy version and schema bytes change. The
+validator does not fetch, rewrite or silently upgrade a consumer policy. Existing fixtures exercise
 both exact selections and reject mixed or unsupported pins.
 
-Older proposed pins, arbitrary revisions, moving refs and mismatched versions,
-authority, repositories or paths produce `EGO-INTEL-CONTRACT-001`. Advisory
-execution preserves invalid/incomplete semantics even when findings are
-nonblocking. Historical replay should retain its original source and binary
-rather than re-label that evidence as current conformance.
+Older proposed pins, arbitrary revisions, moving refs and mismatched versions, authority,
+repositories or paths produce `EGO-INTEL-CONTRACT-001`. Advisory execution preserves
+invalid/incomplete semantics even when findings are nonblocking. Historical replay should retain its
+original source and binary rather than re-label that evidence as current conformance.
 
-Relay adoption is a separate review gate: pin the reviewed EgoLint commit, refresh the runtime lock
-and verified source digests, and rerun its native ADR fixtures before removing the explicit
-policy-compatibility limitation. This change does not itself refresh Relay, release EgoLint, enable
-required mode, validate diagram semantics, or authorize fleet rollout. Legacy and unknown ADR
-coverage remain incomplete.
+Relay adoption has its own evidence. [Relay #144](https://github.com/egohygiene/relay/issues/144) is
+closed; merged [PR #154](https://github.com/egohygiene/relay/pull/154) adopted exact EgoLint
+`72267fd0a371da6d94922cbc6bd3dedddb68df30` in both validation runtimes, and merged
+[PR #155](https://github.com/egohygiene/relay/pull/155) forwards declared external ADR references.
+That source-pinned adoption does not qualify a later EgoLint candidate. Any repin still refreshes
+runtime/source digests and replays owner and ordinary-consumer fixtures separately. Legacy and
+unknown ADR coverage remain incomplete; publication, diagram semantics and fleet rollout retain
+their own gates.
 
 ## Canonical policy-owner selection
 
@@ -115,10 +116,10 @@ The policy schema adds the optional owner selection; old consumer policies remai
 binaries reject the new owner configuration, so rollback must restore the previous policy together
 with its pinned binary.
 
-Relay [#144](https://github.com/egohygiene/relay/issues/144) owns the next handoff: pin this
-reviewed EgoLint revision and source digests in both architecture and ADR runtime locks, choose
-owner mode only for Hygiene, and replay pinned Hygiene and ordinary-consumer sources through both
-paths. This PR does not perform that adoption. The synthetic native tests are in
+Relay [#144](https://github.com/egohygiene/relay/issues/144) delivered that owner-support handoff
+through PRs #154/#155 at the exact source pin above. Future adoption must still choose owner mode
+only for Hygiene and replay pinned Hygiene and ordinary-consumer sources through both runtimes. The
+synthetic native tests are in
 [`adr_policy_owner_pipeline.rs`](../tests/adr_policy_owner_pipeline.rs); public authority fixture
 provenance is in the [vendor README](../vendor/hygiene/adr-policy-owner/README.md). The
 [immutable Hygiene replay](adr-policy-owner-replay.md) records the isolated owner fix and remaining
@@ -181,12 +182,12 @@ produce no hidden pass claim.
 assertion. `present` requires the source to exist and validate. This distinction lets a repository
 adopt one surface at a time without treating missing ADR history as successful ADR conformance.
 
-A present surface combined with a `not-applicable` represented commit is contradictory evidence:
-the focused report is `incomplete`, as it is for unknown evidence or truncated history. The
-adoption rule emits its warning only when selected; disabling that diagnostic does not make the
-source snapshot complete. All surfaces explicitly `not-applicable` retain `not_applicable` status.
-An enabled source-rule failure still takes precedence as `invalid`. These semantic states do not
-depend on advisory/blocking enforcement or process exit, and they do not authenticate the supplied
+A present surface combined with a `not-applicable` represented commit is contradictory evidence: the
+focused report is `incomplete`, as it is for unknown evidence or truncated history. The adoption
+rule emits its warning only when selected; disabling that diagnostic does not make the source
+snapshot complete. All surfaces explicitly `not-applicable` retain `not_applicable` status. An
+enabled source-rule failure still takes precedence as `invalid`. These semantic states do not depend
+on advisory/blocking enforcement or process exit, and they do not authenticate the supplied
 repository identity or revision.
 
 ## Rule catalog
@@ -323,17 +324,16 @@ consumer adoption and deployment remain Relay-owned follow-up work.
 ## Four-digit naming adoption — policy v1.2.0
 
 The default catalog `0.1.0-alpha.5` selects immutable Hygiene
-`a05b14f8b9e2772124f879f818e09a911e996ad8`, with four-digit canonical IDs and matching filenames/headings.
-A three-digit canonical record fails the metadata rule under this selection.
-The earlier exact v1.1.0 ordinary-consumer pins remain explicit compatibility
-alternatives; selecting an unsupported or mixed source still fails closed.
+`a05b14f8b9e2772124f879f818e09a911e996ad8`, with four-digit canonical IDs and matching
+filenames/headings. A three-digit canonical record fails the metadata rule under this selection. The
+earlier exact v1.1.0 ordinary-consumer pins remain explicit compatibility alternatives; selecting an
+unsupported or mixed source still fails closed.
 
-Historical commit trailers retain their original spelling. Under v1.2.0 only,
-a three-digit trailer may resolve to its number-preserving four-digit target
-when that target actually exists locally or is explicitly declared externally.
-This does not invent a record, acquire another repository or grant authority.
-Current records and authoring examples use four digits.
+Historical commit trailers retain their original spelling. Under v1.2.0 only, a three-digit trailer
+may resolve to its number-preserving four-digit target when that target actually exists locally or
+is explicitly declared externally. This does not invent a record, acquire another repository or
+grant authority. Current records and authoring examples use four digits.
 
-Owner authority fixtures bind the new policy, ratification and schema bytes.
-Rollback uses the prior complete policy/EgoLint/Relay selection together. Naming
-migration does not supply a decision's missing approval or publication evidence.
+Owner authority fixtures bind the new policy, ratification and schema bytes. Rollback uses the prior
+complete policy/EgoLint/Relay selection together. Naming migration does not supply a decision's
+missing approval or publication evidence.

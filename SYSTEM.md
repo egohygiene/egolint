@@ -8,7 +8,7 @@ status: provisional
 owners:
   - egohygiene
 created: 2026-08-19
-updated: 2026-11-09
+updated: 2026-11-10
 governed_by:
   - architecture-system
 depends_on:
@@ -72,9 +72,11 @@ identify coverage and remain distinguishable from complete success.
 
 - **Observed:** The source owners above implement the core CLI, adapters and reports; no GitHub
   release was observed on 2026-11-09.
-- **Current limit:** CLI OCI platforms are AMD64 and ARM64; the full MegaLinter engine is AMD64-only.
-  Planned products and their evidence requirements are in [release guidance](docs/releasing.md).
-- **In review:** General adaptive adoption is tracked by PR #112, and manual publisher source by
-  the current #5/#101 dependency candidate.
+- **Current limit:** CLI OCI platforms are AMD64 and ARM64; the full MegaLinter engine is
+  AMD64-only. Planned products and their evidence requirements are in
+  [release guidance](docs/releasing.md).
+- **In review:** General adaptive adoption is tracked by PR #112, and manual publisher source by PR
+  #113. M1 in [roadmap #42](https://github.com/egohygiene/egolint/issues/42) qualifies this stacked
+  source and current documentation before the milestone merge review.
 - **Deferred:** Publication, digest-pinned consumer adoption, broader platform support and fleet
   rollout require their owning acceptance evidence.

@@ -25,11 +25,11 @@ flowchart LR
 
 The Rust binary owns command parsing, deterministic config layering, validation, runtime selection,
 native portability, repository-contract, continuity, and semantic evaluation, safe argv
-construction, defensive adapter normalization, suppression evaluation, plan/schema/report
-contracts, and report bookkeeping. Continuity validation separates document structure, declared
-freshness, locally available Git evidence, and externally supplied live-state evidence; it neither
-authors the checkpoint nor fetches missing refs. The lightweight `egolint` image contains only this
-binary and its runtime libraries.
+construction, defensive adapter normalization, suppression evaluation, plan/schema/report contracts,
+and report bookkeeping. Continuity validation separates document structure, declared freshness,
+locally available Git evidence, and externally supplied live-state evidence; it neither authors the
+checkpoint nor fetches missing refs. The lightweight `egolint` image contains only this binary and
+its runtime libraries.
 
 The alpha `lint` command delegates engine execution to Docker or Podman. The lightweight image
 therefore supports introspection commands but is not a self-contained lint engine. It deliberately
@@ -68,8 +68,10 @@ access, or runtime installation.
 
 The adapter is exposed through the complementary-tool contract and as an executable in
 `egolint-full`. It is not attached to MegaLinter's global command hooks: repository policy forbids
-those hooks because they can obscure engine results. [PR #112](https://github.com/egohygiene/egolint/pull/112) contains the general capability registry,
-plan explanation and progressive enforcement candidate. That separate source change inventories
+those hooks because they can obscure engine results.
+[PR #112](https://github.com/egohygiene/egolint/pull/112) contains the general capability registry,
+plan explanation and progressive enforcement candidate, qualified in M1 under
+[roadmap #42](https://github.com/egohygiene/egolint/issues/42). That source change inventories
 complementary integrations as configuration-only; it does not turn their command arrays into
 arbitrary native executors. JSONSkooma retains its explicit full-image selector boundary.
 
@@ -96,10 +98,10 @@ lint engine.
 `egolint gitignore` is a native metadata-only evaluation path. It validates the reviewed Empathy
 source and composition as data, inventories all bounded ignore policies, compares actual Git
 behavior in disposable reference/consumer repositories, and checks protected tracked paths. It
-bypasses the general `RepositoryInventory`, which reads file payloads for other rule families.
-It reuses the existing normalized findings, tool results, run JSON, SARIF, and safe report writers.
+bypasses the general `RepositoryInventory`, which reads file payloads for other rule families. It
+reuses the existing normalized findings, tool results, run JSON, SARIF, and safe report writers.
 Empathy retains policy authority and Holon retains materialization/recovery ownership.
 
-This path requires a host Git executable. The lightweight CLI image does not currently promise
-Git availability; missing Git produces incomplete evidence, never a semantic pass. See
+This path requires a host Git executable. The lightweight CLI image does not currently promise Git
+availability; missing Git produces incomplete evidence, never a semantic pass. See
 [the validation contract](repository-gitignore.md) and ADR-0004 for boundaries and downstream work.
