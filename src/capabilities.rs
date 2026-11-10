@@ -167,12 +167,7 @@ impl CapabilityContext {
                 let path = std::str::from_utf8(raw)
                     .map_err(|_| invalid("capability paths must be UTF-8"))?;
                 validate_path(path)?;
-                if is_source_path(path)
-                    && workspace
-                        .join(path)
-                        .symlink_metadata()
-                        .is_ok_and(|m| m.is_file() && !m.file_type().is_symlink())
-                {
+                if is_source_path(path) && regular_source_metadata(workspace, path)?.is_some() {
                     paths.insert(path.to_owned());
                 }
                 if paths.len() > MAX_FILES {
@@ -228,10 +223,7 @@ impl CapabilityRegistry {
         }
         for (id, predicate) in [
             ("EGOLINT_PORTABILITY", Predicate::Repository),
-            (
-                "EGOLINT_REPOSITORY_RELEASE",
-                path(".egohygiene/release.json"),
-            ),
+            ("EGOLINT_REPOSITORY_RELEASE", Predicate::Repository),
             (
                 "EGOLINT_REPOSITORY_CONTRACT",
                 declared("EGOLINT_REPOSITORY_CONTRACT"),
@@ -272,7 +264,11 @@ impl CapabilityRegistry {
                     Predicate::Any {
                         predicates: vec![
                             path("**/*.js"),
+                            path("**/*.mjs"),
+                            path("**/*.cjs"),
+                            path("**/*.jsx"),
                             path("**/*.ts"),
+                            path("**/*.tsx"),
                             path("**/*.py"),
                             path("**/*.rs"),
                         ],
@@ -478,14 +474,7 @@ fn tool_predicate(id: &str, raw: &serde_json::Value, policy: &serde_json::Value)
             };
         }
     }
-    if [
-        "MARKDOWN_MARKDOWN_LINK_CHECK",
-        "MARKDOWN_LYCHEE",
-        "JSON_V8R",
-        "YAML_V8R",
-    ]
-    .contains(&id)
-    {
+    if ["SPELL_LYCHEE", "JSON_V8R", "YAML_V8R"].contains(&id) {
         predicate = Predicate::All {
             predicates: vec![
                 predicate,
@@ -546,15 +535,10 @@ fn matches_predicate(
             let mut present = false;
             for path in context.paths.iter().filter(|p| glob_matches(pattern, p)) {
                 let absolute = workspace.join(path);
-                let meta =
-                    absolute
-                        .symlink_metadata()
-                        .map_err(|source| EgolintError::Filesystem {
-                            path: absolute.clone(),
-                            source,
-                        })?;
-                if !meta.is_file() || meta.file_type().is_symlink() || meta.len() > 2 * 1024 * 1024
-                {
+                let Some(meta) = regular_source_metadata(workspace, path)? else {
+                    return Err(invalid("project metadata must be a bounded regular file"));
+                };
+                if meta.len() > 2 * 1024 * 1024 {
                     return Err(invalid("project metadata must be a bounded regular file"));
                 }
                 let text = std::fs::read_to_string(&absolute).map_err(|source| {
@@ -574,7 +558,17 @@ fn matches_predicate(
                     serde_json::from_str(&text)
                         .map_err(|_| invalid("invalid project JSON metadata"))?
                 };
-                if document.get(key).is_some_and(|v| !v.is_null()) {
+                if document.get(key).is_some_and(|value| match key.as_str() {
+                    "package" | "workspace" => value.is_object(),
+                    "name" => value.as_str().is_some_and(|name| !name.trim().is_empty()),
+                    _ => match value {
+                        serde_json::Value::Null => false,
+                        serde_json::Value::String(value) => !value.trim().is_empty(),
+                        serde_json::Value::Array(value) => !value.is_empty(),
+                        serde_json::Value::Object(value) => !value.is_empty(),
+                        _ => true,
+                    },
+                }) {
                     present = true;
                     break;
                 }
@@ -662,6 +656,38 @@ fn is_source_path(path: &str) -> bool {
         .contains(&part)
     })
 }
+
+// A regular leaf below a symlinked ancestor is not a source file in this
+// workspace. Check each component before inspecting or reading the leaf;
+// tracked paths can outlive a directory replaced by a symlink in the worktree.
+fn regular_source_metadata(workspace: &Path, relative: &str) -> Result<Option<std::fs::Metadata>> {
+    validate_path(relative)?;
+    let mut absolute = workspace.to_path_buf();
+    let components = Path::new(relative).components().collect::<Vec<_>>();
+    for (index, component) in components.iter().enumerate() {
+        absolute.push(component.as_os_str());
+        let metadata = match std::fs::symlink_metadata(&absolute) {
+            Ok(metadata) => metadata,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+            Err(source) => {
+                return Err(EgolintError::Filesystem {
+                    path: absolute,
+                    source,
+                });
+            }
+        };
+        if metadata.file_type().is_symlink() {
+            return Ok(None);
+        }
+        if index + 1 == components.len() {
+            return Ok(metadata.is_file().then_some(metadata));
+        }
+        if !metadata.is_dir() {
+            return Ok(None);
+        }
+    }
+    Ok(None)
+}
 fn validate_path(path: &str) -> Result<()> {
     if PathBuf::from(path).is_absolute() || path.split('/').any(|p| p == "..") {
         return Err(invalid("unsafe capability inventory path"));
@@ -688,9 +714,36 @@ fn all_profiles() -> BTreeSet<String> {
         .map(str::to_owned)
         .collect()
 }
-fn executable_available(name: &str) -> bool {
-    std::env::var_os("PATH")
-        .is_some_and(|paths| std::env::split_paths(&paths).any(|p| p.join(name).is_file()))
+pub(crate) fn executable_available(name: &str) -> bool {
+    std::env::var_os("PATH").is_some_and(|paths| {
+        std::env::split_paths(&paths).any(|directory| {
+            if executable_file(&directory.join(name)) {
+                return true;
+            }
+            #[cfg(windows)]
+            {
+                return executable_file(&directory.join(format!("{name}.exe")));
+            }
+            #[cfg(not(windows))]
+            false
+        })
+    })
+}
+
+fn executable_file(path: &Path) -> bool {
+    let Ok(metadata) = path.metadata() else {
+        return false;
+    };
+    if !metadata.is_file() {
+        return false;
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        metadata.permissions().mode() & 0o111 != 0
+    }
+    #[cfg(not(unix))]
+    true
 }
 fn invalid(message: &str) -> EgolintError {
     EgolintError::Configuration(message.to_owned())
@@ -706,6 +759,22 @@ mod tests {
         assert!(!glob_matches(".github/workflows/*.yml", "unrelated.yml"));
         assert!(!glob_matches("src/*.rs", "src/nested/main.rs"));
         assert!(!glob_matches("**/Cargo.toml", "unrelatedCargo.toml"));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn runtime_availability_requires_an_executable_regular_file() {
+        use std::os::unix::fs::PermissionsExt;
+
+        let root = tempfile::tempdir().unwrap();
+        let executable = root.path().join("ast-grep");
+        std::fs::write(&executable, "#!/bin/sh\n").unwrap();
+        std::fs::set_permissions(&executable, std::fs::Permissions::from_mode(0o644)).unwrap();
+        assert!(!executable_file(&executable));
+        std::fs::set_permissions(&executable, std::fs::Permissions::from_mode(0o755)).unwrap();
+        assert!(executable_file(&executable));
+        assert!(!executable_file(root.path()));
+        assert!(!executable_file(&root.path().join("missing")));
     }
     #[test]
     fn registry_skips_unrelated_tools_and_requires_network_authorization() {
@@ -749,6 +818,186 @@ mod tests {
                 .unwrap()
                 .iter()
                 .any(|d| d.id == "PYTHON_RUFF" && d.state == CapabilityState::Selected)
+        );
+    }
+
+    #[test]
+    fn link_and_schema_tools_require_each_network_authorization() {
+        let root = tempfile::tempdir().unwrap();
+        let registry = CapabilityRegistry::built_in().unwrap();
+        let config = CapabilityConfig::default();
+        for id in ["SPELL_LYCHEE", "JSON_V8R", "YAML_V8R"] {
+            for missing in [Some("declaration"), Some("service"), Some("network"), None] {
+                let context = CapabilityContext {
+                    paths: ["README.md", "schema.json", "config.yaml"]
+                        .into_iter()
+                        .map(str::to_owned)
+                        .collect(),
+                    declarations: (missing != Some("declaration"))
+                        .then(|| id.to_owned())
+                        .into_iter()
+                        .collect(),
+                    services: (missing != Some("service"))
+                        .then(|| "external-http".to_owned())
+                        .into_iter()
+                        .collect(),
+                    network_allowed: missing != Some("network"),
+                    ..CapabilityContext::default()
+                };
+                let decisions = registry
+                    .decide(
+                        root.path(),
+                        &config,
+                        &context,
+                        Profile::Holistic,
+                        &[id.to_owned()],
+                        &[],
+                    )
+                    .unwrap();
+                let decision = decisions.iter().find(|d| d.id == id).unwrap();
+                assert_eq!(decision.applicable, missing.is_none(), "{id}: {missing:?}");
+                assert_eq!(
+                    decision.state,
+                    if missing.is_none() {
+                        CapabilityState::Selected
+                    } else {
+                        CapabilityState::Skipped
+                    },
+                    "{id}: {missing:?}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn structural_selection_covers_every_supported_source_extension() {
+        let root = tempfile::tempdir().unwrap();
+        let registry = CapabilityRegistry::built_in().unwrap();
+        let config = CapabilityConfig::default();
+        for extension in ["js", "mjs", "cjs", "jsx", "ts", "tsx", "py", "rs", "md"] {
+            let context = CapabilityContext {
+                paths: [format!("src/source.{extension}")].into_iter().collect(),
+                declarations: ["AST_GREP".to_owned()].into_iter().collect(),
+                ..CapabilityContext::default()
+            };
+            let decisions = registry
+                .decide(root.path(), &config, &context, Profile::Holistic, &[], &[])
+                .unwrap();
+            let structural = decisions.iter().find(|d| d.id == "AST_GREP").unwrap();
+            assert_eq!(structural.applicable, extension != "md", "{extension}");
+            if extension == "md" {
+                assert_eq!(structural.state, CapabilityState::Skipped);
+            } else {
+                assert!(matches!(
+                    structural.state,
+                    CapabilityState::Selected | CapabilityState::Unavailable
+                ));
+            }
+        }
+    }
+
+    #[test]
+    fn project_metadata_requires_the_expected_value_shape() {
+        let root = tempfile::tempdir().unwrap();
+        let context = CapabilityContext {
+            paths: ["Cargo.toml", "package.json"]
+                .into_iter()
+                .map(str::to_owned)
+                .collect(),
+            ..CapabilityContext::default()
+        };
+        for cargo in ["workspace = false", "package = []", "package = 'crate'"] {
+            std::fs::write(root.path().join("Cargo.toml"), cargo).unwrap();
+            for key in ["workspace", "package"] {
+                assert!(
+                    !matches_predicate(&metadata("**/Cargo.toml", key), root.path(), &context,)
+                        .unwrap()
+                );
+            }
+        }
+        for name in ["null", "[]", "{}", "false", "0", "\" \""] {
+            std::fs::write(
+                root.path().join("package.json"),
+                format!(r#"{{"name":{name}}}"#),
+            )
+            .unwrap();
+            assert!(
+                !matches_predicate(&metadata("**/package.json", "name"), root.path(), &context,)
+                    .unwrap()
+            );
+        }
+        std::fs::write(
+            root.path().join("Cargo.toml"),
+            "[workspace]\nmembers = []\n",
+        )
+        .unwrap();
+        std::fs::write(root.path().join("package.json"), r#"{"name":"fixture"}"#).unwrap();
+        assert!(
+            matches_predicate(
+                &metadata("**/Cargo.toml", "workspace"),
+                root.path(),
+                &context,
+            )
+            .unwrap()
+        );
+        assert!(
+            matches_predicate(&metadata("**/package.json", "name"), root.path(), &context,)
+                .unwrap()
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn tracked_paths_beneath_a_replaced_symlink_directory_are_not_source() {
+        use std::os::unix::fs::symlink;
+
+        let root = tempfile::tempdir().unwrap();
+        let outside = tempfile::tempdir().unwrap();
+        assert!(
+            Command::new("git")
+                .args(["init", "--quiet"])
+                .current_dir(root.path())
+                .status()
+                .unwrap()
+                .success()
+        );
+        std::fs::create_dir(root.path().join("project")).unwrap();
+        for filename in ["main.rs", "Cargo.toml"] {
+            std::fs::write(root.path().join("project").join(filename), "").unwrap();
+            std::fs::write(outside.path().join(filename), "invalid external metadata").unwrap();
+        }
+        assert!(
+            Command::new("git")
+                .args(["add", "project"])
+                .current_dir(root.path())
+                .status()
+                .unwrap()
+                .success()
+        );
+        let config = CapabilityConfig::default();
+        assert_eq!(
+            CapabilityContext::discover(root.path(), &config)
+                .unwrap()
+                .paths
+                .len(),
+            2
+        );
+        std::fs::remove_dir_all(root.path().join("project")).unwrap();
+        symlink(outside.path(), root.path().join("project")).unwrap();
+        let context = CapabilityContext::discover(root.path(), &config).unwrap();
+        assert!(context.paths.is_empty());
+        // Even a caller-supplied context cannot make metadata follow that ancestor.
+        let hostile = CapabilityContext {
+            paths: ["project/Cargo.toml".to_owned()].into_iter().collect(),
+            ..CapabilityContext::default()
+        };
+        assert!(
+            matches_predicate(
+                &metadata("**/Cargo.toml", "workspace"),
+                root.path(),
+                &hostile,
+            )
+            .is_err()
         );
     }
 

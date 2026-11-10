@@ -9,9 +9,10 @@ import json
 import os
 from pathlib import Path
 import shutil
-import subprocess
+import subprocess  # nosec B404
 import sys
 import tempfile
+from typing import Any
 import unittest
 
 import yaml
@@ -28,17 +29,17 @@ SPEC.loader.exec_module(release_inputs)
 
 class ReleaseInputTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.contract = release_inputs.load_contract()
+        self.contract: dict[str, Any] = release_inputs.load_contract()
 
     def run_validator(
         self,
-        contract,
+        contract: object,
         *,
-        check_environment=False,
-        environment=None,
-        contract_text=None,
-        missing=False,
-    ):
+        check_environment: bool = False,
+        environment: dict[str, str] | None = None,
+        contract_text: str | None = None,
+        missing: bool = False,
+    ) -> subprocess.CompletedProcess[str]:
         """Execute the real script against a disposable repository-shaped copy."""
 
         with tempfile.TemporaryDirectory() as directory:
@@ -63,11 +64,11 @@ class ReleaseInputTests(unittest.TestCase):
             }
             process_environment.update(environment or {})
             # The executable is the current interpreter and a repository-owned validator copy.
-            return subprocess.run(  # noqa: S603
+            return subprocess.run(  # noqa: S603  # nosec B603
                 command, capture_output=True, text=True, check=False, env=process_environment
             )
 
-    def assert_configuration_rejected(self, contract, diagnostic):
+    def assert_configuration_rejected(self, contract: object, diagnostic: str) -> None:
         for check_environment in (False, True):
             with self.subTest(check_environment=check_environment):
                 result = self.run_validator(contract, check_environment=check_environment)
@@ -78,7 +79,7 @@ class ReleaseInputTests(unittest.TestCase):
                 self.assertNotIn("must equal reviewed reference", result.stderr)
                 self.assertEqual(result.stdout, "")
 
-    def test_cli_retains_valid_contract_and_environment_controls(self):
+    def test_cli_retains_valid_contract_and_environment_controls(self) -> None:
         result = self.run_validator(self.contract)
         self.assertEqual(result.returncode, 0, result.stderr)
         environment = {
@@ -104,10 +105,11 @@ class ReleaseInputTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 1)
                 self.assertIn(f"{name} must equal reviewed reference", result.stderr)
 
-    def test_cli_rejects_missing_and_nonobject_records(self):
+    def test_cli_rejects_missing_and_nonobject_records(self) -> None:
+        invalid_records: tuple[object, ...] = (None, False, 0, "record", [])
         for group in ("images", "products"):
             for name in self.contract[group]:
-                for value in (None, False, 0, "record", []):
+                for value in invalid_records:
                     with self.subTest(group=group, name=name, value=value):
                         contract = deepcopy(self.contract)
                         contract[group][name] = value
@@ -117,13 +119,13 @@ class ReleaseInputTests(unittest.TestCase):
                     del contract[group][name]
                     self.assert_configuration_rejected(contract, f"{group} must contain exactly")
 
-    def test_cli_rejects_all_null_records_with_empty_environment(self):
+    def test_cli_rejects_all_null_records_with_empty_environment(self) -> None:
         for group in ("images", "products"):
             self.contract[group] = dict.fromkeys(self.contract[group])
         self.assert_configuration_rejected(self.contract, "must be an object")
 
-    def test_cli_rejects_malformed_nested_image_fields(self):
-        malformed = {
+    def test_cli_rejects_malformed_nested_image_fields(self) -> None:
+        malformed: dict[str, tuple[object, ...]] = {
             "reference": (None, [], {}, 1),
             "digest": (None, [], {}, 1),
             "media_type": (None, [], {}, 1),
@@ -137,8 +139,8 @@ class ReleaseInputTests(unittest.TestCase):
                     contract["images"]["MEGALINTER_IMAGE"][field] = value
                     self.assert_configuration_rejected(contract, f"MEGALINTER_IMAGE.{field}")
 
-    def test_cli_rejects_malformed_nested_product_fields(self):
-        malformed = {
+    def test_cli_rejects_malformed_nested_product_fields(self) -> None:
+        malformed: dict[str, tuple[object, ...]] = {
             "base_images": (
                 None,
                 {},
@@ -159,7 +161,7 @@ class ReleaseInputTests(unittest.TestCase):
                     contract["products"]["egolint-full"][field] = value
                     self.assert_configuration_rejected(contract, f"egolint-full.{field}")
 
-    def test_cli_requires_every_record_field_and_rejects_unknown_fields(self):
+    def test_cli_requires_every_record_field_and_rejects_unknown_fields(self) -> None:
         for group, name, fields in (
             ("images", "MEGALINTER_IMAGE", ("reference", "digest", "media_type", "platforms")),
             ("products", "egolint-full", ("base_images", "platforms")),
@@ -173,7 +175,7 @@ class ReleaseInputTests(unittest.TestCase):
             contract[group][name]["unsupported"] = "value"
             self.assert_configuration_rejected(contract, f"{name} has unsupported fields")
 
-    def test_cli_rejects_unreadable_contract_with_controlled_diagnostic(self):
+    def test_cli_rejects_unreadable_contract_with_controlled_diagnostic(self) -> None:
         for check_environment in (False, True):
             for missing in (False, True):
                 with self.subTest(check_environment=check_environment, missing=missing):
@@ -188,14 +190,16 @@ class ReleaseInputTests(unittest.TestCase):
                     self.assertNotIn("Traceback", result.stderr)
                     self.assertEqual(result.stdout, "")
 
-    def test_cli_rejects_invalid_root_and_map_grammar(self):
+    def test_cli_rejects_invalid_root_and_map_grammar(self) -> None:
+        invalid_records: tuple[object, ...] = (None, [], "records", 1)
         for group in ("images", "products"):
-            for value in (None, [], "records", 1):
+            for value in invalid_records:
                 with self.subTest(group=group, value=value):
                     contract = deepcopy(self.contract)
                     contract[group] = value
                     self.assert_configuration_rejected(contract, f"{group} must contain exactly")
-        for value in (None, [], "contract", 1):
+        invalid_roots: tuple[object, ...] = (None, [], "contract", 1)
+        for value in invalid_roots:
             with self.subTest(root=value):
                 self.assert_configuration_rejected(value, "root must be an object")
         for field, value in (("schema_version", True), ("reviewed_at", "20260901")):

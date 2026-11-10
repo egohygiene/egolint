@@ -294,6 +294,14 @@
           "type": "integer",
           "format": "int32"
         },
+        "executable_sha256": {
+          "description": "Producing executable bytes; older reports remain readable but need a fresh run to baseline.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
         "execution_skipped": {
           "type": "boolean"
         },

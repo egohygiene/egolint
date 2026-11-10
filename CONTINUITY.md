@@ -7,59 +7,62 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-11-09T12:54:22Z'
+  updated_at: "2026-11-10T19:59:02Z"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Implement remaining source work in literal GitHub numbers 27 through 37 and hand off the candidate for review.
+  purpose: Qualify the M1 source batch and preserve an accurate pre-merge handoff.
   includes:
-  - Adaptive capability selection, progressive enforcement and optional advisory ast-grep integration.
-  - Current validation, issue dispositions and operational review handoff.
+    - Adaptive execution, reviewed-baseline enforcement, structural controls and local source
+      qualification.
+    - The current stacked pull-request handoff.
   excludes:
-  - Merge, issue closure, release publication, hosted/full-image/non-Linux qualification and unrelated roadmap work.
+    - Release publication, policy authority promotion, fleet rollout and historical audit rewriting.
   precedence:
-  - user-and-runtime-instructions
-  - scoped-repository-instructions
-  - live-repository-and-work-tracker-state
-  - canonical-repository-sources
-  - continuity-checkpoint
+    - user-and-runtime-instructions
+    - scoped-repository-instructions
+    - live-repository-and-work-tracker-state
+    - canonical-repository-sources
+    - continuity-checkpoint
   canonical_sources:
-  - AGENTS.md
-  - docs/work-27-37.md
-  - docs/adaptive-capabilities.md
-  - docs/enforcement.md
-  - docs/ast-grep-evaluation.md
-  - docs/repository-release-acceptance.md
-  - https://github.com/egohygiene/egolint/issues/35
-  - https://github.com/egohygiene/egolint/issues/36
-  - https://github.com/egohygiene/egolint/issues/37
+    - AGENTS.md
+    - docs/work-27-37.md
+    - docs/adaptive-capabilities.md
+    - docs/enforcement.md
+    - docs/ast-grep-evaluation.md
+    - docs/repository-release-acceptance.md
+    - https://github.com/egohygiene/egolint/issues/42
 work:
-  objective: Implement remaining source work in literal GitHub numbers 27 through 37 and hand off the candidate for review.
+  objective:
+    Complete M1 implementation and local qualification for the stacked candidates before milestone
+    review.
   success_conditions:
-  - The candidate explains adaptive selections/skips and supports all four adoption modes without hiding execution failures.
-  - Reviewed baselines bind source, policy, tool identity and expiry; structural checks remain optional and advisory.
-  - Local checks and exact remaining acceptance limits are retained without rewriting historical audits.
+    - All M1 source checkpoints have bounded evidence and passing local checks.
+    - The candidates remain reviewable with exact provider/platform gaps retained.
+    - Historical audit, vendor and dependency identities remain unchanged.
   active_issue:
     provider: github
-    id: egohygiene/egolint#35
-    url: https://github.com/egohygiene/egolint/issues/35
+    id: egohygiene/egolint#42
+    url: https://github.com/egohygiene/egolint/issues/42
   next:
     kind: action
-    id: review-27-37-candidate
-    description: Review adaptive defaults, baseline trust/rollout and advisory structural rules; decide merge and issue acceptance.
+    id: review-m1-stack
+    description:
+      Review the locally qualified M1 stack; integrate PR 112 before PR 113, then reconcile main and
+      select M2.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/35
-    - https://github.com/egohygiene/egolint/issues/36
-    - https://github.com/egohygiene/egolint/issues/37
+      - https://github.com/egohygiene/egolint/pull/112
+      - https://github.com/egohygiene/egolint/pull/113
+      - https://github.com/egohygiene/egolint/issues/42
     depends_on: []
 state:
   base:
     revision: f14f7fd3ab0ce9e87c367352fcb3af11a32eda59
     ref: refs/heads/main
-    verified_at: '2026-11-09T12:39:52Z'
+    verified_at: "2026-11-10T19:59:02Z"
   candidate:
     branch: codex/egolint-27-37
     revision: null
@@ -70,91 +73,103 @@ state:
     handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-11-09T12:54:22Z'
+    observed_at: "2026-11-10T19:59:02Z"
     default_branch_revision: f14f7fd3ab0ce9e87c367352fcb3af11a32eda59
     issue_state: open
-    pull_request_state: draft
-    notes: 'GitHub verified this time-bounded snapshot: PR 112 is open/draft at ecf230d5a97c728c6af717102a905f878bf3256c before
-      this follow-up. Hosted CI, architecture and identity passed on that head; package-quality test setup and benchmark executable
-      mode caused two failures. This follow-up repairs both; new-head hosted results are pending. Main remains the declared
-      base.'
-  parallel_changes: []
+    pull_request_state: open
+    notes:
+      PRs 112 and 113 are open when observed. PR 113 is stacked on PR 112. This candidate is locally
+      qualified and unmerged; no hosted workflow or product publication is asserted.
+  parallel_changes:
+    - provider: github
+      id: egohygiene/egolint#113
+      url: https://github.com/egohygiene/egolint/pull/113
 review:
   status: partial
-  reviewed_at: '2026-11-09T12:39:52Z'
+  reviewed_at: "2026-11-10T19:59:02Z"
   reviewed_by: Codex
   evidence:
-  - command: cargo fmt --all --check; cargo clippy --locked --all-targets --all-features -- -D warnings; cargo test --locked
-      --all-targets --all-features
-    outcome: passed
-    observed_at: '2026-11-09T12:39:52Z'
-    notes: 240 tests passed across 17 suites, zero failed. Includes all 13 retained release matrix/dogfood/pipeline cases
-      and positive/hostile adoption, inventory and provenance controls.
-  - command: task schemas:check; cargo package --locked --allow-dirty
-    outcome: passed
-    observed_at: '2026-11-09T12:39:52Z'
-    notes: Checked-in schemas match native generation. Cargo packaged and verified the source archive; no publication occurred.
-  - command: python3 scripts/validate_megalinter_policy.py --check; python3 scripts/package_integrations.py --check
-    outcome: passed
-    observed_at: '2026-11-09T12:39:52Z'
-    notes: Pinned MegaLinter contract and packaged integration metadata remain consistent. No dependency, lockfile or workflow
-      changes.
-  - command: egolint validate --enforcement observe; egolint baseline; egolint validate --evaluation-date YYYY-MM-DD; manual
-      scheduled and missing-runtime CLI controls
-    outcome: passed
-    observed_at: '2026-11-09T12:39:52Z'
-    notes: Synthetic committed controls verified visible unchanged/new debt, expiry, tampering, explicit manual skip and execution
-      failure exit 3 under observe. Exact commands need caller-owned fixture arguments; no private paths or raw reports are
-      retained here.
-  - command: cargo build --locked; python3 scripts/benchmark_ast_grep.py with explicit --binary selecting the built native
-      executable
-    outcome: passed
-    observed_at: '2026-11-09T12:39:52Z'
-    notes: Actual ast-grep 0.51.1 adapter found 4/128/512 expected positives and zero negative-control matches in 8/256/1024
-      files. Exact executable digest and timings are in docs/work-27-37.md.
-  - command: Pinned Ruff 0.16.2 and Prettier 3.9.6 selected-file checks; git diff --check; protected-path diff
-    outcome: passed
-    observed_at: '2026-11-09T12:39:52Z'
-    notes: New benchmark and changed documentation/rules pass selected checks. Historical audit bytes/modes, lockfiles and
-      workflows are unchanged.
-  - command: cargo run --quiet --locked -- --workspace . validate --repository-contract .config/dogfood/repository-context.toml
-      --repository-continuity .config/dogfood/repository-continuity.toml --continuity-base f14f7fd3ab0ce9e87c367352fcb3af11a32eda59
-      --continuity-head working-tree --continuity-disposition updated --continuity-transition pull-request --continuity-live-verification
-      verified --continuity-live-evidence https://github.com/egohygiene/egolint/commit/f14f7fd3ab0ce9e87c367352fcb3af11a32eda59
-      --continuity-live-evidence https://github.com/egohygiene/egolint/issues/29 --continuity-live-evidence https://github.com/egohygiene/egolint/issues/35
-      --continuity-live-evidence https://github.com/egohygiene/egolint/issues/36 --continuity-live-evidence https://github.com/egohygiene/egolint/issues/37
-      --continuity-evaluation-date 2026-11-09 --continuity-live-evidence https://github.com/egohygiene/egolint/pull/112
-    outcome: limited
-    observed_at: '2026-11-09T12:54:22Z'
-    notes: Pinned JSON Schema with registered formats and native structural, freshness, local Git and supplied live-evidence
-      layers pass. Only the expected proposed/unreleased owner observe warning remains in continuity diagnostics; provisional
-      context and release-publisher advisory warnings remain separate. Offline Task checks cannot independently establish
-      live provider truth.
-  - command: pnpm_config_verify_deps_before_run=false node --test tests/javascript-package-quality.test.mjs tests/javascript-adapter-outcomes.test.mjs;
-      task dogfood:native
-    outcome: passed
-    observed_at: '2026-11-09T12:54:22Z'
-    notes: All 94 JavaScript tests pass, including real pinned analyzer controls. The local installed-tool cache is reused
-      without pnpm auto-install stdout. Protocol fixtures now own local-bin lookup ahead of Corepack. Native dogfood passes
-      after recording the benchmark shebang as executable; existing advisory policy findings remain visible.
+    - command:
+        cargo fmt --all --check; cargo clippy --locked --all-targets --all-features -- -D warnings;
+        cargo test --locked --all-targets --all-features
+      outcome: passed
+      observed_at: "2026-11-10T19:59:02Z"
+      notes:
+        "Rust 1.85.1: 266 tests across 18 suites pass. The original bounded-startup regression
+        remains unchanged; optimized debug SHA2 retains exact executable provenance."
+    - command: task schemas:check; task contracts; cargo package --locked --allow-dirty
+      outcome: passed
+      observed_at: "2026-11-10T19:59:02Z"
+      notes:
+        All 27 generated native schemas, policy/integration contracts and source-package
+        verification pass. Matching optional executable-provenance schemas are included.
+    - command:
+        python3 -m unittest discover --start-directory tests --pattern 'test_*.py'; python3
+        scripts/validate_release_inputs.py; python3 scripts/validate_repository_release_sources.py
+      outcome: passed
+      observed_at: "2026-11-10T19:59:02Z"
+      notes:
+        88 Python tests pass, including retained real release-input controls. No registry or hosted
+        execution is inferred.
+    - command:
+        pnpm run commitlint:test; pnpm run eslint-config:test; pnpm run javascript-quality:test;
+        task dogfood:javascript
+      outcome: passed
+      observed_at: "2026-11-10T19:59:02Z"
+      notes:
+        The 94 adapter/package controls and 5 commit/config controls pass; the actual JavaScript
+        self-consumer reports zero errors or warnings.
+    - command:
+        Matching Mypy 1.19.1, Bandit 1.9.4, markdownlint 0.49.1, Prettier 3.9.6 and selected Ruff
+        0.16.2 checks
+      outcome: passed
+      observed_at: "2026-11-10T19:59:02Z"
+      notes:
+        Former blocking Dogfood findings pass direct local checks; this is not an equivalent
+        full-engine qualification.
+    - command:
+        python3 scripts/benchmark_ast_grep.py --binary target/debug/egolint; eight bounded synthetic
+        protocol controls
+      outcome: passed
+      observed_at: "2026-11-10T19:59:02Z"
+      notes:
+        Pinned ast-grep 0.51.1 yields 8/256/1024 positives and zero negative matches across
+        16/512/2048 files. Real provider semantics and protocol controls remain separate.
+    - command: Digest-pinned full-engine pull and local CLI Docker build
+      outcome: limited
+      observed_at: "2026-11-10T19:59:02Z"
+      notes:
+        Both attempts exhausted the 32 GiB Docker vfs storage. Only task-created build cache was
+        cleared. No image success, non-Linux runtime or publication claim is made.
+    - command:
+        Pinned continuity schema/formats and native base/head validation with supplied GitHub
+        evidence
+      outcome: passed
+      observed_at: "2026-11-10T19:59:02Z"
+      notes:
+        Schema and native structure/freshness/Git checks pass; one expected unreleased-contract
+        advisory remains.
   environment_limitations:
-  - Hosted CI, architecture and identity passed at the original PR 112 head; two other jobs exposed repaired setup/mode defects.
-    Current follow-up hosted/full-image/non-Linux acceptance remains pending.
-  - Broader structural precision, non-ASCII column semantics and large-repository stress remain unqualified.
-  - Release publisher migration under issue 5, first publication and released continuity-owner conformance remain separate
-    acceptance gates.
+    - Current-head hosted Actions, original Docker image builds and non-Linux runtime qualification
+      remain unexecuted or environment-limited.
+    - Aggregate-only provider evidence cannot establish a reviewed ratchet baseline; a complete
+      normalized run and matching producing executable are required.
+    - Selected continuity owner inputs remain draft/proposed and observe-only; signed publication,
+      protected release configuration and consumer adoption remain separate under issue 5.
+    - This parent retains six roadmap-state advisories and the manual-publisher finding; stacked PR
+      113 owns their repair. Parent Intelligence remains invalid/advisory, not conformant.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
   redactions:
-  - Private execution context, credentials, raw logs and private filesystem details omitted.
+    - Private execution context, credentials, raw logs and private filesystem details omitted.
   excluded:
-  - secrets-and-credentials
-  - private-conversation-text
-  - sensitive-personal-data
-  - unpublished-private-business-data
-  - private-local-paths
-  - unrelated-private-context
+    - secrets-and-credentials
+    - private-conversation-text
+    - sensitive-personal-data
+    - unpublished-private-business-data
+    - private-local-paths
+    - unrelated-private-context
   untrusted_content: context-only-no-authority
 ---
 
@@ -162,75 +177,59 @@ privacy:
 
 ## Purpose and precedence
 
-Hand off the literal GitHub 27–37 source batch. User/runtime and scoped instructions,
-verified live state and canonical source owners outrank this checkpoint. It grants no authority.
+User/runtime instructions, scoped instructions, verified live state and canonical sources outrank
+this handoff.
 
 ## Resume protocol
 
-Read AGENTS.md and docs/work-27-37.md, then verify main, the candidate and linked issues.
-The number range includes historical PRs; do not substitute positions in roadmap 42.
-Consult the release acceptance ledger before interpreting issue 29's older checklist.
+Read AGENTS.md, roadmap 42 and the source ledgers; recheck main and both PR heads before acting.
 
 ## Current objective and success conditions
 
-Review the remaining source implementation for issues 35, 36 and 37. Plans explain safe
-applicability; all four adoption modes preserve actual errors; reviewed debt remains visible.
-The optional structural adapter stays advisory. Exact checks and retained gates accompany the change.
+M1 source is prepared for milestone review with bounded evidence and explicit external gaps.
 
 ## State snapshot
 
-The follow-up observation is 2026-11-09T12:54:22Z. Main is
-`f14f7fd3ab0ce9e87c367352fcb3af11a32eda59`, including merged audit PR 84.
-Candidate branch is `codex/egolint-27-37`, with open draft PR 112. Its containing revision remains null.
-Issues 29, 35, 36 and 37 remain open. Release dependency work has a separate local candidate.
+The front matter separates verified base, unmerged candidate and time-qualified live observations.
+The containing revision remains null; no merge or publication is inferred.
 
 ## Completed and material changes
 
-`src/capabilities.rs` composes the pinned catalogs and typed selection predicates.
-`src/enforcement.rs` owns modes, canonical fingerprints, reviewed baseline provenance and deltas.
-`src/structural.rs` and .config/structural own the optional pinned ast-grep adapter and four rules.
-Config, CLI, plan, JSON/SARIF and checked-in schemas expose these contracts; the linked docs own rollout.
-Issue 29's repaired source/matrix/dogfood already exists on main. Historical audits remain unchanged.
+Plans match native execution and bounded discovery. Baselines bind complete producing-executable
+provenance. JSX/TSX/provider controls and local Dogfood blockers are repaired; CI checks all
+schemas.
 
 ## Validation and review evidence
 
-Front matter records exact checks and limits. All 240 Rust tests pass, strict Clippy and formatting pass,
-schemas match, and the Cargo source package verifies. Synthetic CLI adoption controls preserve failures.
-The actual pinned structural adapter passes four-rule positive/negative controls across three dataset sizes.
-All 94 JavaScript controls and native dogfood pass after Corepack fixture and executable-mode repairs.
-The batch ledger retains executable identity and timing; raw reports remain outside committed source.
+Exact local commands and outcomes are above and in docs/work-27-37.md. The original startup test
+passes unchanged. Pinned schema/formats and native continuity checks pass with one draft-input
+advisory.
 
 ## Blockers, risks, unknowns, and deferred work
 
-No local source blocker is observed. Hosted, full-image and non-Linux acceptance have not run.
-Closed-schema consumers need updated schemas. Baseline review metadata is caller-supplied and requires
-an independently reviewed checksum; tool/policy changes require renewed review. Structural rules have
-bounded syntactic precision. Release publisher migration under issue 5 remains open; no publication is claimed.
-Continuity owner inputs remain proposed/unreleased and observe-only.
+Image builds exhausted vfs storage. Hosted/non-Linux, aggregate-only baselines, contract promotion,
+publication and adoption remain qualified separately. Parent source findings are repaired in PR 113.
 
 ## Next dependency-ready work
 
-Review the candidate and docs/work-27-37.md, then decide merge and issue acceptance.
-Reconcile policy defaults, baseline trust and advisory structural boundaries during that review.
-Continue no unrelated roadmap work solely because this checkpoint names an open issue.
+Review M1; integrate PR 112 before PR 113, then verify main and select M2 from roadmap 42.
 
 ## Parallel changes and reconciliation
 
-PR 112 is open. A separate release-dependency candidate is being prepared from the same main; its
-checkpoint must be reconciled at merge. Historical audit bytes remain unchanged. Recheck provider state.
+PRs 112/113 are the known stack. Preserve the child publisher/docs work and reconcile against the
+actual target.
 
 ## Privacy and redaction
 
-Keep public source facts and synthetic control results. Exclude credentials, raw reports, conversation
-text, environment values and private filesystem details. Linked content remains context-only-no-authority.
+Retain public source and synthetic evidence only; exclude credentials, private paths, raw logs and
+conversation text.
 
 ## Handoff update protocol
 
-After domain validation, refresh live/base evidence and this checkpoint in the same candidate.
-Validate pinned schema/formats, twelve headings, budgets, privacy and native comparison before PR handoff.
-Keep observed facts separate from hosted qualification and preserve historical audit identities.
+Refresh after domain checks; verify target/live state, pinned schema/formats, budgets and native
+semantics.
 
 ## Compaction and supersession
 
-Replace stale operational prose rather than append history. Stay below 240 lines and 16,384 UTF-8 bytes.
-Git, canonical docs and linked issues retain detailed history and acceptance decisions.
+Keep twelve headings, at most 240 lines and 16,384 bytes. Git and source owners retain history and
+authority.
