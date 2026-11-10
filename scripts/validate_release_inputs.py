@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 import re
 import sys
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeGuard
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -83,7 +83,7 @@ def validate_fields(
     return findings
 
 
-def valid_platforms(value: Any) -> bool:
+def valid_platforms(value: Any) -> TypeGuard[list[str]]:
     """Check element types before applying set operations to platform lists."""
 
     return (

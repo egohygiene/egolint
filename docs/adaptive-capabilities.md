@@ -26,7 +26,8 @@ fixture manifests cannot invalidate an already matched project.
 
 For full-image tools, availability means declared in the compiled reviewed
 catalog, not a probe of a running image. Host-adapter availability is executable
-discovery; the adapter must still verify its version when invoked. Native tools
+discovery, including Unix executable permissions and Windows `.exe` lookup;
+the adapter must still verify its version when invoked. Native tools
 are compiled into the CLI. Existing complementary integrations are explicitly
 configuration-only in this execution boundary; their independent owners and
 commands remain unchanged. A declared capability without an executor is shown
@@ -35,13 +36,28 @@ as unavailable, never passed.
 The predicate schema supports portable file globs, bounded JSON/TOML metadata,
 runtime presence, lifecycle events, declarations, services, release-comparison
 context, and all/any composition. Known project-aware tools require matching
-project metadata. Release-runtime capabilities must require a release lifecycle
+project metadata: Cargo package/workspace declarations must be tables and JSON
+project names must be nonempty strings. Release-runtime capabilities must require a release lifecycle
 and verified comparison context; none is enabled by this change. The existing
-native release-declaration validator remains a static source check and still
-runs outside release events.
+native release-declaration validator remains a repository-wide static source
+and adoption check, including repositories without a declaration, and still
+runs outside release events. Explicitly disabled native capabilities are skipped
+and reported as `disabled_by_configuration`, rather than passing. A disabled
+release declaration is not read or included in the effective policy hash.
+Requesting a disabled optional native policy is a configuration error. Optional
+native declarations require their typed CLI policy inputs; a registry declaration
+alone cannot provide that policy.
+
+`validate` runs native checks only. Its reports mark engine, configuration-only
+and specialized-image decisions skipped with reason
+`not_executed_by_native_validation`; selecting a profile does not claim those
+tools ran through the native command. The explicit legacy switch preserves
+the original native behavior.
 
 Git-visible tracked and non-ignored regular files are inventoried; a bounded
-filesystem walk supports non-Git planning. Symlinks and conventional dependency/
+filesystem walk supports non-Git planning. Every path component is inspected,
+so replacing a tracked directory with a symlink cannot make discovery or project
+metadata reads follow files outside the workspace. Symlinks and conventional dependency/
 report/cache directories do not become source inputs. The inventory rejects
 more than 100,000 candidates and excessive fallback depth; manifest reads have
 a 2 MiB limit. Full profiles retain whole-repository scope. `fast` retains its
@@ -65,7 +81,8 @@ exclusions/declarations/services; omitted fields retain inherited values.
 Overrides do not silently replace the compiled profile. CLI enable/disable
 overlays remain explicit, and applicability/safety requirements still apply.
 
-Network-oriented schema/link checks require both an explicit tool declaration
+Network-oriented schema/link checks (`SPELL_LYCHEE`, `JSON_V8R` and `YAML_V8R`)
+require both an explicit tool declaration
 and the named `external-http` service, with container network access explicitly
 enabled. Installing an active scanner or runtime is insufficient. Service
 entries are names, not endpoints, and planning does not probe a service.

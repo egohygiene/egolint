@@ -206,6 +206,7 @@ impl Baseline {
             ));
         }
         if report.status == RunStatus::ExecutionError
+            || report.completeness != crate::report::ReportCompleteness::Normalized
             || report.tool_results.is_empty()
             || report
                 .tool_results
@@ -217,6 +218,21 @@ impl Baseline {
                 .is_some_and(|e| e.execution_skipped)
         {
             return Err(invalid("cannot baseline incomplete or skipped execution"));
+        }
+        if has_unattributed_blocking_outcome(report) {
+            return Err(invalid(
+                "cannot baseline a blocking outcome without comparable findings",
+            ));
+        }
+        let producing_executable = report
+            .enforcement
+            .as_ref()
+            .and_then(|decision| decision.executable_sha256.as_deref())
+            .ok_or_else(|| invalid("baseline requires a fresh producing executable identity"))?;
+        if executable_digest().map(String::as_str) != Some(producing_executable) {
+            return Err(invalid(
+                "baseline report was produced by a different executable; rerun validation",
+            ));
         }
         let (policy_sha256, tool_versions) = policy_context(report)?;
         let baseline = Self {
@@ -349,6 +365,9 @@ pub struct EnforcementDecision {
     pub execution_skipped: bool,
     pub baseline_status: BaselineStatus,
     pub baseline_sha256: Option<String>,
+    /// Producing executable bytes; older reports remain readable but need a fresh run to baseline.
+    #[serde(default)]
+    pub executable_sha256: Option<String>,
     pub effective_exit_code: i32,
     pub changes: Vec<FindingDelta>,
     pub reason: String,
@@ -363,6 +382,9 @@ impl EnforcementDecision {
             || self.reason.chars().any(char::is_control)
         {
             return Err(invalid("invalid enforcement decision"));
+        }
+        if let Some(digest) = &self.executable_sha256 {
+            validate_sha(digest)?;
         }
         let expected = if report.status == RunStatus::ExecutionError {
             3
@@ -381,16 +403,18 @@ impl EnforcementDecision {
                 EnforcementMode::Manual | EnforcementMode::Enforce => report.status.exit_code(),
                 EnforcementMode::Ratchet => match self.baseline_status {
                     BaselineStatus::Incompatible | BaselineStatus::Unavailable => 3,
-                    BaselineStatus::Expired => 1,
+                    BaselineStatus::Expired => {
+                        if has_unattributed_blocking_outcome(report) {
+                            3
+                        } else {
+                            1
+                        }
+                    }
                     BaselineStatus::Valid => {
                         if self.baseline_sha256.is_none() {
                             return Err(invalid("ratchet has no reviewed baseline digest"));
                         }
-                        let unattributed = report.status == RunStatus::Findings
-                            && !report.findings.iter().any(|f| {
-                                f.suppressed_by.is_none() && severity_rank(f.severity) >= 2
-                            });
-                        if unattributed {
+                        if has_unattributed_blocking_outcome(report) {
                             3
                         } else {
                             i32::from(self.changes.iter().any(|c| c.blocking))
@@ -442,6 +466,7 @@ pub fn evaluate(
         execution_skipped: skipped,
         baseline_status: BaselineStatus::NotUsed,
         baseline_sha256: None,
+        executable_sha256: executable_digest().cloned(),
         effective_exit_code: report.status.exit_code(),
         changes: Vec::new(),
         reason: "existing blocking policy applies".to_owned(),
@@ -588,10 +613,10 @@ fn evaluate_ratchet(
         BaselineStatus::Valid
     };
     let blocking = expired || decision.changes.iter().any(|c| c.blocking);
-    let unattributed = report.status == RunStatus::Findings
-        && !report.findings.iter().any(|f| {
-            f.suppressed_by.is_none() && severity_rank(f.severity) >= severity_rank(Severity::Error)
-        });
+    let unattributed = has_unattributed_blocking_outcome(report);
+    if unattributed {
+        decision.baseline_status = BaselineStatus::Unavailable;
+    }
     decision.effective_exit_code = if unattributed { 3 } else { i32::from(blocking) };
     let reason = if unattributed {
         "blocking adapter outcome lacks baseline-comparable findings"
@@ -602,6 +627,26 @@ fn evaluate_ratchet(
     };
     reason.clone_into(&mut decision.reason);
     Ok(decision)
+}
+
+fn has_unattributed_blocking_outcome(report: &RunReport) -> bool {
+    let comparable = |finding: &Finding| {
+        finding.suppressed_by.is_none()
+            && severity_rank(finding.severity) >= severity_rank(Severity::Error)
+    };
+    // A native finding cannot account for an incompletely normalized engine failure.
+    // A clean adapter result with partial advisory detail does not invent a failure.
+    (report.completeness != crate::report::ReportCompleteness::Normalized
+        && report.adapter_exit_code.is_some_and(|code| code != 0))
+        || report.tool_results.iter().any(|tool| {
+            tool.enforcement == crate::contracts::Enforcement::Blocking
+                && tool.status == ToolStatus::FailedFindings
+                && !report
+                    .findings
+                    .iter()
+                    .any(|finding| finding.rule.tool_id == tool.tool_id && comparable(finding))
+        })
+        || (report.status == RunStatus::Findings && !report.findings.iter().any(comparable))
 }
 fn load_baseline(workspace: &Path, config: &EnforcementConfig) -> Result<(Baseline, String)> {
     let path = workspace.join(
@@ -717,16 +762,8 @@ fn policy_context(report: &RunReport) -> Result<(String, BTreeMap<String, String
         .ok_or_else(|| invalid("baseline requires a fresh effective policy identity"))?;
     validate_sha(&policy)?;
     let mut versions = BTreeMap::new();
-    let digest = EXECUTABLE_DIGEST
-        .get_or_init(|| {
-            let executable = std::env::current_exe().ok()?;
-            Some(format!(
-                "{:x}",
-                Sha256::digest(std::fs::read(executable).ok()?)
-            ))
-        })
-        .as_ref()
-        .ok_or_else(|| invalid("cannot bind baseline executable bytes"))?;
+    let digest =
+        executable_digest().ok_or_else(|| invalid("cannot bind baseline executable bytes"))?;
     versions.insert("egolint-executable-sha256".to_owned(), digest.clone());
     for tool in &report.tool_results {
         if matches!(
@@ -772,6 +809,18 @@ fn policy_context(report: &RunReport) -> Result<(String, BTreeMap<String, String
         report.profile.name.as_str().to_owned(),
     );
     Ok((policy, versions))
+}
+
+fn executable_digest() -> Option<&'static String> {
+    EXECUTABLE_DIGEST
+        .get_or_init(|| {
+            let executable = std::env::current_exe().ok()?;
+            Some(format!(
+                "{:x}",
+                Sha256::digest(std::fs::read(executable).ok()?)
+            ))
+        })
+        .as_ref()
 }
 
 fn git_text(workspace: &Path, args: &[&str]) -> Option<String> {
@@ -961,6 +1010,16 @@ mod tests {
                 ReportCompleteness::Normalized,
             )
             .unwrap();
+        report.enforcement = Some(
+            evaluate(
+                root,
+                &report,
+                &EnforcementConfig::default(),
+                Invocation::Local,
+                None,
+            )
+            .unwrap(),
+        );
         report
     }
     fn ratchet(root: &Path, report: &RunReport) -> EnforcementConfig {
@@ -1130,5 +1189,216 @@ mod tests {
             .is_err()
         );
         assert!(config.validate().is_ok());
+    }
+
+    fn baseline_candidate(root: &Path, report: &RunReport) -> Result<Baseline> {
+        Baseline::from_report(
+            root,
+            report,
+            "fixture/repository".to_owned(),
+            "2026-11-09".to_owned(),
+            "2026-12-01".to_owned(),
+            "synthetic-fixture-reviewer".to_owned(),
+            "fixture-only".to_owned(),
+        )
+    }
+
+    #[test]
+    fn baseline_requires_complete_evidence_from_the_producing_executable() {
+        let root = repository();
+        let original = report(root.path(), vec![finding(1, Severity::Error)], false);
+        assert!(baseline_candidate(root.path(), &original).is_ok());
+
+        let mut partial = original.clone();
+        partial.completeness = ReportCompleteness::Partial;
+        partial.validate().unwrap();
+        assert!(
+            baseline_candidate(root.path(), &partial)
+                .unwrap_err()
+                .to_string()
+                .contains("incomplete"),
+        );
+
+        let mut older_json = serde_json::to_value(&original).unwrap();
+        older_json["enforcement"]
+            .as_object_mut()
+            .unwrap()
+            .remove("executable_sha256");
+        let older: RunReport = serde_json::from_value(older_json).unwrap();
+        // Legacy reports are readable, but cannot acquire the current producer's identity.
+        older.validate().unwrap();
+        assert!(
+            baseline_candidate(root.path(), &older)
+                .unwrap_err()
+                .to_string()
+                .contains("fresh producing executable"),
+        );
+
+        let mut different = original;
+        different.enforcement.as_mut().unwrap().executable_sha256 = Some("0".repeat(64));
+        different.validate().unwrap();
+        assert!(
+            baseline_candidate(root.path(), &different)
+                .unwrap_err()
+                .to_string()
+                .contains("different executable"),
+        );
+    }
+
+    #[test]
+    fn unrelated_reviewed_findings_cannot_waive_an_incomplete_adapter_failure() {
+        let root = repository();
+        let original = report(root.path(), vec![finding(1, Severity::Error)], false);
+        let config = ratchet(root.path(), &original);
+
+        let mut partial = report(root.path(), vec![finding(1, Severity::Error)], false);
+        partial.adapter_exit_code = Some(1);
+        partial.completeness = ReportCompleteness::Partial;
+        partial.validate().unwrap();
+        let decision = evaluate(
+            root.path(),
+            &partial,
+            &config,
+            Invocation::PullRequest,
+            Some("2026-11-10"),
+        )
+        .unwrap();
+        assert_eq!(decision.effective_exit_code, 3);
+        assert_eq!(decision.baseline_status, BaselineStatus::Unavailable);
+        partial.egolint_exit_code = decision.effective_exit_code;
+        partial.enforcement = Some(decision);
+        partial.validate().unwrap();
+    }
+
+    #[test]
+    fn each_blocking_tool_outcome_requires_its_own_comparable_findings() {
+        let root = repository();
+        let mut original = report(root.path(), vec![finding(1, Severity::Error)], false);
+        let mut secondary = original.tool_results[0].clone();
+        secondary.tool_id = "EGOLINT_SECONDARY".to_owned();
+        secondary.status = ToolStatus::Passed;
+        secondary.finding_count = 0;
+        original.enforcement = None;
+        original
+            .set_normalized(
+                vec![original.tool_results[0].clone(), secondary],
+                original.findings.clone(),
+                Vec::new(),
+                Vec::new(),
+                ReportCompleteness::Normalized,
+            )
+            .unwrap();
+        original.enforcement = Some(
+            evaluate(
+                root.path(),
+                &original,
+                &EnforcementConfig::default(),
+                Invocation::Local,
+                None,
+            )
+            .unwrap(),
+        );
+
+        let mut unattributed = original.clone();
+        unattributed.tool_results[1].status = ToolStatus::FailedFindings;
+        unattributed.tool_results[1].finding_count = 1;
+        unattributed.enforcement = None;
+        unattributed.validate().unwrap();
+        // The source is still clean: rejection must come from missing comparable tool evidence.
+        assert!(
+            baseline_candidate(root.path(), &unattributed)
+                .unwrap_err()
+                .to_string()
+                .contains("without comparable findings"),
+        );
+        let config = ratchet(root.path(), &original);
+        let decision = evaluate(
+            root.path(),
+            &unattributed,
+            &config,
+            Invocation::PullRequest,
+            Some("2026-11-10"),
+        )
+        .unwrap();
+        assert_eq!(decision.effective_exit_code, 3);
+        assert_eq!(decision.baseline_status, BaselineStatus::Unavailable);
+        unattributed.egolint_exit_code = decision.effective_exit_code;
+        unattributed.enforcement = Some(decision);
+        unattributed.validate().unwrap();
+    }
+
+    #[test]
+    fn partial_advisory_detail_does_not_invent_an_adapter_failure() {
+        let root = repository();
+        let original = report(root.path(), vec![finding(1, Severity::Error)], false);
+        let config = ratchet(root.path(), &original);
+        let mut current = report(root.path(), vec![finding(30, Severity::Error)], false);
+        current.completeness = ReportCompleteness::Partial;
+        assert_eq!(current.adapter_exit_code, Some(0));
+        let decision = evaluate(
+            root.path(),
+            &current,
+            &config,
+            Invocation::PullRequest,
+            Some("2026-11-10"),
+        )
+        .unwrap();
+        assert_eq!(decision.effective_exit_code, 0);
+        assert_eq!(decision.baseline_status, BaselineStatus::Valid);
+        assert_eq!(decision.changes[0].state, FindingState::Unchanged);
+    }
+
+    #[test]
+    fn policy_tool_and_executable_changes_require_review_instead_of_claiming_new_debt() {
+        for changed_input in ["policy", "tool", "executable"] {
+            let root = repository();
+            let report = report(root.path(), vec![finding(1, Severity::Error)], false);
+            let mut baseline = baseline_candidate(root.path(), &report).unwrap();
+            match changed_input {
+                "policy" => baseline.policy_sha256 = "0".repeat(64),
+                "tool" => {
+                    baseline
+                        .tool_versions
+                        .insert("EGOLINT_PORTABILITY".to_owned(), "older-fixture".to_owned());
+                }
+                "executable" => {
+                    baseline
+                        .tool_versions
+                        .insert("egolint-executable-sha256".to_owned(), "0".repeat(64));
+                }
+                _ => unreachable!(),
+            }
+            let config = EnforcementConfig {
+                mode: EnforcementMode::Ratchet,
+                repository: Some("fixture/repository".to_owned()),
+                baseline: Some("baseline.json".into()),
+                baseline_sha256: Some(
+                    baseline
+                        .write_new(root.path(), Path::new("baseline.json"))
+                        .unwrap(),
+                ),
+            };
+            let decision = evaluate(
+                root.path(),
+                &report,
+                &config,
+                Invocation::PullRequest,
+                Some("2026-11-10"),
+            )
+            .unwrap();
+            assert_eq!(decision.effective_exit_code, 3, "{changed_input}");
+            assert_eq!(decision.baseline_status, BaselineStatus::Incompatible);
+            assert!(
+                decision
+                    .reason
+                    .contains("explicit baseline review required")
+            );
+            assert!(
+                decision
+                    .changes
+                    .iter()
+                    .all(|change| change.state == FindingState::Unavailable),
+            );
+        }
     }
 }

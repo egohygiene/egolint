@@ -4,7 +4,6 @@
 //! Safe container execution-plan construction.
 
 use std::collections::{BTreeMap, BTreeSet};
-use std::env;
 use std::ffi::OsString;
 use std::io::{Read, Write};
 use std::path::{Component, Path, PathBuf};
@@ -205,7 +204,7 @@ impl ExecutionPlan {
             runtime: runtime.to_owned(),
             image: resolved.config.image.clone(),
             source: crate::enforcement::SourceSnapshot::discover(&workspace),
-            policy_sha256: effective_policy_hash(&workspace, resolved, options)?,
+            policy_sha256: effective_policy_hash(&workspace, resolved, options, &capabilities)?,
             workspace,
             report_directory: report_relative,
             config_sources: resolved.sources.clone(),
@@ -404,6 +403,7 @@ fn effective_policy_hash(
     workspace: &Path,
     resolved: &ResolvedConfig,
     options: &PlanOptions,
+    capabilities: &[CapabilityDecision],
 ) -> Result<String> {
     use sha2::{Digest, Sha256};
     let mut config = serde_json::to_value(&resolved.config)?;
@@ -417,7 +417,7 @@ fn effective_policy_hash(
     hash.update(serde_json::to_vec(&options.enable_linters)?);
     hash.update(serde_json::to_vec(&options.disable_linters)?);
     hash.update(serde_json::to_vec(&options.policy_overrides)?);
-    hash_policy_inputs(workspace, resolved, options, &mut hash)?;
+    hash_policy_inputs(workspace, resolved, options, capabilities, &mut hash)?;
     Ok(format!("{:x}", hash.finalize()))
 }
 
@@ -425,12 +425,18 @@ fn hash_policy_inputs(
     workspace: &Path,
     resolved: &ResolvedConfig,
     options: &PlanOptions,
+    capabilities: &[CapabilityDecision],
     hash: &mut sha2::Sha256,
 ) -> Result<()> {
     use sha2::Digest;
     let mut paths = options.policy_inputs.clone();
     paths.extend(resolved.config.megalinter_config.iter().cloned());
-    if workspace.join(".egohygiene/release.json").is_file() {
+    let release_selected = !resolved.config.capabilities.enabled
+        || capabilities.iter().any(|decision| {
+            decision.id == "EGOLINT_REPOSITORY_RELEASE"
+                && decision.state == CapabilityState::Selected
+        });
+    if release_selected && workspace.join(".egohygiene/release.json").is_file() {
         paths.push(".egohygiene/release.json".into());
     }
     paths.sort();
@@ -840,13 +846,13 @@ fn make_report_directory_container_writable(_workspace: &Path, _report_path: &Pa
 
 fn resolve_runtime(runtime: Runtime, require_runtime: bool) -> Result<&'static str> {
     if let Some(executable) = runtime.executable() {
-        if !require_runtime || executable_in_path(executable) {
+        if !require_runtime || crate::capabilities::executable_available(executable) {
             return Ok(executable);
         }
         return Err(EgolintError::RuntimeUnavailable(executable.to_owned()));
     }
     for executable in ["docker", "podman"] {
-        if executable_in_path(executable) {
+        if crate::capabilities::executable_available(executable) {
             return Ok(executable);
         }
     }
@@ -857,24 +863,6 @@ fn resolve_runtime(runtime: Runtime, require_runtime: bool) -> Result<&'static s
     } else {
         Ok("docker")
     }
-}
-
-fn executable_in_path(executable: &str) -> bool {
-    let Some(path) = env::var_os("PATH") else {
-        return false;
-    };
-    env::split_paths(&path).any(|directory| {
-        let candidate = directory.join(executable);
-        if candidate.is_file() {
-            return true;
-        }
-        #[cfg(windows)]
-        {
-            return directory.join(format!("{executable}.exe")).is_file();
-        }
-        #[cfg(not(windows))]
-        false
-    })
 }
 
 fn resolve_megalinter_config(
@@ -1114,6 +1102,105 @@ mod tests {
                 .to_str()
                 .is_some_and(|value| value.starts_with("DISABLE_LINTERS="))
         }));
+    }
+
+    #[test]
+    fn adaptive_profile_plans_match_engine_selection_and_keep_applicability_gates() {
+        let directory = tempfile::tempdir().expect("temporary directory");
+        std::fs::write(directory.path().join("source.py"), "pass\n").unwrap();
+        std::fs::write(directory.path().join("README.md"), "# Fixture\n").unwrap();
+        for profile in [
+            Profile::Fast,
+            Profile::Holistic,
+            Profile::Security,
+            Profile::DependencyDebt,
+        ] {
+            let mut resolved = resolved();
+            resolved.config.profile = profile;
+            let options = PlanOptions {
+                // Explicit selection cannot make an unrelated workflow tool applicable.
+                enable_linters: vec!["action_zizmor".to_owned()],
+                disable_linters: vec!["python_ruff".to_owned()],
+                ..PlanOptions::default()
+            };
+            let plan = ExecutionPlan::build(
+                directory.path(),
+                &resolved,
+                Operation::Check,
+                &options,
+                false,
+            )
+            .unwrap();
+            let engine_selected = environment_value(&plan, "ENABLE_LINTERS")
+                .trim_start_matches("ENABLE_LINTERS=")
+                .split(',')
+                .filter(|id| !id.is_empty())
+                .collect::<BTreeSet<_>>();
+            let decision_selected = plan
+                .view
+                .capabilities
+                .iter()
+                .filter(|d| d.provider == "megalinter" && d.state == CapabilityState::Selected)
+                .map(|d| d.id.as_str())
+                .collect::<BTreeSet<_>>();
+            assert_eq!(engine_selected, decision_selected, "{profile:?}");
+            assert!(!engine_selected.contains("ACTION_ZIZMOR"));
+            assert!(!engine_selected.contains("PYTHON_RUFF"));
+            assert!(!engine_selected.contains("RUST_CLIPPY"));
+            assert!(!engine_selected.contains("SPELL_LYCHEE"));
+            assert_eq!(
+                environment_value(&plan, "VALIDATE_ALL_CODEBASE"),
+                if profile == Profile::Fast {
+                    "VALIDATE_ALL_CODEBASE=false"
+                } else {
+                    "VALIDATE_ALL_CODEBASE=true"
+                },
+            );
+            assert!(plan.view.capabilities.iter().any(|d| {
+                d.id == "EGOLINT_REPOSITORY_RELEASE" && d.state == CapabilityState::Selected
+            }));
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn disabled_release_declaration_is_neither_read_nor_hashed() {
+        use std::os::unix::fs::{PermissionsExt, symlink};
+
+        let directory = tempfile::tempdir().unwrap();
+        let outside = tempfile::tempdir().unwrap();
+        std::fs::create_dir(directory.path().join(".egohygiene")).unwrap();
+        let declaration = directory.path().join(".egohygiene/release.json");
+        let external = outside.path().join("release.json");
+        std::fs::write(&external, b"synthetic external policy\n").unwrap();
+        let mut disabled = resolved();
+        disabled
+            .config
+            .capabilities
+            .disable
+            .insert("EGOLINT_REPOSITORY_RELEASE".to_owned());
+        let build = |resolved: &ResolvedConfig| {
+            ExecutionPlan::build(
+                directory.path(),
+                resolved,
+                Operation::Check,
+                &PlanOptions::default(),
+                false,
+            )
+        };
+        let expected_hash = build(&disabled).unwrap().view.policy_sha256;
+        std::fs::write(&declaration, b"invalid disabled policy\n").unwrap();
+        assert_eq!(build(&disabled).unwrap().view.policy_sha256, expected_hash);
+        std::fs::set_permissions(&declaration, std::fs::Permissions::from_mode(0o000)).unwrap();
+        assert_eq!(build(&disabled).unwrap().view.policy_sha256, expected_hash);
+        assert!(build(&resolved()).is_err());
+        std::fs::remove_file(&declaration).unwrap();
+        symlink(&external, &declaration).unwrap();
+        assert_eq!(build(&disabled).unwrap().view.policy_sha256, expected_hash);
+        assert!(build(&resolved()).is_err());
+        let mut legacy = disabled;
+        legacy.config.capabilities.enabled = false;
+        assert!(build(&legacy).is_err());
     }
 
     #[test]

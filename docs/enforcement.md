@@ -56,8 +56,17 @@ and grouped finding fingerprints/counts/severity. It contains no source excerpt
 or raw diagnostic message. Its source must be locally available and an ancestor
 with the recorded tree. Engine-backed baselines require an immutable image
 digest; catalog declarations alone do not prove a running tool's identity.
-Incomplete/skipped executions and dirty source cannot establish a baseline.
-Older reports without effective policy provenance need a fresh run.
+Only fully normalized completed executions from clean source can establish a
+baseline. The run records its producing executable SHA-256; baseline creation
+requires that exact executable rather than assigning the current tool's identity
+to an older report. Older reports missing effective policy or producing-executable
+provenance need a fresh run.
+
+Provider process completion alone does not establish comparable debt. A
+full-engine report that retains aggregate-only diagnostics is partial and
+cannot establish a reviewed baseline; use fully normalized adapter or native
+evidence. This limitation stays explicit rather than allowing aggregate counts
+to waive unknown new findings.
 
 Effective policy identity includes configuration, explicit selections and native
 policy inputs, including local MegaLinter extensions. Adoption mode and baseline
@@ -71,8 +80,12 @@ duplicate-count increases are worsened debt. Renames conservatively produce
 new/resolved entries; the tool does not infer that a rename waives a finding.
 Suppression is independent, visible and cannot hide an unsuppressed duplicate.
 States include resolved, unchanged, new, worsened, suppressed, expired and
-unavailable. Expired reviews block ratchet until explicitly renewed. An
-unattributed blocking adapter result cannot be baselined away.
+unavailable. Expired reviews block ratchet until explicitly renewed. Every
+blocking tool outcome needs comparable findings from that tool. Incompletely
+normalized failing adapter output remains unavailable to ratchet even when
+another tool has reviewed unchanged debt. Partial advisory detail with a clean
+adapter exit does not invent an execution failure. An unattributed blocking
+adapter result cannot be baselined away.
 
 ## Promotion and rollback
 

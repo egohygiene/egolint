@@ -139,6 +139,10 @@ jobs:
             tool-result \
             plan \
             report \
+            capability-registry \
+            capability-decision \
+            baseline \
+            enforcement \
             debt \
             repository-contract \
             repository-intelligence \

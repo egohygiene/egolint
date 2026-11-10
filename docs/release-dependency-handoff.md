@@ -1,105 +1,76 @@
-# Release dependency source handoff
+# Release dependency and M1 handoff
 
-Observed 2026-11-09. This candidate is stacked on
-[PR #112](https://github.com/egohygiene/egolint/pull/112), exact review base
-`3178561fc500062d1dde2a637fa85e59efb290ab`. Observed main remains
-`f14f7fd3ab0ce9e87c367352fcb3af11a32eda59`. Review/merge #112 first, then
-retarget this candidate to main after that accepted integration. No PR has been
-merged by this work.
+Observed 2026-11-10. This candidate is stacked on locally qualified
+[PR #112](https://github.com/egohygiene/egolint/pull/112) at
+`ef636747632131ccd68d93c7e5e0abf4ad9f0cee`. Observed main remains
+`f14f7fd3ab0ce9e87c367352fcb3af11a32eda59`. Integrate #112 first, then retarget this child to main.
+Neither PR was merged by this work.
 
-## Dependency disposition
+## Scope and ownership
 
-| Issue                                                    | Source disposition                                                                                                                                              | Remaining acceptance                                                                                                                                 |
-| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [#5](https://github.com/egohygiene/egolint/issues/5)     | Manual publisher migration implemented in this candidate; scanner ownership, compact debt and signing/promotion scaffolding already exist.                      | Hosted release qualification, protected environment/configuration, signed immutable publication and digest-pinned Empathy plus non-Empathy adoption. |
-| [#90](https://github.com/egohygiene/egolint/issues/90)   | Typed release-input repair already merged through [PR #103](https://github.com/egohygiene/egolint/pull/103); actual valid/malformed/environment controls rerun. | Original issue remains open for acceptance; no duplicate validator or closure is introduced.                                                         |
-| [#101](https://github.com/egohygiene/egolint/issues/101) | ADR tuples/digests, product platforms, source architecture, current roadmap and continuity reconciled in this candidate.                                        | Review the source correction; unknown ADR coverage and historical evidence remain explicit.                                                          |
+| Issue       | Current source evidence                                                                     | Remaining boundary                                                                                                                              |
+| ----------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| #35/#36/#37 | Qualified parent capability selection, enforcement and pinned advisory structural controls. | M1 review and merge; documented provider/platform limits remain.                                                                                |
+| #90         | Delivered #103 grammar repair reverified by all 14 valid/malformed/environment tests.       | No build, registry or publication claim follows from source validation.                                                                         |
+| #101        | Current ADR/platform/architecture/roadmap guidance and continuity are reconciled here.      | Historical ADR coverage remains explicitly unknown; proposed policy is not promoted.                                                            |
+| #5          | Manual publisher source is implemented and locally tested.                                  | Protected configuration, current-head provider/platform qualification, signed immutable publication and pinned Empathy plus one other consumer. |
 
-#5's historical prerequisites EgoLint #2, EgoLint #4 and Relay #4 are closed.
-#29's original schema/profile dependencies are delivered; #68/#69 source is
-already merged. Their remaining acceptance is retained in the
-[release ledger](repository-release-acceptance.md), rather than duplicated.
-All open issue states are preserved.
+Former #68/#69 tracking is consolidated into #29. Their complete acceptance and historical receipts
+remain in that issue and the [release acceptance ledger](repository-release-acceptance.md).
+Current-v1 source conformance, successor #76 authority and actual #5 release/adoption are separate
+outcomes. Roadmap #42 owns the eight-milestone execution order.
 
 ## Manual publication boundary
 
-The Release workflow now has only `workflow_dispatch`. The default operation
-rehearses. An explicit publish request must match the Cargo version, full
-dispatch/checkout revision and freshly fetched main. It also needs the existing
-matching version tag and authenticated Actions metadata proving an earlier
-successful rehearsal of the same repository, workflow and source.
+The Release workflow exposes only `workflow_dispatch`; rehearsal is the default. An explicit publish
+request must match Cargo version, full dispatch/checkout revision, freshly observed main and the
+existing matching immutable tag. It requires authenticated successful rehearsal metadata from the
+same repository, workflow and source, and cannot approve itself. Seven real disposable-Git request
+controls preserve rejection of mismatched, incomplete or ambiguous evidence.
 
-The repository-owned validator rejects another workflow/repository, changed
-source, tag/branch mismatch, failed/incomplete rehearsal, ambiguous version,
-malformed metadata and a run approving itself. The candidate job has read-only
-contents/Actions access; signing, attestations, image writes and announcement
-retain their existing protected release environment and dependency chain.
-Immutable digest checks, quarantine attempts, supported-platform smoke and
-write-once version promotion remain intact.
+Candidate jobs retain read-only contents/Actions access. Protected signing, attestation, quarantine
+attempts, exact digest verification, platform smoke, write-once promotion and release announcement
+remain in their existing separate jobs. These static/local controls do not prove production
+permissions or registry behavior. No workflow was dispatched, tag created, artifact signed or
+product published here.
 
-The source self-consumer passes all seven release checks while retaining
-incubating/advisory rollout and `external_publication: not_verified`. A hostile
-copy restores tag automation and verifies the failed advisory finding returns.
-The historical #69 receipt still describes its exact older six-pass/one-failure
-source; that evidence is not rewritten.
+## Current source guidance
 
-The workflow verifies every generated native schema, including the additional
-contracts from #112. Four authored JavaScript schema files remain with their
-Node owners. Operator commands and the exact rehearsal/publication inputs are
-in [release guidance](releasing.md). No Release workflow was dispatched, no
-repository release tag created, and no artifact signed or published here.
+Current ADR policy remains accepted 1.2.0 at Hygiene `a05b14f8b9e2772124f879f818e09a911e996ad8`;
+schema SHA-256 is `725a7cf58cd0b0454d4d481e8ef72815f29ecca80a5b44da5ce48f7ec6e6b8c4`. The supported
+immutable ordinary-consumer 1.1.0 alternative at `c589587395750cd1c79c6fa0bef010189c547249` retains
+digest `491eae26e498ee311bb37d5eff23a51d682eb687196c80a3df10ac1ce98e04d4`. Catalog/vendor bytes are
+preserved.
 
-## Source guidance correction
+CLI products select AMD64 and ARM64; the full engine remains AMD64-only. Upstream-dependent #45
+expansion does not block that first-release boundary. SYSTEM/ARCHITECTURE identify actual source
+owners and distinguish implemented, in-review and deferred work. ROADMAP follows M1–M8 and separates
+historical checkpoint text from the live issue tracker. Intelligence retains explicit unknown ADR
+adoption rather than inventing complete coverage.
 
-- Current ADR policy is accepted 1.2.0 at Hygiene
-  `a05b14f8b9e2772124f879f818e09a911e996ad8`. Its schema SHA-256 is
-  `725a7cf58cd0b0454d4d481e8ef72815f29ecca80a5b44da5ce48f7ec6e6b8c4`.
-  The exact accepted ordinary-consumer 1.1.0 alternative at
-  `c589587395750cd1c79c6fa0bef010189c547249` retains schema digest
-  `491eae26e498ee311bb37d5eff23a51d682eb687196c80a3df10ac1ce98e04d4`.
-  Both immutable Git objects and the current catalog/vendor bytes were checked.
-- CLI OCI products select AMD64 and ARM64; the full MegaLinter engine selects
-  AMD64 only. Future full-engine ARM64 remains #45.
-- SYSTEM/ARCHITECTURE now identify actual source owners and implemented,
-  in-review and deferred boundaries. They distinguish a built package from a
-  published distribution.
-- Roadmap steps EGL-Q07/EGL-Q11 reflect closed delivered work. The six combined
-  state/dependency line warnings are corrected in source. Native Intelligence
-  now reports only the explicit unknown-ADR adoption warning and remains
-  `incomplete`; no rule or severity is disabled.
-- EgoLint #73/#81 and Relay #144 are closed. Relay's exact historical adoption
-  remains attributed to its own producer pin, separate from these candidates.
+## Local qualification
 
-## Validation and limits
+Rust 1.85.1 passes **267 tests across 18 suites**, strict Clippy, formatting, all 27 generated
+native schema comparisons, policy/integration contracts and verified Cargo packaging. All **95
+Python tests** pass, including 14 release-input and seven request controls. The actual
+non-publishing Bash schema step extracted from the Release workflow passes locally.
 
-The candidate is checked with Rust 1.85.1:
+All 94 JavaScript adapter/package controls, five commit/config controls and the actual
+architecture/package self-consumer pass. Matching Mypy 1.19.1, Bandit 1.9.4, markdownlint 0.49.1,
+Prettier 3.9.6 and selected Ruff 0.16.2 checks pass. The real ast-grep 0.51.1 controls produce
+8/256/1,024 expected positives and zero negative matches across 16/512/2,048 files. Root continuity
+records the exact schema/format/native comparison result and source acceptance limits.
 
-```sh
-cargo fmt --all --check
-cargo clippy --locked --all-targets --all-features -- -D warnings
-cargo test --locked --all-targets --all-features
-cargo package --locked --allow-dirty
-task schemas:check
-python3 -m unittest discover --start-directory tests --pattern 'test_*.py'
-python3 scripts/validate_repository_release_sources.py
-python3 scripts/validate_release_inputs.py
-```
+The former hosted Dogfood failures are retained as historical evidence, while the matching blocking
+checks now pass directly. Digest-pinned full-engine pull and original CLI Docker build attempts
+exhausted the 32 GiB local vfs storage. No current image success is claimed; only task-created build
+cache was cleared. Current-head hosted Actions and native non-Linux qualification remain unrun.
 
-The final exact test count, packaging and continuity outcomes are recorded in
-the root checkpoint. All **95 Python tests** pass, including real disposable-Git
-release-request controls and the retained typed input grammar matrix. The actual
-Bash schema step extracted from the release workflow also passes. Selected Ruff,
-Biome, Prettier and whitespace checks pass.
+Aggregate-only adapter reports cannot establish reviewed ratchet baselines; complete normalized
+evidence and the exact producing executable are required. Selected continuity inputs remain
+draft/proposed and observe-only. Historical audits, vendor authorities, dependencies and lockfiles
+are unchanged. Broader structural precision/stress, signed publication, consumer adoption and shared
+version/changelog automation remain in their owning milestones.
 
-The JavaScript protocol lookup repair is inherited unchanged from #112. Its
-94 local controls and current hosted package-quality check pass; this candidate
-does not alter those adapter/test bytes. On #112's reviewed base, hosted CI,
-architecture and identity also pass. Its full-image Dogfood reaches analysis
-and fails with Markdown, Python analyzer and YAML formatting findings. That
-result is retained; no full-image green or release readiness is claimed.
-
-Hosted validation for this new candidate, native non-Linux release acceptance,
-actual signing/registry behavior and consumer adoption remain unqualified.
-Historical audit artifacts, vendored authorities, dependencies and lockfiles
-are unchanged. Version/changelog promotion and protected publication are
-separate review actions, not outcomes inferred from these source checks.
+ADR-Ref: egohygiene/egolint#ADR-0001, egohygiene/egolint#ADR-0003. This qualification preserves
+existing wrapper and evidence ownership; it changes no human decision status or upstream authority.

@@ -8,7 +8,7 @@ import json
 import os
 from pathlib import Path
 import shutil
-import subprocess
+import subprocess  # nosec B404
 import sys
 import tempfile
 import unittest
@@ -19,7 +19,7 @@ CORPUS = ROOT / "tests/fixtures/repository-release"
 
 
 class RepositoryReleasePlanTests(unittest.TestCase):
-    def consumer(self, directory):
+    def consumer(self, directory: str) -> Path:
         root = Path(directory)
         for source, destination in (
             ("rust/declaration.json", ".egohygiene/release.json"),
@@ -33,9 +33,9 @@ class RepositoryReleasePlanTests(unittest.TestCase):
             shutil.copyfile(CORPUS / source, target)
         return root
 
-    def run_plan(self, root, *arguments):
+    def run_plan(self, root: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
         # The executable is the interpreter and a repository-owned fixed helper.
-        return subprocess.run(  # noqa: S603
+        return subprocess.run(  # noqa: S603  # nosec B603
             [sys.executable, str(SCRIPT), "--workspace", str(root), *arguments],
             capture_output=True,
             text=True,
@@ -43,7 +43,7 @@ class RepositoryReleasePlanTests(unittest.TestCase):
             env=os.environ,
         )
 
-    def test_plan_records_source_facts_without_mutating_inputs(self):
+    def test_plan_records_source_facts_without_mutating_inputs(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = self.consumer(directory)
             before = {
@@ -68,7 +68,7 @@ class RepositoryReleasePlanTests(unittest.TestCase):
             again = self.run_plan(root)
             self.assertEqual(again.stdout, result.stdout)
 
-    def test_preparation_creates_exclusive_review_handoff(self):
+    def test_preparation_creates_exclusive_review_handoff(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = self.consumer(directory)
             output = root / "review-plan.md"
@@ -89,7 +89,7 @@ class RepositoryReleasePlanTests(unittest.TestCase):
                 self.assertEqual(collision.returncode, 1)
                 self.assertEqual((root / name).read_bytes(), original)
 
-    def test_preparation_treats_quoted_metacharacter_filename_as_data(self):
+    def test_preparation_treats_quoted_metacharacter_filename_as_data(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = self.consumer(directory)
             output = root / "review 'quoted' $(touch sentinel).md"
@@ -98,7 +98,7 @@ class RepositoryReleasePlanTests(unittest.TestCase):
             self.assertTrue(output.is_file())
             self.assertFalse((root / "sentinel").exists())
 
-    def test_workflow_comment_marker_cannot_establish_behavior_or_conformance(self):
+    def test_workflow_comment_marker_cannot_establish_behavior_or_conformance(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = self.consumer(directory)
             workflow = root / ".github/workflows/release.yml"
@@ -114,7 +114,7 @@ class RepositoryReleasePlanTests(unittest.TestCase):
             self.assertNotIn("manual-workflow check stays failed/advisory", result.stdout)
             self.assertNotIn("tag-driven publisher remains unchanged", result.stdout)
 
-    def test_missing_and_malformed_source_fail_with_controlled_diagnostics(self):
+    def test_missing_and_malformed_source_fail_with_controlled_diagnostics(self) -> None:
         for malformed in (False, True):
             with self.subTest(malformed=malformed), tempfile.TemporaryDirectory() as directory:
                 root = self.consumer(directory)

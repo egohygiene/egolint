@@ -9,7 +9,9 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
-import subprocess
+
+# The benchmark launches only resolved fixed-argv tools.
+import subprocess  # nosec B404
 import tempfile
 import time
 from typing import NoReturn
@@ -20,22 +22,27 @@ def fail(message: str) -> NoReturn:
     raise RuntimeError(message)
 
 
-def exercise(binary: Path, fixtures: Path, label: str, repeats: int) -> dict:
+def exercise(binary: Path, fixtures: Path, label: str, repeats: int) -> dict[str, object]:
     """Run a real native invocation; never execute any fixture source."""
     with tempfile.TemporaryDirectory(prefix="egolint-structural-") as directory:
         root = Path(directory)
         git = shutil.which("git")
         if git is None:
             fail("Git is required for synthetic benchmark repositories")
-        subprocess.run(  # noqa: S603 - resolved Git and fixed argv; no shell.
+        # Resolved Git and fixed argv; no shell.
+        subprocess.run(  # noqa: S603  # nosec B603
             [str(Path(git).resolve()), "init", "-q", str(root)], check=True, capture_output=True
         )
         for index in range(repeats):
             for fixture in sorted(fixtures.iterdir()):
-                if fixture.suffix in {".js", ".ts", ".py", ".rs"}:
+                if fixture.suffix in {".js", ".jsx", ".ts", ".tsx", ".py", ".rs"}:
                     shutil.copyfile(fixture, root / f"{fixture.stem}-{index:04}{fixture.suffix}")
+                    if fixture.suffix == ".js":
+                        for suffix in (".mjs", ".cjs"):
+                            shutil.copyfile(fixture, root / f"{fixture.stem}-{index:04}{suffix}")
         started = time.perf_counter()
-        process = subprocess.run(  # noqa: S603 - explicit caller-selected native executable and fixed argv.
+        # Explicit caller-selected native executable and fixed argv; no shell.
+        process = subprocess.run(  # noqa: S603  # nosec B603
             [str(binary), "--workspace", str(root), "validate", "--ast-grep"],
             capture_output=True,
             text=True,
@@ -57,8 +64,8 @@ def exercise(binary: Path, fixtures: Path, label: str, repeats: int) -> dict:
             if not finding["location"]["path"].startswith("positive-"):
                 fail("A negative structural control produced a finding")
         expected = {
-            "EGO-AST-JS-EVAL-001": repeats,
-            "EGO-AST-TS-EVAL-001": repeats,
+            "EGO-AST-JS-EVAL-001": repeats * 4,
+            "EGO-AST-TS-EVAL-001": repeats * 2,
             "EGO-AST-PY-SHELL-001": repeats,
             "EGO-AST-RS-EXIT-001": repeats,
         }
@@ -68,7 +75,7 @@ def exercise(binary: Path, fixtures: Path, label: str, repeats: int) -> dict:
             fail("Structural findings must remain advisory")
         return {
             "dataset": label,
-            "source_files": repeats * 8,
+            "source_files": repeats * 16,
             "positive_matches": len(findings),
             "negative_matches": 0,
             "matches_by_rule": counts,

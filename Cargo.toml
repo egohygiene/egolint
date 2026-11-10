@@ -35,6 +35,7 @@ include = [
   "/schemas/**",
   "/examples/**",
   "/tests/dependency_debt_pipeline.rs",
+  "/tests/capability_selection_pipeline.rs",
   "/tests/empathy_compatibility.rs",
   "/tests/fix_pipeline.rs",
   "/tests/repository_gitignore_pipeline.rs",
@@ -95,6 +96,11 @@ resolver = "3"
 codegen-units = 1
 lto = "thin"
 strip = "symbols"
+
+# Reports bind their producing executable even in local/debug runs. Keep the
+# cryptographic compression loop fast without optimizing the whole test build.
+[profile.dev.package.sha2]
+opt-level = 3
 
 [lints.rust]
 unsafe_code = "forbid"

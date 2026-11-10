@@ -106,8 +106,10 @@ tasks:
       - cargo run --quiet --locked -- schema tool-result > schemas/tool-result.schema.json
       - cargo run --quiet --locked -- schema plan > schemas/plan.schema.json
       - cargo run --quiet --locked -- schema report > schemas/report.schema.json
-      - cargo run --quiet --locked -- schema capability-registry > schemas/capability-registry.schema.json
-      - cargo run --quiet --locked -- schema capability-decision > schemas/capability-decision.schema.json
+      - cargo run --quiet --locked -- schema capability-registry >
+        schemas/capability-registry.schema.json
+      - cargo run --quiet --locked -- schema capability-decision >
+        schemas/capability-decision.schema.json
       - cargo run --quiet --locked -- schema baseline > schemas/baseline.schema.json
       - cargo run --quiet --locked -- schema enforcement > schemas/enforcement.schema.json
       - cargo run --quiet --locked -- schema debt > schemas/debt.schema.json
@@ -281,8 +283,7 @@ tasks:
       RELEASE_PLAN: "{{.RELEASE_PLAN}}"
     cmds:
       - >-
-        python3 scripts/repository_release_plan.py --workspace "."
-        --output "$RELEASE_PLAN"
+        python3 scripts/repository_release_plan.py --workspace "." --output "$RELEASE_PLAN"
 
   release:verify:
     desc: "Validate local source evidence without dispatching publication"
@@ -292,6 +293,7 @@ tasks:
       - cargo run --quiet --locked -- --workspace "." validate
 
   release:publish:
-    desc: "Open the manual release input handoff; publication requires an exact successful rehearsal"
+    desc:
+      "Open the manual release input handoff; publication requires an exact successful rehearsal"
     cmds:
       - gh workflow run .github/workflows/release.yml
