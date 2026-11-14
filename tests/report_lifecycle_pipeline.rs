@@ -305,6 +305,117 @@ fn early_policy_and_configuration_failures_invalidate_authentic_reports() {
 }
 
 #[test]
+fn missing_native_inputs_have_sanitized_exit_two_and_no_current_evidence() {
+    let cases = [
+        ("--repository-contract", vec![]),
+        (
+            "--repository-intelligence",
+            vec!["--represented-commit", "unknown"],
+        ),
+        (
+            "--repository-presentation",
+            vec!["--represented-commit", "unknown"],
+        ),
+        (
+            "--repository-continuity",
+            vec![
+                "--continuity-base",
+                "unborn",
+                "--continuity-head",
+                "working-tree",
+                "--continuity-disposition",
+                "updated",
+                "--continuity-evaluation-date",
+                "2026-11-14",
+            ],
+        ),
+        ("--suppression", vec!["--evaluation-date", "2026-11-14"]),
+    ];
+    for (flag, extra) in cases {
+        for path in ["missing.toml", "absent-parent/missing.toml"] {
+            let root = consumer();
+            emit_intelligence(root.path());
+            let output = command(root.path())
+                .args(["validate", flag, path])
+                .args(&extra)
+                .output()
+                .unwrap();
+            assert_eq!(output.status.code(), Some(2), "{flag} {path}: {output:?}");
+            let diagnostic = String::from_utf8(output.stderr).unwrap();
+            assert!(
+                diagnostic.contains("required path does not exist"),
+                "{diagnostic}"
+            );
+            assert!(diagnostic.contains(path), "{diagnostic}");
+            assert!(
+                !diagnostic.contains(root.path().to_str().unwrap()),
+                "{diagnostic}"
+            );
+            assert_no_current_run(root.path());
+        }
+    }
+}
+
+#[test]
+fn malformed_native_input_remains_configuration_error_and_clears_reports() {
+    let root = consumer();
+    emit_intelligence(root.path());
+    write(root.path(), ".git/invalid.toml", "invalid = [");
+    let output = command(root.path())
+        .args([
+            "validate",
+            "--repository-intelligence",
+            ".git/invalid.toml",
+            "--represented-commit",
+            "unknown",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(output.status.code(), Some(2), "{output:?}");
+    assert_no_current_run(root.path());
+}
+
+#[cfg(unix)]
+#[test]
+fn unreadable_requested_native_input_remains_io_error_and_clears_reports() {
+    use std::os::unix::fs::PermissionsExt;
+    let root = consumer();
+    emit_intelligence(root.path());
+    let relative = ".git/unreadable.toml";
+    write(root.path(), relative, "private fixture contents");
+    let path = root.path().join(relative);
+    std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o000)).unwrap();
+    // Privileged environments cannot demonstrate a real denied read. The pure
+    // category control above remains applicable there; do not invent denial.
+    if std::fs::read(&path).is_ok() {
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
+        return;
+    }
+    let output = command(root.path())
+        .args([
+            "validate",
+            "--repository-intelligence",
+            relative,
+            "--represented-commit",
+            "unknown",
+        ])
+        .output()
+        .unwrap();
+    std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
+    assert_eq!(output.status.code(), Some(4), "{output:?}");
+    let diagnostic = String::from_utf8(output.stderr).unwrap();
+    assert!(
+        diagnostic.contains("filesystem operation failed"),
+        "{diagnostic}"
+    );
+    assert!(
+        !diagnostic.contains("private fixture contents"),
+        "{diagnostic}"
+    );
+    assert_no_current_run(root.path());
+}
+
+#[test]
 fn native_and_gitignore_commands_replace_each_others_current_run() {
     let root = consumer();
     emit_intelligence(root.path());

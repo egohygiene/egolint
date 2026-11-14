@@ -1510,11 +1510,8 @@ fn read_workspace_file(
             unreachable!("components were validated above");
         };
         current.push(part);
-        let metadata =
-            std::fs::symlink_metadata(&current).map_err(|source| EgolintError::Filesystem {
-                path: current.clone(),
-                source,
-            })?;
+        let metadata = std::fs::symlink_metadata(&current)
+            .map_err(|source| repository_input_error(requested, source))?;
         if metadata.file_type().is_symlink() {
             return Err(EgolintError::Configuration(format!(
                 "repository input path may not contain links: {}",
@@ -1522,21 +1519,16 @@ fn read_workspace_file(
             )));
         }
     }
-    let metadata =
-        std::fs::symlink_metadata(&current).map_err(|source| EgolintError::Filesystem {
-            path: current.clone(),
-            source,
-        })?;
+    let metadata = std::fs::symlink_metadata(&current)
+        .map_err(|source| repository_input_error(requested, source))?;
     if !metadata.is_file() || metadata.len() > maximum_bytes {
         return Err(EgolintError::Configuration(format!(
             "repository input must be a regular file no larger than {maximum_bytes} bytes: {}",
             requested.display()
         )));
     }
-    let contents = std::fs::read(&current).map_err(|source| EgolintError::Filesystem {
-        path: current,
-        source,
-    })?;
+    let contents =
+        std::fs::read(&current).map_err(|source| repository_input_error(requested, source))?;
     if contents.len() as u64 > maximum_bytes {
         return Err(EgolintError::Configuration(format!(
             "repository input grew beyond the {maximum_bytes}-byte limit: {}",
@@ -1544,6 +1536,10 @@ fn read_workspace_file(
         )));
     }
     Ok((requested.to_path_buf(), contents))
+}
+
+fn repository_input_error(requested: &Path, source: std::io::Error) -> EgolintError {
+    EgolintError::requested_input(requested, source)
 }
 
 fn add_runtime_failure(adapter_exit_code: Option<i32>, tool_results: &mut Vec<ToolResult>) {
@@ -2273,6 +2269,50 @@ mod tests {
                 1_024,
             )
             .is_err()
+        );
+    }
+
+    #[test]
+    fn requested_input_errors_preserve_distinct_io_categories() {
+        use std::io::{Error, ErrorKind};
+        let path = Path::new("private-input.toml");
+        let missing = repository_input_error(path, Error::from(ErrorKind::NotFound));
+        assert!(matches!(missing, EgolintError::MissingPath(_)));
+        assert_eq!(missing.exit_code(), exit_code::CONFIGURATION);
+        for kind in [
+            ErrorKind::PermissionDenied,
+            ErrorKind::Other,
+            ErrorKind::Interrupted,
+        ] {
+            let error = repository_input_error(path, Error::from(kind));
+            assert!(matches!(error, EgolintError::Filesystem { .. }));
+            assert_eq!(error.exit_code(), exit_code::INTERNAL);
+        }
+    }
+
+    #[test]
+    fn requested_input_reader_retains_containment_type_and_budget_checks() {
+        let directory = tempfile::tempdir().unwrap();
+        std::fs::write(directory.path().join("large.toml"), b"12345").unwrap();
+        for path in [
+            "../outside.toml",
+            "/outside.toml",
+            "large.toml",
+            ".reports/policy.toml",
+        ] {
+            assert_eq!(
+                read_workspace_file(directory.path(), Path::new(path), 4)
+                    .unwrap_err()
+                    .exit_code(),
+                exit_code::CONFIGURATION
+            );
+        }
+        std::fs::create_dir(directory.path().join("directory")).unwrap();
+        assert_eq!(
+            read_workspace_file(directory.path(), Path::new("directory"), 4)
+                .unwrap_err()
+                .exit_code(),
+            exit_code::CONFIGURATION
         );
     }
 

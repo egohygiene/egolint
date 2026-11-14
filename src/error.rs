@@ -69,6 +69,22 @@ pub enum EgolintError {
 }
 
 impl EgolintError {
+    /// Classify an explicitly requested input without exposing the host prefix.
+    ///
+    /// Missing leaves or ancestors are configuration errors. Permission and
+    /// other I/O failures retain the filesystem/internal category.
+    #[must_use]
+    pub fn requested_input(path: &std::path::Path, source: std::io::Error) -> Self {
+        if source.kind() == std::io::ErrorKind::NotFound {
+            Self::MissingPath(path.to_path_buf())
+        } else {
+            Self::Filesystem {
+                path: path.to_path_buf(),
+                source,
+            }
+        }
+    }
+
     /// Return the stable process exit code for this failure category.
     #[must_use]
     pub const fn exit_code(&self) -> i32 {

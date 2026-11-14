@@ -7,15 +7,17 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-11-14T19:35:36Z'
+  updated_at: '2026-11-14T19:50:36Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Repair JSONSkooma selector errors and deterministic report routing under M2.
+  purpose: Classify missing requested native policy and suppression inputs consistently without weakening
+    other I/O categories.
   includes:
-  - Typed selector validation, one invocation-directory report anchor and actual CLI routing controls.
+  - Shared requested-input errors in native decoding and policy fingerprinting, public CLI lifecycle controls
+    and bounded diagnostics.
   excludes:
   - Release publication, policy authority promotion, fleet rollout and historical audit rewriting.
   precedence:
@@ -26,78 +28,84 @@ scope:
   - continuity-checkpoint
   canonical_sources:
   - AGENTS.md
-  - docs/json-skooma-evaluation.md
-  - docs/release-dependency-handoff.md
-  - https://github.com/egohygiene/egolint/issues/98
+  - src/error.rs
+  - src/main.rs
+  - src/plan.rs
+  - https://github.com/egohygiene/egolint/issues/100
   - https://github.com/egohygiene/egolint/issues/42
 work:
-  objective: Repair JSONSkooma selector errors and deterministic report routing under M2.
+  objective: Classify missing requested native policy and suppression inputs consistently without weakening
+    other I/O categories.
   success_conditions:
-  - Malformed selector shapes emit exit 2 evidence before Ruby starts.
-  - All activation branches use the same report destination without consumer mutations.
-  - Existing skip and stdout/absolute-output behavior remains supported.
+  - Missing leaf or ancestor inputs produce exit 2 with repository-relative diagnostics.
+  - Permission and other genuine I/O failures retain exit 4.
+  - Early failures remove prior current-run reports; containment, regular-file and budget checks remain.
   active_issue:
     provider: github
-    id: egohygiene/egolint#98
-    url: https://github.com/egohygiene/egolint/issues/98
+    id: egohygiene/egolint#100
+    url: https://github.com/egohygiene/egolint/issues/100
   next:
     kind: action
-    id: review-m2-json-skooma
-    description: Review the bounded M2 repair after the existing M1 stack, then continue missing native
-      input classification under issue 100.
+    id: review-m2-native-inputs
+    description: Review the selected M2 selector/routing and missing-input repairs, integrate their stack,
+      then select the next ready M2 item from roadmap42.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/98
     - https://github.com/egohygiene/egolint/issues/100
-    - https://github.com/egohygiene/egolint/pull/113
+    - https://github.com/egohygiene/egolint/pull/115
+    - https://github.com/egohygiene/egolint/issues/42
     depends_on: []
 state:
   base:
-    revision: 9c123f82e8918b5064202d5c42a139e4ab3c1781
-    ref: refs/heads/codex/egolint-release-dependencies
-    verified_at: '2026-11-14T19:35:36Z'
+    revision: ea1d68c9ac448b4187a2659e8f5e87f5b9a0af70
+    ref: refs/heads/fix/json-skooma-contract-98
+    verified_at: '2026-11-14T19:50:36Z'
   candidate:
-    branch: fix/json-skooma-contract-98
+    branch: fix/native-input-errors-100
     revision: null
     pull_request: null
     handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-11-14T19:35:36Z'
-    default_branch_revision: f14f7fd3ab0ce9e87c367352fcb3af11a32eda59
+    observed_at: '2026-11-14T19:50:36Z'
+    default_branch_revision: a5fb6de01e2f679fcd59d2d4d1a01cbf4af3e122
     issue_state: open
     pull_request_state: not-applicable
-    notes: Verified main f14f7fd3ab0ce9e87c367352fcb3af11a32eda59; PRs 112 and 113 remain the existing
-      open M1 stack. This M2 source candidate is unmerged; no hosted or product publication result is
-      asserted.
+    notes: PR112 and113 are merged with ordered parents and exact reviewed trees verified. PR115 remains
+      an open draft selected M2 parent; this child is unmerged. No release publication occurred.
   parallel_changes:
   - provider: github
-    id: egohygiene/egolint#112
-    url: https://github.com/egohygiene/egolint/pull/112
-  - provider: github
-    id: egohygiene/egolint#113
-    url: https://github.com/egohygiene/egolint/pull/113
+    id: egohygiene/egolint#115
+    url: https://github.com/egohygiene/egolint/pull/115
 review:
   status: partial
-  reviewed_at: '2026-11-14T19:35:36Z'
+  reviewed_at: '2026-11-14T19:50:36Z'
   reviewed_by: Codex
   evidence:
-  - command: python3 -m unittest discover -s tests -p test_json_skooma_adapter.py -v
+  - command: cargo test --locked --offline --test report_lifecycle_pipeline; cargo test --locked --offline
+      --bin egolint requested_input
     outcome: passed
-    observed_at: '2026-11-14T19:35:36Z'
-    notes: Ten tests pass, including 21 malformed shape/type controls with no Ruby subprocess, actual
-      CLI routing from another directory across five states, stdout/absolute output and unchanged workspace
-      bytes. The trusted child is a routing stub, not Ruby schema qualification.
-  - command: Ruff 0.16.10 check/format with .config/lint/python/ruff.toml; git diff --check
+    observed_at: '2026-11-14T19:50:36Z'
+    notes: Rust1.85.1:15 lifecycle and2 focused unit tests pass. Actual public CLI covers five policy/suppression
+      selections with missing leaf/ancestor paths, malformed input, real unprivileged denied read, sanitized
+      diagnostics and removal of prior authentic reports. No tests skipped.
+  - command: cargo clippy --locked --offline --bin egolint --tests -- -D warnings; cargo fmt --all; git
+      diff --check
     outcome: passed
-    observed_at: '2026-11-14T19:35:36Z'
-    notes: Focused configured Python static checks and whitespace pass. Full historical M1 qualification
-      remains attributed to its original source.
+    observed_at: '2026-11-14T19:50:36Z'
+    notes: Strict Clippy and formatted source pass. The first public CLI control exposed the M1 policy-fingerprint
+      reader, now using the same missing-only mapper. Output-write errors retain their original category.
+  - command: Native egolint validate with repository-continuity dogfood policy, explicit base ea1d68c,
+      working-tree head and supplied GitHub115 evidence
+    outcome: passed
+    observed_at: '2026-11-14T19:51:29Z'
+    notes: Exit0; valid continuity with one expected immutable-but-unreleased owner-contract observe advisory.
+      Seven release-source checks remain advisory; no external publication inferred.
   environment_limitations:
-  - Current-head hosted Actions and actual pinned Ruby schema semantics are not rerun for this selector/routing
-    repair.
-  - Existing M1 image/non-Linux, ratchet-baseline, lifecycle and release qualification limits remain in
-    docs/release-dependency-handoff.md.
+  - Current-head hosted Actions and broad Rust/platform/image qualification are not rerun for this focused
+    input error repair.
+  - Release/adoption/human lifecycle gates remain separate; historical audit/vendor/dependency bytes remain
+    unchanged.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -117,54 +125,56 @@ privacy:
 
 ## Purpose and precedence
 
-Repair the bounded M2 selector/routing defects. User/runtime instructions, scoped instructions,
-verified live state and canonical sources outrank this operational handoff.
+Classify requested-input failures consistently. Runtime/user instructions, scoped instructions,
+verified live state and canonical source outrank this operational handoff.
 
 ## Resume protocol
 
-Read AGENTS.md and roadmap 42; verify main and the existing M1 stack before integrating this child.
+Read AGENTS.md and roadmap 42; verify actual main and the selected M2 parent before integration.
 
 ## Current objective and success conditions
 
-Reject malformed selectors before Ruby and use one invocation-directory report destination.
+Missing requested leaf/ancestor paths produce exit 2; genuine I/O remains exit 4. Earlier authentic
+current-run evidence is invalidated on failure. Input containment and budgets stay enforced.
 
 ## State snapshot
 
-Front matter separates the immutable base, unmerged candidate and time-qualified provider snapshot.
-The containing revision remains null. PR 112 precedes PR 113; this candidate follows that stack.
+Front matter separates immutable parent, unmerged candidate and time-qualified live observation.
+PR 112 and 113 merged; PR 115 is the selected M2 parent. The containing revision remains null.
 
 ## Completed and material changes
 
-Schema versions require integer 1 and modes require supported strings. Relative reports are resolved
-once before workspace selection; skip, invalid, unavailable, timeout and child branches share them.
+Native policy fingerprinting and native decoding share EgolintError::requested_input. Only NotFound
+maps to MissingPath; all other I/O remains Filesystem. Diagnostics use the requested relative path.
 
 ## Validation and review evidence
 
-The ten focused tests include malformed-shape/no-subprocess controls and actual CLI routing with a
-trusted Python child. Consumer bytes remain unchanged. Configured Ruff and whitespace checks pass.
-Actual Ruby schema semantics and older M1 proof remain separately attributed, without retiming.
+All 15 lifecycle and 2 focused unit tests pass on Rust 1.85.1, including actual missing inputs across
+five selections, malformed input and real denied-read controls. Strict Clippy and whitespace pass.
+The first CLI probe identified the earlier policy-fingerprint path; both readers now agree.
 
 ## Blockers, risks, unknowns, and deferred work
 
-Review/integrate the M1 stack before this child. Hosted/image/non-Linux qualification and publication
-remain separate. No policy lifecycle or historical audit evidence is changed.
+Review the selected M2 stack. Hosted, broad platform/image and release/adoption qualification remain
+separate. No historical audit, vendor, dependency, policy lifecycle or release artifact is rewritten.
 
 ## Next dependency-ready work
 
-Review this bounded repair and continue issue 100 missing native input classification.
+Review/integrate the selected repairs; consult roadmap 42 for the next independent M2 issue.
 
 ## Parallel changes and reconciliation
 
-PR 112 and PR 113 are the existing M1 stack. Reconcile this checkpoint against the actual merge target.
+PR 115 precedes this candidate. Reconcile this checkpoint against actual main during integration.
 
 ## Privacy and redaction
 
-Only public source and synthetic controls are retained; private context and credentials are excluded.
+Only public source and synthetic fixture evidence is retained; private context and credentials stay
+excluded. No raw fixture contents or absolute temporary paths appear in missing-input diagnostics.
 
 ## Handoff update protocol
 
-Refresh after domain checks and verify live/base evidence, pinned schema/formats and size budgets.
+Refresh after domain checks; verify live/base evidence, pinned schema/formats, headings and budgets.
 
 ## Compaction and supersession
 
-Keep twelve headings, at most 240 lines and 16384 bytes. Git and canonical owners retain history.
+Keep twelve headings, at most 240 lines and 16384 bytes. Canonical owners and Git retain authority/history.

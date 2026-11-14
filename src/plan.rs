@@ -454,10 +454,7 @@ fn hash_policy_inputs(
         let absolute = workspace.join(&path);
         let metadata = absolute
             .symlink_metadata()
-            .map_err(|source| EgolintError::Filesystem {
-                path: path.clone(),
-                source,
-            })?;
+            .map_err(|source| EgolintError::requested_input(&path, source))?;
         if !metadata.is_file()
             || metadata.file_type().is_symlink()
             || metadata.len() > 4 * 1024 * 1024
@@ -466,10 +463,8 @@ fn hash_policy_inputs(
                 "policy identity requires bounded regular inputs".to_owned(),
             ));
         }
-        let bytes = std::fs::read(&absolute).map_err(|source| EgolintError::Filesystem {
-            path: path.clone(),
-            source,
-        })?;
+        let bytes = std::fs::read(&absolute)
+            .map_err(|source| EgolintError::requested_input(&path, source))?;
         let label = path
             .strip_prefix(workspace)
             .ok()
