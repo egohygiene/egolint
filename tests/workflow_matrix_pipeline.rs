@@ -182,13 +182,24 @@ fn check_case(name: &str, text: &str, expected: bool) -> Vec<serde_json::Value> 
         for finding in &findings {
             assert_eq!(finding["severity"], "warning");
             assert_eq!(finding["location"]["path"], ".github/workflows/matrix.yml");
-            let line = text
-                .lines()
-                .position(|line| line.contains("run: touch SHOULD_NOT_EXECUTE"))
-                .unwrap()
-                + 1;
-            assert_eq!(finding["location"]["start_line"], line);
-            assert_eq!(finding["location"]["start_column"], 1);
+            if matches!(
+                name,
+                "script-key-position-unknown" | "flow-position-unknown"
+            ) {
+                assert!(finding["location"]["start_line"].is_null());
+                assert!(finding["location"]["start_column"].is_null());
+            } else {
+                let line = text
+                    .lines()
+                    .position(|line| {
+                        line.contains("run: touch SHOULD_NOT_EXECUTE")
+                            || (name == "block-step-location" && line.contains("- run: |"))
+                    })
+                    .unwrap()
+                    + 1;
+                assert_eq!(finding["location"]["start_line"], line, "{name}");
+                assert_eq!(finding["location"]["start_column"], 1);
+            }
         }
         if let Some(previous) = &previous {
             assert_eq!(&findings, previous, "{name}");
@@ -212,6 +223,42 @@ fn equivalent_matrix_forms_preserve_advisory_locations_defaults_and_uncertainty(
     // A different job's defaults.run mapping must not displace the finding line.
     let mixed = workflow(INCLUDE, selector, "").replacen("jobs:\n", "jobs:\n  first:\n    runs-on: ubuntu-24.04\n    defaults:\n      run: # this mapping is not a step\n        shell: bash\n    steps:\n      - run: echo first\n", 1);
     cases.push(("other-job-default-location", mixed, true));
+    cases.push((
+        "padded-selector",
+        workflow(DIRECT, "' ${{ matrix.os }} '", ""),
+        false,
+    ));
+    cases.push(("matrix-run-metadata", workflow("include:\n  - os: ubuntu-24.04\n    run: metadata-only\n  - os: windows-2025\n    run: metadata-only", selector, ""), true));
+    cases.push((
+        "named-step-location",
+        workflow(INCLUDE, selector, "")
+            .replace("- run: touch", "- name: explicit step\n        run: touch"),
+        true,
+    ));
+    cases.push((
+        "block-step-location",
+        workflow(INCLUDE, selector, "").replace(
+            "- run: touch SHOULD_NOT_EXECUTE",
+            "- run: |\n          touch SHOULD_NOT_EXECUTE",
+        ),
+        true,
+    ));
+    cases.push((
+        "script-key-position-unknown",
+        workflow(INCLUDE, selector, "").replace(
+            "- run: touch SHOULD_NOT_EXECUTE",
+            "- run: |\n          touch SHOULD_NOT_EXECUTE\n          run: metadata-only",
+        ),
+        true,
+    ));
+    cases.push((
+        "flow-position-unknown",
+        workflow(INCLUDE, selector, "").replace(
+            "steps:\n      - run: touch SHOULD_NOT_EXECUTE",
+            "steps: [{run: touch SHOULD_NOT_EXECUTE}]",
+        ),
+        true,
+    ));
 
     let mut paired = Vec::new();
     for (name, text, expected) in cases {

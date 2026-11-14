@@ -32,7 +32,7 @@ fn operating_system_families(job: &Mapping) -> Option<BTreeSet<&'static str>> {
 }
 
 fn selector_path(value: &str) -> Option<Vec<&str>> {
-    let expression = value.trim().strip_prefix("${{")?.strip_suffix("}}")?.trim();
+    let expression = value.strip_prefix("${{")?.strip_suffix("}}")?.trim();
     let selector = expression.strip_prefix("matrix.")?;
     let path = selector.split('.').collect::<Vec<_>>();
     path.iter()
@@ -230,6 +230,8 @@ mod tests {
         let prefix = "runs-on: ${{ matrix.os-version }}\nstrategy:\n  matrix:\n    os: [ubuntu-24.04, windows-2025]\n    os-version: [macos-15]\n";
         assert_eq!(families(prefix).unwrap(), BTreeSet::from(["macos"]));
         assert!(selector_path("prefix-${{ matrix.os }}").is_none());
+        assert!(selector_path(" ${{ matrix.os }}").is_none());
+        assert!(selector_path("${{ matrix.os }} ").is_none());
         assert!(selector_path("${{ matrix.os || 'ubuntu-latest' }}").is_none());
         assert!(selector_path("${{ matrix['os'] }}").is_none());
     }

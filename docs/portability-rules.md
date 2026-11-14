@@ -61,6 +61,10 @@ remain unresolved. Expansion is bounded to 256 combinations, 4096 static value
 nodes and depth 16. Unresolved or over-budget input emits no shell advisory;
 that means unknown diagnostic coverage, never demonstrated portability. No
 GitHub expression, workflow command or provider operation is executed.
+Step positions are bound only when the plain block source agrees with every
+parsed run step. Matrix/default/env metadata is not a run step; ambiguous literal
+script keys, flow/quoted/aliased layouts or incomplete source correspondence
+retain the workflow filename with unknown line/column instead of guessing.
 Native Git/CLI fixtures qualify static findings and positions on Linux only;
 they do not run workflow steps or establish hosted/macOS/Windows execution.
 
