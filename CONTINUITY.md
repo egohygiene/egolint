@@ -7,18 +7,25 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-11-14T20:17:11Z'
+  updated_at: '2026-11-14T21:09:59Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Detect ASCII path-prefix collisions including inferred directories without repeating ancestor-only
-    descendant noise.
+  purpose: Resolve bounded static workflow matrices for equivalent advisory shell diagnostics without
+    executing expressions or commands.
   includes:
-  - Portability case topology, stable native findings and Linux Git/CLI regression controls.
+  - Static Cartesian axes, excludes before ordered include overlays/additional rows, and exact whole-expression
+    dotted matrix selectors.
+  - Existing step/job/workflow shell defaults and warning severity; uncertainty remains explicit for dynamic/unsupported/bounded
+    inputs.
+  - Step-context positions exclude matrix/default/env metadata and leave ambiguous source coordinates
+    unknown; all prior ASCII topology behavior remains.
   excludes:
-  - Release publication, policy authority promotion, fleet rollout and historical audit rewriting.
+  - GitHub expression execution, workflow commands, hosted runner probes, new dependencies, policy activation
+    or release publication.
+  - Broad platform/image qualification and unrelated baseline or historical audit rewriting.
   precedence:
   - user-and-runtime-instructions
   - scoped-repository-instructions
@@ -27,76 +34,95 @@ scope:
   - continuity-checkpoint
   canonical_sources:
   - AGENTS.md
-  - docs/portability-rules.md
+  - src/rules/portability.rs
+  - src/rules/portability/workflow_matrix.rs
   - .config/rules/portability.toml
-  - https://github.com/egohygiene/egolint/issues/95
+  - docs/portability-rules.md
+  - tests/workflow_matrix_pipeline.rs
+  - https://github.com/egohygiene/egolint/issues/96
   - https://github.com/egohygiene/egolint/issues/42
 work:
-  objective: Detect ASCII path-prefix collisions including inferred directories without repeating ancestor-only
-    descendant noise.
+  objective: Resolve bounded static workflow matrices for equivalent advisory shell diagnostics without
+    executing expressions or commands.
   success_conditions:
-  - Detect file/directory, ancestor and ordinary leaf casing conflicts deterministically.
-  - Avoid repeating an ancestor-only conflict for each identically named descendant.
-  - Keep ASCII-only semantics and unexecuted platform limits explicit.
+  - Equivalent static direct/include matrices produce the same omitted-shell advisory and default severity.
+  - Exclude/include ordering, exact selectors, single-OS/default-shell and dynamic-unknown cases remain
+    truthful.
+  - Matrix metadata and opaque script layouts cannot borrow a different step source position.
+  - Actual native Git/CLI fixtures retain source trees and never execute workflow commands.
   active_issue:
     provider: github
-    id: egohygiene/egolint#95
-    url: https://github.com/egohygiene/egolint/issues/95
+    id: egohygiene/egolint#96
+    url: https://github.com/egohygiene/egolint/issues/96
   next:
     kind: action
-    id: review-ascii-topology
-    description: Review this focused M2 topology repair, then continue the independently ready static
-      matrix shell diagnostic under issue96.
+    id: review-static-matrix-shells
+    description: Root reviews the focused96 source, reconciles the parallel97 handoff if necessary, and
+      continues the accepted M2 execution ledger.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/95
     - https://github.com/egohygiene/egolint/issues/96
+    - https://github.com/egohygiene/egolint/issues/97
     - https://github.com/egohygiene/egolint/issues/42
     depends_on: []
 state:
   base:
-    revision: 6658ba6e2f3c6db4410b6e8a9dc9f60695bc743c
+    revision: e3eaabac3f4f2289d5a6fdbc4b88dc266dda0f2b
     ref: refs/heads/main
-    verified_at: '2026-11-14T20:17:11Z'
+    verified_at: '2026-11-14T21:09:59Z'
   candidate:
-    branch: fix/portability-prefix-collisions-95
+    branch: fix/static-matrix-shells-96
     revision: null
     pull_request: null
     handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-11-14T20:17:11Z'
-    default_branch_revision: 6658ba6e2f3c6db4410b6e8a9dc9f60695bc743c
+    observed_at: '2026-11-14T21:09:59Z'
+    default_branch_revision: e3eaabac3f4f2289d5a6fdbc4b88dc266dda0f2b
     issue_state: open
     pull_request_state: not-applicable
-    notes: Verified PR112/113/115/116 merged with ordinary parents and exact reviewed trees. This source
-      candidate follows accepted main; issue95 remains open before review. No hosted run or publication
-      inferred.
-  parallel_changes: []
+    notes: Remote main e3eaabac contains accepted ASCII topology117. Functional82cf521 is clean and qualified
+      locally; this later continuity-only authoring is unmerged. Root concurrently owns independent97
+      JavaScript grammar work.
+  parallel_changes:
+  - provider: github
+    id: egohygiene/egolint#97
+    url: https://github.com/egohygiene/egolint/issues/97
 review:
   status: partial
-  reviewed_at: '2026-11-14T20:17:11Z'
+  reviewed_at: '2026-11-14T21:09:59Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo test --locked --offline --lib rules::portability::tests; cargo test --locked --offline
-      --test portability_topology_pipeline
+  - command: 'cargo test --locked --offline --lib rules::portability::'
     outcome: passed
-    observed_at: '2026-11-14T20:17:11Z'
-    notes: Rust1.85.1:10 portability unit tests and the actual native pipeline pass. The pipeline covers8
-      synthetic Git trees, each twice with unchanged index tree IDs and exact stable source findings;
-      nine inventory cases include ordering and Unicode-distinct controls. Linux case-sensitive checkout
-      only.
-  - command: cargo clippy --locked --offline --lib --test portability_topology_pipeline -- -D warnings;
-      cargo fmt --all; git diff --check
+    observed_at: '2026-11-14T21:09:59Z'
+    notes: Rust1.85.1:15 portability unit tests pass, zero ignored. Prior10 topology/rule controls remain;5
+      static expansion/selector/unknown controls qualify the private helper.
+  - command: cargo test --locked --offline --test workflow_matrix_pipeline
     outcome: passed
-    observed_at: '2026-11-14T20:17:11Z'
-    notes: Strict focused Clippy, rustfmt and whitespace pass. No dependency, suppression, release, workflow
-      or historical audit/vendor identity changed.
+    observed_at: '2026-11-14T21:09:59Z'
+    notes: At functional82cf521,27 real Git fixtures run twice:54 CLI runs retain exact findings/tree
+      IDs, warning severity and exit0. Direct/include, include/exclude/refill, selector-prefix/padding,
+      all shell-default scopes, metadata/named/block/opaque/flow positions and dynamic controls pass.
+      Workflow commands never execute.
+  - command: cargo clippy --locked --offline --lib --test workflow_matrix_pipeline -- -D warnings; cargo
+      fmt --all; git diff --check
+    outcome: passed
+    observed_at: '2026-11-14T21:09:59Z'
+    notes: Strict focused Clippy and formatting pass without suppression or dependency changes. Source-correspondence
+      fixes prevent metadata borrowing; unknown coordinates clear both line and column.
+  - command: Independent read-only source and cached native CLI peer at82cf521
+    outcome: passed
+    observed_at: '2026-11-14T21:09:59Z'
+    notes: Final5 metadata/env/quoted/flow/script controls pass. Prior5 original/include/exclude/selector
+      semantic controls remain clear, with their original source qualification retained. No peer rebuild,
+      source or provider write.
   environment_limitations:
-  - Native Git/CLI topology proof is Linux-only; macOS/Windows case-insensitive checkout behavior is not
-    executed or claimed.
-  - Hosted and broad platform/image qualification remain deferred; release/adoption/human lifecycle gates
-    remain separate.
+  - Native Git/CLI qualification is local Linux only; hosted/macOS/Windows workflow execution is not performed.
+  - Dynamic expressions, unknown runner families, unsupported shapes and resource bounds yield unknown
+    coverage, never demonstrated portability.
+  - Broad project/platform/image, release/adoption and human lifecycle checks remain separate; compiler-intermediate
+    reclamation after qualification does not change retained source/proof hashes.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -116,58 +142,48 @@ privacy:
 
 ## Purpose and precedence
 
-Repair the bounded M2 ASCII topology gap. Runtime/user instructions, scoped instructions,
-verified live state and canonical sources outrank this handoff.
+Repair the existing M2 static matrix diagnostic. Runtime/user instructions, scoped guidance, live evidence and canonical sources outrank this handoff.
 
 ## Resume protocol
 
-Read AGENTS.md, roadmap 42 and the case-rule guide; verify main and this review branch before acting.
+Read AGENTS, issue96, roadmap42 and the portability guide. Refresh actual main and parallel97 before integration; preserve qualified source identities.
 
 ## Current objective and success conditions
 
-Detect inferred ancestor and file/directory collisions, preserve ordinary leaf detection, and
-avoid duplicate descendant findings caused solely by an ancestor spelling conflict.
+Resolve bounded static workflow matrices for equivalent advisory shell diagnostics without executing expressions or commands.
 
 ## State snapshot
 
-Front matter separates immutable base, unmerged candidate and time-qualified live state.
-PR 112/113/115/116 are merged. Functional source 88bda8376f25e4dac93f7a1df038c3c93f79297b
-contains the topology and domain controls; its containing checkpoint revision remains null.
+Remote main e3eaabac includes accepted topology117. Functional82cf521 carries the focused matrix/position fixes and clean local qualification. This later continuity commit remains an unmerged review handoff.
 
 ## Completed and material changes
 
-Every path prefix contributes component spellings to an ASCII-folded node. One finding describes
-all conflicting spellings at that node and uses a stable existing source path. Identical descendant
-components add no repeated ancestor-only finding; consistently cased shared directories remain valid.
+The private helper resolves static axes and exclude-before-include semantics, including original overlays and distinct added rows. Whole dotted selectors avoid prefix and literal-padding mistakes. Existing shell defaults and warning severity stay intact. A bounded step-context mapper ignores metadata and retains unknown coordinates when source binding is ambiguous.
 
 ## Validation and review evidence
 
-Ten portability unit tests and an actual native pipeline pass. Eight synthetic Git trees run twice,
-retaining index tree IDs and stable findings. Nine inventory cases preserve ASCII-only semantics
-and reversed-input ordering. Strict focused Clippy, rustfmt and whitespace pass.
+All15 portability units and27 real Git cases/54 native CLI runs pass on Rust1.85.1, with stable findings, warning/exit0 and unchanged trees. Commands remain data. Strict focused Clippy, formatting and whitespace pass. Independent review verifies the narrow location/selector fixes without a rebuild.
 
 ## Blockers, risks, unknowns, and deferred work
 
-Native checkout proof is Linux-only; no macOS/Windows checkout compatibility is claimed.
-Hosted, broad platform/image, release/adoption and human policy gates remain separate.
+No remaining blocker observed in this bounded scope. Dynamic/provider expressions and unsupported or over-budget shapes remain unresolved. No actual cross-OS workflow execution, hosted proof, broad baseline cleanup, release or policy activation is inferred.
 
 ## Next dependency-ready work
 
-Review/integrate this repair, then continue the independent static matrix shell diagnostic issue 96.
+Root reviews and integrates96, then reconciles the independent97 source handoff and continues M2 under roadmap42. No further Cargo rebuild is planned after this qualification; executable/source/proof hashes are retained before task-created cache reclamation.
 
 ## Parallel changes and reconciliation
 
-No other open EgoLint source PR was observed after 115/116 integration. Recheck before merging.
+Root owns97 in a different source file. This branch begins at accepted main e3eaabac; reconcile shared continuity by actual source/state rather than concatenating snapshots. ADR not required: this is a localized repair of the existing native advisory rule, without new ownership or policy authority.
 
 ## Privacy and redaction
 
-Only public source and synthetic fixtures are retained; private context, credentials and raw logs
-stay excluded. Current native fixtures use no real person or external service.
+Use public source and synthetic workflows only. Diagnostics expose source filenames and bounded messages; no matrix/command secrets are collected or executed. Private execution paths, credentials and raw environment values remain excluded.
 
 ## Handoff update protocol
 
-Refresh after domain checks; verify actual target/live state, pinned schema/formats and size budgets.
+Keep source-bound local checks, independent peer evidence, hosted/provider results and release/human authority distinct. Refresh mutable provider state before merging; do not retime historical tests or captures.
 
 ## Compaction and supersession
 
-Keep twelve headings, at most 240 lines and 16384 bytes. Canonical owners and Git retain authority/history.
+Retain these twelve headings below240 lines and16,384 bytes. Canonical source and immutable evidence retain history; this checkpoint keeps current operational context.

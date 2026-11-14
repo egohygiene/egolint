@@ -14,6 +14,9 @@ use crate::error::{EgolintError, Result};
 
 use super::inventory::{RepositoryEntry, RepositoryEntryKind, RepositoryInventory};
 
+mod workflow_matrix;
+use workflow_matrix::job_runs_on_multiple_operating_systems;
+
 const CATALOG_PATH: &str = ".config/rules/portability.toml";
 const CATALOG_SOURCE: &str = include_str!("../../.config/rules/portability.toml");
 const TOOL_ID: &str = "EGOLINT_PORTABILITY";
@@ -388,7 +391,7 @@ impl PortabilityRuleSet {
         let Some(jobs) = mapping_value(root, "jobs").and_then(Value::as_mapping) else {
             return Ok(());
         };
-        let run_lines = run_step_lines(&entry.content);
+        let run_lines = run_step_lines(&entry.content, jobs);
         let mut run_index = 0usize;
         for job in jobs.values().filter_map(Value::as_mapping) {
             let portable_matrix = job_runs_on_multiple_operating_systems(job);
@@ -400,7 +403,10 @@ impl PortabilityRuleSet {
                 if mapping_value(step, "run").is_none() {
                     continue;
                 }
-                let line = run_lines.get(run_index).copied();
+                let line = run_lines
+                    .as_ref()
+                    .and_then(|lines| lines.get(run_index))
+                    .copied();
                 run_index += 1;
                 if portable_matrix && job_shell.is_none() && mapping_value(step, "shell").is_none()
                 {
@@ -408,7 +414,7 @@ impl PortabilityRuleSet {
                         WORKFLOW_SHELL,
                         path,
                         line,
-                        Some(1),
+                        line.map(|_| 1),
                         "multi-OS workflow run step relies on platform-dependent default shell semantics"
                             .to_owned(),
                     ));
@@ -670,61 +676,111 @@ fn explicit_default_shell(mapping: &Mapping) -> Option<&str> {
         .and_then(Value::as_str)
 }
 
-fn job_runs_on_multiple_operating_systems(job: &Mapping) -> bool {
-    let Some(runs_on) = mapping_value(job, "runs-on").and_then(Value::as_str) else {
-        return false;
-    };
-    let Some(matrix) = mapping_value(job, "strategy")
-        .and_then(Value::as_mapping)
-        .and_then(|strategy| mapping_value(strategy, "matrix"))
-        .and_then(Value::as_mapping)
-    else {
-        return false;
-    };
-    for (key, values) in matrix {
-        let Some(key) = key.as_str() else {
-            continue;
-        };
-        let matrix_selector = format!("matrix.{key}");
-        if !runs_on.contains(matrix_selector.as_str()) {
-            continue;
-        }
-        let families = values
-            .as_sequence()
-            .into_iter()
-            .flatten()
-            .filter_map(Value::as_str)
-            .filter_map(operating_system_family)
-            .collect::<BTreeSet<_>>();
-        if families.len() > 1 {
-            return true;
-        }
-    }
-    false
+#[derive(Default)]
+struct WorkflowLines {
+    in_jobs: bool,
+    job_indent: Option<usize>,
+    property_indent: Option<usize>,
+    steps_indent: Option<usize>,
+    item_indent: Option<usize>,
+    field_indent: Option<usize>,
+    lines: Vec<u32>,
 }
 
-fn operating_system_family(value: &str) -> Option<&'static str> {
-    let value = value.to_ascii_lowercase();
-    if value.contains("windows") {
-        Some("windows")
-    } else if value.contains("macos") || value.contains("osx") {
-        Some("macos")
-    } else if value.contains("ubuntu") || value.contains("linux") {
-        Some("linux")
-    } else {
-        None
-    }
-}
-
-fn run_step_lines(content: &[u8]) -> Vec<u32> {
-    String::from_utf8_lossy(content)
-        .lines()
-        .enumerate()
-        .filter_map(|(index, line)| {
-            let line = line.trim_start().trim_start_matches("- ");
-            line.starts_with("run:").then(|| one_based(index))
+fn empty_mapping_key(line: &str, key: &str) -> bool {
+    line.strip_prefix(key)
+        .and_then(|tail| tail.strip_prefix(':'))
+        .is_some_and(|value| {
+            value
+                .split('#')
+                .next()
+                .unwrap_or_default()
+                .trim()
+                .is_empty()
         })
-        .collect()
+}
+
+impl WorkflowLines {
+    fn reset_job(&mut self, indent: Option<usize>) {
+        self.job_indent = indent;
+        self.property_indent = None;
+        self.steps_indent = None;
+        self.item_indent = None;
+        self.field_indent = None;
+    }
+
+    fn observe(&mut self, index: usize, original: &str) {
+        let line = original.trim_start();
+        if line.trim().is_empty() || line.starts_with('#') {
+            return;
+        }
+        let indent = original.len() - line.len();
+        if indent == 0 {
+            self.in_jobs = empty_mapping_key(line, "jobs");
+            self.reset_job(None);
+            return;
+        }
+        if !self.in_jobs {
+            return;
+        }
+        if self.job_indent.is_none() || self.job_indent == Some(indent) {
+            self.reset_job(Some(indent));
+            return;
+        }
+        let properties = *self.property_indent.get_or_insert(indent);
+        if indent == properties && !line.starts_with('-') {
+            self.steps_indent = empty_mapping_key(line, "steps").then_some(indent);
+            self.item_indent = None;
+            self.field_indent = None;
+            return;
+        }
+        if self.steps_indent.is_none_or(|steps| indent < steps) {
+            return;
+        }
+        let item = line
+            .strip_prefix('-')
+            .filter(|tail| tail.is_empty() || tail.starts_with(char::is_whitespace))
+            .map(str::trim_start);
+        if let Some(value) = item.filter(|_| self.item_indent.is_none_or(|item| item == indent)) {
+            self.item_indent = Some(indent);
+            self.field_indent = (!value.is_empty()).then_some(indent + line.len() - value.len());
+            if value.starts_with("run:") {
+                self.lines.push(one_based(index));
+            }
+        } else if self.item_indent.is_some_and(|item| indent > item) {
+            let field = *self.field_indent.get_or_insert(indent);
+            if indent == field && line.starts_with("run:") {
+                self.lines.push(one_based(index));
+            }
+        }
+    }
+}
+
+fn run_step_lines(content: &[u8], jobs: &Mapping) -> Option<Vec<u32>> {
+    let scripts = jobs
+        .values()
+        .filter_map(Value::as_mapping)
+        .filter_map(|job| mapping_value(job, "steps").and_then(Value::as_sequence))
+        .flatten()
+        .filter_map(Value::as_mapping)
+        .filter_map(|step| mapping_value(step, "run"))
+        .collect::<Vec<_>>();
+    // Unknown positions are safer than borrowing metadata or script-body lines.
+    if scripts.iter().any(|script| {
+        script.as_str().is_none_or(|script| {
+            script.lines().any(|line| {
+                let line = line.trim_start();
+                line.starts_with("run:") || line.starts_with("- run:")
+            })
+        })
+    }) {
+        return None;
+    }
+    let mut scanner = WorkflowLines::default();
+    for (index, line) in String::from_utf8_lossy(content).lines().enumerate() {
+        scanner.observe(index, line);
+    }
+    (scanner.lines.len() == scripts.len()).then_some(scanner.lines)
 }
 
 fn byte_position(content: &[u8], offset: usize) -> (u32, u32) {
