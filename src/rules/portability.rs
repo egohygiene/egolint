@@ -210,25 +210,39 @@ impl PortabilityRuleSet {
         inventory: &RepositoryInventory,
         findings: &mut Vec<Finding>,
     ) -> Result<()> {
-        let mut folded_paths = BTreeMap::<String, &str>::new();
+        // Index every inferred directory as well as each leaf. Compare the
+        // component spellings at each folded node, so an ancestor collision
+        // does not repeat for every otherwise identical descendant component.
+        let mut topology = BTreeMap::<String, BTreeMap<&str, (String, &str)>>::new();
         for entry in inventory.entries() {
             let path = entry.normalized_path()?;
-            let folded = path.to_ascii_lowercase();
-            if let Some(previous) = folded_paths.insert(folded, path) {
-                if previous != path {
-                    findings.push(self.finding(
-                        CASE_COLLISION,
-                        path,
-                        None,
-                        None,
-                        format!(
-                            "repository paths {} and {} collide on a case-insensitive filesystem",
-                            safe_text(previous),
-                            safe_text(path)
-                        ),
-                    ));
+            let mut prefix = String::new();
+            for component in path.split('/') {
+                if !prefix.is_empty() {
+                    prefix.push('/');
                 }
+                prefix.push_str(component);
+                topology
+                    .entry(prefix.to_ascii_lowercase())
+                    .or_default()
+                    .entry(component)
+                    .or_insert_with(|| (prefix.clone(), path));
             }
+        }
+        for (folded, variants) in topology {
+            if variants.len() < 2 {
+                continue;
+            }
+            let paths = variants
+                .values()
+                .map(|(prefix, _)| safe_text(prefix))
+                .collect::<Vec<_>>()
+                .join(", ");
+            let (_, source) = variants.last_key_value().expect("conflicting spellings").1;
+            findings.push(self.finding(
+                CASE_COLLISION, source, None, None,
+                format!("repository path identities {paths} collide at ASCII-folded prefix {} on a case-insensitive filesystem", safe_text(&folded)),
+            ));
         }
         Ok(())
     }
@@ -837,6 +851,38 @@ mod tests {
         let ids = rule_ids(&findings);
         assert!(ids.contains(&CASE_COLLISION));
         assert_eq!(ids.iter().filter(|id| **id == WINDOWS_PATH).count(), 2);
+    }
+
+    #[test]
+    fn ascii_prefix_topology_handles_ancestors_without_descendant_noise() {
+        let cases: &[(&[&str], usize)] = &[
+            (&["Readme", "README/page.md"], 1),
+            (&["Docs/a.md", "docs/b.md"], 1),
+            (&["Docs/a.md", "docs/a.md"], 1),
+            (&["src/A/File.rs", "src/a/file.rs"], 2),
+            (&["docs/README", "docs/Readme", "docs/readme"], 1),
+            (&["Readme.md", "README.md"], 1),
+            (&["src/a.rs", "src/b.rs"], 0),
+            (&["Ä/a.md", "ä/b.md"], 0),
+            (&["Ä/readme", "Ä/README"], 1),
+        ];
+        for (paths, expected) in cases {
+            let entries = paths
+                .iter()
+                .map(|path| RepositoryEntry::file(*path, Some(100_644), Vec::new()))
+                .collect::<Vec<_>>();
+            let findings = evaluate(entries.clone());
+            let case_findings = findings
+                .iter()
+                .filter(|finding| finding.rule.rule_id == CASE_COLLISION)
+                .collect::<Vec<_>>();
+            assert_eq!(case_findings.len(), *expected, "{paths:?}: {findings:?}");
+            let reversed = evaluate(entries.into_iter().rev().collect());
+            assert_eq!(
+                serde_json::to_value(&findings).unwrap(),
+                serde_json::to_value(&reversed).unwrap()
+            );
+        }
     }
 
     #[test]

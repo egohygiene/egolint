@@ -8,7 +8,7 @@ title = "Repository paths must not collide on case-insensitive filesystems"
 category = "case"
 severity = "error"
 suppressible = true
-description = "Reject two repository paths whose ASCII case-folded forms are identical."
+description = "Reject ASCII case-folded collisions in file paths and inferred directory prefixes, including file/directory conflicts."
 evidence = [
   "https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file",
 ]
