@@ -12,6 +12,14 @@ canonical schema model. When selected, non-Ruby, schema-absent, and explicitly d
 repositories produce a visible `not_applicable` result before Ruby starts. The lightweight CLI
 image remains unaffected, and MegaLinter profiles do not gain an unsafe global command hook.
 
+The selector requires an integer `schema_version` of `1` (booleans and floating-point
+versions are invalid) and a string mode of `auto`, `enabled`, or `disabled`. Invalid
+configuration produces exit `2` and `invalid_configuration` JSON before Ruby starts.
+Relative `--report` paths, including the default, are anchored to the invocation
+directory. That destination is resolved once and passed unchanged to the workspace
+child, so skipped, invalid, unavailable, timed-out and applicable runs use the same
+location. Absolute paths and `--report -` retain their file/stdout behavior.
+
 ## Evaluation snapshot
 
 | Field             | Evidence                                                                                                        |
