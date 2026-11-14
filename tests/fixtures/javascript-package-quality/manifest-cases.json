@@ -1,0 +1,537 @@
+[
+  {
+    "name": "valid base",
+    "valid": true,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private"
+    }
+  },
+  {
+    "name": "valid react library",
+    "valid": true,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "react-library",
+      "package_path": ".",
+      "publication": "private",
+      "ignore": [
+        "src/**",
+        "SRC/**"
+      ],
+      "$schema": "https://example.invalid/never-fetched"
+    }
+  },
+  {
+    "name": "valid empty ignore",
+    "valid": true,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private",
+      "ignore": []
+    }
+  },
+  {
+    "name": "root null",
+    "valid": false,
+    "manifest": null
+  },
+  {
+    "name": "root []",
+    "valid": false,
+    "manifest": []
+  },
+  {
+    "name": "root true",
+    "valid": false,
+    "manifest": true
+  },
+  {
+    "name": "root 1",
+    "valid": false,
+    "manifest": 1
+  },
+  {
+    "name": "root \"manifest\"",
+    "valid": false,
+    "manifest": "manifest"
+  },
+  {
+    "name": "missing schema_version",
+    "valid": false,
+    "manifest": {
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private"
+    }
+  },
+  {
+    "name": "missing profile",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "package_path": ".",
+      "publication": "private"
+    }
+  },
+  {
+    "name": "missing package_path",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "publication": "private"
+    }
+  },
+  {
+    "name": "missing publication",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": "."
+    }
+  },
+  {
+    "name": "schema_version True",
+    "valid": false,
+    "manifest": {
+      "schema_version": true,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private"
+    }
+  },
+  {
+    "name": "schema_version 1",
+    "valid": false,
+    "manifest": {
+      "schema_version": "1",
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private"
+    }
+  },
+  {
+    "name": "profile []",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": [],
+      "package_path": ".",
+      "publication": "private"
+    }
+  },
+  {
+    "name": "profile {}",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": {},
+      "package_path": ".",
+      "publication": "private"
+    }
+  },
+  {
+    "name": "profile react-app",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "react-app",
+      "package_path": ".",
+      "publication": "private"
+    }
+  },
+  {
+    "name": "package_path None",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": null,
+      "publication": "private"
+    }
+  },
+  {
+    "name": "package_path []",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": [],
+      "publication": "private"
+    }
+  },
+  {
+    "name": "package_path ",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": "",
+      "publication": "private"
+    }
+  },
+  {
+    "name": "package_path    ",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": "   ",
+      "publication": "private"
+    }
+  },
+  {
+    "name": "package_path src/../other",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": "src/../other",
+      "publication": "private"
+    }
+  },
+  {
+    "name": "package_path /outside",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": "/outside",
+      "publication": "private"
+    }
+  },
+  {
+    "name": "package_path src\\other",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": "src\\other",
+      "publication": "private"
+    }
+  },
+  {
+    "name": "publication False",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": false
+    }
+  },
+  {
+    "name": "publication {}",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": {}
+    }
+  },
+  {
+    "name": "publication public",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "public"
+    }
+  },
+  {
+    "name": "$schema 2",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private",
+      "$schema": 2
+    }
+  },
+  {
+    "name": "profil_typo base",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private",
+      "profil_typo": "base"
+    }
+  },
+  {
+    "name": "__proto__ {}",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private",
+      "__proto__": {}
+    }
+  },
+  {
+    "name": "ignore None",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private",
+      "ignore": null
+    }
+  },
+  {
+    "name": "ignore {}",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private",
+      "ignore": {}
+    }
+  },
+  {
+    "name": "ignore ['src/**', 'src/**']",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private",
+      "ignore": [
+        "src/**",
+        "src/**"
+      ]
+    }
+  },
+  {
+    "name": "ignore [1]",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private",
+      "ignore": [
+        1
+      ]
+    }
+  },
+  {
+    "name": "ignore ['']",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private",
+      "ignore": [
+        ""
+      ]
+    }
+  },
+  {
+    "name": "ignore ['   ']",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private",
+      "ignore": [
+        "   "
+      ]
+    }
+  },
+  {
+    "name": "ignore ['!src/**']",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private",
+      "ignore": [
+        "!src/**"
+      ]
+    }
+  },
+  {
+    "name": "ignore ['../outside']",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private",
+      "ignore": [
+        "../outside"
+      ]
+    }
+  },
+  {
+    "name": "ignore ['src\\\\other']",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private",
+      "ignore": [
+        "src\\other"
+      ]
+    }
+  },
+  {
+    "name": "ignore ['path-0/**', 'path-1/**', 'path-2/**', 'path-3/**', 'path-4",
+    "valid": false,
+    "manifest": {
+      "schema_version": 1,
+      "profile": "base",
+      "package_path": ".",
+      "publication": "private",
+      "ignore": [
+        "path-0/**",
+        "path-1/**",
+        "path-2/**",
+        "path-3/**",
+        "path-4/**",
+        "path-5/**",
+        "path-6/**",
+        "path-7/**",
+        "path-8/**",
+        "path-9/**",
+        "path-10/**",
+        "path-11/**",
+        "path-12/**",
+        "path-13/**",
+        "path-14/**",
+        "path-15/**",
+        "path-16/**",
+        "path-17/**",
+        "path-18/**",
+        "path-19/**",
+        "path-20/**",
+        "path-21/**",
+        "path-22/**",
+        "path-23/**",
+        "path-24/**",
+        "path-25/**",
+        "path-26/**",
+        "path-27/**",
+        "path-28/**",
+        "path-29/**",
+        "path-30/**",
+        "path-31/**",
+        "path-32/**",
+        "path-33/**",
+        "path-34/**",
+        "path-35/**",
+        "path-36/**",
+        "path-37/**",
+        "path-38/**",
+        "path-39/**",
+        "path-40/**",
+        "path-41/**",
+        "path-42/**",
+        "path-43/**",
+        "path-44/**",
+        "path-45/**",
+        "path-46/**",
+        "path-47/**",
+        "path-48/**",
+        "path-49/**",
+        "path-50/**",
+        "path-51/**",
+        "path-52/**",
+        "path-53/**",
+        "path-54/**",
+        "path-55/**",
+        "path-56/**",
+        "path-57/**",
+        "path-58/**",
+        "path-59/**",
+        "path-60/**",
+        "path-61/**",
+        "path-62/**",
+        "path-63/**",
+        "path-64/**",
+        "path-65/**",
+        "path-66/**",
+        "path-67/**",
+        "path-68/**",
+        "path-69/**",
+        "path-70/**",
+        "path-71/**",
+        "path-72/**",
+        "path-73/**",
+        "path-74/**",
+        "path-75/**",
+        "path-76/**",
+        "path-77/**",
+        "path-78/**",
+        "path-79/**",
+        "path-80/**",
+        "path-81/**",
+        "path-82/**",
+        "path-83/**",
+        "path-84/**",
+        "path-85/**",
+        "path-86/**",
+        "path-87/**",
+        "path-88/**",
+        "path-89/**",
+        "path-90/**",
+        "path-91/**",
+        "path-92/**",
+        "path-93/**",
+        "path-94/**",
+        "path-95/**",
+        "path-96/**",
+        "path-97/**",
+        "path-98/**",
+        "path-99/**",
+        "path-100/**",
+        "path-101/**",
+        "path-102/**",
+        "path-103/**",
+        "path-104/**",
+        "path-105/**",
+        "path-106/**",
+        "path-107/**",
+        "path-108/**",
+        "path-109/**",
+        "path-110/**",
+        "path-111/**",
+        "path-112/**",
+        "path-113/**",
+        "path-114/**",
+        "path-115/**",
+        "path-116/**",
+        "path-117/**",
+        "path-118/**",
+        "path-119/**",
+        "path-120/**",
+        "path-121/**",
+        "path-122/**",
+        "path-123/**",
+        "path-124/**",
+        "path-125/**",
+        "path-126/**",
+        "path-127/**",
+        "path-128/**"
+      ]
+    }
+  }
+]

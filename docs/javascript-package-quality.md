@@ -48,6 +48,14 @@ A repository opts into the profile with `egolint.javascript-package-quality.json
 
 `profile` is either `base` or `react-library`.
 
+The runtime enforces the closed [manifest schema](../schemas/javascript-package-quality-manifest.schema.json)
+before adapter execution. Unknown fields, a non-string `$schema`, malformed
+paths and duplicate `ignore` entries produce configuration exit `2` without
+launching adapters. The schema now explicitly excludes whitespace-only paths,
+matching the existing runtime requirement. Remove misspelled/unsupported fields
+and duplicate patterns when migrating; valid `base` and `react-library` manifests
+and report formats are unchanged. Schema annotations are never fetched.
+
 `publication` is deliberately explicit:
 
 - `npm` runs publint and rejects `package.json#private=true`.
