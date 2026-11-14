@@ -1,15 +1,29 @@
 ---
 name: Release
+run-name: "${{ inputs.operation }} ${{ inputs.version }} @ ${{ inputs.revision }}"
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
   workflow_dispatch:
     inputs:
-      version:
-        description: "Exact Cargo package version to rehearse without publishing"
+      operation:
+        description: "Rehearse without publishing, or publish an already rehearsed exact source"
         required: true
+        default: rehearse
+        type: choice
+        options:
+          - rehearse
+          - publish
+      version:
+        description: "Exact Cargo package version"
+        required: true
+        type: string
+      revision:
+        description: "Reviewed full main commit, identical to the selected workflow source"
+        required: true
+        type: string
+      rehearsal_run:
+        description: "Successful rehearsal run ID for this exact source (publish only)"
+        required: false
         type: string
 
 permissions:
@@ -28,6 +42,7 @@ env:
   CLI_RUNTIME_IMAGE: ${{ vars.EGOLINT_CLI_RUNTIME_IMAGE }}
   NODE_POLICY_IMAGE: ${{ vars.EGOLINT_NODE_POLICY_IMAGE }}
   MEGALINTER_IMAGE: ${{ vars.EGOLINT_MEGALINTER_IMAGE }}
+  RELEASE_TAG: v${{ inputs.version }}
 
 jobs:
   candidate:
@@ -36,15 +51,17 @@ jobs:
     timeout-minutes: 90
     permissions:
       contents: read
+      actions: read
     outputs:
       rust-builder-image: ${{ steps.release-inputs.outputs.rust-builder-image }}
       cli-runtime-image: ${{ steps.release-inputs.outputs.cli-runtime-image }}
       node-policy-image: ${{ steps.release-inputs.outputs.node-policy-image }}
       megalinter-image: ${{ steps.release-inputs.outputs.megalinter-image }}
       version: ${{ steps.release-inputs.outputs.version }}
+      publish: ${{ steps.release-inputs.outputs.publish }}
       build-date: ${{ steps.release-inputs.outputs.build-date }}
     steps:
-      - name: Check out the immutable tag
+      - name: Check out the requested main source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
@@ -53,31 +70,28 @@ jobs:
       - id: release-inputs
         name: Validate and freeze the release identity and base images
         env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_OPERATION: ${{ inputs.operation }}
           REQUESTED_VERSION: ${{ inputs.version }}
+          REQUESTED_REVISION: ${{ inputs.revision }}
+          REQUESTED_REHEARSAL_RUN: ${{ inputs.rehearsal_run }}
         shell: bash
         run: |
           set -o errexit
           set -o nounset
           set -o pipefail
-          version="$(python3 - <<'PY'
-          import tomllib
-          with open("Cargo.toml", "rb") as stream:
-              print(tomllib.load(stream)["package"]["version"])
-          PY
-          )"
           git fetch --no-tags origin \
             "+refs/heads/main:refs/remotes/origin/main"
-          git merge-base --is-ancestor "${GITHUB_SHA}" "refs/remotes/origin/main"
-          if [[ ${GITHUB_EVENT_NAME} == "push" ]]; then
-            test "${GITHUB_REF_TYPE}" = "tag"
-            test "${GITHUB_REF_NAME}" = "v${version}"
-          elif [[ ${GITHUB_EVENT_NAME} == "workflow_dispatch" ]]; then
-            test "${GITHUB_REF_TYPE}" = "branch"
-            test "${GITHUB_SHA}" = "$(git rev-parse refs/remotes/origin/main)"
-            test "${REQUESTED_VERSION}" = "${version}"
+          if [[ ${REQUESTED_OPERATION} == "publish" ]]; then
+            [[ ${REQUESTED_REHEARSAL_RUN} =~ ^[1-9][0-9]{0,19}$ ]]
+            rehearsal_metadata="${RUNNER_TEMP}/egolint-rehearsal.json"
+            gh api --method GET \
+              "repos/${GITHUB_REPOSITORY}/actions/runs/${REQUESTED_REHEARSAL_RUN}" \
+              >"${rehearsal_metadata}"
+            python3 scripts/validate_release_request.py \
+              --rehearsal-run "${rehearsal_metadata}"
           else
-            printf "Unsupported release event: %s\n" "${GITHUB_EVENT_NAME}" >&2
-            exit 1
+            python3 scripts/validate_release_request.py
           fi
           python3 scripts/validate_release_inputs.py --check-environment
           {
@@ -85,7 +99,6 @@ jobs:
             printf "cli-runtime-image=%s\n" "${CLI_RUNTIME_IMAGE}"
             printf "node-policy-image=%s\n" "${NODE_POLICY_IMAGE}"
             printf "megalinter-image=%s\n" "${MEGALINTER_IMAGE}"
-            printf "version=%s\n" "${version}"
             printf "build-date=%s\n" "$(git show -s --format=%cI HEAD)"
           } >>"${GITHUB_OUTPUT}"
 
@@ -106,26 +119,15 @@ jobs:
         run: |
           temporary_directory="$(mktemp -d)"
           trap 'rm -rf "${temporary_directory}"' EXIT
-          for schema in \
-            config \
-            profile \
-            finding \
-            suppression \
-            evidence \
-            tool-result \
-            plan \
-            report \
-            debt \
-            repository-contract \
-            repository-intelligence \
-            repository-intelligence-report \
-            repository-presentation \
-            repository-presentation-report \
-            repository-continuity \
-            repository-continuity-report \
-            repository-gitignore \
-            repository-gitignore-report \
-            repository-release-report; do
+          for schema_path in schemas/*.schema.json; do
+            # These authored JavaScript contracts are checked by their Node owners.
+            case "${schema_path}" in
+              schemas/javascript-architecture-profile.schema.json|\
+              schemas/javascript-architecture-overlay.schema.json|\
+              schemas/javascript-package-quality-profile.schema.json|\
+              schemas/javascript-package-quality-manifest.schema.json) continue ;;
+            esac
+            schema="$(basename "${schema_path}" .schema.json)"
             cargo run --quiet --locked -- schema "${schema}" \
               > "${temporary_directory}/${schema}.schema.json"
             diff --unified \
@@ -242,7 +244,7 @@ jobs:
         shell: bash
         run: scripts/smoke_consumer.sh "egolint-full:candidate"
 
-      - name: Materialize the exact tagged source for SBOM analysis
+      - name: Materialize the exact reviewed source for SBOM analysis
         shell: bash
         run: |
           mkdir "sbom-source"
@@ -280,7 +282,7 @@ jobs:
           retention-days: 7
 
       - name: Record non-publishing rehearsal result
-        if: github.event_name == 'workflow_dispatch'
+        if: inputs.operation == 'rehearse'
         shell: bash
         run: |
           {
@@ -292,7 +294,7 @@ jobs:
 
   sign-candidate:
     name: Authorize, sign, and attest candidate bytes
-    if: github.event_name == 'push' && github.ref_type == 'tag'
+    if: github.event_name == 'workflow_dispatch' && needs.candidate.outputs.publish == 'true'
     needs: candidate
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -389,7 +391,7 @@ jobs:
       - name: Execute the authenticated binary archive
         shell: bash
         run: |
-          version="${GITHUB_REF_NAME#v}"
+          version="${RELEASE_TAG#v}"
           extraction_directory="$(mktemp -d)"
           trap 'rm -rf "${extraction_directory}"' EXIT
           tar --extract --gzip \
@@ -401,7 +403,7 @@ jobs:
       - name: Verify the authenticated integration bundle
         shell: bash
         run: |
-          version="${GITHUB_REF_NAME#v}"
+          version="${RELEASE_TAG#v}"
           extraction_directory="$(mktemp -d)"
           trap 'rm -rf "${extraction_directory}"' EXIT
           tar --extract --gzip \
@@ -444,7 +446,7 @@ jobs:
             dockerfile: Dockerfile.full
             platforms: linux/amd64
     steps:
-      - name: Check out the immutable tag
+      - name: Check out the reviewed publication source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -738,7 +740,7 @@ jobs:
             local product="$1"
             local digest="$2"
             local image="${REGISTRY}/${GITHUB_REPOSITORY_OWNER}/${product}"
-            local version_tag="${image}:${GITHUB_REF_NAME}"
+            local version_tag="${image}:${RELEASE_TAG}"
             local inspection=""
             local observed=""
             local status=0
@@ -831,9 +833,9 @@ jobs:
           set -o errexit
           set -o nounset
           set -o pipefail
-          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+          if gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
             printf "Release already exists; refusing to overwrite %s.\n" \
-              "${GITHUB_REF_NAME}" >&2
+              "${RELEASE_TAG}" >&2
             exit 1
           fi
           verify_image_evidence() {
@@ -860,7 +862,7 @@ jobs:
                 "${image}"
               resolved_digest="$(
                 docker buildx imagetools inspect \
-                  "${REGISTRY}/${GITHUB_REPOSITORY_OWNER}/${product}:${GITHUB_REF_NAME}" \
+                  "${REGISTRY}/${GITHUB_REPOSITORY_OWNER}/${product}:${RELEASE_TAG}" \
                   | awk '$1 == "Digest:" { print $2; exit }'
               )"
               if [[ ${resolved_digest} != "${digest}" ]]; then
@@ -872,15 +874,15 @@ jobs:
           }
           (cd dist && sha256sum --check "SHA256SUMS")
           verify_image_evidence "dist"
-          gh release create "${GITHUB_REF_NAME}" \
+          gh release create "${RELEASE_TAG}" \
             dist/* \
             --draft \
             --verify-tag \
-            --title "Egolint ${GITHUB_REF_NAME}" \
+            --title "Egolint ${RELEASE_TAG}" \
             --generate-notes
           verification_directory="$(mktemp -d)"
           trap 'rm -rf "${verification_directory}"' EXIT
-          gh release download "${GITHUB_REF_NAME}" \
+          gh release download "${RELEASE_TAG}" \
             --dir "${verification_directory}" \
             --pattern "egolint-*" \
             --pattern "*.digest" \
@@ -893,7 +895,7 @@ jobs:
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
             "${verification_directory}/SHA256SUMS"
           verify_image_evidence "${verification_directory}"
-          gh release edit "${GITHUB_REF_NAME}" --draft=false
+          gh release edit "${RELEASE_TAG}" --draft=false
 
 # Intentionally absent: mutable latest/edge tags, crates.io publication, and a
 # moving action tag. Each requires separate policy approval after one immutable

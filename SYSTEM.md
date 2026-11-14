@@ -8,7 +8,7 @@ status: provisional
 owners:
   - egohygiene
 created: 2026-08-19
-updated: 2026-08-19
+updated: 2026-11-10
 governed_by:
   - architecture-system
 depends_on:
@@ -32,32 +32,36 @@ rules.
 
 ## System inventory
 
-| System                 | State  | Responsibility                                                                                                                                                                                |
-| ---------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Profile catalog        | Target | Owns its bounded portion of a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; exposes explicit inputs, outputs, failure states, and evidence. |
-| MegaLinter adapter     | Target | Owns its bounded portion of a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; exposes explicit inputs, outputs, failure states, and evidence. |
-| Tool configuration     | Target | Owns its bounded portion of a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; exposes explicit inputs, outputs, failure states, and evidence. |
-| Applicability resolver | Target | Owns its bounded portion of a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; exposes explicit inputs, outputs, failure states, and evidence. |
-| Report normalizer      | Target | Owns its bounded portion of a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; exposes explicit inputs, outputs, failure states, and evidence. |
-| CLI contract           | Target | Owns its bounded portion of a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; exposes explicit inputs, outputs, failure states, and evidence. |
-| Test fixtures          | Target | Owns its bounded portion of a universal linting platform and extensible MegaLinter wrapper for consistent repository quality; exposes explicit inputs, outputs, failure states, and evidence. |
+| System                         | Source state                    | Responsibility and owner                                                                                                                                                                                                    |
+| ------------------------------ | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Profile catalog                | Implemented                     | `.config/megalinter/policy.yml`, snapshots and tool matrix own pinned fast, holistic, security and dependency-debt selections; `.config/toolchain` records complementary integrations.                                      |
+| Configuration and CLI          | Implemented                     | `src/config.rs` resolves validated layered inputs with provenance; `src/main.rs` owns public commands and exit behavior. CI omits implicit user/local layers.                                                               |
+| Native policy                  | Implemented                     | `src/rules` owns bounded portability, repository contracts, continuity, Intelligence, presentation, release and Git-ignore evaluation. Source locks preserve independent policy authority.                                  |
+| Engine orchestration           | Implemented                     | `src/plan.rs` constructs inspectable Docker/Podman argv; the repository is mounted read-only and the engine owns MegaLinter execution.                                                                                      |
+| Adapter normalization          | Implemented, coverage explicit  | `src/megalinter.rs` accepts supported evidence into `src/contracts.rs`; run JSON/SARIF distinguish adapter-only, partial and normalized coverage.                                                                           |
+| JavaScript adapters            | Implemented, separately invoked | `src/javascript_architecture.rs` and `scripts/javascript-package-quality.mjs` normalize the pinned dependency-cruiser, Oxlint, Biome and publint integrations.                                                              |
+| Debt and suppressions          | Implemented                     | `src/debt.rs` projects compact debt; `src/rules/suppressions.rs` preserves explicit, expiring suppression evidence.                                                                                                         |
+| Fix preview/apply              | Implemented                     | `src/fix.rs` produces isolated bounded patches and applies only an exact reviewed checksum/base/post-tree combination.                                                                                                      |
+| Adaptive adoption              | In review                       | [PR #112](https://github.com/egohygiene/egolint/pull/112) contains the general capability registry, progressive enforcement and optional advisory ast-grep adapter; it is separate from this release dependency candidate.  |
+| Release adapter                | Source candidate                | `.github/workflows/release.yml` and `scripts/validate_release_request.py` bind manual publication to reviewed main, successful rehearsal and a matching immutable version tag. Signed publication/adoption remain unproven. |
+| Fixtures and package contracts | Implemented                     | `tests`, `schemas` and `scripts/package_integrations.py` exercise source behavior and package consumer interfaces. A package verification does not establish a published distribution.                                      |
 
 ## External systems
 
-- Hygiene policy
-- Empathy baseline
-- Relay workflows
-- Pace conformance
-- Observatory reporting
+- Hygiene and Aether own the immutable upstream policy/schema selections.
+- Empathy owns baseline policy; Holon owns downstream materialization/recovery.
+- Relay owns reusable acquisition, collection and publication profiles.
+- Pace and Observatory can consume normalized evidence through their own adoption gates.
 
 External systems are integrations, not hidden implementation units. Each requires version,
 authentication, availability, data, error, and replacement boundaries appropriate to its risk.
 
 ## System interactions
 
-Inputs enter through an adapter or validated contract, move through domain systems, produce
-artifacts and diagnostics, and leave through a stable interface. Evidence flows back to validation,
-review, and future decisions.
+The CLI resolves configuration and native policy, constructs an engine plan when needed, and
+normalizes actual tool results before applying explicit suppressions and writing run JSON/SARIF.
+Focused policy reports preserve their own semantic state. Fix and release workflows use separate
+explicit paths; an ordinary validation run neither fixes source nor publishes artifacts.
 
 ## Failure model
 
@@ -66,12 +70,13 @@ identify coverage and remain distinguishable from complete success.
 
 ## Evidence and uncertainty
 
-- **Observed:** The repository README establishes the intended boundary as a universal linting
-  platform and extensible MegaLinter wrapper for consistent repository quality; significant
-  implementation remains incomplete.
-- **Decided for this draft:** The repository owns the bounded concern described here and
-  participates through versioned contracts.
-- **Proposed:** Target systems and later roadmap phases remain proposals until accepted and
-  implemented.
-- **Open question:** Which parts of this draft should become active in the first independently
-  versioned release?
+- **Observed:** The source owners above implement the core CLI, adapters and reports; no GitHub
+  release was observed on 2026-11-09.
+- **Current limit:** CLI OCI platforms are AMD64 and ARM64; the full MegaLinter engine is
+  AMD64-only. Planned products and their evidence requirements are in
+  [release guidance](docs/releasing.md).
+- **In review:** General adaptive adoption is tracked by PR #112, and manual publisher source by PR
+  #113. M1 in [roadmap #42](https://github.com/egohygiene/egolint/issues/42) qualifies this stacked
+  source and current documentation before the milestone merge review.
+- **Deferred:** Publication, digest-pinned consumer adoption, broader platform support and fleet
+  rollout require their owning acceptance evidence.

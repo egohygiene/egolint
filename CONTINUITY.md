@@ -7,7 +7,7 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: "2026-11-10T19:59:02Z"
+  updated_at: "2026-11-10T20:05:01Z"
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
@@ -60,20 +60,20 @@ work:
     depends_on: []
 state:
   base:
-    revision: f14f7fd3ab0ce9e87c367352fcb3af11a32eda59
-    ref: refs/heads/main
-    verified_at: "2026-11-10T19:59:02Z"
+    revision: ef636747632131ccd68d93c7e5e0abf4ad9f0cee
+    ref: refs/heads/codex/egolint-27-37
+    verified_at: "2026-11-10T20:05:01Z"
   candidate:
-    branch: codex/egolint-27-37
+    branch: codex/egolint-release-dependencies
     revision: null
     pull_request:
       provider: github
-      id: egohygiene/egolint#112
-      url: https://github.com/egohygiene/egolint/pull/112
+      id: egohygiene/egolint#113
+      url: https://github.com/egohygiene/egolint/pull/113
     handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: "2026-11-10T19:59:02Z"
+    observed_at: "2026-11-10T20:05:01Z"
     default_branch_revision: f14f7fd3ab0ce9e87c367352fcb3af11a32eda59
     issue_state: open
     pull_request_state: open
@@ -82,24 +82,24 @@ state:
       qualified and unmerged; no hosted workflow or product publication is asserted.
   parallel_changes:
     - provider: github
-      id: egohygiene/egolint#113
-      url: https://github.com/egohygiene/egolint/pull/113
+      id: egohygiene/egolint#112
+      url: https://github.com/egohygiene/egolint/pull/112
 review:
   status: partial
-  reviewed_at: "2026-11-10T19:59:02Z"
+  reviewed_at: "2026-11-10T20:05:01Z"
   reviewed_by: Codex
   evidence:
     - command:
         cargo fmt --all --check; cargo clippy --locked --all-targets --all-features -- -D warnings;
         cargo test --locked --all-targets --all-features
       outcome: passed
-      observed_at: "2026-11-10T19:59:02Z"
+      observed_at: "2026-11-10T20:05:01Z"
       notes:
-        "Rust 1.85.1: 266 tests across 18 suites pass. The original bounded-startup regression
+        "Rust 1.85.1: 267 tests across 18 suites pass. The original bounded-startup regression
         remains unchanged; optimized debug SHA2 retains exact executable provenance."
     - command: task schemas:check; task contracts; cargo package --locked --allow-dirty
       outcome: passed
-      observed_at: "2026-11-10T19:59:02Z"
+      observed_at: "2026-11-10T20:05:01Z"
       notes:
         All 27 generated native schemas, policy/integration contracts and source-package
         verification pass. Matching optional executable-provenance schemas are included.
@@ -107,15 +107,15 @@ review:
         python3 -m unittest discover --start-directory tests --pattern 'test_*.py'; python3
         scripts/validate_release_inputs.py; python3 scripts/validate_repository_release_sources.py
       outcome: passed
-      observed_at: "2026-11-10T19:59:02Z"
+      observed_at: "2026-11-10T20:05:01Z"
       notes:
-        88 Python tests pass, including retained real release-input controls. No registry or hosted
+        95 Python tests pass, including retained real release-input controls. No registry or hosted
         execution is inferred.
     - command:
         pnpm run commitlint:test; pnpm run eslint-config:test; pnpm run javascript-quality:test;
         task dogfood:javascript
       outcome: passed
-      observed_at: "2026-11-10T19:59:02Z"
+      observed_at: "2026-11-10T20:05:01Z"
       notes:
         The 94 adapter/package controls and 5 commit/config controls pass; the actual JavaScript
         self-consumer reports zero errors or warnings.
@@ -123,7 +123,7 @@ review:
         Matching Mypy 1.19.1, Bandit 1.9.4, markdownlint 0.49.1, Prettier 3.9.6 and selected Ruff
         0.16.2 checks
       outcome: passed
-      observed_at: "2026-11-10T19:59:02Z"
+      observed_at: "2026-11-10T20:05:01Z"
       notes:
         Former blocking Dogfood findings pass direct local checks; this is not an equivalent
         full-engine qualification.
@@ -131,24 +131,24 @@ review:
         python3 scripts/benchmark_ast_grep.py --binary target/debug/egolint; eight bounded synthetic
         protocol controls
       outcome: passed
-      observed_at: "2026-11-10T19:59:02Z"
+      observed_at: "2026-11-10T20:05:01Z"
       notes:
         Pinned ast-grep 0.51.1 yields 8/256/1024 positives and zero negative matches across
         16/512/2048 files. Real provider semantics and protocol controls remain separate.
     - command: Digest-pinned full-engine pull and local CLI Docker build
       outcome: limited
-      observed_at: "2026-11-10T19:59:02Z"
+      observed_at: "2026-11-10T20:05:01Z"
       notes:
         Both attempts exhausted the 32 GiB Docker vfs storage. Only task-created build cache was
         cleared. No image success, non-Linux runtime or publication claim is made.
     - command:
-        Pinned continuity schema/formats and native base/head validation with supplied GitHub
+        Pinned continuity schema/formats and native base/head comparison with supplied GitHub
         evidence
       outcome: passed
-      observed_at: "2026-11-10T19:59:02Z"
+      observed_at: "2026-11-10T20:05:01Z"
       notes:
-        Schema and native structure/freshness/Git checks pass; one expected unreleased-contract
-        advisory remains.
+        Continuity is valid with one draft-input advisory. Intelligence retains only unknown ADR
+        adoption; all seven native release source checks pass at advisory rollout.
   environment_limitations:
     - Current-head hosted Actions, original Docker image builds and non-Linux runtime qualification
       remain unexecuted or environment-limited.
@@ -156,8 +156,6 @@ review:
       normalized run and matching producing executable are required.
     - Selected continuity owner inputs remain draft/proposed and observe-only; signed publication,
       protected release configuration and consumer adoption remain separate under issue 5.
-    - This parent retains six roadmap-state advisories and the manual-publisher finding; stacked PR
-      113 owns their repair. Parent Intelligence remains invalid/advisory, not conformant.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -208,7 +206,8 @@ advisory.
 ## Blockers, risks, unknowns, and deferred work
 
 Image builds exhausted vfs storage. Hosted/non-Linux, aggregate-only baselines, contract promotion,
-publication and adoption remain qualified separately. Parent source findings are repaired in PR 113.
+publication and adoption remain qualified separately. Unknown ADR adoption remains incomplete;
+roadmap-state and publisher findings are repaired here.
 
 ## Next dependency-ready work
 

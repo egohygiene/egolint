@@ -1,18 +1,51 @@
 # Current-v1 release capability acceptance
 
-This ledger reconciles [issue #29](https://github.com/egohygiene/egolint/issues/29) using the original
-qualified implementation pin `4e7cc53491a27da5b361ca7ff56568d05fc07701` and its subsequent integration.
-[PR #110](https://github.com/egohygiene/egolint/pull/110) is now merged on main at
-`817652a9574700ec18465928ca3bcdc1a074cc25`, following correction PR #108 and fixture PR #109.
-These source dispositions were verified on 2026-10-30. Issues #29, #68 and #69 remain open;
-their original acceptance criteria are preserved. Publisher migration, final-head hosted qualification
-and full release acceptance remain gates. No release, deployment or registry publication is established.
+This ledger reconciles [issue #29](https://github.com/egohygiene/egolint/issues/29) using the
+original qualified implementation pin `4e7cc53491a27da5b361ca7ff56568d05fc07701` and its subsequent
+integration. [PR #110](https://github.com/egohygiene/egolint/pull/110) is now merged on main at
+`817652a9574700ec18465928ca3bcdc1a074cc25`, following correction PR #108 and fixture PR #109. These
+source dispositions were verified on 2026-10-30. On 2026-11-10, former standalone checkpoint tickets
+[issues #68/#69](https://github.com/egohygiene/egolint/issues/29) were closed as tracking
+consolidations into #29, preserving their complete original scope and acceptance in that issue. The
+dated evidence below retains its original evaluated sources; closing a redundant tracker does not
+complete its acceptance. Publisher migration, final-head qualification and full release acceptance
+remain gates. No release, deployment or registry publication is established.
 
 The [capability guide](repository-release-validation.md) owns supported checks and report semantics;
-the [release operator guide](releasing.md) owns the existing repository adapter. This ledger connects
-their evidence to the original work without replacing either guide or the upstream contracts.
+the [release operator guide](releasing.md) owns the existing repository adapter. This ledger
+connects their evidence to the original work without replacing either guide or the upstream
+contracts.
 
-## Original acceptance criteria
+## Current execution tracking — 2026-11-10
+
+[Roadmap #42](https://github.com/egohygiene/egolint/issues/42) owns milestone execution. M1
+qualifies the existing adaptive/release source candidates and current documentation. M5 owns #29's
+consolidated current-v1 fixture/self-dogfood acceptance; M7 owns final release readiness and #5's
+actual publication and pinned adoption. Source-ready portions can proceed without waiting for
+publication. Checkpoints continue within a milestone, followed by a milestone sync before merge;
+local and supported `act` checks retain hosted/provider-only gaps explicitly. Historical green runs
+below qualify only their recorded sources and do not become evidence for a later candidate.
+
+## Manual publisher source candidate — 2026-11-09
+
+The current #5/#101 dependency candidate removes tag-push publication and binds manual publication
+to an exact current-main revision, Cargo version, matching version tag and successful prior
+rehearsal of that same workflow/source. Native self-dogfood now passes all seven source checks with
+advisory rollout and no release finding. A hostile control restores tag automation and retains the
+original visible failure. No release workflow or publication has been executed to establish this
+candidate.
+
+This new source evidence does not rewrite the exact #69 historical results below. Its publisher
+migration remains under review; final-head hosted release, signing, registry/platform acceptance and
+Empathy plus non-Empathy adoption remain separate #5/#29 gates, including #29's inherited #69 scope.
+The source-qualified #90 input repair already merged through PR #103; its open issue state is
+retained for acceptance.
+
+## Original acceptance criteria and recorded source evidence
+
+The source results in this table describe the original integrated v1 checkpoint. The manual
+publisher candidate above changes the current source verdict; it does not rewrite those receipts.
+References to then-open #68/#69 describe that historical observation, not current tracker state.
 
 | Original #29 criterion                                                                                          | Source evidence available for review                                                                                                                                                                                  | Acceptance still required                                                                                                       |
 | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -45,10 +78,10 @@ Actual unpacked execution in #69 exposed Cargo excluding the Rust fixture direct
 contained a nested package manifest. That initial result remains a failed qualification attempt.
 
 Checkpoint #69 stores the same authored manifest bytes as
-[`rust/Cargo.toml.fixture`](../tests/fixtures/repository-release/rust/Cargo.toml.fixture). Native and
-Python materializers restore `Cargo.toml` only inside disposable consumers; declarations and expected
-reports retain the real consumer authority path. The predecessor manifest and inert fixture have
-identical Git blob identity `841ddb907b6637e791a23737db4f82d59543f8a4`.
+[`rust/Cargo.toml.fixture`](../tests/fixtures/repository-release/rust/Cargo.toml.fixture). Native
+and Python materializers restore `Cargo.toml` only inside disposable consumers; declarations and
+expected reports retain the real consumer authority path. The predecessor manifest and inert fixture
+have identical Git blob identity `841ddb907b6637e791a23737db4f82d59543f8a4`.
 
 At the exact #69 head above, a 215-file crate built and verified with locked cached inputs. Archive
 inspection found every tracked release fixture, and actual unpacked execution passed two self tests,
@@ -56,16 +89,16 @@ seven matrix tests and five planner CLI tests. The final archive also contained 
 handoff and fixture README bytes. This is stronger than inventory inspection, while remaining local
 package qualification without publication.
 
-The same original #69 source passed formatting, strict Clippy, 219 Rust tests with zero ignored,
-80 Python tests and 23 schema comparisons. Its PR retains the precise commands and review repairs.
-The subsequent main integration adds the independent audit repairs: 232 Rust tests, 88 Python tests,
-94 JavaScript tests, strict linting and all 23 schemas passed. Its actual 219-file crate built, all
-25 tracked release fixtures matched, and the unpacked two self, seven matrix and five planner tests
+The same original #69 source passed formatting, strict Clippy, 219 Rust tests with zero ignored, 80
+Python tests and 23 schema comparisons. Its PR retains the precise commands and review repairs. The
+subsequent main integration adds the independent audit repairs: 232 Rust tests, 88 Python tests, 94
+JavaScript tests, strict linting and all 23 schemas passed. Its actual 219-file crate built, all 25
+tracked release fixtures matched, and the unpacked two self, seven matrix and five planner tests
 passed. All 661 non-Markdown files matched the previously qualified composite, with equivalent Cargo
 include semantics and no dependency drift. This records local evidence; hosted qualification remains
 deferred and the final handoff-only refresh has separate continuity evidence in PR #110.
 
-## Separate self-consumer verdicts
+## Original #69 self-consumer verdicts
 
 | Surface                     | Actual #69 source result                                    | Meaning                                                                                                                  |
 | --------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
@@ -76,17 +109,16 @@ deferred and the final handoff-only refresh has separate continuity evidence in 
 
 Source release-profile exercise does not establish repository-wide conformance. The current-v1
 manual-only publisher migration remains separately reviewed work under
-[issue #5](https://github.com/egohygiene/egolint/issues/5). The broader documentation findings remain
-under [issue #101](https://github.com/egohygiene/egolint/issues/101). Neither is hidden by the local
-process result or folded into a false completed parent state.
+[issue #5](https://github.com/egohygiene/egolint/issues/5). The broader documentation findings
+remain under [issue #101](https://github.com/egohygiene/egolint/issues/101). Neither is hidden by
+the local process result or folded into a false completed parent state.
 
 ## Operator and consumer handoff
 
-For bounded preparation, the known implementation pin is
-`4e7cc53491a27da5b361ca7ff56568d05fc07701` from the original PR #110 qualification. It includes the #91 correction,
-the #68 matrix and #69 archive repair. Use a clean disposable producer checkout and verify that exact
-commit before building or replaying controls. The pinned Rust toolchain and lockfiles remain part of
-the source contract:
+For bounded preparation, the known implementation pin is `4e7cc53491a27da5b361ca7ff56568d05fc07701`
+from the original PR #110 qualification. It includes the #91 correction, #68 matrix and #69 archive
+repair. Use a clean disposable producer checkout and verify that exact commit before building or
+replaying controls. The pinned Rust toolchain and lockfiles remain part of the source contract:
 
 ```sh
 producer_revision="4e7cc53491a27da5b361ca7ff56568d05fc07701"
@@ -98,22 +130,22 @@ cargo build --locked --bin "egolint"
 ```
 
 The selected Aether schema and Hygiene applicability profile remain the exact inputs in the
-[source lock](../.config/rules/repository-release-sources.v1.json). Their reviewed bytes do not acquire
-new authority from a local check. Current self-adoption and package qualification are described
-above; [the capability guide](repository-release-validation.md) owns the detailed commands and
-supported grammar.
+[source lock](../.config/rules/repository-release-sources.v1.json). Their reviewed bytes do not
+acquire new authority from a local check. Current self-adoption and package qualification are
+described above; [the capability guide](repository-release-validation.md) owns the detailed commands
+and supported grammar.
 
-A final #29 documentation candidate may instead be pinned by the full commit recorded in its
-PR handoff. Verify its runtime-source difference against the implementation pin and qualify that
-exact checkout. Record the actual producer commit and executable SHA-256 in the consumer's evidence;
-the containing ledger does not need to embed its own future commit identifier. A source pin is not a
+A final #29 documentation candidate may instead be pinned by the full commit recorded in its PR
+handoff. Verify its runtime-source difference against the implementation pin and qualify that exact
+checkout. Record the actual producer commit and executable SHA-256 in the consumer's evidence; the
+containing ledger does not need to embed its own future commit identifier. A source pin is not a
 published binary, container digest or accepted release.
 
-[Mantle #26](https://github.com/egohygiene/mantle/issues/26) can consume the native producer for bounded
-current-v1 source preparation while its full-outcome gates remain open. Select the reviewed Mantle
-checkout as `MANTLE_WORKSPACE` and the qualified native executable as `EGOLINT_RELEASE_PRODUCER`.
-Invoke that executable directly; keep its actual path and any custom Cargo target directory in a
-local receipt, and retain the executable digest in shareable evidence:
+[Mantle #26](https://github.com/egohygiene/mantle/issues/26) can consume the native producer for
+bounded current-v1 source preparation while its full-outcome gates remain open. Select the reviewed
+Mantle checkout as `MANTLE_WORKSPACE` and the qualified native executable as
+`EGOLINT_RELEASE_PRODUCER`. Invoke that executable directly; keep its actual path and any custom
+Cargo target directory in a local receipt, and retain the executable digest in shareable evidence:
 
 ```sh
 "${EGOLINT_RELEASE_PRODUCER:?select the qualified native executable}" \
@@ -129,9 +161,9 @@ checkout; offline conformance does not establish GitHub ownership or live public
 
 Keep a finite consumer receipt. Actual machine paths, private argv details and private configuration
 belong in the local receipt. Public PR or continuity evidence uses repository-relative/generalized
-paths and only the public-safe selected configuration, while retaining exact source commits, executable
-digests and bounded results. Do not copy private filesystem topology or environment values into that
-public evidence.
+paths and only the public-safe selected configuration, while retaining exact source commits,
+executable digests and bounded results. Do not copy private filesystem topology or environment
+values into that public evidence.
 
 | Receipt field | Evidence to retain                                                                                            |
 | ------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -142,23 +174,23 @@ public evidence.
 | Results       | Process exit, focused release/check state, enforcement, tool counts and normalized findings/SARIF.            |
 | Limits        | Unavailable/external evidence, platform and hosted omissions, pending review, publication and adoption gates. |
 
-Read `.reports/egolint/repository-release.json`, `run.json` and `egolint.sarif` in the consumer's report
-boundary separately from process exit. Retain every failed, advisory, unavailable or externally owned
-check. Mantle's installation identity, semver compatibility, non-overwriting publication path and
-supported-platform evidence remain its own acceptance responsibilities. The current EgoLint
-self-adoption gap and remaining producer gates remain visible rather than transferring a completed
-producer or fleet-conformance claim to the consumer.
+Read `.reports/egolint/repository-release.json`, `run.json` and `egolint.sarif` in the consumer's
+report boundary separately from process exit. Retain every failed, advisory, unavailable or
+externally owned check. Mantle's installation identity, semver compatibility, non-overwriting
+publication path and supported-platform evidence remain its own acceptance responsibilities. The
+current EgoLint self-adoption gap and remaining producer gates remain visible rather than
+transferring a completed producer or fleet-conformance claim to the consumer.
 
 ## Remaining acceptance gates
 
 The source correction PR #108, fixture PR #109 and self-consumer PR #110 have merged in that order.
-This parent #29 ledger is reconciled against main `817652a9574700ec18465928ca3bcdc1a074cc25`;
-its containing candidate and disposition are recorded in PR #111 rather than embedding its own
-future commit identifier. Source-PR acceptance does not complete the original release acceptance
-criteria. This ledger does not edit issue checklists or manually close issues.
+This parent #29 ledger is reconciled against main `817652a9574700ec18465928ca3bcdc1a074cc25`; its
+containing candidate and disposition are recorded in PR #111 rather than embedding its own future
+commit identifier. Source-PR acceptance does not complete the original release acceptance criteria.
+This ledger does not edit issue checklists or manually close issues.
 
-Full #69/#29 acceptance still needs the separately reviewed publisher migration, actual final-head
-hosted/full-image/non-Linux evidence and full release acceptance. Signed immutable product
-release, registry acceptance and consumer adoption require their own evidence under their owning
-issues. Successor release-model issue #76 does not replace this current-v1 work or promote the
-selected upstream authority.
+Full #29 acceptance, including its inherited #69 scope, still needs the separately reviewed
+publisher migration, actual final-head qualification, explicit hosted/full-image/non-Linux evidence
+or recorded gaps, and full release acceptance. Signed immutable product release, registry acceptance
+and consumer adoption require their own evidence under their owning issues. Successor release-model
+issue #76 does not replace this current-v1 work or promote the selected upstream authority.
