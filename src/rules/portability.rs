@@ -14,6 +14,9 @@ use crate::error::{EgolintError, Result};
 
 use super::inventory::{RepositoryEntry, RepositoryEntryKind, RepositoryInventory};
 
+mod workflow_matrix;
+use workflow_matrix::job_runs_on_multiple_operating_systems;
+
 const CATALOG_PATH: &str = ".config/rules/portability.toml";
 const CATALOG_SOURCE: &str = include_str!("../../.config/rules/portability.toml");
 const TOOL_ID: &str = "EGOLINT_PORTABILITY";
@@ -670,59 +673,22 @@ fn explicit_default_shell(mapping: &Mapping) -> Option<&str> {
         .and_then(Value::as_str)
 }
 
-fn job_runs_on_multiple_operating_systems(job: &Mapping) -> bool {
-    let Some(runs_on) = mapping_value(job, "runs-on").and_then(Value::as_str) else {
-        return false;
-    };
-    let Some(matrix) = mapping_value(job, "strategy")
-        .and_then(Value::as_mapping)
-        .and_then(|strategy| mapping_value(strategy, "matrix"))
-        .and_then(Value::as_mapping)
-    else {
-        return false;
-    };
-    for (key, values) in matrix {
-        let Some(key) = key.as_str() else {
-            continue;
-        };
-        let matrix_selector = format!("matrix.{key}");
-        if !runs_on.contains(matrix_selector.as_str()) {
-            continue;
-        }
-        let families = values
-            .as_sequence()
-            .into_iter()
-            .flatten()
-            .filter_map(Value::as_str)
-            .filter_map(operating_system_family)
-            .collect::<BTreeSet<_>>();
-        if families.len() > 1 {
-            return true;
-        }
-    }
-    false
-}
-
-fn operating_system_family(value: &str) -> Option<&'static str> {
-    let value = value.to_ascii_lowercase();
-    if value.contains("windows") {
-        Some("windows")
-    } else if value.contains("macos") || value.contains("osx") {
-        Some("macos")
-    } else if value.contains("ubuntu") || value.contains("linux") {
-        Some("linux")
-    } else {
-        None
-    }
-}
-
 fn run_step_lines(content: &[u8]) -> Vec<u32> {
     String::from_utf8_lossy(content)
         .lines()
         .enumerate()
         .filter_map(|(index, line)| {
             let line = line.trim_start().trim_start_matches("- ");
-            line.starts_with("run:").then(|| one_based(index))
+            line.strip_prefix("run:")
+                .is_some_and(|value| {
+                    !value
+                        .split('#')
+                        .next()
+                        .unwrap_or_default()
+                        .trim()
+                        .is_empty()
+                })
+                .then(|| one_based(index))
         })
         .collect()
 }
