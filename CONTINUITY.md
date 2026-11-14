@@ -7,17 +7,16 @@ repository:
   continuity_path: CONTINUITY.md
 document:
   status: active
-  updated_at: '2026-11-14T19:50:36Z'
+  updated_at: '2026-11-14T20:17:11Z'
   max_bytes: 16384
   max_lines: 240
   stale_reason: null
   superseded_by: null
 scope:
-  purpose: Classify missing requested native policy and suppression inputs consistently without weakening
-    other I/O categories.
+  purpose: Detect ASCII path-prefix collisions including inferred directories without repeating ancestor-only
+    descendant noise.
   includes:
-  - Shared requested-input errors in native decoding and policy fingerprinting, public CLI lifecycle controls
-    and bounded diagnostics.
+  - Portability case topology, stable native findings and Linux Git/CLI regression controls.
   excludes:
   - Release publication, policy authority promotion, fleet rollout and historical audit rewriting.
   precedence:
@@ -28,84 +27,76 @@ scope:
   - continuity-checkpoint
   canonical_sources:
   - AGENTS.md
-  - src/error.rs
-  - src/main.rs
-  - src/plan.rs
-  - https://github.com/egohygiene/egolint/issues/100
+  - docs/portability-rules.md
+  - .config/rules/portability.toml
+  - https://github.com/egohygiene/egolint/issues/95
   - https://github.com/egohygiene/egolint/issues/42
 work:
-  objective: Classify missing requested native policy and suppression inputs consistently without weakening
-    other I/O categories.
+  objective: Detect ASCII path-prefix collisions including inferred directories without repeating ancestor-only
+    descendant noise.
   success_conditions:
-  - Missing leaf or ancestor inputs produce exit 2 with repository-relative diagnostics.
-  - Permission and other genuine I/O failures retain exit 4.
-  - Early failures remove prior current-run reports; containment, regular-file and budget checks remain.
+  - Detect file/directory, ancestor and ordinary leaf casing conflicts deterministically.
+  - Avoid repeating an ancestor-only conflict for each identically named descendant.
+  - Keep ASCII-only semantics and unexecuted platform limits explicit.
   active_issue:
     provider: github
-    id: egohygiene/egolint#100
-    url: https://github.com/egohygiene/egolint/issues/100
+    id: egohygiene/egolint#95
+    url: https://github.com/egohygiene/egolint/issues/95
   next:
     kind: action
-    id: review-m2-native-inputs
-    description: Review the selected M2 selector/routing and missing-input repairs, integrate their stack,
-      then select the next ready M2 item from roadmap42.
+    id: review-ascii-topology
+    description: Review this focused M2 topology repair, then continue the independently ready static
+      matrix shell diagnostic under issue96.
     readiness: ready
     references:
-    - https://github.com/egohygiene/egolint/issues/100
-    - https://github.com/egohygiene/egolint/pull/115
+    - https://github.com/egohygiene/egolint/issues/95
+    - https://github.com/egohygiene/egolint/issues/96
     - https://github.com/egohygiene/egolint/issues/42
     depends_on: []
 state:
   base:
-    revision: ea1d68c9ac448b4187a2659e8f5e87f5b9a0af70
-    ref: refs/heads/fix/json-skooma-contract-98
-    verified_at: '2026-11-14T19:50:36Z'
+    revision: 6658ba6e2f3c6db4410b6e8a9dc9f60695bc743c
+    ref: refs/heads/main
+    verified_at: '2026-11-14T20:17:11Z'
   candidate:
-    branch: fix/native-input-errors-100
+    branch: fix/portability-prefix-collisions-95
     revision: null
     pull_request: null
     handoff_state: ready-for-review
   live:
     status: verified
-    observed_at: '2026-11-14T19:50:36Z'
-    default_branch_revision: a5fb6de01e2f679fcd59d2d4d1a01cbf4af3e122
+    observed_at: '2026-11-14T20:17:11Z'
+    default_branch_revision: 6658ba6e2f3c6db4410b6e8a9dc9f60695bc743c
     issue_state: open
     pull_request_state: not-applicable
-    notes: PR112 and113 are merged with ordered parents and exact reviewed trees verified. PR115 remains
-      an open draft selected M2 parent; this child is unmerged. No release publication occurred.
-  parallel_changes:
-  - provider: github
-    id: egohygiene/egolint#115
-    url: https://github.com/egohygiene/egolint/pull/115
+    notes: Verified PR112/113/115/116 merged with ordinary parents and exact reviewed trees. This source
+      candidate follows accepted main; issue95 remains open before review. No hosted run or publication
+      inferred.
+  parallel_changes: []
 review:
   status: partial
-  reviewed_at: '2026-11-14T19:50:36Z'
+  reviewed_at: '2026-11-14T20:17:11Z'
   reviewed_by: Codex
   evidence:
-  - command: cargo test --locked --offline --test report_lifecycle_pipeline; cargo test --locked --offline
-      --bin egolint requested_input
+  - command: cargo test --locked --offline --lib rules::portability::tests; cargo test --locked --offline
+      --test portability_topology_pipeline
     outcome: passed
-    observed_at: '2026-11-14T19:50:36Z'
-    notes: Rust1.85.1:15 lifecycle and2 focused unit tests pass. Actual public CLI covers five policy/suppression
-      selections with missing leaf/ancestor paths, malformed input, real unprivileged denied read, sanitized
-      diagnostics and removal of prior authentic reports. No tests skipped.
-  - command: cargo clippy --locked --offline --bin egolint --tests -- -D warnings; cargo fmt --all; git
-      diff --check
+    observed_at: '2026-11-14T20:17:11Z'
+    notes: Rust1.85.1:10 portability unit tests and the actual native pipeline pass. The pipeline covers8
+      synthetic Git trees, each twice with unchanged index tree IDs and exact stable source findings;
+      nine inventory cases include ordering and Unicode-distinct controls. Linux case-sensitive checkout
+      only.
+  - command: cargo clippy --locked --offline --lib --test portability_topology_pipeline -- -D warnings;
+      cargo fmt --all; git diff --check
     outcome: passed
-    observed_at: '2026-11-14T19:50:36Z'
-    notes: Strict Clippy and formatted source pass. The first public CLI control exposed the M1 policy-fingerprint
-      reader, now using the same missing-only mapper. Output-write errors retain their original category.
-  - command: Native egolint validate with repository-continuity dogfood policy, explicit base ea1d68c,
-      working-tree head and supplied GitHub115 evidence
-    outcome: passed
-    observed_at: '2026-11-14T19:51:29Z'
-    notes: Exit0; valid continuity with one expected immutable-but-unreleased owner-contract observe advisory.
-      Seven release-source checks remain advisory; no external publication inferred.
+    observed_at: '2026-11-14T20:17:11Z'
+    notes: Strict focused Clippy, rustfmt and whitespace pass. No dependency, suppression, release, workflow
+      or historical audit/vendor identity changed.
   environment_limitations:
-  - Current-head hosted Actions and broad Rust/platform/image qualification are not rerun for this focused
-    input error repair.
-  - Release/adoption/human lifecycle gates remain separate; historical audit/vendor/dependency bytes remain
-    unchanged.
+  - Native Git/CLI topology proof is Linux-only; macOS/Windows case-insensitive checkout behavior is not
+    executed or claimed.
+  - Hosted and broad platform/image qualification remain deferred; release/adoption/human lifecycle gates
+    remain separate.
 privacy:
   classification: public-repository
   contains_sensitive_data: false
@@ -125,55 +116,57 @@ privacy:
 
 ## Purpose and precedence
 
-Classify requested-input failures consistently. Runtime/user instructions, scoped instructions,
-verified live state and canonical source outrank this operational handoff.
+Repair the bounded M2 ASCII topology gap. Runtime/user instructions, scoped instructions,
+verified live state and canonical sources outrank this handoff.
 
 ## Resume protocol
 
-Read AGENTS.md and roadmap 42; verify actual main and the selected M2 parent before integration.
+Read AGENTS.md, roadmap 42 and the case-rule guide; verify main and this review branch before acting.
 
 ## Current objective and success conditions
 
-Missing requested leaf/ancestor paths produce exit 2; genuine I/O remains exit 4. Earlier authentic
-current-run evidence is invalidated on failure. Input containment and budgets stay enforced.
+Detect inferred ancestor and file/directory collisions, preserve ordinary leaf detection, and
+avoid duplicate descendant findings caused solely by an ancestor spelling conflict.
 
 ## State snapshot
 
-Front matter separates immutable parent, unmerged candidate and time-qualified live observation.
-PR 112 and 113 merged; PR 115 is the selected M2 parent. The containing revision remains null.
+Front matter separates immutable base, unmerged candidate and time-qualified live state.
+PR 112/113/115/116 are merged. Functional source 88bda8376f25e4dac93f7a1df038c3c93f79297b
+contains the topology and domain controls; its containing checkpoint revision remains null.
 
 ## Completed and material changes
 
-Native policy fingerprinting and native decoding share EgolintError::requested_input. Only NotFound
-maps to MissingPath; all other I/O remains Filesystem. Diagnostics use the requested relative path.
+Every path prefix contributes component spellings to an ASCII-folded node. One finding describes
+all conflicting spellings at that node and uses a stable existing source path. Identical descendant
+components add no repeated ancestor-only finding; consistently cased shared directories remain valid.
 
 ## Validation and review evidence
 
-All 15 lifecycle and 2 focused unit tests pass on Rust 1.85.1, including actual missing inputs across
-five selections, malformed input and real denied-read controls. Strict Clippy and whitespace pass.
-The first CLI probe identified the earlier policy-fingerprint path; both readers now agree.
+Ten portability unit tests and an actual native pipeline pass. Eight synthetic Git trees run twice,
+retaining index tree IDs and stable findings. Nine inventory cases preserve ASCII-only semantics
+and reversed-input ordering. Strict focused Clippy, rustfmt and whitespace pass.
 
 ## Blockers, risks, unknowns, and deferred work
 
-Review the selected M2 stack. Hosted, broad platform/image and release/adoption qualification remain
-separate. No historical audit, vendor, dependency, policy lifecycle or release artifact is rewritten.
+Native checkout proof is Linux-only; no macOS/Windows checkout compatibility is claimed.
+Hosted, broad platform/image, release/adoption and human policy gates remain separate.
 
 ## Next dependency-ready work
 
-Review/integrate the selected repairs; consult roadmap 42 for the next independent M2 issue.
+Review/integrate this repair, then continue the independent static matrix shell diagnostic issue 96.
 
 ## Parallel changes and reconciliation
 
-PR 115 precedes this candidate. Reconcile this checkpoint against actual main during integration.
+No other open EgoLint source PR was observed after 115/116 integration. Recheck before merging.
 
 ## Privacy and redaction
 
-Only public source and synthetic fixture evidence is retained; private context and credentials stay
-excluded. No raw fixture contents or absolute temporary paths appear in missing-input diagnostics.
+Only public source and synthetic fixtures are retained; private context, credentials and raw logs
+stay excluded. Current native fixtures use no real person or external service.
 
 ## Handoff update protocol
 
-Refresh after domain checks; verify live/base evidence, pinned schema/formats, headings and budgets.
+Refresh after domain checks; verify actual target/live state, pinned schema/formats and size budgets.
 
 ## Compaction and supersession
 
