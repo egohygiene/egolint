@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CapabilityDecision",
+  "description": "Public-safe explanation; never contains manifest values or file contents.",
+  "type": "object",
+  "properties": {
+    "applicable": {
+      "type": "boolean"
+    },
+    "available": {
+      "type": "boolean"
+    },
+    "id": {
+      "type": "string"
+    },
+    "placement": {
+      "$ref": "#/$defs/Placement"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "state": {
+      "$ref": "#/$defs/CapabilityState"
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "provider",
+    "placement",
+    "available",
+    "applicable",
+    "state",
+    "reason"
+  ],
+  "$defs": {
+    "CapabilityState": {
+      "description": "Selection is not evidence that an executable actually ran or passed.",
+      "type": "string",
+      "enum": [
+        "available",
+        "applicable",
+        "selected",
+        "skipped",
+        "unavailable",
+        "invalid"
+      ]
+    },
+    "Placement": {
+      "description": "A capability's owning execution boundary.",
+      "type": "string",
+      "enum": [
+        "full_image",
+        "native",
+        "host_adapter",
+        "configuration_only",
+        "specialized_image"
+      ]
+    }
+  }
+}

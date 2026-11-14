@@ -27,11 +27,15 @@ include = [
   "/.config/rules/issue-title-sources.v1.json",
   "/.config/rules/repository-intelligence-coverage-sources.v1.json",
   "/.config/megalinter/tool-matrix.json",
+  "/.config/megalinter/v10-catalog.json",
+  "/.config/toolchain/complementary-tools.json",
+  "/.config/structural/*.yml",
   "/.config/security/scanner-ownership.json",
   "/src/**",
   "/schemas/**",
   "/examples/**",
   "/tests/dependency_debt_pipeline.rs",
+  "/tests/capability_selection_pipeline.rs",
   "/tests/empathy_compatibility.rs",
   "/tests/fix_pipeline.rs",
   "/tests/repository_gitignore_pipeline.rs",
@@ -56,6 +60,8 @@ include = [
   "/tests/fixtures/repository-presentation/**",
   "/tests/fixtures/repository-gitignore/**",
   "/tests/fixtures/repository-release/**",
+  "/tests/fixtures/structural/**",
+  "/scripts/benchmark_ast_grep.py",
   "/.config/dogfood/repository-continuity.toml",
   "/vendor/aether/**",
   "/vendor/github/issue-titles/**",
@@ -90,6 +96,11 @@ resolver = "3"
 codegen-units = 1
 lto = "thin"
 strip = "symbols"
+
+# Reports bind their producing executable even in local/debug runs. Keep the
+# cryptographic compression loop fast without optimizing the whole test build.
+[profile.dev.package.sha2]
+opt-level = 3
 
 [lints.rust]
 unsafe_code = "forbid"

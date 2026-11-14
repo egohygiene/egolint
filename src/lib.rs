@@ -1,8 +1,10 @@
 //! Core configuration, planning, and execution primitives for Egolint.
 
+pub mod capabilities;
 pub mod config;
 pub mod contracts;
 pub mod debt;
+pub mod enforcement;
 pub mod error;
 pub mod fix;
 pub mod intelligence_coverage;
@@ -13,6 +15,7 @@ pub mod plan;
 pub mod report;
 pub mod rules;
 pub mod sarif;
+pub mod structural;
 
 pub use config::{
     Config, ConfigOverrides, NetworkMode, Profile, PullPolicy, ResolvedConfig, Runtime,

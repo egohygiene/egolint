@@ -36,7 +36,17 @@ Podman.
 | `environment`       | Map of valid environment names to strings         | Empty                                  |
 
 Supported environment overrides are `EGOLINT_IMAGE`, `EGOLINT_PROFILE`, `EGOLINT_RUNTIME`,
-`EGOLINT_PULL_POLICY`, `EGOLINT_NETWORK`, and `EGOLINT_MEGALINTER_CONFIG`.
+`EGOLINT_PULL_POLICY`, `EGOLINT_NETWORK`, `EGOLINT_MEGALINTER_CONFIG`, and
+`EGOLINT_ENFORCEMENT`.
+
+The typed `[capabilities]` section defaults to adaptive selection. It merges
+exclusions, optional declarations and service names across layers. See
+[adaptive capabilities](adaptive-capabilities.md), including explicit
+`enabled = false` migration behavior. The typed `[enforcement]` section defaults
+to `mode = "enforce"`; [progressive enforcement](enforcement.md) defines the
+other modes and mandatory reviewed-baseline inputs for ratchet. Omitted section
+fields retain inherited values. The `--enforcement` CLI option has highest mode
+precedence; invocation provenance is a per-run input, not persistent policy.
 
 Reports always use `.reports/egolint`. This is intentionally not configurable: `check` overlays that
 one dedicated path read-write beneath an otherwise read-only workspace. Egolint rejects symlinks or

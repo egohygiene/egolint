@@ -1,5 +1,15 @@
 # Machine-readable contracts
 
+Adaptive selection adds version-1 registry/decision schemas and planned
+capability decisions to plans/reports. Progressive enforcement adds baseline
+and enforcement schemas plus optional source/policy identity and adoption
+results to run reports. `status` continues to describe actual findings or
+execution failure; `egolint_exit_code` may be nonblocking under explicit
+adoption. See [enforcement](enforcement.md) for consistency and baseline rules.
+Old reports remain readable through optional fields; consumers pinned to an
+older closed schema must update that schema to accept new output. These source
+changes do not assert a new published contract release.
+
 Egolint owns versioned contracts for profiles, findings, suppressions, evidence, per-tool results,
 execution plans, run reports, the repository-contract validation envelope, Repository Continuity,
 and Repository Intelligence semantic policy. The checked-in JSON Schemas in
@@ -120,12 +130,12 @@ are not isolated from each other.
 
 The complete core run-owned inventory under `.reports/egolint` is:
 
-| Family | Files |
-| --- | --- |
-| Aggregate | `run.json`, `egolint.sarif` |
-| Focused | `repository-continuity.json`, `repository-intelligence.json`, `repository-presentation.json`, `repository-release.json`, `repository-gitignore.json` |
-| Adapter inputs and diagnostics | `mega-linter-report.json`, `mega-linter-report.sarif`, `mega-linter.log`, `mega-linter-adapter.log` |
-| Derived outputs | `debt.json`, `debt.md`, `fixes.patch` |
+| Family                         | Files                                                                                                                                                |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Aggregate                      | `run.json`, `egolint.sarif`                                                                                                                          |
+| Focused                        | `repository-continuity.json`, `repository-intelligence.json`, `repository-presentation.json`, `repository-release.json`, `repository-gitignore.json` |
+| Adapter inputs and diagnostics | `mega-linter-report.json`, `mega-linter-report.sarif`, `mega-linter.log`, `mega-linter-adapter.log`                                                  |
+| Derived outputs                | `debt.json`, `debt.md`, `fixes.patch`                                                                                                                |
 
 Cleanup removes only these names. Unrelated diagnostics, separately owned JavaScript reports, and
 other retained private artifacts remain untouched. An omitted capability leaves no old focused

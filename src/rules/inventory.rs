@@ -122,15 +122,8 @@ impl RepositoryInventory {
                 continue;
             }
             let absolute = workspace.join(&relative);
-            let metadata = match std::fs::symlink_metadata(&absolute) {
-                Ok(metadata) => metadata,
-                Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
-                Err(source) => {
-                    return Err(EgolintError::Filesystem {
-                        path: absolute,
-                        source,
-                    });
-                }
+            let Some(metadata) = entry_metadata(&workspace, &relative)? else {
+                continue;
             };
             let (kind, content) = if metadata.file_type().is_symlink() {
                 let target =
@@ -188,6 +181,34 @@ impl RepositoryInventory {
                 .any(|ancestor| ancestor == directory)
         })
     }
+}
+
+// A tracked descendant can survive in the index after its parent directory is
+// replaced with a symlink. Preserve leaf links as metadata, but never follow a
+// linked ancestor to discover content outside the selected worktree.
+fn entry_metadata(workspace: &Path, relative: &Path) -> Result<Option<std::fs::Metadata>> {
+    let mut absolute = workspace.to_path_buf();
+    let mut components = relative.components().peekable();
+    while let Some(component) = components.next() {
+        absolute.push(component.as_os_str());
+        let metadata = match std::fs::symlink_metadata(&absolute) {
+            Ok(metadata) => metadata,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+            Err(source) => {
+                return Err(EgolintError::Filesystem {
+                    path: absolute,
+                    source,
+                });
+            }
+        };
+        if components.peek().is_none() {
+            return Ok(Some(metadata));
+        }
+        if !metadata.is_dir() || metadata.file_type().is_symlink() {
+            return Ok(None);
+        }
+    }
+    Ok(None)
 }
 
 fn tracked_modes(workspace: &Path) -> Result<BTreeMap<String, u32>> {
@@ -303,5 +324,57 @@ mod tests {
             ])
             .is_err()
         );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn discovery_never_reads_tracked_files_beneath_a_symlinked_ancestor() {
+        use std::os::unix::fs::symlink;
+
+        let root = tempfile::tempdir().unwrap();
+        let outside = tempfile::tempdir().unwrap();
+        let template = tempfile::tempdir().unwrap();
+        assert!(
+            Command::new("git")
+                .args(["init", "--quiet"])
+                .arg(format!("--template={}", template.path().display()))
+                .arg(root.path())
+                .status()
+                .unwrap()
+                .success()
+        );
+        let relative = Path::new("project/nested/source.txt");
+        std::fs::create_dir_all(root.path().join("project/nested")).unwrap();
+        std::fs::write(root.path().join(relative), b"local source\n").unwrap();
+        assert!(
+            Command::new("git")
+                .args(["add", "project"])
+                .current_dir(root.path())
+                .status()
+                .unwrap()
+                .success()
+        );
+        let control = RepositoryInventory::discover(root.path()).unwrap();
+        assert_eq!(control.get(relative).unwrap().content, b"local source\n");
+
+        let external = outside.path().join("source.txt");
+        std::fs::write(
+            &external,
+            b"synthetic external bytes\r\nnever inventory these\n",
+        )
+        .unwrap();
+        std::fs::remove_dir_all(root.path().join("project/nested")).unwrap();
+        symlink(outside.path(), root.path().join("project/nested")).unwrap();
+        symlink(&external, root.path().join("leaf-link.txt")).unwrap();
+
+        let inventory = RepositoryInventory::discover(root.path()).unwrap();
+        assert!(inventory.get(relative).is_none());
+        assert!(inventory.entries().iter().all(|entry| {
+            entry.kind == RepositoryEntryKind::Symlink
+                || !entry.content.starts_with(b"synthetic external bytes")
+        }));
+        let leaf = inventory.get(Path::new("leaf-link.txt")).unwrap();
+        assert_eq!(leaf.kind, RepositoryEntryKind::Symlink);
+        assert_eq!(leaf.content, external.to_string_lossy().as_bytes());
     }
 }

@@ -1,0 +1,287 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CapabilityRegistry",
+  "description": "Exact compiled registry assembled from existing catalog and policy owners.",
+  "type": "object",
+  "properties": {
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CapabilityDefinition"
+      }
+    },
+    "policy_sha256": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "policy_sha256",
+    "capabilities"
+  ],
+  "$defs": {
+    "CapabilityDefinition": {
+      "description": "A capability declaration describes availability separately from applicability.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "placement": {
+          "$ref": "#/$defs/Placement"
+        },
+        "policy_source": {
+          "type": "string"
+        },
+        "predicate": {
+          "$ref": "#/$defs/Predicate"
+        },
+        "profiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "provider": {
+          "type": "string"
+        },
+        "runtime": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "provider",
+        "placement",
+        "predicate",
+        "profiles",
+        "policy_source"
+      ]
+    },
+    "Invocation": {
+      "description": "Invocation provenance is data, not a command or publication authorization.",
+      "type": "string",
+      "enum": [
+        "local",
+        "workflow_dispatch",
+        "pull_request",
+        "push",
+        "schedule",
+        "release",
+        "automatic"
+      ]
+    },
+    "Placement": {
+      "description": "A capability's owning execution boundary.",
+      "type": "string",
+      "enum": [
+        "full_image",
+        "native",
+        "host_adapter",
+        "configuration_only",
+        "specialized_image"
+      ]
+    },
+    "Predicate": {
+      "description": "Closed applicability predicates; no repository script is evaluated.",
+      "oneOf": [
+        {
+          "description": "At least one inventoried regular file matches a portable glob.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "path"
+            },
+            "pattern": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "pattern"
+          ]
+        },
+        {
+          "description": "A bounded JSON/TOML manifest contains a nonempty top-level metadata key.",
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "const": "metadata"
+            },
+            "pattern": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "pattern",
+            "key"
+          ]
+        },
+        {
+          "description": "Caller declared a named service.",
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "const": "service"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "id"
+          ]
+        },
+        {
+          "description": "Caller authorized this optional capability.",
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "const": "declaration"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "id"
+          ]
+        },
+        {
+          "description": "The observed caller event must match; this grants no external authority.",
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "#/$defs/Invocation"
+            },
+            "kind": {
+              "type": "string",
+              "const": "lifecycle"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "event"
+          ]
+        },
+        {
+          "description": "A required host runtime must be available without executing it.",
+          "type": "object",
+          "properties": {
+            "executable": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string",
+              "const": "runtime"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "executable"
+          ]
+        },
+        {
+          "description": "Release work needs both an explicit lifecycle and a locally verified comparison.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "release_comparison"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ]
+        },
+        {
+          "description": "All nested requirements must hold.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "all"
+            },
+            "predicates": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Predicate"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "predicates"
+          ]
+        },
+        {
+          "description": "At least one nested requirement must hold.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "any"
+            },
+            "predicates": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Predicate"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "predicates"
+          ]
+        },
+        {
+          "description": "Safe repository-wide metadata/static inspection.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "repository"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ]
+        }
+      ]
+    }
+  }
+}

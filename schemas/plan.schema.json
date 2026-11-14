@@ -11,6 +11,13 @@
         "type": "string"
       }
     },
+    "capabilities": {
+      "description": "Availability, applicability and selection reasons for compiled capabilities.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CapabilityDecision"
+      }
+    },
     "config_sources": {
       "description": "Ordered configuration provenance.",
       "type": "array",
@@ -18,13 +25,24 @@
         "type": "string"
       }
     },
+    "enforcement_mode": {
+      "description": "Adoption mode is independent of the selected profile.",
+      "$ref": "#/$defs/EnforcementMode"
+    },
     "image": {
       "description": "Immutable or tagged image reference requested by configuration.",
       "type": "string"
     },
+    "invocation": {
+      "$ref": "#/$defs/Invocation"
+    },
     "operation": {
       "description": "Check or fix capability.",
       "$ref": "#/$defs/Operation"
+    },
+    "policy_sha256": {
+      "description": "Effective policy identity excludes adoption-mode/baseline self-references.",
+      "type": "string"
     },
     "profile": {
       "description": "Selected named profile.",
@@ -43,6 +61,16 @@
       "type": "integer",
       "const": 1
     },
+    "source": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SourceSnapshot"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "workspace": {
       "description": "Canonical host workspace.",
       "type": "string"
@@ -57,9 +85,89 @@
     "workspace",
     "report_directory",
     "config_sources",
-    "argv"
+    "argv",
+    "capabilities",
+    "enforcement_mode",
+    "invocation",
+    "policy_sha256"
   ],
   "$defs": {
+    "CapabilityDecision": {
+      "description": "Public-safe explanation; never contains manifest values or file contents.",
+      "type": "object",
+      "properties": {
+        "applicable": {
+          "type": "boolean"
+        },
+        "available": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "placement": {
+          "$ref": "#/$defs/Placement"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/CapabilityState"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "provider",
+        "placement",
+        "available",
+        "applicable",
+        "state",
+        "reason"
+      ]
+    },
+    "CapabilityState": {
+      "description": "Selection is not evidence that an executable actually ran or passed.",
+      "type": "string",
+      "enum": [
+        "available",
+        "applicable",
+        "selected",
+        "skipped",
+        "unavailable",
+        "invalid"
+      ]
+    },
+    "EnforcementMode": {
+      "description": "Existing consumers retain blocking behavior unless they explicitly select another mode.",
+      "type": "string",
+      "enum": [
+        "manual",
+        "observe",
+        "ratchet",
+        "enforce"
+      ]
+    },
+    "Invocation": {
+      "description": "Invocation provenance is data, not a command or publication authorization.",
+      "type": "string",
+      "enum": [
+        "local",
+        "workflow_dispatch",
+        "pull_request",
+        "push",
+        "schedule",
+        "release",
+        "automatic"
+      ]
+    },
     "Operation": {
       "description": "Requested lint operation and its workspace write capability.",
       "oneOf": [
@@ -73,6 +181,17 @@
           "type": "string",
           "const": "fix"
         }
+      ]
+    },
+    "Placement": {
+      "description": "A capability's owning execution boundary.",
+      "type": "string",
+      "enum": [
+        "full_image",
+        "native",
+        "host_adapter",
+        "configuration_only",
+        "specialized_image"
       ]
     },
     "Profile": {
@@ -98,6 +217,27 @@
           "type": "string",
           "const": "dependency-debt"
         }
+      ]
+    },
+    "SourceSnapshot": {
+      "description": "Commit/tree provenance is explicit about dirty or unavailable source.",
+      "type": "object",
+      "properties": {
+        "commit": {
+          "type": "string"
+        },
+        "dirty": {
+          "type": "boolean"
+        },
+        "tree": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "tree",
+        "dirty"
       ]
     }
   }

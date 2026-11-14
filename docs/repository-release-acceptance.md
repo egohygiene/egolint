@@ -84,7 +84,7 @@ process result or folded into a false completed parent state.
 
 For bounded preparation, the known implementation pin is
 `4e7cc53491a27da5b361ca7ff56568d05fc07701` from the original PR #110 qualification. It includes the #91 correction,
-#68 matrix and #69 archive repair. Use a clean disposable producer checkout and verify that exact
+the #68 matrix and #69 archive repair. Use a clean disposable producer checkout and verify that exact
 commit before building or replaying controls. The pinned Rust toolchain and lockfiles remain part of
 the source contract:
 

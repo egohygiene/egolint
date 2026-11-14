@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Baseline",
+  "description": "A checksum pin lives outside these bytes; an editable self-checksum is not trust.",
+  "type": "object",
+  "properties": {
+    "created_on": {
+      "type": "string"
+    },
+    "expires_on": {
+      "type": "string"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/BaselineFinding"
+      }
+    },
+    "policy_sha256": {
+      "type": "string"
+    },
+    "repository": {
+      "type": "string"
+    },
+    "represented_commit": {
+      "type": "string"
+    },
+    "represented_tree": {
+      "type": "string"
+    },
+    "review_reference": {
+      "type": "string"
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "tool_versions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "repository",
+    "represented_commit",
+    "represented_tree",
+    "policy_sha256",
+    "tool_versions",
+    "created_on",
+    "expires_on",
+    "reviewed_by",
+    "review_reference",
+    "findings"
+  ],
+  "$defs": {
+    "BaselineFinding": {
+      "description": "Baseline entries carry no source excerpt or raw diagnostic message.",
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "fingerprint": {
+          "type": "string"
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rule_id": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "tool_id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "fingerprint",
+        "tool_id",
+        "rule_id",
+        "severity",
+        "count"
+      ]
+    },
+    "Severity": {
+      "description": "Normalized finding severity.",
+      "oneOf": [
+        {
+          "description": "Informational observation.",
+          "type": "string",
+          "const": "info"
+        },
+        {
+          "description": "Nonblocking warning.",
+          "type": "string",
+          "const": "warning"
+        },
+        {
+          "description": "Blocking correctness or policy failure.",
+          "type": "string",
+          "const": "error"
+        },
+        {
+          "description": "Urgent high-impact security or safety failure.",
+          "type": "string",
+          "const": "critical"
+        }
+      ]
+    }
+  }
+}

@@ -122,6 +122,18 @@ pub struct RunReport {
     pub suppressions: Vec<Suppression>,
     /// Sanitized evidence supporting the run-level outcome.
     pub evidence: Vec<EvidenceReference>,
+    /// Planned selection is separate from observed per-tool execution.
+    #[serde(default)]
+    pub capabilities: Vec<crate::capabilities::CapabilityDecision>,
+    /// Represented committed source, with explicit dirty/unavailable status.
+    #[serde(default)]
+    pub source: Option<crate::enforcement::SourceSnapshot>,
+    /// Effective rule/configuration inputs, independent of adoption controls.
+    #[serde(default)]
+    pub policy_sha256: Option<String>,
+    /// Adoption preserves the underlying findings and execution status.
+    #[serde(default)]
+    pub enforcement: Option<crate::enforcement::EnforcementDecision>,
 }
 
 impl RunReport {
@@ -151,6 +163,10 @@ impl RunReport {
             findings,
             suppressions,
             evidence: Vec::new(),
+            capabilities: plan.capabilities.clone(),
+            source: plan.source.clone(),
+            policy_sha256: Some(plan.policy_sha256.clone()),
+            enforcement: None,
         }
     }
 
@@ -212,7 +228,18 @@ impl RunReport {
                 "report schema-version must equal {CONTRACT_VERSION}"
             )));
         }
-        if self.egolint_exit_code != self.status.exit_code() {
+        if let Some(decision) = &self.enforcement {
+            decision.validate_for(self)?;
+            if decision.schema_version != 1
+                || decision.effective_exit_code != self.egolint_exit_code
+                || (self.status == RunStatus::ExecutionError
+                    && self.egolint_exit_code != self.status.exit_code())
+            {
+                return Err(EgolintError::Configuration(
+                    "inconsistent enforcement result".to_owned(),
+                ));
+            }
+        } else if self.egolint_exit_code != self.status.exit_code() {
             return Err(EgolintError::Configuration(
                 "report Egolint exit code does not match its status".to_owned(),
             ));
@@ -412,6 +439,11 @@ mod tests {
             report_directory: PathBuf::from(".reports/egolint"),
             config_sources: vec!["compiled defaults".to_owned()],
             argv: vec!["docker".to_owned(), "run".to_owned()],
+            capabilities: Vec::new(),
+            enforcement_mode: crate::enforcement::EnforcementMode::Enforce,
+            invocation: crate::enforcement::Invocation::Local,
+            source: None,
+            policy_sha256: "f".repeat(64),
         };
 
         let report = RunReport::from_plan(&plan, Some(42));
@@ -530,6 +562,11 @@ mod tests {
             report_directory: PathBuf::from(".reports/egolint"),
             config_sources: vec!["compiled defaults".to_owned()],
             argv: vec!["docker".to_owned(), "run".to_owned()],
+            capabilities: Vec::new(),
+            enforcement_mode: crate::enforcement::EnforcementMode::Enforce,
+            invocation: crate::enforcement::Invocation::Local,
+            source: None,
+            policy_sha256: "f".repeat(64),
         }
     }
 

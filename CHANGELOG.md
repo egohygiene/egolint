@@ -7,11 +7,29 @@ use Semantic Versioning once its public contracts stabilize.
 
 ### Added
 
+- Adaptive capability registry and per-tool plan/report explanations, preserving profile defaults
+  and explicit legacy selection.
+- Manual, observe, reviewed-baseline ratchet and enforce modes with visible debt, source/policy/tool
+  binding and independent execution failures.
+- Optional pinned advisory ast-grep structural rules, normalized JSON/SARIF, synthetic controls and
+  reproducible benchmark driver.
+
 - Four-digit ADR policy v1.2.0 support, explicit compatibility for older pinned consumers, and
   historical trailer lookup to mapped padded records.
 
 - Offline issue-title validation and explicit reviewed-subject formatting with a checksum-verified
   organization contract candidate, deterministic provenance, and generated input/result schemas.
+
+### Fixed
+
+- Align adaptive plans with actual native execution, authorized network checks, typed project
+  metadata, and bounded input discovery.
+- Require complete producing-executable evidence for reviewed ratchet baselines and preserve
+  independent adapter failures.
+- Cover JSX/TSX structural inputs, bind diagnostics to scanned files, and keep provider output
+  draining within its deadline.
+- Repair local self-dogfood typing, subprocess annotations, Markdown and YAML.
+- Keep debug executable hashing fast while preserving the bounded-startup check.
 
 ## [0.1.0-alpha.1] - 2026-09-01
 

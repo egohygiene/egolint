@@ -12,6 +12,14 @@
       ],
       "format": "int32"
     },
+    "capabilities": {
+      "description": "Planned selection is separate from observed per-tool execution.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/CapabilityDecision"
+      }
+    },
     "completeness": {
       "description": "Whether adapter details were fully normalized.",
       "$ref": "#/$defs/ReportCompleteness"
@@ -27,6 +35,18 @@
       "description": "Stable Egolint process exit code.",
       "type": "integer",
       "format": "int32"
+    },
+    "enforcement": {
+      "description": "Adoption preserves the underlying findings and execution status.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EnforcementDecision"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "evidence": {
       "description": "Sanitized evidence supporting the run-level outcome.",
@@ -56,6 +76,14 @@
       "description": "Operation executed.",
       "$ref": "#/$defs/Operation"
     },
+    "policy_sha256": {
+      "description": "Effective rule/configuration inputs, independent of adoption controls.",
+      "type": [
+        "string",
+        "null"
+      ],
+      "default": null
+    },
     "profile": {
       "description": "Versioned selected profile contract.",
       "$ref": "#/$defs/ProfileDefinition"
@@ -68,6 +96,18 @@
       "description": "Output contract version.",
       "type": "integer",
       "const": 1
+    },
+    "source": {
+      "description": "Represented committed source, with explicit dirty/unavailable status.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SourceSnapshot"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "status": {
       "description": "Normalized outcome.",
@@ -111,6 +151,106 @@
     "evidence"
   ],
   "$defs": {
+    "BaselineFinding": {
+      "description": "Baseline entries carry no source excerpt or raw diagnostic message.",
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "fingerprint": {
+          "type": "string"
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rule_id": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "tool_id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "fingerprint",
+        "tool_id",
+        "rule_id",
+        "severity",
+        "count"
+      ]
+    },
+    "BaselineStatus": {
+      "type": "string",
+      "enum": [
+        "not_used",
+        "valid",
+        "expired",
+        "incompatible",
+        "unavailable"
+      ]
+    },
+    "CapabilityDecision": {
+      "description": "Public-safe explanation; never contains manifest values or file contents.",
+      "type": "object",
+      "properties": {
+        "applicable": {
+          "type": "boolean"
+        },
+        "available": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "placement": {
+          "$ref": "#/$defs/Placement"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/CapabilityState"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "provider",
+        "placement",
+        "available",
+        "applicable",
+        "state",
+        "reason"
+      ]
+    },
+    "CapabilityState": {
+      "description": "Selection is not evidence that an executable actually ran or passed.",
+      "type": "string",
+      "enum": [
+        "available",
+        "applicable",
+        "selected",
+        "skipped",
+        "unavailable",
+        "invalid"
+      ]
+    },
     "Enforcement": {
       "description": "Quality-gate behavior for one tool or rule.",
       "oneOf": [
@@ -129,6 +269,76 @@
           "type": "string",
           "const": "disabled"
         }
+      ]
+    },
+    "EnforcementDecision": {
+      "description": "Effective process result is separate from the run's actual findings/execution status.",
+      "type": "object",
+      "properties": {
+        "baseline_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "baseline_status": {
+          "$ref": "#/$defs/BaselineStatus"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FindingDelta"
+          }
+        },
+        "effective_exit_code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "executable_sha256": {
+          "description": "Producing executable bytes; older reports remain readable but need a fresh run to baseline.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "execution_skipped": {
+          "type": "boolean"
+        },
+        "invocation": {
+          "$ref": "#/$defs/Invocation"
+        },
+        "mode": {
+          "$ref": "#/$defs/EnforcementMode"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "schema_version": {
+          "type": "integer",
+          "const": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "mode",
+        "invocation",
+        "execution_skipped",
+        "baseline_status",
+        "effective_exit_code",
+        "changes",
+        "reason"
+      ]
+    },
+    "EnforcementMode": {
+      "description": "Existing consumers retain blocking behavior unless they explicitly select another mode.",
+      "type": "string",
+      "enum": [
+        "manual",
+        "observe",
+        "ratchet",
+        "enforce"
       ]
     },
     "EvidenceKind": {
@@ -278,6 +488,52 @@
         "evidence"
       ]
     },
+    "FindingDelta": {
+      "type": "object",
+      "properties": {
+        "blocking": {
+          "type": "boolean"
+        },
+        "finding": {
+          "$ref": "#/$defs/BaselineFinding"
+        },
+        "state": {
+          "$ref": "#/$defs/FindingState"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "finding",
+        "state",
+        "blocking"
+      ]
+    },
+    "FindingState": {
+      "description": "Debt state remains visible even when adoption makes it nonblocking.",
+      "type": "string",
+      "enum": [
+        "resolved",
+        "unchanged",
+        "new",
+        "worsened",
+        "suppressed",
+        "expired",
+        "unavailable"
+      ]
+    },
+    "Invocation": {
+      "description": "Invocation provenance is data, not a command or publication authorization.",
+      "type": "string",
+      "enum": [
+        "local",
+        "workflow_dispatch",
+        "pull_request",
+        "push",
+        "schedule",
+        "release",
+        "automatic"
+      ]
+    },
     "Operation": {
       "description": "Requested lint operation and its workspace write capability.",
       "oneOf": [
@@ -291,6 +547,17 @@
           "type": "string",
           "const": "fix"
         }
+      ]
+    },
+    "Placement": {
+      "description": "A capability's owning execution boundary.",
+      "type": "string",
+      "enum": [
+        "full_image",
+        "native",
+        "host_adapter",
+        "configuration_only",
+        "specialized_image"
       ]
     },
     "Profile": {
@@ -561,6 +828,27 @@
       "additionalProperties": false,
       "required": [
         "path"
+      ]
+    },
+    "SourceSnapshot": {
+      "description": "Commit/tree provenance is explicit about dirty or unavailable source.",
+      "type": "object",
+      "properties": {
+        "commit": {
+          "type": "string"
+        },
+        "dirty": {
+          "type": "boolean"
+        },
+        "tree": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "tree",
+        "dirty"
       ]
     },
     "Suppression": {

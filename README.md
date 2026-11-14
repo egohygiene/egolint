@@ -37,17 +37,27 @@ Egolint separates orchestration from the lint engine:
 
 ## Current alpha surface
 
-| Command             | Purpose                                                                                                  |
-| ------------------- | -------------------------------------------------------------------------------------------------------- |
-| `egolint lint`      | Run linters with the repository mounted read-only.                                                       |
-| `egolint fix`       | Generate a bounded patch in an isolated copy; never edit the source worktree.                            |
-| `egolint apply-fix` | Apply and stage one reviewed patch only when its SHA-256, base commit, and expected post-tree all match. |
-| `egolint gitignore` | Validate pinned layered ignore content and isolated Git behavior; report unknown evidence explicitly.    |
-| `egolint validate`  | Run native portability, repository-contract, continuity, and semantic checks without a container.        |
-| `egolint plan`      | Print the redacted container invocation without running it.                                              |
-| `egolint doctor`    | Validate configuration and runtime readiness.                                                            |
-| `egolint explain`   | Show effective configuration and ordered sources.                                                        |
-| `egolint schema`    | Emit a checked-in machine contract as JSON Schema.                                                       |
+| Command                | Purpose                                                                                                  |
+| ---------------------- | -------------------------------------------------------------------------------------------------------- |
+| `egolint lint`         | Run linters with the repository mounted read-only.                                                       |
+| `egolint fix`          | Generate a bounded patch in an isolated copy; never edit the source worktree.                            |
+| `egolint apply-fix`    | Apply and stage one reviewed patch only when its SHA-256, base commit, and expected post-tree all match. |
+| `egolint gitignore`    | Validate pinned layered ignore content and isolated Git behavior; report unknown evidence explicitly.    |
+| `egolint validate`     | Run native portability, repository-contract, continuity, and semantic checks without a container.        |
+| `egolint plan`         | Print the redacted container invocation without running it.                                              |
+| `egolint capabilities` | Inspect the compiled versioned capability registry without running tools.                                |
+| `egolint baseline`     | Create a new reviewed debt baseline from a completed, clean-source run.                                  |
+| `egolint doctor`       | Validate configuration and runtime readiness.                                                            |
+| `egolint explain`      | Show effective configuration and ordered sources.                                                        |
+| `egolint schema`       | Emit a checked-in machine contract as JSON Schema.                                                       |
+
+Adaptive plans explain availability, applicability and selection for the pinned
+tool catalog. [Progressive enforcement](docs/enforcement.md) supports manual,
+observe, reviewed-baseline ratchet and enforce modes without hiding execution
+errors. The optional [ast-grep adapter](docs/ast-grep-evaluation.md) adds advisory
+structural checks through `egolint validate --ast-grep`. See
+[capability selection](docs/adaptive-capabilities.md) for migration and the
+explicit legacy selection switch.
 
 `check` remains an alias for `lint`, and `config explain` remains available for compatibility with
 the first alpha surface.

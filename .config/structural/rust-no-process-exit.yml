@@ -1,0 +1,6 @@
+id: EGO-AST-RS-EXIT-001
+language: Rust
+severity: warning
+message: Review direct process exit; prefer returning a typed result from reusable code.
+rule:
+  pattern: std::process::exit($CODE)

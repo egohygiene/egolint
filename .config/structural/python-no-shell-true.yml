@@ -1,0 +1,13 @@
+id: EGO-AST-PY-SHELL-001
+language: Python
+severity: warning
+message: Review subprocess.run with shell=True; prefer an explicit argument vector.
+rule:
+  all:
+    - pattern: subprocess.run($$$ARGS)
+    - has:
+        kind: argument_list
+        has:
+          pattern:
+            context: subprocess.run(shell=True)
+            selector: keyword_argument

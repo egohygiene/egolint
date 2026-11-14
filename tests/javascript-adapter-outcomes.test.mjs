@@ -35,9 +35,11 @@ async function invoke(
 ) {
     const root = await mkdtemp(join(tmpdir(), "egolint-js-protocol-"));
     t.after(() => rm(root, { recursive: true, force: true }));
-    const bin = join(root, "bin");
+    // publint's subprocess helper searches local bins before PATH and Corepack.
+    // Own that lookup in the disposable fixture, including on setup-node runners.
+    const bin = join(root, "node_modules", ".bin");
     const consumer = join(root, "consumer");
-    await mkdir(bin);
+    await mkdir(bin, { recursive: true });
     await mkdir(consumer);
     await writeFile(
         join(consumer, "egolint.javascript-package-quality.json"),
@@ -73,6 +75,7 @@ process.exit(fixture.exit[tool] ?? 0);
         process.execPath,
         [resolve("scripts/javascript-package-quality.mjs"), "--workspace", consumer],
         {
+            cwd: root,
             encoding: "utf8",
             timeout: 30000,
             env: {

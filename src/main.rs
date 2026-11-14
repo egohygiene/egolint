@@ -87,6 +87,10 @@ enum Command {
     },
     /// Print the redacted execution plan without starting a container.
     Plan(RunArgs),
+    /// Print the compiled capability registry without executing tools.
+    Capabilities,
+    /// Create candidate baseline bytes from an exact clean source report.
+    Baseline(BaselineArgs),
     /// Validate configuration and container-runtime readiness.
     Doctor(RunArgs),
     /// Inspect effective configuration and provenance.
@@ -106,6 +110,24 @@ enum Command {
         #[arg(value_enum, default_value_t = SchemaKind::Config)]
         kind: SchemaKind,
     },
+}
+
+#[derive(Debug, Args)]
+struct BaselineArgs {
+    #[arg(long)]
+    report: PathBuf,
+    #[arg(long)]
+    output: PathBuf,
+    #[arg(long)]
+    repository: String,
+    #[arg(long)]
+    evaluation_date: String,
+    #[arg(long)]
+    expires_on: String,
+    #[arg(long)]
+    reviewed_by: String,
+    #[arg(long)]
+    review_reference: String,
 }
 
 #[derive(Debug, Subcommand)]
@@ -149,6 +171,15 @@ enum IntelligenceCommand {
 
 #[derive(Debug, Clone, Args, Default)]
 struct RunArgs {
+    /// Run pinned, check-only advisory structural rules on applicable source.
+    #[arg(long)]
+    ast_grep: bool,
+    /// Adoption mode; configuration and execution failures remain blocking.
+    #[arg(long, value_enum)]
+    enforcement: Option<egolint::enforcement::EnforcementMode>,
+    /// Caller invocation; defaults to observed CI event or local execution.
+    #[arg(long, value_enum)]
+    invocation: Option<egolint::enforcement::Invocation>,
     /// Named lint profile.
     #[arg(long, value_enum)]
     profile: Option<Profile>,
@@ -250,7 +281,7 @@ struct RunArgs {
     suppressions: Vec<PathBuf>,
 
     /// Auditable suppression evaluation date in YYYY-MM-DD form.
-    #[arg(long, requires = "suppressions")]
+    #[arg(long)]
     evaluation_date: Option<String>,
 
     /// Explicit repository-release rollout selected by an authorized planner.
@@ -320,6 +351,10 @@ enum SchemaKind {
     IssueTitleSnapshot,
     IssueTitleReport,
     IssueTitleProposal,
+    CapabilityRegistry,
+    CapabilityDecision,
+    Baseline,
+    Enforcement,
 }
 
 fn main() -> ExitCode {
@@ -376,6 +411,16 @@ fn run(cli: Cli) -> Result<i32, EgolintError> {
             print_plan(&plan, arguments.format)?;
             Ok(0)
         }
+        Command::Capabilities => {
+            println!(
+                "{}",
+                serde_json::to_string_pretty(
+                    &egolint::capabilities::CapabilityRegistry::built_in()?
+                )?
+            );
+            Ok(0)
+        }
+        Command::Baseline(arguments) => execute_baseline(&workspace, arguments),
         Command::Doctor(arguments) => {
             let (_, plan) = build(
                 &workspace,
@@ -397,6 +442,106 @@ fn run(cli: Cli) -> Result<i32, EgolintError> {
             Ok(0)
         }
     }
+}
+
+fn evaluate_structural(
+    plan: &ExecutionPlan,
+    findings: &mut Vec<Finding>,
+) -> Result<Option<ToolResult>, EgolintError> {
+    let selected = plan.view.capabilities.iter().any(|c| {
+        c.id == egolint::structural::TOOL_ID
+            && c.applicable
+            && matches!(
+                c.state,
+                egolint::capabilities::CapabilityState::Selected
+                    | egolint::capabilities::CapabilityState::Unavailable
+            )
+    });
+    if !selected {
+        return Ok(None);
+    }
+    let result = egolint::structural::run(&plan.view.workspace)?;
+    findings.extend(result.findings);
+    Ok(Some(result.tool))
+}
+
+fn execute_baseline(workspace: &Path, arguments: BaselineArgs) -> Result<i32, EgolintError> {
+    let path = workspace.join(&arguments.report);
+    let metadata = path
+        .symlink_metadata()
+        .map_err(|source| EgolintError::Filesystem {
+            path: path.clone(),
+            source,
+        })?;
+    if !metadata.is_file() || metadata.file_type().is_symlink() || metadata.len() > 16 * 1024 * 1024
+    {
+        return Err(EgolintError::Configuration(
+            "baseline report must be a bounded regular file".to_owned(),
+        ));
+    }
+    let report: RunReport = serde_json::from_slice(
+        &std::fs::read(&path).map_err(|source| EgolintError::Filesystem { path, source })?,
+    )?;
+    let baseline = egolint::enforcement::Baseline::from_report(
+        workspace,
+        &report,
+        arguments.repository,
+        arguments.evaluation_date,
+        arguments.expires_on,
+        arguments.reviewed_by,
+        arguments.review_reference,
+    )?;
+    let digest = baseline.write_new(workspace, &arguments.output)?;
+    println!(
+        "Candidate baseline written; SHA-256: {digest}. Review metadata is caller-supplied, not independently authenticated."
+    );
+    Ok(0)
+}
+
+fn apply_adoption(
+    workspace: &Path,
+    resolved: &ResolvedConfig,
+    plan: &ExecutionPlan,
+    report: &mut RunReport,
+    evaluation_date: Option<&str>,
+) -> Result<(), EgolintError> {
+    let decision = egolint::enforcement::evaluate(
+        workspace,
+        report,
+        &resolved.config.enforcement,
+        plan.view.invocation,
+        evaluation_date,
+    )?;
+    report.egolint_exit_code = decision.effective_exit_code;
+    report.enforcement = Some(decision);
+    report.validate()
+}
+
+fn skip_automatic_manual(
+    workspace: &Path,
+    resolved: &ResolvedConfig,
+    plan: &ExecutionPlan,
+) -> Result<bool, EgolintError> {
+    if !resolved
+        .config
+        .enforcement
+        .should_skip(plan.view.invocation)
+    {
+        return Ok(false);
+    }
+    plan.prepare_report_directory()?;
+    let mut report = RunReport::from_plan(&plan.view, Some(0));
+    report.set_normalized(
+        Vec::new(),
+        Vec::new(),
+        Vec::new(),
+        Vec::new(),
+        ReportCompleteness::Normalized,
+    )?;
+    apply_adoption(workspace, resolved, plan, &mut report, None)?;
+    write_run_outputs(plan, &report, false, None, None, None, None)?;
+    print_findings(&report);
+    Ok(true)
 }
 
 fn execute_intelligence(
@@ -497,6 +642,7 @@ fn build(
     require_runtime: bool,
 ) -> Result<(ResolvedConfig, ExecutionPlan), EgolintError> {
     let overrides = ConfigOverrides {
+        enforcement_mode: arguments.enforcement,
         profile: arguments.profile,
         runtime: arguments.runtime,
         image: arguments.image.clone(),
@@ -505,16 +651,119 @@ fn build(
         megalinter_config: arguments.megalinter_config.clone(),
     };
     let resolved = Config::resolve(workspace, config_path, &overrides)?;
+    validate_native_selection(&resolved, arguments)?;
     let options = plan_options(arguments);
     let plan = ExecutionPlan::build(workspace, &resolved, operation, &options, require_runtime)?;
     Ok((resolved, plan))
 }
 
+fn validate_native_selection(
+    resolved: &ResolvedConfig,
+    arguments: &RunArgs,
+) -> Result<(), EgolintError> {
+    if !resolved.config.capabilities.enabled {
+        return Ok(());
+    }
+    for (id, requested) in [
+        (
+            "EGOLINT_REPOSITORY_RELEASE",
+            arguments.release_adoption_state.is_some(),
+        ),
+        (
+            "EGOLINT_REPOSITORY_CONTRACT",
+            !arguments.repository_contracts.is_empty(),
+        ),
+        (
+            "EGOLINT_REPOSITORY_CONTINUITY",
+            arguments.repository_continuity.is_some(),
+        ),
+        (
+            "EGOLINT_REPOSITORY_INTELLIGENCE",
+            arguments.repository_intelligence.is_some(),
+        ),
+        (
+            "EGOLINT_REPOSITORY_PRESENTATION",
+            arguments.repository_presentation.is_some(),
+        ),
+    ] {
+        if requested
+            && (resolved.config.capabilities.disable.contains(id)
+                || arguments
+                    .disable_linters
+                    .iter()
+                    .any(|disabled| disabled.trim().eq_ignore_ascii_case(id)))
+        {
+            return Err(EgolintError::Configuration(format!(
+                "explicitly requested native capability {id} is disabled by configuration"
+            )));
+        }
+        if !requested
+            && id != "EGOLINT_REPOSITORY_RELEASE"
+            && resolved.config.capabilities.declarations.contains(id)
+        {
+            return Err(EgolintError::Configuration(format!(
+                "native capability {id} requires its explicit CLI policy input"
+            )));
+        }
+    }
+    Ok(())
+}
+
+fn native_capability_selected(plan: &ExecutionPlan, id: &str) -> bool {
+    // Empty decisions preserve legacy profile behavior and bounded fix preview.
+    plan.view.capabilities.is_empty()
+        || plan.view.capabilities.iter().any(|decision| {
+            decision.id == id && decision.state == egolint::capabilities::CapabilityState::Selected
+        })
+}
+
 fn plan_options(arguments: &RunArgs) -> PlanOptions {
     PlanOptions {
+        policy_inputs: arguments
+            .repository_contracts
+            .iter()
+            .chain(&arguments.suppressions)
+            .cloned()
+            .chain(
+                [
+                    arguments.repository_continuity.clone(),
+                    arguments.repository_intelligence.clone(),
+                    arguments.repository_presentation.clone(),
+                ]
+                .into_iter()
+                .flatten(),
+            )
+            .collect(),
+        policy_overrides: vec![format!(
+            "release-adoption:{:?}",
+            arguments.release_adoption_state
+        )],
+        invocation: arguments
+            .invocation
+            .unwrap_or_else(egolint::enforcement::Invocation::from_environment),
         changed_only: arguments.changed_only,
         enable_linters: arguments.enable_linters.clone(),
         disable_linters: arguments.disable_linters.clone(),
+        declared_capabilities: [
+            arguments.ast_grep.then_some("AST_GREP"),
+            (!arguments.repository_contracts.is_empty()).then_some("EGOLINT_REPOSITORY_CONTRACT"),
+            arguments
+                .repository_continuity
+                .as_ref()
+                .map(|_| "EGOLINT_REPOSITORY_CONTINUITY"),
+            arguments
+                .repository_intelligence
+                .as_ref()
+                .map(|_| "EGOLINT_REPOSITORY_INTELLIGENCE"),
+            arguments
+                .repository_presentation
+                .as_ref()
+                .map(|_| "EGOLINT_REPOSITORY_PRESENTATION"),
+        ]
+        .into_iter()
+        .flatten()
+        .map(str::to_owned)
+        .collect(),
     }
 }
 
@@ -608,14 +857,26 @@ fn execute_lint(
     arguments: &RunArgs,
 ) -> Result<i32, EgolintError> {
     begin_native_run(workspace, config_path, arguments)?;
-    let (_, plan) = build(workspace, config_path, Operation::Check, arguments, true)?;
+    let (resolved, plan) = build(workspace, config_path, Operation::Check, arguments, true)?;
+    if skip_automatic_manual(workspace, &resolved, &plan)? {
+        return Ok(0);
+    }
     // Load every repository-owned policy input before invoking the untrusted
     // adapter. The check container receives only a read-only repository mount,
     // but this ordering also prevents a compromised runtime or report mount
     // from selecting a different contract for post-processing.
-    let native = evaluate_native(workspace, arguments)?;
+    let native = evaluate_native(workspace, arguments, &plan)?;
     let mut suppressions = load_suppressions(workspace, arguments)?;
-    let status = plan.execute()?;
+    let engine_selected = plan.view.capabilities.is_empty()
+        || plan.view.capabilities.iter().any(|c| {
+            c.provider == "megalinter"
+                && c.state == egolint::capabilities::CapabilityState::Selected
+        });
+    let status = if engine_selected {
+        plan.execute()?.code()
+    } else {
+        Some(0)
+    };
     plan.validate_report_path()?;
 
     let adapter = normalize_workspace(workspace, plan.view.profile)?;
@@ -623,6 +884,7 @@ fn execute_lint(
         .as_ref()
         .map_or_else(Vec::new, |normalized| normalized.tool_results.clone());
     let mut findings = native.findings;
+    let structural_tool = evaluate_structural(&plan, &mut findings)?;
     let mut evidence = native.evidence;
     let continuity_report = native.continuity_report;
     let continuity_rollout = native.continuity_rollout;
@@ -635,13 +897,15 @@ fn execute_lint(
         findings.extend(normalized.findings);
         evidence.extend(normalized.evidence);
         normalized.completeness
-    } else {
+    } else if engine_selected {
         ReportCompleteness::Partial
+    } else {
+        ReportCompleteness::Normalized
     };
-    if !matches!(status.code(), Some(exit_code::CLEAN | exit_code::FINDINGS)) {
+    if !matches!(status, Some(exit_code::CLEAN | exit_code::FINDINGS)) {
         completeness = ReportCompleteness::Partial;
     }
-    add_runtime_failure(status.code(), &mut tool_results);
+    add_runtime_failure(status, &mut tool_results);
     evaluate_suppressions(
         &mut findings,
         &mut suppressions,
@@ -654,13 +918,24 @@ fn execute_lint(
         continuity_rollout,
         intelligence_enforcement,
         presentation_mode,
-        &release_report,
+        release_report.as_ref(),
         !suppressions.is_empty(),
+        &plan,
     );
     reconcile_suppressed_tool_results(&mut tool_results, &findings);
+    if let Some(tool) = structural_tool {
+        tool_results.push(tool);
+    }
 
-    let mut report = RunReport::from_plan(&plan.view, status.code());
+    let mut report = RunReport::from_plan(&plan.view, status);
     report.set_normalized(tool_results, findings, suppressions, evidence, completeness)?;
+    apply_adoption(
+        workspace,
+        &resolved,
+        &plan,
+        &mut report,
+        arguments.evaluation_date.as_deref(),
+    )?;
     write_run_outputs(
         &plan,
         &report,
@@ -668,11 +943,13 @@ fn execute_lint(
         continuity_report.as_ref(),
         intelligence_report.as_ref(),
         presentation_report.as_ref(),
-        Some(&release_report),
+        release_report.as_ref(),
     )?;
     print_findings(&report);
-    println!("{}", release_report.render_text());
-    Ok(report.status.exit_code())
+    if let Some(release_report) = &release_report {
+        println!("{}", release_report.render_text());
+    }
+    Ok(report.egolint_exit_code)
 }
 
 fn execute_validate(
@@ -681,10 +958,29 @@ fn execute_validate(
     arguments: &RunArgs,
 ) -> Result<i32, EgolintError> {
     begin_native_run(workspace, config_path, arguments)?;
-    let (_, plan) = build(workspace, config_path, Operation::Check, arguments, false)?;
+    let (resolved, mut plan) = build(workspace, config_path, Operation::Check, arguments, false)?;
+    if skip_automatic_manual(workspace, &resolved, &plan)? {
+        return Ok(0);
+    }
+    for decision in &mut plan.view.capabilities {
+        if matches!(
+            decision.placement,
+            egolint::capabilities::Placement::FullImage
+                | egolint::capabilities::Placement::ConfigurationOnly
+                | egolint::capabilities::Placement::SpecializedImage
+        ) && matches!(
+            decision.state,
+            egolint::capabilities::CapabilityState::Selected
+                | egolint::capabilities::CapabilityState::Unavailable
+        ) {
+            decision.state = egolint::capabilities::CapabilityState::Skipped;
+            "not_executed_by_native_validation".clone_into(&mut decision.reason);
+        }
+    }
     plan.prepare_report_directory()?;
-    let native = evaluate_native(workspace, arguments)?;
+    let native = evaluate_native(workspace, arguments, &plan)?;
     let mut findings = native.findings;
+    let structural_tool = evaluate_structural(&plan, &mut findings)?;
     let continuity_report = native.continuity_report;
     let continuity_rollout = native.continuity_rollout;
     let intelligence_report = native.intelligence_report;
@@ -706,16 +1002,27 @@ fn execute_validate(
         continuity_rollout,
         intelligence_enforcement,
         presentation_mode,
-        &release_report,
+        release_report.as_ref(),
         !suppressions.is_empty(),
+        &plan,
     );
+    if let Some(tool) = structural_tool {
+        tool_results.push(tool);
+    }
     let mut report = RunReport::from_plan(&plan.view, Some(exit_code::CLEAN));
     report.set_normalized(
         tool_results,
         findings,
         suppressions,
         native.evidence,
-        ReportCompleteness::Partial,
+        ReportCompleteness::Normalized,
+    )?;
+    apply_adoption(
+        workspace,
+        &resolved,
+        &plan,
+        &mut report,
+        arguments.evaluation_date.as_deref(),
     )?;
     write_run_outputs(
         &plan,
@@ -724,11 +1031,13 @@ fn execute_validate(
         continuity_report.as_ref(),
         intelligence_report.as_ref(),
         presentation_report.as_ref(),
-        Some(&release_report),
+        release_report.as_ref(),
     )?;
     print_findings(&report);
-    println!("{}", release_report.render_text());
-    Ok(report.status.exit_code())
+    if let Some(release_report) = &release_report {
+        println!("{}", release_report.render_text());
+    }
+    Ok(report.egolint_exit_code)
 }
 
 fn execute_gitignore(
@@ -738,13 +1047,16 @@ fn execute_gitignore(
 ) -> Result<i32, EgolintError> {
     begin_report_run(workspace, config_path, &[arguments.policy.as_path()])?;
     let policy = RepositoryGitignorePolicy::load(workspace, &arguments.policy)?;
-    let (_, plan) = build(
+    let (resolved, plan) = build(
         workspace,
         config_path,
         Operation::Check,
         &RunArgs::default(),
         false,
     )?;
+    if skip_automatic_manual(workspace, &resolved, &plan)? {
+        return Ok(0);
+    }
     plan.prepare_report_directory()?;
     let evaluation = evaluate_gitignore(
         workspace,
@@ -771,6 +1083,13 @@ fn execute_gitignore(
         }],
         ReportCompleteness::Partial,
     )?;
+    apply_adoption(
+        workspace,
+        &resolved,
+        &plan,
+        &mut report,
+        Some(&arguments.evaluation_date),
+    )?;
     write_gitignore_report_atomic(
         &evaluation.report,
         &workspace.join(repository_gitignore::REPORT_PATH),
@@ -784,7 +1103,7 @@ fn execute_gitignore(
             .unwrap_or("incomplete"),
         repository_gitignore::REPORT_PATH
     );
-    Ok(report.status.exit_code())
+    Ok(report.egolint_exit_code)
 }
 
 fn execute_fix_preview(
@@ -792,10 +1111,15 @@ fn execute_fix_preview(
     config_path: Option<&Path>,
     arguments: &RunArgs,
 ) -> Result<i32, EgolintError> {
+    if arguments.ast_grep {
+        return Err(EgolintError::Configuration(
+            "ast-grep is check-only and cannot be selected for fix preview".to_owned(),
+        ));
+    }
     begin_native_run(workspace, config_path, arguments)?;
     let (resolved, plan) = build(workspace, config_path, Operation::Fix, arguments, false)?;
     let outcome = run_isolated_fix(workspace, &resolved, &plan_options(arguments))?;
-    let native = evaluate_native(workspace, arguments)?;
+    let native = evaluate_native(workspace, arguments, &plan)?;
     let mut findings = native.findings;
     let continuity_report = native.continuity_report;
     let continuity_rollout = native.continuity_rollout;
@@ -818,8 +1142,9 @@ fn execute_fix_preview(
         continuity_rollout,
         intelligence_enforcement,
         presentation_mode,
-        &release_report,
+        release_report.as_ref(),
         !suppressions.is_empty(),
+        &plan,
     );
     let mut report = RunReport::from_plan(&plan.view, outcome.adapter_exit_code);
     let mut evidence = native.evidence;
@@ -846,10 +1171,12 @@ fn execute_fix_preview(
         continuity_report.as_ref(),
         intelligence_report.as_ref(),
         presentation_report.as_ref(),
-        Some(&release_report),
+        release_report.as_ref(),
     )?;
     print_findings(&report);
-    println!("{}", release_report.render_text());
+    if let Some(release_report) = &release_report {
+        println!("{}", release_report.render_text());
+    }
     println!("Fix preview: {}", outcome.patch_path.display());
     println!("Patch SHA-256: {}", outcome.patch_sha256);
     println!("Base commit: {}", outcome.base_commit);
@@ -877,50 +1204,64 @@ struct NativeEvaluation {
     intelligence_enforcement: Option<IntelligenceEnforcement>,
     presentation_report: Option<RepositoryPresentationReport>,
     presentation_mode: Option<PresentationMode>,
-    release_report: RepositoryReleaseReport,
+    release_report: Option<RepositoryReleaseReport>,
 }
 
 #[allow(clippy::too_many_lines)]
 fn evaluate_native(
     workspace: &Path,
     arguments: &RunArgs,
+    plan: &ExecutionPlan,
 ) -> Result<NativeEvaluation, EgolintError> {
     let inventory = RepositoryInventory::discover(workspace)?;
-    let portability = PortabilityRuleSet::bundled()?;
-    let mut findings = portability.evaluate(&inventory)?;
-    let mut evidence = vec![EvidenceReference {
-        schema_version: CONTRACT_VERSION,
-        kind: EvidenceKind::Policy,
-        path: PathBuf::from(".config/rules/portability.toml"),
-        sha256: None,
-        description: Some("Egolint's embedded versioned portability rule catalog.".to_owned()),
-    }];
-    let release_evaluation = RepositoryReleaseEvaluator::bundled()?
-        .evaluate(&inventory, arguments.release_adoption_state)?;
-    findings.extend(release_evaluation.findings);
-    let release_report = release_evaluation.report;
-    evidence.push(EvidenceReference {
-        schema_version: CONTRACT_VERSION,
-        kind: EvidenceKind::Policy,
-        path: PathBuf::from("vendor/hygiene/repository-release-policy.v1.json"),
-        sha256: Some(release_report.policy.hygiene_source.sha256.clone()),
-        description: Some("Immutable Hygiene repository-release applicability profile.".to_owned()),
-    });
-    evidence.push(EvidenceReference {
-        schema_version: CONTRACT_VERSION,
-        kind: EvidenceKind::Other,
-        path: PathBuf::from(REPOSITORY_RELEASE_REPORT),
-        sha256: None,
-        description: Some("Focused offline repository-release applicability evidence.".to_owned()),
-    });
-    if release_report.declaration.state == ReleaseDeclarationState::Present {
+    let mut findings = Vec::new();
+    let mut evidence = Vec::new();
+    if native_capability_selected(plan, "EGOLINT_PORTABILITY") {
+        findings.extend(PortabilityRuleSet::bundled()?.evaluate(&inventory)?);
         evidence.push(EvidenceReference {
             schema_version: CONTRACT_VERSION,
-            kind: EvidenceKind::Configuration,
-            path: PathBuf::from(REPOSITORY_RELEASE_DECLARATION),
-            sha256: release_report.declaration.sha256.clone(),
-            description: Some("Repository-owned Aether release declaration.".to_owned()),
+            kind: EvidenceKind::Policy,
+            path: PathBuf::from(".config/rules/portability.toml"),
+            sha256: None,
+            description: Some("Egolint's embedded versioned portability rule catalog.".to_owned()),
         });
+    }
+    let release_report = if native_capability_selected(plan, "EGOLINT_REPOSITORY_RELEASE") {
+        let evaluation = RepositoryReleaseEvaluator::bundled()?
+            .evaluate(&inventory, arguments.release_adoption_state)?;
+        findings.extend(evaluation.findings);
+        Some(evaluation.report)
+    } else {
+        None
+    };
+    if let Some(release_report) = &release_report {
+        evidence.push(EvidenceReference {
+            schema_version: CONTRACT_VERSION,
+            kind: EvidenceKind::Policy,
+            path: PathBuf::from("vendor/hygiene/repository-release-policy.v1.json"),
+            sha256: Some(release_report.policy.hygiene_source.sha256.clone()),
+            description: Some(
+                "Immutable Hygiene repository-release applicability profile.".to_owned(),
+            ),
+        });
+        evidence.push(EvidenceReference {
+            schema_version: CONTRACT_VERSION,
+            kind: EvidenceKind::Other,
+            path: PathBuf::from(REPOSITORY_RELEASE_REPORT),
+            sha256: None,
+            description: Some(
+                "Focused offline repository-release applicability evidence.".to_owned(),
+            ),
+        });
+        if release_report.declaration.state == ReleaseDeclarationState::Present {
+            evidence.push(EvidenceReference {
+                schema_version: CONTRACT_VERSION,
+                kind: EvidenceKind::Configuration,
+                path: PathBuf::from(REPOSITORY_RELEASE_DECLARATION),
+                sha256: release_report.declaration.sha256.clone(),
+                description: Some("Repository-owned Aether release declaration.".to_owned()),
+            });
+        }
     }
     for contract_path in &arguments.repository_contracts {
         let (relative, contents) = read_workspace_file(workspace, contract_path, 4 * 1024 * 1024)?;
@@ -1234,14 +1575,26 @@ fn add_native_tool_results(
     continuity_rollout: Option<ContinuityRolloutStage>,
     intelligence_enforcement: Option<IntelligenceEnforcement>,
     presentation_mode: Option<PresentationMode>,
-    release_report: &RepositoryReleaseReport,
+    release_report: Option<&RepositoryReleaseReport>,
     suppressions_evaluated: bool,
+    plan: &ExecutionPlan,
 ) {
-    tool_results.push(native_tool_result(
-        "EGOLINT_PORTABILITY",
-        findings,
-        Enforcement::Blocking,
-    ));
+    if native_capability_selected(plan, "EGOLINT_PORTABILITY") {
+        tool_results.push(native_tool_result(
+            "EGOLINT_PORTABILITY",
+            findings,
+            Enforcement::Blocking,
+        ));
+    }
+    for decision in &plan.view.capabilities {
+        if decision.placement == egolint::capabilities::Placement::Native
+            && decision.reason == "disabled_by_configuration"
+        {
+            let mut result = native_tool_result(&decision.id, &[], Enforcement::Disabled);
+            result.status = ToolStatus::DisabledByConfiguration;
+            tool_results.push(result);
+        }
+    }
     if contracts_evaluated {
         tool_results.push(native_tool_result(
             "EGOLINT_REPOSITORY_CONTRACT",
@@ -1281,7 +1634,9 @@ fn add_native_tool_results(
             },
         ));
     }
-    tool_results.push(release_tool_result(release_report, findings));
+    if let Some(release_report) = release_report {
+        tool_results.push(release_tool_result(release_report, findings));
+    }
     if suppressions_evaluated {
         tool_results.push(native_tool_result(
             "EGOLINT_SUPPRESSIONS",
@@ -1434,6 +1789,9 @@ fn write_run_outputs(
 }
 
 fn print_findings(report: &RunReport) {
+    if let Some(decision) = &report.enforcement {
+        println!("{}", decision.render_text());
+    }
     for finding in &report.findings {
         let severity = match finding.severity {
             Severity::Info => "info",
@@ -1526,6 +1884,17 @@ fn print_plan(plan: &ExecutionPlan, format: OutputFormat) -> Result<(), EgolintE
             for source in &plan.view.config_sources {
                 println!("    - {source}");
             }
+            println!("  capabilities (selection is not execution evidence):");
+            for decision in &plan.view.capabilities {
+                println!(
+                    "    {}: {:?}; available={}; applicable={}; {}",
+                    decision.id,
+                    decision.state,
+                    decision.available,
+                    decision.applicable,
+                    decision.reason
+                );
+            }
             println!("  argv (environment values redacted; not shell syntax):");
             for (index, argument) in plan.view.argv.iter().enumerate() {
                 println!("    [{index}] {}", serde_json::to_string(argument)?);
@@ -1567,6 +1936,14 @@ fn print_config(resolved: &ResolvedConfig, format: OutputFormat) -> Result<(), E
 fn print_schema(kind: SchemaKind) -> Result<(), EgolintError> {
     let schema = match kind {
         SchemaKind::Config => schemars::schema_for!(Config),
+        SchemaKind::CapabilityRegistry => {
+            schemars::schema_for!(egolint::capabilities::CapabilityRegistry)
+        }
+        SchemaKind::CapabilityDecision => {
+            schemars::schema_for!(egolint::capabilities::CapabilityDecision)
+        }
+        SchemaKind::Baseline => schemars::schema_for!(egolint::enforcement::Baseline),
+        SchemaKind::Enforcement => schemars::schema_for!(egolint::enforcement::EnforcementDecision),
         SchemaKind::Profile => schemars::schema_for!(egolint::ProfileDefinition),
         SchemaKind::Finding => schemars::schema_for!(egolint::Finding),
         SchemaKind::Suppression => schemars::schema_for!(egolint::Suppression),
