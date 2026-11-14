@@ -85,14 +85,14 @@ def load_config(path: Path) -> dict[str, Any]:
         raise ConfigurationError("JSONSkooma mapping must be valid UTF-8 JSON") from error
     if not isinstance(value, dict):
         raise ConfigurationError("JSONSkooma mapping must contain one object")
-    if value.get("schema_version") != 1:
+    if type(value.get("schema_version")) is not int or value["schema_version"] != 1:
         raise ConfigurationError("JSONSkooma mapping schema_version must equal 1")
     allowed_keys = {"schema_version", "mode", "mappings"}
     unexpected = sorted(set(value) - allowed_keys)
     if unexpected:
         raise ConfigurationError(f"unsupported JSONSkooma mapping keys: {', '.join(unexpected)}")
     mode = value.get("mode", "auto")
-    if mode not in {"auto", "enabled", "disabled"}:
+    if not isinstance(mode, str) or mode not in {"auto", "enabled", "disabled"}:
         raise ConfigurationError("JSONSkooma mode must be auto, enabled, or disabled")
     value["mode"] = mode
     return value
@@ -221,6 +221,9 @@ def main() -> int:
     if options.version:
         print(f"egolint-json-skooma {ADAPTER_VERSION} (json_skooma {VALIDATOR_VERSION})")
         return 0
+    # Relative report paths belong to the invocation directory, including when
+    # the Ruby child runs with the selected workspace as its working directory.
+    report = "-" if options.report == "-" else str(Path(options.report).resolve())
     started_at = time.monotonic()
     try:
         workspace = options.workspace.resolve(strict=True)
@@ -237,12 +240,12 @@ def main() -> int:
             "network": "disabled-by-contract",
             "mappings": [],
         }
-        write_report(options.report, payload)
+        write_report(report, payload)
         return 2
 
     if applicability.status != "applicable":
         write_report(
-            options.report,
+            report,
             base_report(applicability, time.monotonic() - started_at),
         )
         return 0
@@ -255,7 +258,7 @@ def main() -> int:
         "--config",
         str(applicability.config_path),
         "--report",
-        options.report,
+        report,
     ]
     environment = os.environ.copy()
     environment["EGOLINT_JSON_SKOOMA_NETWORK"] = "none"
@@ -272,7 +275,7 @@ def main() -> int:
         payload = base_report(applicability, time.monotonic() - started_at)
         payload["status"] = "unavailable" if isinstance(error, OSError) else "timed_out"
         payload["reason"] = "ruby-adapter-unavailable" if isinstance(error, OSError) else "timeout"
-        write_report(options.report, payload)
+        write_report(report, payload)
         return 3
     return int(completed.returncode)
 
