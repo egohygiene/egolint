@@ -88,7 +88,9 @@ title = "Multi-OS workflow run steps must select an explicit shell"
 category = "shell"
 severity = "warning"
 suppressible = true
-description = "GitHub selects different default shells on Windows and non-Windows runners; an explicit shell makes command semantics reviewable."
+description = "Resolve bounded static matrix axes/include/exclude and exact selectors; advise when a multi-OS run step omits step, job and workflow shell selection."
 evidence = [
   "https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_iddefaultsrun",
+  "https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idstrategymatrixinclude",
+  "https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idstrategymatrixexclude",
 ]
