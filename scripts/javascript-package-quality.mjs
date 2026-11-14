@@ -96,26 +96,47 @@ async function readJson(path, label) {
     }
 }
 
-function validateManifest(manifest) {
+async function validateManifest(manifest) {
+    const schema = await readJson(
+        resolve(repositoryRoot, "schemas/javascript-package-quality-manifest.schema.json"),
+        "canonical manifest schema",
+    );
+    if (manifest === null || typeof manifest !== "object" || Array.isArray(manifest)) {
+        throw configurationError("manifest must contain one object");
+    }
+    for (const key of Object.keys(manifest)) {
+        if (!Object.hasOwn(schema.properties, key)) {
+            throw configurationError(`unsupported manifest field: ${key}`);
+        }
+    }
+    if (manifest.$schema !== undefined && typeof manifest.$schema !== "string") {
+        throw configurationError("manifest $schema must be a string");
+    }
     if (manifest?.schema_version !== CONTRACT_VERSION) {
         throw configurationError(`manifest schema_version must equal ${CONTRACT_VERSION}`);
     }
-    if (!new Set(["base", "react-library"]).has(manifest.profile)) {
+    if (!schema.properties.profile.enum.includes(manifest.profile)) {
         throw configurationError("manifest profile must be base or react-library");
     }
     if (typeof manifest.package_path !== "string" || manifest.package_path.trim() === "") {
         throw configurationError("manifest package_path must be a nonempty relative path");
     }
-    if (manifest.package_path.includes("\\") || isAbsolute(manifest.package_path)) {
+    if (
+        !new RegExp(schema.properties.package_path.pattern, "u").test(manifest.package_path) ||
+        isAbsolute(manifest.package_path)
+    ) {
         throw configurationError(
             "manifest package_path must use portable workspace-relative syntax",
         );
     }
-    if (!new Set(["npm", "private"]).has(manifest.publication)) {
+    if (!schema.properties.publication.enum.includes(manifest.publication)) {
         throw configurationError("manifest publication must be npm or private");
     }
     if (manifest.ignore !== undefined) {
-        if (!Array.isArray(manifest.ignore) || manifest.ignore.length > 128) {
+        if (
+            !Array.isArray(manifest.ignore) ||
+            manifest.ignore.length > schema.properties.ignore.maxItems
+        ) {
             throw configurationError("manifest ignore must contain at most 128 relative patterns");
         }
         for (const pattern of manifest.ignore) {
@@ -123,7 +144,7 @@ function validateManifest(manifest) {
                 typeof pattern !== "string" ||
                 pattern.trim() === "" ||
                 pattern.startsWith("!") ||
-                pattern.includes("\\") ||
+                !new RegExp(schema.properties.ignore.items.pattern, "u").test(pattern) ||
                 isAbsolute(pattern) ||
                 pattern.split("/").includes("..")
             ) {
@@ -131,6 +152,9 @@ function validateManifest(manifest) {
                     "manifest ignore patterns must be nonempty, portable, workspace-relative globs",
                 );
             }
+        }
+        if (new Set(manifest.ignore).size !== manifest.ignore.length) {
+            throw configurationError("manifest ignore entries must be unique");
         }
     }
 }
@@ -844,7 +868,7 @@ async function main() {
     const jsonReportPath = validateReportPath(workspace, values.output, "JSON report");
     const sarifReportPath = validateReportPath(workspace, values.sarif, "SARIF report");
     const manifest = await readJson(manifestPath, "JavaScript package-quality manifest");
-    validateManifest(manifest);
+    await validateManifest(manifest);
 
     const profile = await readJson(resolve(repositoryRoot, POLICY_PATH), "canonical profile");
     validateProfile(profile, manifest);

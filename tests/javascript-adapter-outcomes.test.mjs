@@ -3,7 +3,7 @@
 
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { chmod, cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { access, chmod, cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { delimiter, join, resolve } from "node:path";
 import test from "node:test";
@@ -31,6 +31,8 @@ async function invoke(
         signal = {},
         publication = "private",
         missingExecutable = false,
+        manifestValue,
+        invalidManifest = false,
     } = {},
 ) {
     const root = await mkdtemp(join(tmpdir(), "egolint-js-protocol-"));
@@ -43,12 +45,16 @@ async function invoke(
     await mkdir(consumer);
     await writeFile(
         join(consumer, "egolint.javascript-package-quality.json"),
-        JSON.stringify({
-            schema_version: 1,
-            profile: "base",
-            package_path: ".",
-            publication,
-        }),
+        JSON.stringify(
+            manifestValue === undefined
+                ? {
+                      schema_version: 1,
+                      profile: "base",
+                      package_path: ".",
+                      publication,
+                  }
+                : manifestValue,
+        ),
     );
     await writeFile(
         join(consumer, "package.json"),
@@ -64,6 +70,7 @@ async function invoke(
         `#!${process.execPath}
 const tool = process.argv.includes("oxlint") ? "oxlint" : "biome";
 const fixture = JSON.parse(process.env.EGOLINT_TEST_ADAPTERS);
+require("node:fs").appendFileSync(process.env.EGOLINT_TEST_LAUNCH_LOG, "called\\n");
 if (process.argv.includes("pack")) process.exit(2);
 if (fixture.signal[tool]) process.kill(process.pid, fixture.signal[tool]);
 process.stdout.write(fixture.raw[tool] ?? JSON.stringify(fixture[tool]));
@@ -84,10 +91,20 @@ process.exit(fixture.exit[tool] ?? 0);
                     ? join(root, "missing-bin")
                     : `${bin}${delimiter}${process.env.PATH}`,
                 EGOLINT_TEST_ADAPTERS: JSON.stringify({ oxlint, biome, exit, raw, signal }),
+                EGOLINT_TEST_LAUNCH_LOG: join(root, "adapter-launch.log"),
             },
         },
     );
     assert.ifError(result.error);
+    if (invalidManifest) {
+        assert.equal(result.status, 2, result.stderr);
+        assert.match(result.stderr, /configuration error:/);
+        await assert.rejects(access(join(root, "adapter-launch.log")));
+        await assert.rejects(
+            access(join(consumer, ".reports/egolint/javascript-package-quality.json")),
+        );
+        return { result };
+    }
     let report;
     try {
         report = JSON.parse(
@@ -113,6 +130,31 @@ process.exit(fixture.exit[tool] ?? 0);
         ),
     };
 }
+
+test("closed manifest grammar agrees with schema vectors before adapter launch", {
+    skip: process.platform === "win32",
+}, async (suite) => {
+    const cases = JSON.parse(
+        await readFile(
+            new URL("./fixtures/javascript-package-quality/manifest-cases.json", import.meta.url),
+            "utf8",
+        ),
+    );
+    for (const fixture of cases) {
+        await suite.test(fixture.name, async (t) => {
+            const observed = await invoke(t, {
+                manifestValue: fixture.manifest,
+                invalidManifest: !fixture.valid,
+            });
+            assert.equal(observed.result.status, fixture.valid ? 0 : 2, observed.result.stderr);
+            if (fixture.valid) {
+                assert.deepEqual(observed.report.findings, []);
+                assert.equal(observed.report.profile.variant, fixture.manifest.profile);
+                assert.equal(observed.statuses.PUBLINT, "not_applicable");
+            }
+        });
+    }
+});
 
 test("adapter clean controls and SARIF pass semantics", {
     skip: process.platform === "win32",
